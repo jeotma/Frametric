@@ -1,0 +1,45 @@
+# === .NET / Visual Studio Code ===
+# Build outputs
+bin/
+obj/
+# IDE specific files
+.vscode/
+*.user
+*.userosscache
+*.sln.doccache
+.DS_Store
+
+# Secrets and Local Configuration
+# Do not commit sensitive data or local environment settings
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+.env
+
+# === Angular / Frontend ===
+# Dependencies and build artifacts
+node_modules/
+dist/
+.angular/
+.cache/
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# Configuration files usually kept local
+.editorconfig
+.browserslistrc
+
+# === Infrastructure and Database ===
+# Docker and local database storage
+.docker/
+postgres-data/
+*.db
+*.db-shm
+*.db-wal
+
+# === Logs and Observability ===
+# Monitoring and tracing logs (Serilog/OpenTelemetry)
+logs/
+*.log
+.pnpm-debug.log*
