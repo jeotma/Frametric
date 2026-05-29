@@ -43,3 +43,7 @@ postgres-data/
 logs/
 *.log
 .pnpm-debug.log*
+
+# === Sample Data ===
+# Ignore all local test files and personal exports
+SampleData/
