@@ -49,3 +49,7 @@ logs/
 SampleData/
 
 AGENTS.md
+
+# === Scratch / Diagnostic Scripts ===
+# Local one-off diagnostic and dev tools, never committed
+scratch/

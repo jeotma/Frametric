@@ -49,4 +49,9 @@ public class Movie
     {
         EnrichmentStatus = EnrichmentStatus.Failed;
     }
+
+    public void MarkAsNotFound()
+    {
+        EnrichmentStatus = EnrichmentStatus.NotFound;
+    }
 }

@@ -23,6 +23,9 @@ public class TmdbEnrichmentBackgroundService : BackgroundService
     {
         _logger.LogInformation("TmdbEnrichmentBackgroundService started. Waiting for triggers...");
 
+        // Auto-trigger on startup in case there are movies left pending from a previous session
+        _trigger.TriggerEnrichment();
+
         await foreach (var _ in _trigger.ReadAllAsync(stoppingToken))
         {
             _logger.LogInformation("Enrichment triggered. Processing pending movies...");

@@ -23,7 +23,7 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
             .Include(m => m.Genres)
             .Include(m => m.Directors)
             .Include(m => m.Actors)
-            .Where(m => m.EnrichmentStatus == EnrichmentStatus.Pending)
+            .Where(m => m.EnrichmentStatus == EnrichmentStatus.Pending || m.EnrichmentStatus == EnrichmentStatus.Failed)
             .Take(request.BatchSize)
             .ToListAsync(cancellationToken);
 
@@ -37,7 +37,8 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
 
             if (tmdbData == null)
             {
-                movie.MarkEnrichmentFailed();
+                // All 6 search strategies exhausted — mark as NotFound so it is never retried
+                movie.MarkAsNotFound();
                 continue;
             }
 
