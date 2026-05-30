@@ -1,0 +1,33 @@
+// Frametric Design System — SCSS Variables Partial
+// Maps CSS custom properties to SCSS variables for use in component styles
+
+$font-display: 'Outfit', sans-serif;
+$font-body:    'Inter', sans-serif;
+
+$bg-base:      #0a0c10;
+$bg-secondary: #121620;
+$bg-tertiary:  #1a1f2e;
+
+$text-primary:   #f8fafc;
+$text-secondary: #94a3b8;
+$text-muted:     #64748b;
+
+$accent-purple:  #c084fc;
+$accent-indigo:  #818cf8;
+$accent-cyan:    #06b6d4;
+$accent-emerald: #10b981;
+$accent-rose:    #f43f5e;
+
+$border-color: rgba(255, 255, 255, 0.08);
+$border-glow:  rgba(192, 132, 252, 0.2);
+
+$glass-bg:     rgba(18, 22, 32, 0.7);
+$glass-blur:   16px;
+$glass-border: rgba(255, 255, 255, 0.06);
+
+$radius-sm: 8px;
+$radius-md: 14px;
+$radius-lg: 24px;
+
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-fast: all 0.15s ease-out;
