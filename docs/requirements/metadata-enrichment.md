@@ -33,7 +33,8 @@ To keep the initial ZIP parsing fast and prevent hitting TMDB API rate limits sy
    - `PosterUrl`
    - List of `Genres`
    - List of `Directors` (via Credits endpoint)
-5. The system saves the new relationships (`GenreMovie`, `DirectorMovie`) to the database.
+   - List of top-billed `Actors` (via Credits endpoint, limited to main cast to avoid DB bloat)
+5. The system saves the new relationships (`GenreMovie`, `DirectorMovie`, `ActorMovie`) to the database.
 6. The `Movie.EnrichmentStatus` is updated to `Completed` (or `Failed` if no match was found).
 
 ### 3. Resilience & Rate Limiting
