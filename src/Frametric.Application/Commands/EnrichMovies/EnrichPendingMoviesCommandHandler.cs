@@ -44,9 +44,16 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
 
             if (tmdbData.IsTvShow)
             {
-                // It's a TV show/miniseries: move it out of Movies into TvShows
-                var tvShow = new TvShow(Guid.NewGuid(), movie.Title, movie.ReleaseYear, tmdbData.TmdbId, tmdbData.PosterUrl);
-                _context.TvShows.Add(tvShow);
+                // It's a TV show/miniseries: check if it already exists in TvShows
+                var exists = await _context.TvShows.AnyAsync(t => t.TmdbId == tmdbData.TmdbId, cancellationToken);
+                if (!exists)
+                {
+                    var tvShowTitle = tmdbData.Title ?? movie.Title;
+                    var tvShowYear = tmdbData.FirstAirYear ?? movie.ReleaseYear;
+                    var tvShow = new TvShow(Guid.NewGuid(), tvShowTitle, tvShowYear, tmdbData.TmdbId, tmdbData.PosterUrl);
+                    _context.TvShows.Add(tvShow);
+                }
+                
                 _context.Movies.Remove(movie);
                 enrichedCount++;
                 continue;

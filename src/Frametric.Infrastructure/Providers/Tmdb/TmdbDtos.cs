@@ -79,6 +79,12 @@ public class TmdbTvDetails
     [JsonPropertyName("id")]
     public int Id { get; set; }
 
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("first_air_date")]
+    public string? FirstAirDate { get; set; }
+
     [JsonPropertyName("episode_run_time")]
     public List<int>? EpisodeRunTime { get; set; }
 
@@ -93,4 +99,29 @@ public class TmdbTvDetails
 
     [JsonPropertyName("credits")]
     public TmdbCredits? Credits { get; set; }
+
+    [JsonPropertyName("seasons")]
+    public List<TmdbSeasonItem>? Seasons { get; set; }
 }
+
+public class TmdbSeasonItem
+{
+    [JsonPropertyName("season_number")]
+    public int SeasonNumber { get; set; }
+}
+
+public class TmdbSeasonDetails
+{
+    [JsonPropertyName("episodes")]
+    public List<TmdbEpisodeItem> Episodes { get; set; } = new();
+}
+
+public class TmdbEpisodeItem
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("runtime")]
+    public int? Runtime { get; set; }
+}
+

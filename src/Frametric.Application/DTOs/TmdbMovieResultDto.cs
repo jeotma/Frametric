@@ -7,7 +7,9 @@ public record TmdbMovieResultDto(
     List<TmdbGenreDto> Genres,
     List<TmdbPersonDto> Directors,
     List<TmdbPersonDto> Actors,
-    bool IsTvShow = false
+    bool IsTvShow = false,
+    string? Title = null,
+    int? FirstAirYear = null
 );
 
 public record TmdbGenreDto(int Id, string Name);
