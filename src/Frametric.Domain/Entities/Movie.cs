@@ -12,6 +12,7 @@ public class Movie
     public string? PosterUrl { get; private set; }
     public EnrichmentStatus EnrichmentStatus { get; private set; }
     public ExternalReference ExternalReference { get; private set; }
+    public bool IsDocumentary { get; private set; }
 
     // Navigation properties
     public ICollection<Genre> Genres { get; private set; } = new List<Genre>();
@@ -33,10 +34,11 @@ public class Movie
         EnrichmentStatus = EnrichmentStatus.Pending;
     }
 
-    public void EnrichMetadata(int runtimeMinutes, string posterUrl, List<Genre> genres, List<Director> directors, List<Actor> actors)
+    public void EnrichMetadata(int runtimeMinutes, string posterUrl, List<Genre> genres, List<Director> directors, List<Actor> actors, bool isDocumentary)
     {
         RuntimeMinutes = runtimeMinutes;
         PosterUrl = posterUrl;
+        IsDocumentary = isDocumentary;
         
         foreach (var genre in genres) Genres.Add(genre);
         foreach (var director in directors) Directors.Add(director);

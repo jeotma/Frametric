@@ -7,18 +7,20 @@ public class TvShow
     public int? FirstAirYear { get; private set; }
     public int TmdbId { get; private set; }
     public string? PosterUrl { get; private set; }
+    public bool IsDocumentary { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
     // Ef Core constructor
     protected TvShow() { }
 
-    public TvShow(Guid id, string title, int? firstAirYear, int tmdbId, string? posterUrl)
+    public TvShow(Guid id, string title, int? firstAirYear, int tmdbId, string? posterUrl, bool isDocumentary)
     {
         Id = id;
         Title = title;
         FirstAirYear = firstAirYear;
         TmdbId = tmdbId;
         PosterUrl = posterUrl;
+        IsDocumentary = isDocumentary;
         CreatedAt = DateTime.UtcNow;
     }
 }

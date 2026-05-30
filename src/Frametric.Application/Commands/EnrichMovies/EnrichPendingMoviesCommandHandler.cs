@@ -50,7 +50,7 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
                 {
                     var tvShowTitle = tmdbData.Title ?? movie.Title;
                     var tvShowYear = tmdbData.FirstAirYear ?? movie.ReleaseYear;
-                    var tvShow = new TvShow(Guid.NewGuid(), tvShowTitle, tvShowYear, tmdbData.TmdbId, tmdbData.PosterUrl);
+                    var tvShow = new TvShow(Guid.NewGuid(), tvShowTitle, tvShowYear, tmdbData.TmdbId, tmdbData.PosterUrl, tmdbData.IsDocumentary);
                     _context.TvShows.Add(tvShow);
                 }
                 
@@ -99,7 +99,7 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
                 actors.Add(actor);
             }
 
-            movie.EnrichMetadata(tmdbData.RuntimeMinutes ?? 0, tmdbData.PosterUrl ?? string.Empty, genres, directors, actors);
+            movie.EnrichMetadata(tmdbData.RuntimeMinutes ?? 0, tmdbData.PosterUrl ?? string.Empty, genres, directors, actors, tmdbData.IsDocumentary);
             enrichedCount++;
         }
 

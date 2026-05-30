@@ -10,7 +10,12 @@ public record TmdbMovieResultDto(
     bool IsTvShow = false,
     string? Title = null,
     int? FirstAirYear = null
-);
+)
+{
+    public const int DocumentaryGenreId = 99;
+
+    public bool IsDocumentary => Genres.Any(g => g.Id == DocumentaryGenreId);
+}
 
 public record TmdbGenreDto(int Id, string Name);
 public record TmdbPersonDto(int Id, string Name);
