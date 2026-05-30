@@ -1,9 +1,38 @@
-# Modules
+# Modules Boundaries & Responsibilities
 
-- Users
-- Authentication
-- Letterboxd
-- Movies
-- Analytics
-- Wrapped
-- Infrastructure
+Frametric is designed as a Modular Monolith. The following modules exist within the application. They communicate through Application layer contracts (Commands/Queries/Events) and avoid direct internal coupling.
+
+## 1. Users
+
+**Responsibility:** Manages internal user profiles, settings, and preferences.
+**Boundaries:** Holds the `User` aggregate root. It is not responsible for authentication.
+
+## 2. Authentication
+
+**Responsibility:** Manages identity, JWT token generation, password hashing, and role-based access.
+**Boundaries:** Interfaces with the Users module only through defined contracts to verify existence.
+
+## 3. Letterboxd Ingestion
+
+**Responsibility:** Dedicated entirely to reading `.zip` files, parsing CSVs, validating missing fields, and orchestrating the translation of Letterboxd models into application Commands.
+**Boundaries:** Exists purely in the Infrastructure/Application layer. It must NEVER pass Letterboxd-specific DTOs directly into the core domain.
+
+## 4. Movies
+
+**Responsibility:** Manages the core cinematic data (`Movie`, `ExternalReference`). Handles deduplication logic when new external references are ingested.
+**Boundaries:** Acts as the central reference point for other modules. The Analytics and Wrapped modules read heavily from here.
+
+## 5. Analytics
+
+**Responsibility:** Generates platform-wide and user-specific statistics (Top Genres, Monthly Activity, Total Runtime).
+**Boundaries:** Relies heavily on Dapper for high-performance read-only queries against the database views.
+
+## 6. Wrapped
+
+**Responsibility:** Orchestrates the yearly/monthly "Wrapped" summary generation.
+**Boundaries:** Aggregates data from the Analytics module and transforms it into highly visual DTOs for the frontend clients.
+
+## 7. Infrastructure
+
+**Responsibility:** Contains EF Core DbContext, Dapper Repositories, CsvHelper logic, external IO operations, and Background Job orchestration (Hangfire/Quartz).
+**Boundaries:** Implements interfaces defined in the Application layer. It is the outermost layer
