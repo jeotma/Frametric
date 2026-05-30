@@ -24,37 +24,44 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
 
         var exportData = await _importer.ImportFromZipAsync(request.ZipStream, cancellationToken);
 
+        string GenerateMovieKey(string title, int? year)
+        {
+            var cleanTitle = title?.Trim().ToLowerInvariant() ?? "unknown";
+            return $"{cleanTitle}-{year ?? 0}";
+        }
+
         // Deduplication & Movie Creation
-        var allUris = exportData.DiaryEntries.Select(x => x.LetterboxdUri)
-            .Union(exportData.Ratings.Select(x => x.LetterboxdUri))
-            .Union(exportData.Watchlist.Select(x => x.LetterboxdUri))
-            .Union(exportData.Likes.Select(x => x.LetterboxdUri))
+        var allKeys = exportData.DiaryEntries.Select(x => GenerateMovieKey(x.Name, x.Year))
+            .Union(exportData.Ratings.Select(x => GenerateMovieKey(x.Name, x.Year)))
+            .Union(exportData.Watchlist.Select(x => GenerateMovieKey(x.Name, x.Year)))
+            .Union(exportData.Likes.Select(x => GenerateMovieKey(x.Name, x.Year)))
             .Distinct()
             .ToList();
 
         var existingMovies = await _context.Movies
-            .Where(m => m.ExternalReference.Source == "Letterboxd" && allUris.Contains(m.ExternalReference.ExternalId))
+            .Where(m => m.ExternalReference.Source == "Letterboxd" && allKeys.Contains(m.ExternalReference.ExternalId))
             .ToDictionaryAsync(m => m.ExternalReference.ExternalId, m => m, cancellationToken);
 
-        var moviesByUri = new Dictionary<string, Movie>(existingMovies);
+        var moviesByKey = new Dictionary<string, Movie>(existingMovies);
 
         // Helper to get or create Movie
-        Movie GetOrCreateMovie(string uri, string title, int? year)
+        Movie GetOrCreateMovie(string title, int? year)
         {
-            if (moviesByUri.TryGetValue(uri, out var existing)) return existing;
+            var key = GenerateMovieKey(title, year);
+            if (moviesByKey.TryGetValue(key, out var existing)) return existing;
             
-            var externalRef = new ExternalReference("Letterboxd", uri);
+            var externalRef = new ExternalReference("Letterboxd", key);
             var newMovie = new Movie(Guid.NewGuid(), title, year, externalRef);
             
+            moviesByKey[key] = newMovie;
             _context.Movies.Add(newMovie);
-            moviesByUri[uri] = newMovie;
             return newMovie;
         }
 
         // Process Diary
         foreach (var entry in exportData.DiaryEntries)
         {
-            var movie = GetOrCreateMovie(entry.LetterboxdUri, entry.Name, entry.Year);
+            var movie = GetOrCreateMovie(entry.Name, entry.Year);
             var diaryEntry = new DiaryEntry(Guid.NewGuid(), user.Id, movie.Id, entry.Date, entry.WatchedDate, entry.Rating, entry.Rewatch, entry.Tags);
             _context.DiaryEntries.Add(diaryEntry);
         }
@@ -62,7 +69,7 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
         // Process Ratings
         foreach (var rating in exportData.Ratings)
         {
-            var movie = GetOrCreateMovie(rating.LetterboxdUri, rating.Name, rating.Year);
+            var movie = GetOrCreateMovie(rating.Name, rating.Year);
             var movieRating = new MovieRating(Guid.NewGuid(), user.Id, movie.Id, rating.Date, rating.Rating);
             _context.MovieRatings.Add(movieRating);
         }
@@ -70,7 +77,7 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
         // Process Watchlist
         foreach (var wItem in exportData.Watchlist)
         {
-            var movie = GetOrCreateMovie(wItem.LetterboxdUri, wItem.Name, wItem.Year);
+            var movie = GetOrCreateMovie(wItem.Name, wItem.Year);
             var watchlistItem = new WatchlistItem(Guid.NewGuid(), user.Id, movie.Id, wItem.Date);
             _context.WatchlistItems.Add(watchlistItem);
         }
@@ -78,7 +85,7 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
         // Process Likes
         foreach (var like in exportData.Likes)
         {
-            var movie = GetOrCreateMovie(like.LetterboxdUri, like.Name, like.Year);
+            var movie = GetOrCreateMovie(like.Name, like.Year);
             var movieLike = new MovieLike(Guid.NewGuid(), user.Id, movie.Id, like.Date);
             _context.MovieLikes.Add(movieLike);
         }
