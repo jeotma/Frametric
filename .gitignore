@@ -47,3 +47,5 @@ logs/
 # === Sample Data ===
 # Ignore all local test files and personal exports
 SampleData/
+
+AGENTS.md

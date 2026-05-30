@@ -92,9 +92,11 @@ External data structures must **never** leak into the core domain. The system in
 
 ### Strict Normalization Rules
 
-1. **Year Formatting:** Input data with decimal values representing years (e.g., `2022.0` inside `watchlist.csv`) must be explicitly cast to an `int`.
-2. **Missing Fields (NaN):** Undefined flags inside rows (e.g., empty `Rewatch` fields) must be automatically resolved into default type values (e.g., `false`).
-3. **Deduplication Strategy:** Prior to entity insertion, the system verifies the `Letterboxd URI` against existing references in the database. If a match is found, the system links the new user activity to the current internal entity instead of duplicating the movie record.
+1. **Year Formatting and Nulls:** Input data with decimal values representing years (e.g., `2022.0` inside `watchlist.csv`) must be explicitly cast to an `int`. Additionally, completely missing/empty years (which occur for unreleased movies) must be handled gracefully as `int?`.
+2. **Boolean Flags (Rewatch):** Undefined or text-based flags inside rows (e.g., `"Yes"` inside the `Rewatch` column) must be automatically resolved into internal boolean default type values (`true` if "Yes", `false` if empty).
+3. **Multiline Strings:** The parsing layer (e.g., CsvHelper) must be configured to support internal newlines inside double-quoted text blocks. This is critical for parsing `reviews.csv` and `comments.csv` without breaking the stream.
+4. **Multi-table and Multi-value Structures:** Custom lists (`lists/*.csv`) contain initial metadata rows that the parser must explicitly skip before reaching tabular data. Also, fields like `Favorite Films` (in `profile.csv`) require manual string splitting (`.Split(',')`).
+5. **Deduplication Strategy:** Prior to entity insertion, the system verifies the `Letterboxd URI` against existing references in the database. If a match is found, the system links the new user activity to the current internal entity instead of duplicating the movie record.
 
 ---
 
