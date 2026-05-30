@@ -61,12 +61,13 @@ User ZIP Upload -> Ingestion Layer -> Normalization Layer -> Persistence Layer -
 
 ## 4. Project Directory Structure
 
-The solution contains four primary core layers organized inside the `src/` directory:
+The solution contains four primary core layers organized inside the `backend/` directory:
 
 Frametric/
  ├── Frametric.sln
  ├── SampleData/                     # Ignored local folder for test files
- └── src/
+ ├── frontend/                       # Frontend application (Angular)
+ └── backend/
       ├── Frametric.Api/             # Minimal controllers, HTTP routing, JWT verification
       ├── Frametric.Application/     # CQRS Handlers, Use cases, DTOs, FluentValidators
       ├── Frametric.Domain/          # Pure business domain entities, Value Objects, Enums
