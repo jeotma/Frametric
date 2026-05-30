@@ -22,7 +22,7 @@ It is a cinematic data intelligence platform designed to:
 
 ## High-Level Architecture
 
-ZIP Upload → Ingestion → Normalization → Persistence → API → Angular Frontend
+ZIP Upload → Ingestion → Normalization → Persistence → API → Frontend
 
 ### Architectural Style
 
@@ -35,6 +35,7 @@ ZIP Upload → Ingestion → Normalization → Persistence → API → Angular F
 ## Technology Stack
 
 ### Backend
+
 - .NET 9 / ASP.NET Core
 - Entity Framework Core
 - Dapper
@@ -44,10 +45,12 @@ ZIP Upload → Ingestion → Normalization → Persistence → API → Angular F
 - OpenTelemetry
 
 ### Database
+
 - PostgreSQL
 - Redis (future caching layer)
 
 ### Frontend
+
 - Angular 19+
 - Signal-based state management
 - Feature-based lazy loading
@@ -109,11 +112,13 @@ Core entities:
 ## CQRS
 
 ### Commands
+
 - RegisterUserCommand
 - ImportLetterboxdZipCommand
 - GenerateWrappedSummaryCommand
 
 ### Queries (Dapper optimized)
+
 - GetTopGenresQuery
 - GetTopDirectorsQuery
 - GetYearSummaryQuery
@@ -138,6 +143,7 @@ Future support:
 - Hangfire or Quartz.NET
 
 Use cases:
+
 - Async analytics
 - Wrapped generation
 - Maintenance jobs
