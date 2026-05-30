@@ -135,7 +135,7 @@ public class DapperAnalyticsService : IAnalyticsService
             GROUP BY DayOfWeek, DayIndex
             ORDER BY DayIndex ASC";
         var weeklyList = (await connection.QueryAsync<dynamic>(weeklySql, parameters))
-            .Select(x => new WeeklyWatchesDto((string)x.dayofweek, (int)x.count))
+            .Select(x => new WeeklyWatchesDto((string)x.dayofweek, (long)x.count))
             .ToList();
 
         // Fill in missing months

@@ -7,6 +7,7 @@
 // (at your option) any later version.
 
 using System.Text;
+using Frametric.Api.Extensions;
 using Frametric.Application;
 using Frametric.Infrastructure;
 using Frametric.Infrastructure.Security;
@@ -17,12 +18,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
 
 // Configure JWT Authentication
 var jwtSettingsSection = builder.Configuration.GetSection(JwtSettings.SectionName);
 builder.Services.Configure<JwtSettings>(jwtSettingsSection);
 var jwtSettings = jwtSettingsSection.Get<JwtSettings>() ?? new JwtSettings();
+
+if (string.IsNullOrWhiteSpace(jwtSettings.Secret) && !builder.Environment.IsDevelopment())
+    throw new InvalidOperationException("JWT Secret is not configured. Set 'Jwt:Secret' in your production environment.");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -43,7 +46,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddOpenApi();
+builder.Services.AddPresentationOpenApi();
 
 // Clean Architecture Dependency Injection
 builder.Services.AddApplicationServices();
@@ -55,6 +58,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UsePresentationOpenApi(app.Environment);
 }
 
 app.UseHttpsRedirection();

@@ -24,6 +24,7 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
             .Include(m => m.Directors)
             .Include(m => m.Actors)
             .Where(m => m.EnrichmentStatus == EnrichmentStatus.Pending || m.EnrichmentStatus == EnrichmentStatus.Failed)
+            .OrderBy(m => m.Id)
             .Take(request.BatchSize)
             .ToListAsync(cancellationToken);
 

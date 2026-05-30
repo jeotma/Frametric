@@ -1,3 +1,3 @@
 namespace Frametric.Application.DTOs.Analytics;
 
-public record DirectorCountDto(string DirectorName, int Count, decimal AverageRating);
+public record DirectorCountDto(string DirectorName, long Count, decimal AverageRating);
