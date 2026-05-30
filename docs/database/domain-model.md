@@ -9,10 +9,12 @@ erDiagram
     USER ||--o{ DIARY_ENTRY : "logs"
     USER ||--o{ MOVIE_RATING : "rates"
     USER ||--o{ WATCHLIST_ITEM : "adds to"
+    USER ||--o{ MOVIE_LIKE : "likes"
     
     MOVIE ||--o{ DIARY_ENTRY : "has"
     MOVIE ||--o{ MOVIE_RATING : "has"
     MOVIE ||--o{ WATCHLIST_ITEM : "has"
+    MOVIE ||--o{ MOVIE_LIKE : "has"
     
     MOVIE ||--|| EXTERNAL_REFERENCE : "identified by"
     MOVIE }o--o{ GENRE : "has"
@@ -108,3 +110,12 @@ Tracks movies that the user intends to watch.
 * `UserId` (Guid)
 * `MovieId` (Guid)
 * `DateAdded` (DateOnly)
+
+### 7. MovieLike (Entity)
+
+Tracks explicit affinity (likes) given to a movie by the user.
+
+* `Id` (Guid)
+* `UserId` (Guid)
+* `MovieId` (Guid)
+* `DateLiked` (DateOnly)

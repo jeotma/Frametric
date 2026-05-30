@@ -73,3 +73,12 @@ These files are not standard data-only CSVs. They contain contextual metadata pr
 6. Real list data...
 
 **Conversion Rule:** The file stream reader must be manually advanced/skipped until the target tabular data line (`Position,Name,Year,URL,Description`) is identified. Applying a standard CSV reader from Line 1 will result in catastrophic failure.
+
+### 2.7. `likes/films.csv`
+
+Contains the explicit affinity signal (likes) given to specific movies by the user. Highly isolated and valuable for wrapped stats.
+
+- **Date:** `DateOnly`
+- **Name:** `string`
+- **Year:** `int?`
+- **Letterboxd URI:** `string`

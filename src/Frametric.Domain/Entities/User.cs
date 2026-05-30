@@ -7,6 +7,9 @@ public class User
     public string Email { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
+    // Navigation property
+    public ICollection<MovieLike> MovieLikes { get; private set; } = new List<MovieLike>();
+
     private User() { } // For EF Core
 
     public User(Guid id, string username, string email)

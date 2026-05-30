@@ -18,6 +18,7 @@ public class FrametricDbContext : DbContext
     public DbSet<DiaryEntry> DiaryEntries => Set<DiaryEntry>();
     public DbSet<MovieRating> MovieRatings => Set<MovieRating>();
     public DbSet<WatchlistItem> WatchlistItems => Set<WatchlistItem>();
+    public DbSet<MovieLike> MovieLikes => Set<MovieLike>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -20,6 +20,7 @@ public class Movie
     public ICollection<DiaryEntry> DiaryEntries { get; private set; } = new List<DiaryEntry>();
     public ICollection<MovieRating> MovieRatings { get; private set; } = new List<MovieRating>();
     public ICollection<WatchlistItem> WatchlistItems { get; private set; } = new List<WatchlistItem>();
+    public ICollection<MovieLike> MovieLikes { get; private set; } = new List<MovieLike>();
 
     private Movie() { } // EF Core
 
