@@ -76,11 +76,11 @@
     <div class="imports-list">
       <div class="import-item" *ngFor="let item of recentImports().slice(0, 2)">
         <div class="import-info">
-          <span class="filename">{{ item.filename }}</span>
-          <span class="date">{{ item.date }}</span>
+          <span class="filename">{{ item.providerSource }} Archive</span>
+          <span class="date">{{ item.importDate | date:'mediumDate' }}</span>
         </div>
         <div class="import-metrics">
-          <span>{{ item.movies }} Movies</span>
+          <span>{{ item.rowCount }} Movies</span>
           <span 
             class="badge" 
             [class.badge-emerald]="item.status === 'Completed'"

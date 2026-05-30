@@ -49,10 +49,21 @@ public class ImportController : ControllerBase
             return BadRequest("Only .zip files are supported.");
         }
 
-        using var stream = file.OpenReadStream();
-        var importId = await _importApplication.ImportLetterboxdAsync(userId.Value, stream, cancellationToken);
-        
-        return Ok(new { success = true, importId = importId, message = "Archive imported successfully and enrichment has started." });
+        try
+        {
+            using var stream = file.OpenReadStream();
+            var importId = await _importApplication.ImportLetterboxdAsync(userId.Value, stream, cancellationToken);
+            
+            return Ok(new { success = true, importId = importId, message = "Archive imported successfully and enrichment has started." });
+        }
+        catch (InvalidDataException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpGet("history")]

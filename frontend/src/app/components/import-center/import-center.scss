@@ -142,3 +142,95 @@
   color: var(--text-secondary);
   font-weight: 500;
 }
+
+/* --- New Styles for Step 3 --- */
+
+.upload-dropzone.drag-active {
+  border-color: var(--accent-emerald);
+  background: rgba(16, 185, 129, 0.05);
+  transform: scale(1.02);
+
+  .upload-icon {
+    color: var(--accent-emerald);
+  }
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(244, 63, 94, 0.1);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: #fb7185;
+  padding: 16px 20px;
+  border-radius: var(--border-radius-sm);
+  margin-top: 16px;
+  font-weight: 500;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+}
+
+.infinite-progress {
+  width: 50%;
+  animation: infinite-slide 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes infinite-slide {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
+.source-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.source-icon {
+  width: 24px;
+  height: 24px;
+
+  &.letterboxd {
+    color: var(--accent-emerald);
+  }
+}
+
+.pulse {
+  animation: pulse-opacity 1.5s infinite;
+}
+
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.btn-icon.delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-fast);
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    color: var(--accent-rose);
+    background: rgba(244, 63, 94, 0.1);
+  }
+}
+
+.empty-row td {
+  padding: 48px;
+  font-style: italic;
+}
+.text-center { text-align: center; }
+.text-muted { color: var(--text-muted); }

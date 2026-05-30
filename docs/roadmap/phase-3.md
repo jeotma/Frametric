@@ -4,16 +4,16 @@ This phase shifts focus to the client-side experience. We will build a premium, 
 
 ## Step 1: Angular 19+ Foundation & Design System
 
-- [ ] Initialize the Angular 19+ workspace using standalone components.
-- [ ] Configure Tailwind CSS (or premium modern custom SCSS/CSS modules) for styling.
-- [ ] Build a premium unified layout (Dark Mode default, sleek gradients, Outfit/Inter typography, and glassmorphic panels).
-- [ ] Define the reusable UI design system tokens (buttons, cards, skeleton loaders, and interactive hover states).
+- [x] Initialize the Angular 19+ workspace using standalone components.
+- [x] Configure Tailwind CSS (or premium modern custom SCSS/CSS modules) for styling.
+- [x] Build a premium unified layout (Dark Mode default, sleek gradients, Outfit/Inter typography, and glassmorphic panels).
+- [x] Define the reusable UI design system tokens (buttons, cards, skeleton loaders, and interactive hover states).
 
 ## Step 2: Auto-Generated API Clients & Authentication Flow
 
-- [ ] Set up an NSwag or OpenAPI TypeScript generator script to output strongly-typed services based on the ASP.NET Core swagger definition.
-- [ ] Implement the client-side Auth interceptors to attach the JWT token to every request and automatically handle token refreshing.
-- [ ] Create sleek, interactive Login and Sign-up screens with real-time field validation.
+- [x] Set up an NSwag or OpenAPI TypeScript generator script to output strongly-typed services based on the ASP.NET Core swagger definition.
+- [x] Implement the client-side Auth interceptors to attach the JWT token to every request and automatically handle token refreshing.
+- [x] Create sleek, interactive Login and Sign-up screens with real-time field validation.
 
 ## Step 3: Interactive Ingestion & Import Control Center
 

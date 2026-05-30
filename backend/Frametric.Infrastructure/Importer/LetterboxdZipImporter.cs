@@ -20,6 +20,20 @@ public class LetterboxdZipImporter : ILetterboxdImporter
 
         using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read, leaveOpen: true);
 
+        // Strict Validation: Ensure the zip contains the FULL Letterboxd export structure including folders
+        var requiredFiles = new[] { 
+            "diary.csv", "ratings.csv", "watchlist.csv", "profile.csv", "reviews.csv",
+            "watched.csv", "likes/films.csv", "likes/reviews.csv"
+        };
+        bool isValidArchive = requiredFiles.All(reqFile => 
+            archive.Entries.Any(e => e.FullName.Replace('\\', '/').Equals(reqFile, StringComparison.OrdinalIgnoreCase))
+        );
+
+        if (!isValidArchive)
+        {
+            throw new InvalidDataException("The uploaded file must be the original, unmodified Letterboxd export zip file containing its complete folder structure.");
+        }
+
         foreach (var entry in archive.Entries)
         {
             if (entry.FullName.Equals("diary.csv", StringComparison.OrdinalIgnoreCase))

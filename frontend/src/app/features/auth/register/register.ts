@@ -78,7 +78,11 @@ export class RegisterComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        if (err?.status === 409) {
+        const backendMsg = typeof err?.error === 'string' ? err.error : err?.error?.message;
+        
+        if (backendMsg) {
+          this.errorMessage.set(backendMsg);
+        } else if (err?.status === 409) {
           this.errorMessage.set('An account with this email or username already exists.');
         } else if (err?.status === 400) {
           this.errorMessage.set('Please check your details and try again.');

@@ -6,46 +6,18 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-using System.Text;
 using Frametric.Api.Extensions;
 using Frametric.Application;
 using Frametric.Infrastructure;
-using Frametric.Infrastructure.Security;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
 
-// Configure JWT Authentication
-var jwtSettingsSection = builder.Configuration.GetSection(JwtSettings.SectionName);
-builder.Services.Configure<JwtSettings>(jwtSettingsSection);
-var jwtSettings = jwtSettingsSection.Get<JwtSettings>() ?? new JwtSettings();
-
-if (string.IsNullOrWhiteSpace(jwtSettings.Secret) && !builder.Environment.IsDevelopment())
-    throw new InvalidOperationException("JWT Secret is not configured. Set 'Jwt:Secret' in your production environment.");
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings.Issuer,
-        ValidAudience = jwtSettings.Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret ?? "DefaultSecretKeyPlaceholder1234567890!"))
-    };
-});
-
+// Configure Web/API specific services using Extensions
+builder.Services.AddApiAuthentication(builder.Configuration, builder.Environment);
+builder.Services.AddFrontendCors();
 builder.Services.AddPresentationOpenApi();
 
 // Clean Architecture Dependency Injection
@@ -60,6 +32,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UsePresentationOpenApi(app.Environment);
 }
+
+app.UseCors("FrontendPolicy");
 
 app.UseHttpsRedirection();
 

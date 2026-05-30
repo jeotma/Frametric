@@ -46,7 +46,8 @@ export class LoginComponent {
         this.isLoading.set(false);
         const status = err?.status;
         if (status === 401 || status === 400) {
-          this.errorMessage.set('Invalid email or password. Please try again.');
+          const backendMsg = typeof err?.error === 'string' ? err.error : err?.error?.message;
+          this.errorMessage.set(backendMsg || 'Invalid email or password. Please try again.');
         } else {
           this.errorMessage.set('Something went wrong. Please try again later.');
         }

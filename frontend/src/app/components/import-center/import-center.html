@@ -3,7 +3,27 @@
     <h3>Ingest Letterboxd Archive</h3>
     <p class="description">Drag & drop your exported Letterboxd .zip file here to trigger rich TMDB metadata enrichment</p>
 
-    <div class="upload-dropzone" [class.uploading]="isUploading()">
+    <!-- Error Message Banner -->
+    <div *ngIf="errorMessage()" class="error-banner animate-fade-in">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>{{ errorMessage() }}</span>
+    </div>
+
+    <!-- Dropzone -->
+    <div 
+      class="upload-dropzone" 
+      [class.uploading]="isUploading()" 
+      [class.drag-active]="isDragging()"
+      (dragover)="onDragOver($event)" 
+      (dragleave)="onDragLeave($event)" 
+      (drop)="onDrop($event)"
+    >
+      <input type="file" #fileInput accept=".zip" hidden (change)="onFileSelected($event)">
+      
       <div class="dropzone-content" *ngIf="!isUploading()">
         <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -11,16 +31,15 @@
           <line x1="12" y1="3" x2="12" y2="15" />
         </svg>
         <span>Drop zip archive here or click to browse</span>
-        <button class="btn btn-primary" (click)="onUpload()">Simulate Zip Ingestion</button>
+        <button class="btn btn-primary" (click)="triggerFileInput()">Select Archive</button>
       </div>
 
       <div class="upload-progress-state" *ngIf="isUploading()">
         <div class="spinner"></div>
-        <span>Parsing & Enriching Zip Archive...</span>
+        <span>Uploading & Validating Archive...</span>
         <div class="progress-bar-container large">
-          <div class="progress-bar" [style.width.%]="uploadProgress()"></div>
+          <div class="progress-bar infinite-progress"></div>
         </div>
-        <span class="percentage">{{ uploadProgress() }}% Complete</span>
       </div>
     </div>
   </div>
@@ -31,34 +50,65 @@
     <table class="imports-table">
       <thead>
         <tr>
-          <th>Filename</th>
+          <th>Source</th>
           <th>Upload Date</th>
           <th>Status</th>
           <th>Record Count</th>
-          <th>Enrichment Progress</th>
+          <th>Progress</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let item of recentImports()">
-          <td><span class="file-name-cell">{{ item.filename }}</span></td>
-          <td>{{ item.date }}</td>
+        <tr *ngFor="let item of history()">
+          <td>
+            <div class="source-cell">
+              <svg *ngIf="item.providerSource === 'Letterboxd'" class="source-icon letterboxd" viewBox="0 0 24 24" fill="currentColor">
+                <!-- Simple generic movie icon or letterboxd dots representation -->
+                <circle cx="6" cy="12" r="2"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+                <circle cx="18" cy="12" r="2"></circle>
+              </svg>
+              <span class="file-name-cell">{{ item.providerSource }} Archive</span>
+            </div>
+          </td>
+          <td>{{ item.importDate | date:'mediumDate' }}</td>
           <td>
             <span 
               class="badge" 
               [class.badge-emerald]="item.status === 'Completed'"
               [class.badge-cyan]="item.status === 'Enriching'"
               [class.badge-rose]="item.status === 'Failed'"
-            >{{ item.status }}</span>
+            >
+              {{ item.status }}
+            </span>
           </td>
-          <td>{{ item.movies }} films</td>
+          <td>{{ item.rowCount }} films</td>
           <td>
             <div class="progress-table-cell">
               <div class="progress-bar-container table-bar">
-                <div class="progress-bar" [style.width.%]="item.progress"></div>
+                <div class="progress-bar" 
+                     [class.pulse]="item.status === 'Enriching'" 
+                     [style.width.%]="item.status === 'Completed' ? 100 : (item.status === 'Failed' ? 0 : 50)">
+                </div>
               </div>
-              <span class="progress-val">{{ item.progress }}%</span>
+              <span class="progress-val">
+                {{ item.status === 'Completed' ? '100%' : (item.status === 'Failed' ? '0%' : '...') }}
+              </span>
             </div>
           </td>
+          <td>
+            <button class="btn-icon delete-btn" title="Delete Import" (click)="deleteImport(item.id)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                <line x1="10" y1="11" x2="10" y2="17" />
+                <line x1="14" y1="11" x2="14" y2="17" />
+              </svg>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="history().length === 0" class="empty-row">
+          <td colspan="6" class="text-center text-muted">No imports found. Upload an archive to get started.</td>
         </tr>
       </tbody>
     </table>

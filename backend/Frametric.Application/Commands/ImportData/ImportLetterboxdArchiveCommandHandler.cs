@@ -26,11 +26,6 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
 
         var exportData = await _importer.ImportFromZipAsync(request.ZipStream, cancellationToken);
 
-        var totalRows = exportData.DiaryEntries.Count + exportData.Ratings.Count + exportData.Watchlist.Count + exportData.Likes.Count;
-        
-        var importHistory = new ImportHistory(Guid.NewGuid(), user.Id, totalRows, "Enriching", "Letterboxd");
-        _context.ImportHistories.Add(importHistory);
-
         string GenerateMovieKey(string title, int? year)
         {
             var cleanTitle = title?.Trim().ToLowerInvariant() ?? "unknown";
@@ -48,6 +43,15 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
         var existingMovies = await _context.Movies
             .Where(m => m.ExternalReference.Source == "Letterboxd" && allKeys.Contains(m.ExternalReference.ExternalId))
             .ToDictionaryAsync(m => m.ExternalReference.ExternalId, m => m, cancellationToken);
+
+        var uniqueFilmsCount = allKeys.Count;
+        bool needsEnrichment = uniqueFilmsCount > existingMovies.Count || 
+                               existingMovies.Values.Any(m => m.EnrichmentStatus == Frametric.Domain.Enums.EnrichmentStatus.Pending);
+
+        var importStatus = needsEnrichment ? "Enriching" : "Completed";
+
+        var importHistory = new ImportHistory(Guid.NewGuid(), user.Id, uniqueFilmsCount, importStatus, "Letterboxd");
+        _context.ImportHistories.Add(importHistory);
 
         var moviesByKey = new Dictionary<string, Movie>(existingMovies);
 
