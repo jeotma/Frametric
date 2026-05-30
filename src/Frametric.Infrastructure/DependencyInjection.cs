@@ -18,6 +18,20 @@ public static class DependencyInjection
         
         services.AddScoped<ILetterboxdImporter, LetterboxdZipImporter>();
 
+        services.AddHttpClient<ITmdbService, Frametric.Infrastructure.Providers.Tmdb.TmdbService>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.themoviedb.org/3/");
+            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            
+            var token = configuration["Tmdb:AccessToken"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+        });
+
+        services.AddHostedService<Frametric.Infrastructure.BackgroundJobs.TmdbEnrichmentBackgroundService>();
+
         return services;
     }
 }
