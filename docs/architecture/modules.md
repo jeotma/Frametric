@@ -34,5 +34,5 @@ Frametric is designed as a Modular Monolith. The following modules exist within 
 
 ## 7. Infrastructure
 
-**Responsibility:** Contains EF Core DbContext, Dapper Repositories, CsvHelper logic, external IO operations, and Background Job orchestration (Hangfire/Quartz).
+**Responsibility:** Contains EF Core DbContext, Dapper Repositories, CsvHelper logic, external IO operations, TMDB API Client integration, and Background Job orchestration (Hangfire/Quartz) for metadata enrichment.
 **Boundaries:** Implements interfaces defined in the Application layer. It is the outermost layer

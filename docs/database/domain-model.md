@@ -15,6 +15,8 @@ erDiagram
     MOVIE ||--o{ WATCHLIST_ITEM : "has"
     
     MOVIE ||--|| EXTERNAL_REFERENCE : "identified by"
+    MOVIE }o--o{ GENRE : "has"
+    MOVIE }o--o{ DIRECTOR : "directed by"
 ```
 
 ## Entities & Value Objects
@@ -35,7 +37,12 @@ The pure representation of a cinematic piece. Note that external identifiers are
 * `Id` (Guid)
 * `Title` (string)
 * `ReleaseYear` (int?)
+* `RuntimeMinutes` (int?) - Fetched via TMDB
+* `PosterUrl` (string) - Fetched via TMDB
+* `EnrichmentStatus` (enum) - e.g., Pending, Completed, Failed
 * `ExternalReference` (Value Object)
+* `Genres` (Collection<Genre>)
+* `Directors` (Collection<Director>)
 
 ### 3. ExternalReference (Value Object)
 
@@ -43,6 +50,22 @@ Used to identify entities across different external systems (e.g., Letterboxd, I
 
 * `Source` (string) - e.g., "Letterboxd"
 * `ExternalId` (string) - e.g., "<https://boxd.it/cVEBb5>"
+
+### 3.1. Genre (Entity)
+
+Represents a cinematic genre populated via TMDB.
+
+* `Id` (Guid)
+* `TmdbId` (int)
+* `Name` (string)
+
+### 3.2. Director (Entity)
+
+Represents a person who directed the movie, populated via TMDB.
+
+* `Id` (Guid)
+* `TmdbId` (int)
+* `Name` (string)
 
 ### 4. DiaryEntry (Entity)
 
