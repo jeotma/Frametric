@@ -73,3 +73,24 @@ public class TmdbCrewItem
     [JsonPropertyName("job")]
     public string Job { get; set; } = string.Empty;
 }
+
+public class TmdbTvDetails
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("episode_run_time")]
+    public List<int>? EpisodeRunTime { get; set; }
+
+    [JsonPropertyName("poster_path")]
+    public string? PosterPath { get; set; }
+
+    [JsonPropertyName("genres")]
+    public List<TmdbGenreItem> Genres { get; set; } = new();
+
+    [JsonPropertyName("created_by")]
+    public List<TmdbCrewItem> CreatedBy { get; set; } = new();
+
+    [JsonPropertyName("credits")]
+    public TmdbCredits? Credits { get; set; }
+}

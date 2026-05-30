@@ -10,43 +10,51 @@ public class TmdbEnrichmentBackgroundService : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<TmdbEnrichmentBackgroundService> _logger;
+    private readonly TmdbEnrichmentTrigger _trigger;
 
-    public TmdbEnrichmentBackgroundService(IServiceProvider serviceProvider, ILogger<TmdbEnrichmentBackgroundService> logger)
+    public TmdbEnrichmentBackgroundService(IServiceProvider serviceProvider, ILogger<TmdbEnrichmentBackgroundService> logger, TmdbEnrichmentTrigger trigger)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _trigger = trigger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("TmdbEnrichmentBackgroundService started.");
+        _logger.LogInformation("TmdbEnrichmentBackgroundService started. Waiting for triggers...");
 
-        while (!stoppingToken.IsCancellationRequested)
+        await foreach (var _ in _trigger.ReadAllAsync(stoppingToken))
         {
-            try
+            _logger.LogInformation("Enrichment triggered. Processing pending movies...");
+            
+            while (!stoppingToken.IsCancellationRequested)
             {
-                using var scope = _serviceProvider.CreateScope();
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-
-                var batchSize = 20;
-                var enrichedCount = await mediator.Send(new EnrichPendingMoviesCommand(batchSize), stoppingToken);
-
-                if (enrichedCount > 0)
+                try
                 {
-                    _logger.LogInformation("Enriched {Count} movies from TMDB.", enrichedCount);
-                    // Sleep for 10 seconds before processing the next batch to respect rate limits
-                    await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+                    using var scope = _serviceProvider.CreateScope();
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+                    var batchSize = 20;
+                    var enrichedCount = await mediator.Send(new EnrichPendingMoviesCommand(batchSize), stoppingToken);
+
+                    if (enrichedCount > 0)
+                    {
+                        _logger.LogInformation("Enriched {Count} movies from TMDB.", enrichedCount);
+                        // Sleep for 10 seconds before processing the next batch to respect rate limits
+                        await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+                    }
+                    else
+                    {
+                        // No more pending movies, break inner loop and wait for next trigger
+                        _logger.LogInformation("No more pending movies. Sleeping...");
+                        break;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    // No pending movies found, sleep for 1 minute before checking again
-                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                    _logger.LogError(ex, "An error occurred executing TmdbEnrichmentBackgroundService.");
+                    await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); // Wait before retrying on error
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred executing TmdbEnrichmentBackgroundService.");
-                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); // Wait before retrying on error
             }
         }
 

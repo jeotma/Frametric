@@ -31,23 +31,31 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
 
         int enrichedCount = 0;
 
-        // Fetch existing people and genres to avoid massive N+1 queries if possible,
-        // but for a small batch of 20, N+1 is acceptable for the MVP.
         foreach (var movie in pendingMovies)
         {
             var tmdbData = await _tmdbService.SearchAndGetMovieDetailsAsync(movie.Title, movie.ReleaseYear, cancellationToken);
-            
+
             if (tmdbData == null)
             {
                 movie.MarkEnrichmentFailed();
                 continue;
             }
 
-            // Map Genres
+            if (tmdbData.IsTvShow)
+            {
+                // It's a TV show/miniseries: move it out of Movies into TvShows
+                var tvShow = new TvShow(Guid.NewGuid(), movie.Title, movie.ReleaseYear, tmdbData.TmdbId, tmdbData.PosterUrl);
+                _context.TvShows.Add(tvShow);
+                _context.Movies.Remove(movie);
+                enrichedCount++;
+                continue;
+            }
+
+            // Standard movie enrichment
             var genres = new List<Genre>();
             foreach (var gDto in tmdbData.Genres)
             {
-                var genre = _context.Genres.Local.FirstOrDefault(g => g.TmdbId == gDto.Id) 
+                var genre = _context.Genres.Local.FirstOrDefault(g => g.TmdbId == gDto.Id)
                             ?? await _context.Genres.FirstOrDefaultAsync(g => g.TmdbId == gDto.Id, cancellationToken);
                 if (genre == null)
                 {
@@ -57,11 +65,10 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
                 genres.Add(genre);
             }
 
-            // Map Directors
             var directors = new List<Director>();
             foreach (var dDto in tmdbData.Directors)
             {
-                var director = _context.Directors.Local.FirstOrDefault(d => d.TmdbId == dDto.Id) 
+                var director = _context.Directors.Local.FirstOrDefault(d => d.TmdbId == dDto.Id)
                                ?? await _context.Directors.FirstOrDefaultAsync(d => d.TmdbId == dDto.Id, cancellationToken);
                 if (director == null)
                 {
@@ -71,11 +78,10 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
                 directors.Add(director);
             }
 
-            // Map Actors
             var actors = new List<Actor>();
             foreach (var aDto in tmdbData.Actors)
             {
-                var actor = _context.Actors.Local.FirstOrDefault(a => a.TmdbId == aDto.Id) 
+                var actor = _context.Actors.Local.FirstOrDefault(a => a.TmdbId == aDto.Id)
                             ?? await _context.Actors.FirstOrDefaultAsync(a => a.TmdbId == aDto.Id, cancellationToken);
                 if (actor == null)
                 {

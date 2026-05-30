@@ -30,6 +30,9 @@ public static class DependencyInjection
             }
         });
 
+        services.AddSingleton<Frametric.Infrastructure.BackgroundJobs.TmdbEnrichmentTrigger>();
+        services.AddSingleton<ITmdbEnrichmentTrigger>(provider => provider.GetRequiredService<Frametric.Infrastructure.BackgroundJobs.TmdbEnrichmentTrigger>());
+
         services.AddHostedService<Frametric.Infrastructure.BackgroundJobs.TmdbEnrichmentBackgroundService>();
 
         return services;

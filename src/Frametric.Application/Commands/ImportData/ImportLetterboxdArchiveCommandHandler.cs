@@ -10,11 +10,13 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
 {
     private readonly ILetterboxdImporter _importer;
     private readonly IApplicationDbContext _context;
+    private readonly ITmdbEnrichmentTrigger _trigger;
 
-    public ImportLetterboxdArchiveCommandHandler(ILetterboxdImporter importer, IApplicationDbContext context)
+    public ImportLetterboxdArchiveCommandHandler(ILetterboxdImporter importer, IApplicationDbContext context, ITmdbEnrichmentTrigger trigger)
     {
         _importer = importer;
         _context = context;
+        _trigger = trigger;
     }
 
     public async Task<bool> Handle(ImportLetterboxdArchiveCommand request, CancellationToken cancellationToken)
@@ -91,6 +93,10 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+        
+        // Disparar el enriquecimiento en background tras una importación exitosa
+        _trigger.TriggerEnrichment();
+        
         return true;
     }
 }
