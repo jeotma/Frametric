@@ -1,0 +1,66 @@
+<div class="imports-dashboard animate-slide-up">
+  <div class="glass-card upload-container">
+    <h3>Ingest Letterboxd Archive</h3>
+    <p class="description">Drag & drop your exported Letterboxd .zip file here to trigger rich TMDB metadata enrichment</p>
+
+    <div class="upload-dropzone" [class.uploading]="isUploading()">
+      <div class="dropzone-content" *ngIf="!isUploading()">
+        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+        <span>Drop zip archive here or click to browse</span>
+        <button class="btn btn-primary" (click)="onUpload()">Simulate Zip Ingestion</button>
+      </div>
+
+      <div class="upload-progress-state" *ngIf="isUploading()">
+        <div class="spinner"></div>
+        <span>Parsing & Enriching Zip Archive...</span>
+        <div class="progress-bar-container large">
+          <div class="progress-bar" [style.width.%]="uploadProgress()"></div>
+        </div>
+        <span class="percentage">{{ uploadProgress() }}% Complete</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Table -->
+  <div class="glass-card table-card">
+    <h3>Active & Historical Import Ingestions</h3>
+    <table class="imports-table">
+      <thead>
+        <tr>
+          <th>Filename</th>
+          <th>Upload Date</th>
+          <th>Status</th>
+          <th>Record Count</th>
+          <th>Enrichment Progress</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of recentImports()">
+          <td><span class="file-name-cell">{{ item.filename }}</span></td>
+          <td>{{ item.date }}</td>
+          <td>
+            <span 
+              class="badge" 
+              [class.badge-emerald]="item.status === 'Completed'"
+              [class.badge-cyan]="item.status === 'Enriching'"
+              [class.badge-rose]="item.status === 'Failed'"
+            >{{ item.status }}</span>
+          </td>
+          <td>{{ item.movies }} films</td>
+          <td>
+            <div class="progress-table-cell">
+              <div class="progress-bar-container table-bar">
+                <div class="progress-bar" [style.width.%]="item.progress"></div>
+              </div>
+              <span class="progress-val">{{ item.progress }}%</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

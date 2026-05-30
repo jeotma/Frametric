@@ -1,0 +1,59 @@
+<aside class="sidebar glass-panel">
+  <div class="logo-area">
+    <div class="logo-icon"></div>
+    <span class="logo-text">Frametric</span>
+    <span class="logo-version">v1.2</span>
+  </div>
+
+  <nav class="nav-menu">
+    <button 
+      [class.active]="activeTab() === 'dashboard'" 
+      (click)="selectTab('dashboard')"
+      class="nav-item"
+    >
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="9" rx="1" />
+        <rect x="14" y="3" width="7" height="5" rx="1" />
+        <rect x="14" y="12" width="7" height="9" rx="1" />
+        <rect x="3" y="16" width="7" height="5" rx="1" />
+      </svg>
+      <span>Dashboard</span>
+    </button>
+
+    <button 
+      [class.active]="activeTab() === 'imports'" 
+      (click)="selectTab('imports')"
+      class="nav-item"
+    >
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="17 8 12 3 7 8" />
+        <line x1="12" y1="3" x2="12" y2="15" />
+      </svg>
+      <span>Import Center</span>
+      <span class="badge badge-purple" style="margin-left: auto; font-size: 0.65rem;">Live</span>
+    </button>
+
+    <button 
+      [class.active]="activeTab() === 'wrapped'" 
+      (click)="selectTab('wrapped')"
+      class="nav-item nav-item-wrapped"
+    >
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="12 2 2 7 12 12 22 7 12 2" />
+        <polyline points="2 17 12 22 22 17" />
+        <polyline points="2 12 12 17 22 12" />
+      </svg>
+      <span class="wrapped-text">Wrapped 2026</span>
+      <span class="glow-dot"></span>
+    </button>
+  </nav>
+
+  <div class="user-profile glass-panel">
+    <div class="avatar">JM</div>
+    <div class="user-info">
+      <span class="username">Jesús J. Otero</span>
+      <span class="role">Cinemaphile Pro</span>
+    </div>
+  </div>
+</aside>

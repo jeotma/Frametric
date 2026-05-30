@@ -1,0 +1,95 @@
+<div class="dashboard-grid animate-slide-up">
+  
+  <!-- Key Indicators -->
+  <div class="stats-row">
+    <div class="glass-card stat-card">
+      <span class="stat-label">Movies Watched</span>
+      <div class="stat-value text-glow-purple">{{ stats().moviesWatched }}</div>
+      <span class="stat-meta">↑ 14% vs last month</span>
+    </div>
+
+    <div class="glass-card stat-card">
+      <span class="stat-label">Screen Time</span>
+      <div class="stat-value text-glow-cyan">{{ stats().hoursWatched }} <span class="unit">hrs</span></div>
+      <span class="stat-meta">~28.5 days total</span>
+    </div>
+
+    <div class="glass-card stat-card">
+      <span class="stat-label">Completion Rate</span>
+      <div class="stat-value text-glow-emerald">{{ stats().completionRate }}%</div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" [style.width.%]="stats().completionRate"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Showcase Widgets -->
+  <div class="widgets-row">
+    <div class="card-glow glow-purple glass-card widget-large">
+      <h3>Primary Cinematic Focus</h3>
+      <p class="widget-subtitle">Your top-ranking movie preferences</p>
+      
+      <div class="focus-details">
+        <div class="focus-item">
+          <span class="focus-title">Favorite Genre</span>
+          <span class="focus-value badge badge-purple">{{ stats().favoriteGenre }}</span>
+        </div>
+        <div class="focus-item">
+          <span class="focus-title">Top Director</span>
+          <span class="focus-value badge badge-cyan">{{ stats().favoriteDirector }}</span>
+        </div>
+      </div>
+
+      <!-- High fidelity mock radar layout -->
+      <div class="cinematic-canvas">
+        <div class="neon-wave wave-1"></div>
+        <div class="neon-wave wave-2"></div>
+        <div class="canvas-text">DENIS VILLENEUVE • INTERSTELLAR • DUNE</div>
+      </div>
+    </div>
+
+    <div class="glass-card widget-small">
+      <h3>Genre Breakdown</h3>
+      <div class="radial-chart-mock">
+        <!-- Circular CSS indicators -->
+        <div class="circle-group">
+          <div class="circle-item">
+            <span class="circle-label">Sci-Fi (45%)</span>
+            <div class="circle-border" style="background: conic-gradient(var(--accent-purple) 162deg, transparent 0)"></div>
+          </div>
+          <div class="circle-item">
+            <span class="circle-label">Drama (30%)</span>
+            <div class="circle-border" style="background: conic-gradient(var(--accent-cyan) 108deg, transparent 0)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Imports List -->
+  <div class="glass-card imports-summary-card">
+    <div class="card-header">
+      <h3>Ingestion Influx History</h3>
+      <button class="btn btn-secondary btn-sm" (click)="onViewAll()">View All</button>
+    </div>
+    
+    <div class="imports-list">
+      <div class="import-item" *ngFor="let item of recentImports().slice(0, 2)">
+        <div class="import-info">
+          <span class="filename">{{ item.filename }}</span>
+          <span class="date">{{ item.date }}</span>
+        </div>
+        <div class="import-metrics">
+          <span>{{ item.movies }} Movies</span>
+          <span 
+            class="badge" 
+            [class.badge-emerald]="item.status === 'Completed'"
+            [class.badge-cyan]="item.status === 'Enriching'"
+            [class.badge-rose]="item.status === 'Failed'"
+          >{{ item.status }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

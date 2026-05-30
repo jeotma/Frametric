@@ -1,0 +1,144 @@
+.imports-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.upload-container {
+  padding: 32px;
+}
+
+.description {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.upload-dropzone {
+  margin-top: 24px;
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-md);
+  padding: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.005);
+  transition: var(--transition-smooth);
+
+  &.uploading {
+    border-color: var(--accent-purple);
+    background: rgba(139, 92, 246, 0.02);
+  }
+}
+
+.dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--text-secondary);
+
+  .upload-icon {
+    width: 48px;
+    height: 48px;
+    color: var(--text-muted);
+  }
+}
+
+.upload-progress-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.05);
+  border-top-color: var(--accent-purple);
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.progress-bar-container.large {
+  height: 8px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  
+  .progress-bar {
+    background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
+  }
+}
+
+.table-card {
+  padding: 0;
+  overflow: hidden;
+
+  h3 {
+    padding: 24px;
+    border-bottom: 1px solid var(--border-color);
+  }
+}
+
+.imports-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+
+  th, td {
+    padding: 16px 24px;
+    font-size: 0.9rem;
+  }
+
+  th {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.01);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  td {
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .file-name-cell {
+    font-weight: 500;
+    color: #ffffff;
+  }
+}
+
+.progress-table-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-bar-container.table-bar {
+  width: 100px;
+  height: 4px;
+  margin-top: 0;
+}
+
+.progress-val {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}

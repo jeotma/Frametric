@@ -1,0 +1,60 @@
+<div class="app-container">
+  <!-- Standalone Sidebar Component -->
+  <app-sidebar 
+    [activeTab]="activeTab()" 
+    (tabSelected)="selectTab($event)"
+  ></app-sidebar>
+
+  <!-- Main Content Frame -->
+  <main class="main-content">
+    <header class="top-bar glass-panel">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input type="text" placeholder="Search movies, directors, genres..." />
+      </div>
+
+      <div class="header-actions">
+        <button class="icon-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+        </button>
+        <div class="status-indicator">
+          <span class="pulse-green"></span>
+          <span>API Connected</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-body animate-fade-in">
+      <!-- 1. DASHBOARD VIEW -->
+      <app-dashboard 
+        *ngIf="activeTab() === 'dashboard'"
+        [stats]="stats()"
+        [recentImports]="recentImports()"
+        (viewAllImports)="selectTab('imports')"
+      ></app-dashboard>
+
+      <!-- 2. IMPORTS VIEW -->
+      <app-import-center 
+        *ngIf="activeTab() === 'imports'"
+        [recentImports]="recentImports()"
+        [isUploading]="isUploading()"
+        [uploadProgress]="uploadProgress()"
+        (triggerUpload)="simulateUpload()"
+      ></app-import-center>
+
+      <!-- 3. WRAPPED VIEW -->
+      <app-wrapped-teaser 
+        *ngIf="activeTab() === 'wrapped'"
+      ></app-wrapped-teaser>
+    </div>
+  </main>
+</div>
+
+<!-- Standard Router Outlet for future dynamic pages -->
+<router-outlet></router-outlet>
