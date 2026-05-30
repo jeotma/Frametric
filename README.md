@@ -80,13 +80,6 @@ Frametric solution:
 
 ZIP Upload → In-memory extraction → CSV parsing → Command → Normalization → Database
 
-### Supported files
-
-- diary.csv
-- ratings.csv
-- watched.csv
-- watchlist.csv
-
 ### Rules
 
 - Convert year formats (2022.0 → 2022)
