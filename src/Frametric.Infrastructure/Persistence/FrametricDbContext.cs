@@ -1,10 +1,11 @@
 using System.Reflection;
+using Frametric.Application.Interfaces;
 using Frametric.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Frametric.Infrastructure.Persistence;
 
-public class FrametricDbContext : DbContext
+public class FrametricDbContext : DbContext, IApplicationDbContext
 {
     public FrametricDbContext(DbContextOptions<FrametricDbContext> options) : base(options)
     {
