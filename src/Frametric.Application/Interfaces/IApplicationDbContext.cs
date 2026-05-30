@@ -15,6 +15,8 @@ public interface IApplicationDbContext
     DbSet<WatchlistItem> WatchlistItems { get; }
     DbSet<MovieLike> MovieLikes { get; }
     DbSet<TvShow> TvShows { get; }
+    DbSet<RefreshToken> RefreshTokens { get; }
+    DbSet<ImportHistory> ImportHistories { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

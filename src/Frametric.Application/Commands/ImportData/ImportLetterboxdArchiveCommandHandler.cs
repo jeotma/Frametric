@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Frametric.Application.Commands.ImportData;
 
-public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLetterboxdArchiveCommand, bool>
+public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLetterboxdArchiveCommand, Guid>
 {
     private readonly ILetterboxdImporter _importer;
     private readonly IApplicationDbContext _context;
@@ -19,12 +19,17 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
         _trigger = trigger;
     }
 
-    public async Task<bool> Handle(ImportLetterboxdArchiveCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(ImportLetterboxdArchiveCommand request, CancellationToken cancellationToken)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken);
         if (user == null) throw new ArgumentException("User not found");
 
         var exportData = await _importer.ImportFromZipAsync(request.ZipStream, cancellationToken);
+
+        var totalRows = exportData.DiaryEntries.Count + exportData.Ratings.Count + exportData.Watchlist.Count + exportData.Likes.Count;
+        
+        var importHistory = new ImportHistory(Guid.NewGuid(), user.Id, totalRows, "Enriching", "Letterboxd");
+        _context.ImportHistories.Add(importHistory);
 
         string GenerateMovieKey(string title, int? year)
         {
@@ -64,7 +69,7 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
         foreach (var entry in exportData.DiaryEntries)
         {
             var movie = GetOrCreateMovie(entry.Name, entry.Year);
-            var diaryEntry = new DiaryEntry(Guid.NewGuid(), user.Id, movie.Id, entry.Date, entry.WatchedDate, entry.Rating, entry.Rewatch, entry.Tags);
+            var diaryEntry = new DiaryEntry(Guid.NewGuid(), user.Id, movie.Id, entry.Date, entry.WatchedDate, entry.Rating, entry.Rewatch, entry.Tags, importHistory.Id);
             _context.DiaryEntries.Add(diaryEntry);
         }
 
@@ -72,7 +77,7 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
         foreach (var rating in exportData.Ratings)
         {
             var movie = GetOrCreateMovie(rating.Name, rating.Year);
-            var movieRating = new MovieRating(Guid.NewGuid(), user.Id, movie.Id, rating.Date, rating.Rating);
+            var movieRating = new MovieRating(Guid.NewGuid(), user.Id, movie.Id, rating.Date, rating.Rating, importHistory.Id);
             _context.MovieRatings.Add(movieRating);
         }
 
@@ -80,7 +85,7 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
         foreach (var wItem in exportData.Watchlist)
         {
             var movie = GetOrCreateMovie(wItem.Name, wItem.Year);
-            var watchlistItem = new WatchlistItem(Guid.NewGuid(), user.Id, movie.Id, wItem.Date);
+            var watchlistItem = new WatchlistItem(Guid.NewGuid(), user.Id, movie.Id, wItem.Date, importHistory.Id);
             _context.WatchlistItems.Add(watchlistItem);
         }
 
@@ -88,7 +93,7 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
         foreach (var like in exportData.Likes)
         {
             var movie = GetOrCreateMovie(like.Name, like.Year);
-            var movieLike = new MovieLike(Guid.NewGuid(), user.Id, movie.Id, like.Date);
+            var movieLike = new MovieLike(Guid.NewGuid(), user.Id, movie.Id, like.Date, importHistory.Id);
             _context.MovieLikes.Add(movieLike);
         }
 
@@ -97,6 +102,6 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
         // Disparar el enriquecimiento en background tras una importación exitosa
         _trigger.TriggerEnrichment();
         
-        return true;
+        return importHistory.Id;
     }
 }

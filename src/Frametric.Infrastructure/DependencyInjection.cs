@@ -1,6 +1,8 @@
 using Frametric.Application.Interfaces;
 using Frametric.Infrastructure.Importer;
 using Frametric.Infrastructure.Persistence;
+using Frametric.Infrastructure.Security;
+using Frametric.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +19,19 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<FrametricDbContext>());
         
         services.AddScoped<ILetterboxdImporter, LetterboxdZipImporter>();
+
+        // Register Dapper DbConnectionFactory
+        services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
+
+        // Register Decoupled Infrastructure Services
+        services.AddScoped<IAnalyticsService, DapperAnalyticsService>();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+        // Register JWT Security and Current User services
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         services.AddHttpClient<ITmdbService, Frametric.Infrastructure.Providers.Tmdb.TmdbService>(client =>
         {

@@ -46,6 +46,9 @@ namespace Frametric.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ImportHistoryId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("IsRewatch")
                         .HasColumnType("boolean");
 
@@ -68,6 +71,8 @@ namespace Frametric.Infrastructure.Migrations
                         .HasColumnType("date");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ImportHistoryId");
 
                     b.HasIndex("MovieId");
 
@@ -112,6 +117,42 @@ namespace Frametric.Infrastructure.Migrations
                     b.ToTable("Genres");
                 });
 
+            modelBuilder.Entity("Frametric.Domain.Entities.ImportHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("ImportDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ProviderSource")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("RowCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ImportHistories");
+                });
+
             modelBuilder.Entity("Frametric.Domain.Entities.Movie", b =>
                 {
                     b.Property<Guid>("Id")
@@ -154,6 +195,9 @@ namespace Frametric.Infrastructure.Migrations
                     b.Property<DateOnly>("DateLiked")
                         .HasColumnType("date");
 
+                    b.Property<Guid?>("ImportHistoryId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("MovieId")
                         .HasColumnType("uuid");
 
@@ -161,6 +205,8 @@ namespace Frametric.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ImportHistoryId");
 
                     b.HasIndex("MovieId");
 
@@ -178,6 +224,9 @@ namespace Frametric.Infrastructure.Migrations
                     b.Property<DateOnly>("DateRated")
                         .HasColumnType("date");
 
+                    b.Property<Guid?>("ImportHistoryId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("MovieId")
                         .HasColumnType("uuid");
 
@@ -189,11 +238,46 @@ namespace Frametric.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ImportHistoryId");
+
                     b.HasIndex("MovieId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("MovieRatings");
+                });
+
+            modelBuilder.Entity("Frametric.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("Frametric.Domain.Entities.TvShow", b =>
@@ -237,13 +321,25 @@ namespace Frametric.Infrastructure.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
@@ -257,6 +353,9 @@ namespace Frametric.Infrastructure.Migrations
                     b.Property<DateOnly>("DateAdded")
                         .HasColumnType("date");
 
+                    b.Property<Guid?>("ImportHistoryId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("MovieId")
                         .HasColumnType("uuid");
 
@@ -264,6 +363,8 @@ namespace Frametric.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ImportHistoryId");
 
                     b.HasIndex("MovieId");
 
@@ -319,6 +420,11 @@ namespace Frametric.Infrastructure.Migrations
 
             modelBuilder.Entity("Frametric.Domain.Entities.DiaryEntry", b =>
                 {
+                    b.HasOne("Frametric.Domain.Entities.ImportHistory", "ImportHistory")
+                        .WithMany("DiaryEntries")
+                        .HasForeignKey("ImportHistoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Frametric.Domain.Entities.Movie", "Movie")
                         .WithMany("DiaryEntries")
                         .HasForeignKey("MovieId")
@@ -331,7 +437,20 @@ namespace Frametric.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("ImportHistory");
+
                     b.Navigation("Movie");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Frametric.Domain.Entities.ImportHistory", b =>
+                {
+                    b.HasOne("Frametric.Domain.Entities.User", "User")
+                        .WithMany("ImportHistories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -372,6 +491,11 @@ namespace Frametric.Infrastructure.Migrations
 
             modelBuilder.Entity("Frametric.Domain.Entities.MovieLike", b =>
                 {
+                    b.HasOne("Frametric.Domain.Entities.ImportHistory", "ImportHistory")
+                        .WithMany("MovieLikes")
+                        .HasForeignKey("ImportHistoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Frametric.Domain.Entities.Movie", "Movie")
                         .WithMany("MovieLikes")
                         .HasForeignKey("MovieId")
@@ -384,6 +508,8 @@ namespace Frametric.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("ImportHistory");
+
                     b.Navigation("Movie");
 
                     b.Navigation("User");
@@ -391,6 +517,11 @@ namespace Frametric.Infrastructure.Migrations
 
             modelBuilder.Entity("Frametric.Domain.Entities.MovieRating", b =>
                 {
+                    b.HasOne("Frametric.Domain.Entities.ImportHistory", "ImportHistory")
+                        .WithMany("MovieRatings")
+                        .HasForeignKey("ImportHistoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Frametric.Domain.Entities.Movie", "Movie")
                         .WithMany("MovieRatings")
                         .HasForeignKey("MovieId")
@@ -403,13 +534,31 @@ namespace Frametric.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("ImportHistory");
+
                     b.Navigation("Movie");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Frametric.Domain.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("Frametric.Domain.Entities.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("Frametric.Domain.Entities.WatchlistItem", b =>
                 {
+                    b.HasOne("Frametric.Domain.Entities.ImportHistory", "ImportHistory")
+                        .WithMany("WatchlistItems")
+                        .HasForeignKey("ImportHistoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Frametric.Domain.Entities.Movie", "Movie")
                         .WithMany("WatchlistItems")
                         .HasForeignKey("MovieId")
@@ -421,6 +570,8 @@ namespace Frametric.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ImportHistory");
 
                     b.Navigation("Movie");
 
@@ -472,6 +623,17 @@ namespace Frametric.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Frametric.Domain.Entities.ImportHistory", b =>
+                {
+                    b.Navigation("DiaryEntries");
+
+                    b.Navigation("MovieLikes");
+
+                    b.Navigation("MovieRatings");
+
+                    b.Navigation("WatchlistItems");
+                });
+
             modelBuilder.Entity("Frametric.Domain.Entities.Movie", b =>
                 {
                     b.Navigation("DiaryEntries");
@@ -485,7 +647,11 @@ namespace Frametric.Infrastructure.Migrations
 
             modelBuilder.Entity("Frametric.Domain.Entities.User", b =>
                 {
+                    b.Navigation("ImportHistories");
+
                     b.Navigation("MovieLikes");
+
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

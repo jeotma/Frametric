@@ -5,19 +5,22 @@ public class WatchlistItem
     public Guid Id { get; private set; }
     public Guid UserId { get; private set; }
     public Guid MovieId { get; private set; }
+    public Guid? ImportHistoryId { get; private set; }
     public DateOnly DateAdded { get; private set; }
 
     // Navigation properties
     public User User { get; private set; } = null!;
     public Movie Movie { get; private set; } = null!;
+    public ImportHistory? ImportHistory { get; private set; }
 
     private WatchlistItem() { }
 
-    public WatchlistItem(Guid id, Guid userId, Guid movieId, DateOnly dateAdded)
+    public WatchlistItem(Guid id, Guid userId, Guid movieId, DateOnly dateAdded, Guid? importHistoryId = null)
     {
         Id = id;
         UserId = userId;
         MovieId = movieId;
         DateAdded = dateAdded;
+        ImportHistoryId = importHistoryId;
     }
 }
