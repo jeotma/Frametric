@@ -11,6 +11,55 @@
     }
   ],
   "paths": {
+    "/api/Analytics/dashboard": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummaryDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummaryDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummaryDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Analytics/wrapped/{year}": {
       "get": {
         "tags": [
@@ -640,6 +689,56 @@
           "refreshTokenExpiration": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "DashboardSummaryDto": {
+        "required": [
+          "totalWatchtimeMinutes",
+          "totalWatches",
+          "uniqueMoviesCount",
+          "topGenres",
+          "topDirectors",
+          "topActors",
+          "decadeBreakdown"
+        ],
+        "type": "object",
+        "properties": {
+          "totalWatchtimeMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalWatches": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "uniqueMoviesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "topGenres": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenreCountDto"
+            }
+          },
+          "topDirectors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DirectorCountDto"
+            }
+          },
+          "topActors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActorCountDto"
+            }
+          },
+          "decadeBreakdown": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DecadeCountDto"
+            }
           }
         }
       },

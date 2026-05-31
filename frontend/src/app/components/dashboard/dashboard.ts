@@ -1,42 +1,38 @@
-import { Component, input, output, inject, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ImportService } from '../../core/api/api/import.service';
-import { ImportHistoryDto } from '../../core/api/model/import-history-dto';
-
-interface Stats {
-  moviesWatched: number;
-  hoursWatched: number;
-  favoriteGenre: string;
-  favoriteDirector: string;
-  completionRate: number;
-}
+import { AnalyticsService, DashboardSummaryDto } from '../../core/api';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss',
+  styleUrls: ['./dashboard.scss']
 })
 export class DashboardComponent implements OnInit {
-  private importService = inject(ImportService);
+  private analyticsService = inject(AnalyticsService);
 
-  public stats = input.required<Stats>();
-  public recentImports = signal<ImportHistoryDto[]>([]);
-  
-  public viewAllImports = output<void>();
+  summary = signal<DashboardSummaryDto | null>(null);
+  isLoading = signal(true);
+  errorMessage = signal<string | null>(null);
 
   ngOnInit() {
-    this.importService.apiImportHistoryGet().subscribe({
-      next: (data) => {
-        // Only show the top 3 most recent imports on the dashboard
-        this.recentImports.set(data.slice(0, 3));
+    this.analyticsService.apiAnalyticsDashboardGet().subscribe({
+      next: (data: DashboardSummaryDto) => {
+        this.summary.set(data);
+        this.isLoading.set(false);
       },
-      error: (err) => console.error('Failed to fetch dashboard imports', err)
+      error: (err: any) => {
+        console.error('Error fetching dashboard summary', err);
+        this.errorMessage.set('Could not load dashboard data. Ensure the backend is running and you have imported data.');
+        this.isLoading.set(false);
+      }
     });
   }
 
-  public onViewAll() {
-    this.viewAllImports.emit();
+  formatWatchtime(minutes: number | undefined): string {
+    if (!minutes) return '0h';
+    const hours = Math.floor(minutes / 60);
+    return `${hours}h`;
   }
 }

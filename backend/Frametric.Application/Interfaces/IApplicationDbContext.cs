@@ -14,6 +14,7 @@ public interface IApplicationDbContext
     DbSet<MovieRating> MovieRatings { get; }
     DbSet<WatchlistItem> WatchlistItems { get; }
     DbSet<MovieLike> MovieLikes { get; }
+    DbSet<WatchedMovie> WatchedMovies { get; }
     DbSet<TvShow> TvShows { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<ImportHistory> ImportHistories { get; }

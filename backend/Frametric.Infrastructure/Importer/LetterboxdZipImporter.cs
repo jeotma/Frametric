@@ -17,6 +17,7 @@ public class LetterboxdZipImporter : ILetterboxdImporter
         var ratingDtos = new List<ParsedRatingDto>();
         var watchlistDtos = new List<ParsedWatchlistItemDto>();
         var likeDtos = new List<ParsedLikeDto>();
+        var watchedDtos = new List<ParsedWatchedDto>();
 
         using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read, leaveOpen: true);
 
@@ -56,9 +57,14 @@ public class LetterboxdZipImporter : ILetterboxdImporter
                 likeDtos.AddRange(await ParseCsvAsync<LikeCsvRecord, LikeCsvRecordMap>(entry, cancellationToken)
                     .ContinueWith(t => t.Result.Select(MapToDto), cancellationToken));
             }
+            else if (entry.FullName.Equals("watched.csv", StringComparison.OrdinalIgnoreCase))
+            {
+                watchedDtos.AddRange(await ParseCsvAsync<WatchedCsvRecord, WatchedCsvRecordMap>(entry, cancellationToken)
+                    .ContinueWith(t => t.Result.Select(MapToDto), cancellationToken));
+            }
         }
 
-        return new LetterboxdExportData(diaryDtos, ratingDtos, watchlistDtos, likeDtos);
+        return new LetterboxdExportData(diaryDtos, ratingDtos, watchlistDtos, likeDtos, watchedDtos);
     }
 
     private async Task<List<TRecord>> ParseCsvAsync<TRecord, TMap>(ZipArchiveEntry entry, CancellationToken cancellationToken) 
@@ -120,6 +126,14 @@ public class LetterboxdZipImporter : ILetterboxdImporter
     };
 
     private ParsedLikeDto MapToDto(LikeCsvRecord r) => new ParsedLikeDto
+    {
+        Date = r.Date,
+        Name = r.Name,
+        Year = r.Year,
+        LetterboxdUri = r.LetterboxdUri
+    };
+
+    private ParsedWatchedDto MapToDto(WatchedCsvRecord r) => new ParsedWatchedDto
     {
         Date = r.Date,
         Name = r.Name,

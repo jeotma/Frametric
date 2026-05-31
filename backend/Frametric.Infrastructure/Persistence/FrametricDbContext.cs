@@ -20,6 +20,7 @@ public class FrametricDbContext : DbContext, IApplicationDbContext
     public DbSet<MovieRating> MovieRatings => Set<MovieRating>();
     public DbSet<WatchlistItem> WatchlistItems => Set<WatchlistItem>();
     public DbSet<MovieLike> MovieLikes => Set<MovieLike>();
+    public DbSet<WatchedMovie> WatchedMovies => Set<WatchedMovie>();
     public DbSet<TvShow> TvShows => Set<TvShow>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<ImportHistory> ImportHistories => Set<ImportHistory>();

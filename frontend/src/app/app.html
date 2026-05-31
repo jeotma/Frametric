@@ -35,8 +35,6 @@
         <!-- 1. DASHBOARD VIEW -->
         <app-dashboard 
           *ngIf="activeTab() === 'dashboard'"
-          [stats]="stats()"
-          (viewAllImports)="selectTab('imports')"
         ></app-dashboard>
 
         <!-- 2. IMPORTS VIEW -->

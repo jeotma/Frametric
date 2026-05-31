@@ -17,17 +17,17 @@ This phase shifts focus to the client-side experience. We will build a premium, 
 
 ## Step 3: Interactive Ingestion & Import Control Center
 
-- [ ] Design an interactive file-upload area supporting drag-and-drop letterboxd `.zip` files.
-- [ ] Implement a live import dashboard showing current and past imports, and their real-time TMDB metadata enrichment status (using Server-Sent Events or WebSockets for real-time state, or short-polling).
-- [ ] Provide delete/reprocess buttons allowing direct interaction with import batches.
+- [x] Design an interactive file-upload area supporting drag-and-drop letterboxd `.zip` files.
+- [x] Implement a live import dashboard showing current and past imports, and their real-time TMDB metadata enrichment status (using Server-Sent Events or WebSockets for real-time state, or short-polling).
+- [x] Provide delete/reprocess buttons allowing direct interaction with import batches.
 
 ## Step 4: Cinematic Analytics Dashboard
 
-- [ ] Implement high-performance data-visualization widgets using **Chart.js** (or `ngx-charts`):
+- [x] Implement high-performance data-visualization widgets using **Chart.js** (or `ngx-charts`):
   - **Activity Heatmap:** Calendar grid displaying movie watch patterns.
   - **Decade Radial Chart:** Visual breakdown of the user's historical preferences.
   - **Genre Radar/Bar Chart:** Sleek visualization of favorite cinematic genres.
-- [ ] Build detailed leaderboards for Top Directors, Top Actors, and Top Rated movies with custom posters (TMDB URL integration).
+- [x] Build detailed leaderboards for Top Directors, Top Actors, and Top Rated movies with custom posters (TMDB URL integration).
 
 ## Step 5: Spotify Wrapped-Style Interactive Experience
 

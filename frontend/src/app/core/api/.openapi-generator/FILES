@@ -1,5 +1,4 @@
 .gitignore
-.openapi-generator-ignore
 README.md
 api.base.service.ts
 api.module.ts
@@ -13,6 +12,7 @@ git_push.sh
 index.ts
 model/actor-count-dto.ts
 model/auth-response-dto.ts
+model/dashboard-summary-dto.ts
 model/decade-count-dto.ts
 model/director-count-dto.ts
 model/director-leaderboard-dto.ts

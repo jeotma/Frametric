@@ -27,6 +27,21 @@ public class AnalyticsController : ControllerBase
         _currentUserService = currentUserService;
     }
 
+    [HttpGet("dashboard")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<DashboardSummaryDto>> GetDashboardSummary(CancellationToken cancellationToken)
+    {
+        var userId = _currentUserService.UserId;
+        if (userId == null)
+        {
+            return Unauthorized("User is not authenticated.");
+        }
+
+        var result = await _analyticsApplication.GetDashboardSummaryAsync(userId.Value, cancellationToken);
+        return Ok(result);
+    }
+
     [HttpGet("wrapped/{year:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -22,6 +22,11 @@ public class AnalyticsApplication : IAnalyticsApplication
         _mediator = mediator;
     }
 
+    public async Task<DashboardSummaryDto> GetDashboardSummaryAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await _mediator.Send(new GetDashboardSummaryQuery(userId), cancellationToken);
+    }
+
     public async Task<WrappedSummaryDto> GetWrappedSummaryAsync(Guid userId, int year, CancellationToken cancellationToken)
     {
         return await _mediator.Send(new GetWrappedSummaryQuery(userId, year), cancellationToken);

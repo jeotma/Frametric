@@ -37,6 +37,7 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
             .Union(exportData.Ratings.Select(x => GenerateMovieKey(x.Name, x.Year)))
             .Union(exportData.Watchlist.Select(x => GenerateMovieKey(x.Name, x.Year)))
             .Union(exportData.Likes.Select(x => GenerateMovieKey(x.Name, x.Year)))
+            .Union(exportData.Watched.Select(x => GenerateMovieKey(x.Name, x.Year)))
             .Distinct()
             .ToList();
 
@@ -99,6 +100,14 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
             var movie = GetOrCreateMovie(like.Name, like.Year);
             var movieLike = new MovieLike(Guid.NewGuid(), user.Id, movie.Id, like.Date, importHistory.Id);
             _context.MovieLikes.Add(movieLike);
+        }
+
+        // Process Watched
+        foreach (var watchedItem in exportData.Watched)
+        {
+            var movie = GetOrCreateMovie(watchedItem.Name, watchedItem.Year);
+            var watchedMovie = new WatchedMovie(Guid.NewGuid(), user.Id, movie.Id, watchedItem.Date, importHistory.Id);
+            _context.WatchedMovies.Add(watchedMovie);
         }
 
         await _context.SaveChangesAsync(cancellationToken);

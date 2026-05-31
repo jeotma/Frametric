@@ -1,5 +1,6 @@
 export * from './actor-count-dto';
 export * from './auth-response-dto';
+export * from './dashboard-summary-dto';
 export * from './decade-count-dto';
 export * from './director-count-dto';
 export * from './director-leaderboard-dto';

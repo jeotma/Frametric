@@ -14,6 +14,102 @@ public class DapperAnalyticsService : IAnalyticsService
         _dbConnectionFactory = dbConnectionFactory;
     }
 
+    public async Task<DashboardSummaryDto> GetDashboardSummaryAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        using var connection = _dbConnectionFactory.CreateConnection();
+        var parameters = new { userId };
+
+        // 1. Total Watchtime
+        const string watchtimeSql = @"
+            SELECT CAST(COALESCE(SUM(m.""RuntimeMinutes"" * GREATEST(1, 
+                (SELECT COUNT(*) FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)
+            )), 0) AS INTEGER)
+            FROM ""WatchedMovies"" w
+            JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
+            WHERE w.""UserId"" = @userId";
+        var totalWatchtime = await connection.ExecuteScalarAsync<int>(watchtimeSql, parameters);
+
+        // 2. Total Watches
+        const string totalWatchesSql = @"
+            SELECT CAST(COALESCE(SUM(GREATEST(1, 
+                (SELECT COUNT(*) FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)
+            )), 0) AS INTEGER)
+            FROM ""WatchedMovies"" w
+            WHERE w.""UserId"" = @userId";
+        var totalWatches = await connection.ExecuteScalarAsync<int>(totalWatchesSql, parameters);
+
+        // 3. Unique Movies Count
+        const string uniqueMoviesSql = @"
+            SELECT CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER)
+            FROM ""WatchedMovies"" w
+            WHERE w.""UserId"" = @userId";
+        var uniqueMovies = await connection.ExecuteScalarAsync<int>(uniqueMoviesSql, parameters);
+
+        // 4. Top Genres
+        const string topGenresSql = @"
+            SELECT g.""Name"" AS GenreName, CAST(COALESCE(SUM(GREATEST(1, 
+                (SELECT COUNT(*) FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)
+            )), 0) AS BIGINT) AS Count
+            FROM ""WatchedMovies"" w
+            JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
+            JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
+            WHERE w.""UserId"" = @userId
+            GROUP BY g.""Name""
+            ORDER BY Count DESC, g.""Name""
+            LIMIT 5";
+        var topGenres = (await connection.QueryAsync<GenreCountDto>(topGenresSql, parameters)).ToList();
+
+        // 5. Top Directors
+        const string topDirectorsSql = @"
+            SELECT dr.""Name"" AS DirectorName, CAST(COALESCE(SUM(GREATEST(1, 
+                (SELECT COUNT(*) FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)
+            )), 0) AS BIGINT) AS Count, CAST(COALESCE(AVG((SELECT AVG(""Rating"") FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)), 0) AS DECIMAL) AS AverageRating
+            FROM ""WatchedMovies"" w
+            JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
+            JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+            WHERE w.""UserId"" = @userId
+            GROUP BY dr.""Name""
+            ORDER BY Count DESC, AverageRating DESC
+            LIMIT 5";
+        var topDirectors = (await connection.QueryAsync<DirectorCountDto>(topDirectorsSql, parameters)).ToList();
+
+        // 6. Top Actors
+        const string topActorsSql = @"
+            SELECT a.""Name"" AS ActorName, CAST(COALESCE(SUM(GREATEST(1, 
+                (SELECT COUNT(*) FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)
+            )), 0) AS BIGINT) AS Count, CAST(COALESCE(AVG((SELECT AVG(""Rating"") FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)), 0) AS DECIMAL) AS AverageRating
+            FROM ""WatchedMovies"" w
+            JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
+            JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
+            WHERE w.""UserId"" = @userId
+            GROUP BY a.""Name""
+            ORDER BY Count DESC, AverageRating DESC
+            LIMIT 5";
+        var topActors = (await connection.QueryAsync<ActorCountDto>(topActorsSql, parameters)).ToList();
+
+        // 7. Decade Breakdown
+        const string decadeSql = @"
+            SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, CAST(COALESCE(SUM(GREATEST(1, 
+                (SELECT COUNT(*) FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)
+            )), 0) AS BIGINT) AS Count
+            FROM ""WatchedMovies"" w
+            JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
+            WHERE w.""UserId"" = @userId AND m.""ReleaseYear"" IS NOT NULL
+            GROUP BY Decade
+            ORDER BY Decade ASC";
+        var decadeBreakdown = (await connection.QueryAsync<DecadeCountDto>(decadeSql, parameters)).ToList();
+
+        return new DashboardSummaryDto(
+            totalWatchtime,
+            totalWatches,
+            uniqueMovies,
+            topGenres,
+            topDirectors,
+            topActors,
+            decadeBreakdown
+        );
+    }
+
     public async Task<WrappedSummaryDto> GetWrappedSummaryAsync(Guid userId, int year, CancellationToken cancellationToken)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
