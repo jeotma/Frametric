@@ -40,8 +40,8 @@
   --border-radius-lg: 24px;
   
   // Transitions
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-fast: all 0.15s ease-out;
+  --transition-smooth: all 0.1s ease-out;
+  --transition-fast: all 0.05s ease-out;
 }
 
 // --- Base Resets & Global Styles ---
@@ -211,6 +211,32 @@ a {
   &:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 20px rgba(6, 182, 212, 0.6);
+  }
+}
+
+// Glass Select Input
+.glass-select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  outline: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  option {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
   }
 }
 

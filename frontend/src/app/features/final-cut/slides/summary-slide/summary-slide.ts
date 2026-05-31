@@ -1,12 +1,13 @@
 import { Component, Input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dto';
 import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-summary-slide',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
     <div class="slide-content summary-wrapper">
       <div class="summary-card" id="final-cut-card">
@@ -44,17 +45,29 @@ import html2canvas from 'html2canvas';
                 <li *ngFor="let d of data.topDirectors.slice(0, 5)">{{ d.directorName }}</li>
               </ol>
             </div>
+            <div class="list-box">
+              <span class="list-title">Top Actors</span>
+              <ol>
+                <li *ngFor="let a of data.topActors.slice(0, 5)">{{ a.actorName }}</li>
+              </ol>
+            </div>
           </div>
         </div>
 
         <div class="card-footer">
-          frametric.app / @jesuso
+          <div>frametric.app</div>
+          <div class="user-handle">jesusoteromartinez@outlook.com</div>
         </div>
       </div>
 
-      <button class="share-btn" (click)="share()" [disabled]="isGenerating()">
-        {{ isGenerating() ? 'Generating...' : 'Share Your Final Cut' }}
-      </button>
+      <div class="action-buttons">
+        <button class="share-btn" (click)="share()" [disabled]="isGenerating()">
+          {{ isGenerating() ? 'Generating...' : 'Share Your Final Cut' }}
+        </button>
+        <button routerLink="/" class="exit-btn">
+          Finish & Return
+        </button>
+      </div>
     </div>
   `,
   styles: [`
@@ -69,9 +82,9 @@ import html2canvas from 'html2canvas';
       border-radius: 16px;
       padding: 32px;
       width: 100%;
-      max-width: 400px;
+      max-width: 600px;
       color: #fff;
-      font-family: sans-serif; /* fallback */
+      font-family: 'Inter', sans-serif;
       box-shadow: 0 20px 40px rgba(0,0,0,0.5);
       margin-bottom: 40px;
     }
@@ -153,14 +166,42 @@ import html2canvas from 'html2canvas';
 
     li {
       margin-bottom: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
     }
 
     .card-footer {
       text-align: center;
       color: #666;
-      font-size: 0.8rem;
       border-top: 1px solid #333;
       padding-top: 16px;
+      padding-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .card-footer div {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    
+    .user-handle {
+      color: var(--accent-purple);
+      font-size: 0.8rem;
+      letter-spacing: normal;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+      position: relative;
+      z-index: 100;
+      pointer-events: auto; /* Enable clicks for all buttons */
     }
 
     .share-btn {
@@ -184,6 +225,25 @@ import html2canvas from 'html2canvas';
       opacity: 0.7;
       cursor: wait;
     }
+
+    .exit-btn {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      padding: 10px 24px;
+      border-radius: 99px;
+      font-size: 0.95rem;
+      font-family: var(--font-display);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .exit-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
   `]
 })
 export class SummarySlideComponent {
@@ -198,11 +258,24 @@ export class SummarySlideComponent {
       const element = document.getElementById('final-cut-card');
       if (!element) return;
 
+      // Force fixed width for a pristine snapshot
+      const originalWidth = element.style.width;
+      const originalMaxWidth = element.style.maxWidth;
+      element.style.width = '600px';
+      element.style.maxWidth = '600px';
+      
+      // Wait a tick for the browser to apply layout changes
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const canvas = await html2canvas(element, {
         scale: 2, // High resolution
         backgroundColor: '#111116',
         useCORS: true
       });
+      
+      // Restore styles
+      element.style.width = originalWidth;
+      element.style.maxWidth = originalMaxWidth;
 
       const image = canvas.toDataURL('image/png');
       

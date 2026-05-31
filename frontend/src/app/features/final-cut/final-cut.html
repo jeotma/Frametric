@@ -1,32 +1,50 @@
 <div class="final-cut-container" *ngIf="!loading() && data(); else loader">
   
-  <!-- Year Selector Overlay -->
-  <div class="year-selector">
-    <select (change)="onYearChange($event)" class="glass-select">
-      <option [value]="2026" [selected]="year() === 2026">2026</option>
-      <option [value]="2025" [selected]="year() === 2025">2025</option>
-      <option [value]="2024" [selected]="year() === 2024">2024</option>
-    </select>
+  <!-- Top Controls -->
+  <div class="top-controls">
+    <div style="flex: 1;"></div>
+    
+    <button class="pause-btn" (click)="togglePause()" title="Play/Pause">
+      <!-- Pause Icon -->
+      <svg *ngIf="!isManuallyPaused()" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="4" width="4" height="16"></rect>
+        <rect x="14" y="4" width="4" height="16"></rect>
+      </svg>
+      <!-- Play Icon -->
+      <svg *ngIf="isManuallyPaused()" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      </svg>
+    </button>
   </div>
 
   <!-- Progress Bar -->
   <div class="progress-bars">
-    <div *ngFor="let i of [0, 1, 2, 3, 4]" class="progress-bar-bg" [class.active]="i === activeSlide()" [class.completed]="i < activeSlide()">
-      <div class="progress-bar-fill"></div>
+    <div *ngFor="let i of [0, 1, 2, 3, 4, 5]" class="progress-bar-bg" [class.active]="i === activeSlide()" [class.completed]="i < activeSlide()">
+      <div class="progress-bar-fill" [style.width.%]="i === activeSlide() ? slideProgress() : (i < activeSlide() ? 100 : 0)"></div>
     </div>
   </div>
 
   <!-- Navigation Overlays -->
-  <div class="nav-zone left-zone" (click)="prevSlide()"></div>
-  <div class="nav-zone right-zone" (click)="nextSlide()"></div>
+  <div class="nav-zone left-zone" 
+       (pointerdown)="onPointerDown()" 
+       (pointerup)="onPointerUp('left')" 
+       (pointerleave)="onPointerLeave()"
+       (pointercancel)="onPointerLeave()"></div>
+       
+  <div class="nav-zone right-zone" 
+       (pointerdown)="onPointerDown()" 
+       (pointerup)="onPointerUp('right')" 
+       (pointerleave)="onPointerLeave()"
+       (pointercancel)="onPointerLeave()"></div>
 
   <!-- Slides -->
   <div class="slides-wrapper">
     <app-intro-slide *ngIf="activeSlide() === 0" [data]="data()!" [year]="year()"></app-intro-slide>
     <app-genre-slide *ngIf="activeSlide() === 1" [data]="data()!"></app-genre-slide>
     <app-director-slide *ngIf="activeSlide() === 2" [data]="data()!"></app-director-slide>
-    <app-decade-slide *ngIf="activeSlide() === 3" [data]="data()!"></app-decade-slide>
-    <app-summary-slide *ngIf="activeSlide() === 4" [data]="data()!" [year]="year()"></app-summary-slide>
+    <app-actor-slide *ngIf="activeSlide() === 3" [data]="data()!"></app-actor-slide>
+    <app-decade-slide *ngIf="activeSlide() === 4" [data]="data()!"></app-decade-slide>
+    <app-summary-slide *ngIf="activeSlide() === 5" [data]="data()!" [year]="year()"></app-summary-slide>
   </div>
 </div>
 

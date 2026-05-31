@@ -11,17 +11,17 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
       <h2 class="slide-title" style="font-size: 2rem;">A journey through time</h2>
       <p class="subtitle">Your favorite cinematic era.</p>
       
-      <div class="timeline" *ngIf="data.decadeBreakdown && data.decadeBreakdown.length > 0">
+      <div class="timeline" *ngIf="sortedDecades.length > 0">
         <div class="timeline-item main-era">
-          <span class="decade">{{ data.decadeBreakdown[0].decade }}s</span>
-          <span class="movies">{{ data.decadeBreakdown[0].count }} movies</span>
+          <span class="decade">{{ sortedDecades[0].decade }}s</span>
+          <span class="movies">{{ sortedDecades[0].count }} movies</span>
         </div>
         
-        <div class="other-eras" *ngIf="data.decadeBreakdown.length > 1">
-          <div class="mini-era" *ngFor="let era of data.decadeBreakdown.slice(1, 4)">
+        <div class="other-eras" *ngIf="sortedDecades.length > 1">
+          <div class="mini-era" *ngFor="let era of sortedDecades.slice(1, 4)">
             <span class="d">{{ era.decade }}s</span>
             <div class="bar-container">
-              <div class="bar" [style.width.%]="(era.count! / data.decadeBreakdown[0].count!) * 100"></div>
+              <div class="bar" [style.width.%]="(era.count! / sortedDecades[0].count!) * 100"></div>
             </div>
             <span class="c">{{ era.count }}</span>
           </div>
@@ -111,4 +111,8 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
 })
 export class DecadeSlideComponent {
   @Input({ required: true }) data!: WrappedSummaryDto;
+
+  get sortedDecades() {
+    return [...(this.data?.decadeBreakdown || [])].sort((a, b) => (b.count || 0) - (a.count || 0));
+  }
 }

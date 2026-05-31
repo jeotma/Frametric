@@ -31,11 +31,11 @@ This phase shifts focus to the client-side experience. We will build a premium, 
 
 ## Step 5: Spotify Wrapped-Style Interactive Experience
 
-- [ ] Implement a mobile-first, interactive slideshow presentation with fluid micro-animations (slide-in, fade-out, zoom).
-- [ ] Standardize the wrapped story pages:
+- [x] Implement a mobile-first, interactive slideshow presentation with fluid micro-animations (slide-in, fade-out, zoom).
+- [x] Standardize the wrapped story pages:
   - **Intro:** Welcome cinematic screen with key achievements (e.g., "In 2025, you spent X hours in front of the screen").
   - **Genre Story:** A visual explosion of the favorite genre.
   - **Director/Actor Focus:** Card style display of the most watched filmmaker.
   - **Decade Journey:** Animation tracing the era of the movies watched.
   - **Summary Card:** A gorgeous, consolidated stats overview page.
-- [ ] Add sharing functionality by rendering the Summary Card into a shareable image file (`PNG/JPG`) via `html2canvas` or a server-side rendering API.
+- [x] Add sharing functionality by rendering the Summary Card into a shareable image file (`PNG/JPG`) via `html2canvas` or a server-side rendering API.

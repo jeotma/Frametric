@@ -1,19 +1,48 @@
 <div class="wrapped-showcase animate-slide-up">
   <div class="card-glow glow-purple glass-card cinematic-teaser-card">
     <span class="teaser-tag">CINEMATIC PREVIEW</span>
-    <h2>Your 2026 Final Cut</h2>
-    <p>Relive your year through the art of filmmaking. We analyzed every frame, hour, and director you encountered in 2026.</p>
+    <h2>Your Final Cut</h2>
+    <p>Relive your year through the art of filmmaking. We analyzed every frame, genre, and director you encountered along the year.</p>
     
-    <div class="teaser-poster-mock">
-      <div class="poster-overlay">
-        <span class="play-icon">▶</span>
-      </div>
-      <div class="poster-glare"></div>
+    <div class="teaser-poster-mock" (click)="togglePromo()" style="cursor: pointer;">
+      
+      <ng-container *ngIf="!isPlayingPromo()">
+        <div class="poster-overlay">
+          <span class="play-icon">▶</span>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="isPlayingPromo()">
+        <div class="promo-player">
+          <div class="promo-frame animate-fade-zoom" *ngIf="promoStep() === 0">
+            <h3>Your cinematic year,<br>unraveled.</h3>
+          </div>
+          <div class="promo-frame animate-slide-left" *ngIf="promoStep() === 1">
+            <h3>Relive your favorite <span class="highlight">Movies & Actors</span></h3>
+          </div>
+          <div class="promo-frame animate-fade-zoom" *ngIf="promoStep() === 2">
+            <h3>Discover your top<br><span class="highlight">Directors & Genres</span></h3>
+          </div>
+          <div class="promo-frame animate-focus-in" *ngIf="promoStep() === 3">
+            <h3>Generate your aesthetic<br>shareable infographic.</h3>
+          </div>
+          <div class="promo-frame promo-end" *ngIf="promoStep() === 4">
+            <h3>Ready to see it?</h3>
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="poster-glare" *ngIf="!isPlayingPromo()"></div>
     </div>
 
-    <button routerLink="/final-cut/2025" class="btn btn-primary btn-lg" style="margin-top: 24px;">
-      <span>Begin Cinematic Slideshow</span>
-    </button>
+    <div style="margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+      <select (change)="onYearChange($event)" class="glass-select" style="width: 120px; text-align: center;">
+        <option *ngFor="let y of availableYears" [value]="y" [selected]="y === selectedYear()">{{ y }}</option>
+      </select>
+      <button [routerLink]="['/final-cut', selectedYear()]" class="btn btn-primary btn-lg">
+        <span>Begin Cinematic Slideshow</span>
+      </button>
+    </div>
   </div>
 
   <div class="features-grid">
@@ -23,7 +52,7 @@
     </div>
     <div class="glass-card feature-item-card">
       <h4>Shareable Infographics</h4>
-      <p>Generate highly aesthetic, downloadable summary cards to share directly on social media networks.</p>
+      <p>Generate aesthetic, downloadable summary cards to share directly on social media networks.</p>
     </div>
   </div>
 </div>
