@@ -1,0 +1,38 @@
+<div class="final-cut-container" *ngIf="!loading() && data(); else loader">
+  
+  <!-- Year Selector Overlay -->
+  <div class="year-selector">
+    <select (change)="onYearChange($event)" class="glass-select">
+      <option [value]="2026" [selected]="year() === 2026">2026</option>
+      <option [value]="2025" [selected]="year() === 2025">2025</option>
+      <option [value]="2024" [selected]="year() === 2024">2024</option>
+    </select>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-bars">
+    <div *ngFor="let i of [0, 1, 2, 3, 4]" class="progress-bar-bg" [class.active]="i === activeSlide()" [class.completed]="i < activeSlide()">
+      <div class="progress-bar-fill"></div>
+    </div>
+  </div>
+
+  <!-- Navigation Overlays -->
+  <div class="nav-zone left-zone" (click)="prevSlide()"></div>
+  <div class="nav-zone right-zone" (click)="nextSlide()"></div>
+
+  <!-- Slides -->
+  <div class="slides-wrapper">
+    <app-intro-slide *ngIf="activeSlide() === 0" [data]="data()!" [year]="year()"></app-intro-slide>
+    <app-genre-slide *ngIf="activeSlide() === 1" [data]="data()!"></app-genre-slide>
+    <app-director-slide *ngIf="activeSlide() === 2" [data]="data()!"></app-director-slide>
+    <app-decade-slide *ngIf="activeSlide() === 3" [data]="data()!"></app-decade-slide>
+    <app-summary-slide *ngIf="activeSlide() === 4" [data]="data()!" [year]="year()"></app-summary-slide>
+  </div>
+</div>
+
+<ng-template #loader>
+  <div class="loader-container">
+    <div class="pulse-green loader-pulse"></div>
+    <p>Preparing the Final Cut...</p>
+  </div>
+</ng-template>

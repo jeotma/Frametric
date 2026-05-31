@@ -17,7 +17,29 @@ export const routes: Routes = [
   {
     path: '',
     canActivate: [authGuard],
-    loadComponent: () => import('./app').then(m => m.App),
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./components/dashboard/dashboard').then(m => m.DashboardComponent)
+      },
+      {
+        path: 'final-cut-teaser',
+        loadComponent: () => import('./components/final-cut-teaser/final-cut-teaser').then(m => m.FinalCutTeaserComponent)
+      },
+      {
+        path: 'imports',
+        loadComponent: () => import('./components/import-center/import-center').then(m => m.ImportCenterComponent)
+      },
+      {
+        path: 'final-cut/:year',
+        loadComponent: () => import('./features/final-cut/final-cut').then(m => m.FinalCutComponent)
+      },
+      {
+        path: 'stats',
+        loadComponent: () => import('./features/stats/stats').then(m => m.StatsComponent)
+      }
+    ]
   },
   // Fallback
   { path: '**', redirectTo: '' },

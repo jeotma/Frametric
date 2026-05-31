@@ -115,79 +115,91 @@ public class DapperAnalyticsService : IAnalyticsService
         using var connection = _dbConnectionFactory.CreateConnection();
         var parameters = new { userId, year };
 
+        string yearlyWatchesCte = @"
+            WITH YearlyWatches AS (
+                SELECT d.""MovieId"", d.""WatchedDate"" AS WatchDate, d.""Rating""
+                FROM ""DiaryEntries"" d
+                WHERE d.""UserId"" = @userId AND EXTRACT(YEAR FROM d.""WatchedDate"") = @year
+
+                UNION ALL
+
+                SELECT w.""MovieId"", w.""Date"" AS WatchDate, NULL AS Rating
+                FROM ""WatchedMovies"" w
+                WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year
+                AND NOT EXISTS (
+                    SELECT 1 FROM ""DiaryEntries"" d2
+                    WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId"" 
+                    AND EXTRACT(YEAR FROM d2.""WatchedDate"") = @year
+                )
+            )
+        ";
+
         // 1. Total Watchtime
-        const string watchtimeSql = @"
-            SELECT COALESCE(SUM(m.""RuntimeMinutes""), 0)
-            FROM ""DiaryEntries"" d
-            JOIN ""Movies"" m ON d.""MovieId"" = m.""Id""
-            WHERE d.""UserId"" = @userId AND EXTRACT(YEAR FROM d.""WatchedDate"") = @year";
+        string watchtimeSql = yearlyWatchesCte + @"
+            SELECT COALESCE(SUM(CAST(m.""RuntimeMinutes"" AS BIGINT)), 0)
+            FROM YearlyWatches yw
+            JOIN ""Movies"" m ON yw.""MovieId"" = m.""Id""";
         var totalWatchtime = await connection.ExecuteScalarAsync<int>(watchtimeSql, parameters);
 
         // 2. Total Watches
-        const string totalWatchesSql = @"
+        string totalWatchesSql = yearlyWatchesCte + @"
             SELECT COUNT(*)
-            FROM ""DiaryEntries"" d
-            WHERE d.""UserId"" = @userId AND EXTRACT(YEAR FROM d.""WatchedDate"") = @year";
+            FROM YearlyWatches yw";
         var totalWatches = await connection.ExecuteScalarAsync<int>(totalWatchesSql, parameters);
 
         // 3. Unique Movies Count
-        const string uniqueMoviesSql = @"
-            SELECT COUNT(DISTINCT d.""MovieId"")
-            FROM ""DiaryEntries"" d
-            WHERE d.""UserId"" = @userId AND EXTRACT(YEAR FROM d.""WatchedDate"") = @year";
+        string uniqueMoviesSql = yearlyWatchesCte + @"
+            SELECT COUNT(DISTINCT yw.""MovieId"")
+            FROM YearlyWatches yw";
         var uniqueMovies = await connection.ExecuteScalarAsync<int>(uniqueMoviesSql, parameters);
 
         // 4. Top Genres
-        const string topGenresSql = @"
+        string topGenresSql = yearlyWatchesCte + @"
             SELECT g.""Name"" AS GenreName, COUNT(*) AS Count
-            FROM ""DiaryEntries"" d
-            JOIN ""MovieGenre"" mg ON d.""MovieId"" = mg.""MoviesId""
+            FROM YearlyWatches yw
+            JOIN ""MovieGenre"" mg ON yw.""MovieId"" = mg.""MoviesId""
             JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
-            WHERE d.""UserId"" = @userId AND EXTRACT(YEAR FROM d.""WatchedDate"") = @year
             GROUP BY g.""Name""
             ORDER BY Count DESC, g.""Name""
             LIMIT 5";
         var topGenres = (await connection.QueryAsync<GenreCountDto>(topGenresSql, parameters)).ToList();
 
         // 5. Top Directors
-        const string topDirectorsSql = @"
-            SELECT dr.""Name"" AS DirectorName, COUNT(*) AS Count, COALESCE(AVG(d.""Rating""), 0) AS AverageRating
-            FROM ""DiaryEntries"" d
-            JOIN ""MovieDirector"" md ON d.""MovieId"" = md.""MoviesId""
+        string topDirectorsSql = yearlyWatchesCte + @"
+            SELECT dr.""Name"" AS DirectorName, COUNT(*) AS Count, COALESCE(AVG(yw.""Rating""), 0) AS AverageRating
+            FROM YearlyWatches yw
+            JOIN ""MovieDirector"" md ON yw.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
-            WHERE d.""UserId"" = @userId AND EXTRACT(YEAR FROM d.""WatchedDate"") = @year
             GROUP BY dr.""Name""
             ORDER BY Count DESC, AverageRating DESC
             LIMIT 5";
         var topDirectors = (await connection.QueryAsync<DirectorCountDto>(topDirectorsSql, parameters)).ToList();
 
         // 6. Top Actors
-        const string topActorsSql = @"
-            SELECT a.""Name"" AS ActorName, COUNT(*) AS Count, COALESCE(AVG(d.""Rating""), 0) AS AverageRating
-            FROM ""DiaryEntries"" d
-            JOIN ""MovieActor"" ma ON d.""MovieId"" = ma.""MoviesId""
+        string topActorsSql = yearlyWatchesCte + @"
+            SELECT a.""Name"" AS ActorName, COUNT(*) AS Count, COALESCE(AVG(yw.""Rating""), 0) AS AverageRating
+            FROM YearlyWatches yw
+            JOIN ""MovieActor"" ma ON yw.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
-            WHERE d.""UserId"" = @userId AND EXTRACT(YEAR FROM d.""WatchedDate"") = @year
             GROUP BY a.""Name""
             ORDER BY Count DESC, AverageRating DESC
             LIMIT 5";
         var topActors = (await connection.QueryAsync<ActorCountDto>(topActorsSql, parameters)).ToList();
 
         // 7. Decade Breakdown
-        const string decadeSql = @"
+        string decadeSql = yearlyWatchesCte + @"
             SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, COUNT(*) AS Count
-            FROM ""DiaryEntries"" d
-            JOIN ""Movies"" m ON d.""MovieId"" = m.""Id""
-            WHERE d.""UserId"" = @userId AND EXTRACT(YEAR FROM d.""WatchedDate"") = @year AND m.""ReleaseYear"" IS NOT NULL
+            FROM YearlyWatches yw
+            JOIN ""Movies"" m ON yw.""MovieId"" = m.""Id""
+            WHERE m.""ReleaseYear"" IS NOT NULL
             GROUP BY Decade
             ORDER BY Decade ASC";
         var decadeBreakdown = (await connection.QueryAsync<DecadeCountDto>(decadeSql, parameters)).ToList();
 
         // 8. Monthly Activity
-        const string monthlySql = @"
-            SELECT CAST(EXTRACT(MONTH FROM d.""WatchedDate"") AS INTEGER) AS Month, COUNT(*) AS Count
-            FROM ""DiaryEntries"" d
-            WHERE d.""UserId"" = @userId AND EXTRACT(YEAR FROM d.""WatchedDate"") = @year
+        string monthlySql = yearlyWatchesCte + @"
+            SELECT CAST(EXTRACT(MONTH FROM yw.WatchDate) AS INTEGER) AS Month, COUNT(*) AS Count
+            FROM YearlyWatches yw
             GROUP BY Month
             ORDER BY Month ASC";
         var monthlyActivity = (await connection.QueryAsync<MonthlyActivityDto>(monthlySql, parameters)).ToList();
@@ -215,19 +227,36 @@ public class DapperAnalyticsService : IAnalyticsService
         using var connection = _dbConnectionFactory.CreateConnection();
         var parameters = new { userId, year };
 
-        const string monthlySql = @"
-            SELECT CAST(EXTRACT(MONTH FROM d.""WatchedDate"") AS INTEGER) AS Month, COUNT(*) AS Count
-            FROM ""DiaryEntries"" d
-            WHERE d.""UserId"" = @userId AND EXTRACT(YEAR FROM d.""WatchedDate"") = @year
+        string yearlyWatchesCte = @"
+            WITH YearlyWatches AS (
+                SELECT d.""MovieId"", d.""WatchedDate"" AS WatchDate
+                FROM ""DiaryEntries"" d
+                WHERE d.""UserId"" = @userId AND EXTRACT(YEAR FROM d.""WatchedDate"") = @year
+
+                UNION ALL
+
+                SELECT w.""MovieId"", w.""Date"" AS WatchDate
+                FROM ""WatchedMovies"" w
+                WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year
+                AND NOT EXISTS (
+                    SELECT 1 FROM ""DiaryEntries"" d2
+                    WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId"" 
+                    AND EXTRACT(YEAR FROM d2.""WatchedDate"") = @year
+                )
+            )
+        ";
+
+        string monthlySql = yearlyWatchesCte + @"
+            SELECT CAST(EXTRACT(MONTH FROM yw.WatchDate) AS INTEGER) AS Month, COUNT(*) AS Count
+            FROM YearlyWatches yw
             GROUP BY Month
             ORDER BY Month ASC";
         var monthlyList = (await connection.QueryAsync<MonthlyWatchesDto>(monthlySql, parameters)).ToList();
 
-        const string weeklySql = @"
-            SELECT TRIM(TO_CHAR(d.""WatchedDate"", 'Day')) AS DayOfWeek, COUNT(*) AS Count,
-                   CAST(EXTRACT(ISODOW FROM d.""WatchedDate"") AS INTEGER) AS DayIndex
-            FROM ""DiaryEntries"" d
-            WHERE d.""UserId"" = @userId AND EXTRACT(YEAR FROM d.""WatchedDate"") = @year
+        string weeklySql = yearlyWatchesCte + @"
+            SELECT TRIM(TO_CHAR(yw.WatchDate, 'Day')) AS DayOfWeek, COUNT(*) AS Count,
+                   CAST(EXTRACT(ISODOW FROM yw.WatchDate) AS INTEGER) AS DayIndex
+            FROM YearlyWatches yw
             GROUP BY DayOfWeek, DayIndex
             ORDER BY DayIndex ASC";
         var weeklyList = (await connection.QueryAsync<dynamic>(weeklySql, parameters))

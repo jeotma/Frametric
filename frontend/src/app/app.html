@@ -1,10 +1,7 @@
 <ng-container *ngIf="auth.isAuthenticated(); else unauthenticatedLayout">
   <div class="app-container">
     <!-- Standalone Sidebar Component -->
-    <app-sidebar 
-      [activeTab]="activeTab()" 
-      (tabSelected)="selectTab($event)"
-    ></app-sidebar>
+    <app-sidebar></app-sidebar>
 
     <!-- Main Content Frame -->
     <main class="main-content">
@@ -32,20 +29,7 @@
       </header>
 
       <div class="content-body animate-fade-in">
-        <!-- 1. DASHBOARD VIEW -->
-        <app-dashboard 
-          *ngIf="activeTab() === 'dashboard'"
-        ></app-dashboard>
-
-        <!-- 2. IMPORTS VIEW -->
-        <app-import-center 
-          *ngIf="activeTab() === 'imports'"
-        ></app-import-center>
-
-        <!-- 3. WRAPPED VIEW -->
-        <app-wrapped-teaser 
-          *ngIf="activeTab() === 'wrapped'"
-        ></app-wrapped-teaser>
+        <router-outlet></router-outlet>
       </div>
     </main>
   </div>

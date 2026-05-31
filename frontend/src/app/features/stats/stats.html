@@ -1,0 +1,62 @@
+<div class="stats-container animate-fade-in">
+  
+  <div class="header-section">
+    <div>
+      <h1 class="page-title">Advanced Statistics</h1>
+      <p class="subtitle">Deep dive into your viewing habits and metrics.</p>
+    </div>
+    
+    <div class="filters-panel glass-panel">
+      <div class="filter-group">
+        <label>Time Period</label>
+        <select [(ngModel)]="selectedYear" class="form-select">
+          <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="loader-state" *ngIf="loading()">
+    <div class="pulse-green loader-pulse"></div>
+    <span>Crunching numbers...</span>
+  </div>
+
+  <div class="dashboard-grid" *ngIf="!loading() && data()">
+    
+    <!-- Summary Cards -->
+    <div class="stat-card glass-panel">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 2 7 12 12 22 7 12 2" />
+          <polyline points="2 17 12 22 22 17" />
+          <polyline points="2 12 12 17 22 12" />
+        </svg>
+      </div>
+      <div class="card-info">
+        <span class="label">Total Watches</span>
+        <span class="value">{{ totalWatches() }}</span>
+      </div>
+    </div>
+
+    <!-- Monthly Activity Chart (CSS Bar Chart Implementation) -->
+    <div class="chart-card glass-panel full-width">
+      <h3 class="card-title">Monthly Activity</h3>
+      
+      <div class="css-chart" *ngIf="data()?.monthlyActivity && data()!.monthlyActivity!.length > 0">
+        <div class="bar-col" *ngFor="let month of data()?.monthlyActivity">
+          <!-- We calculate height percentage based on a max value. For simplicity, we just use raw count * some factor, or a fixed max -->
+          <div class="bar-value">{{ month.count }}</div>
+          <div class="bar-fill-container">
+            <!-- Assume max is around 50 movies per month for visual scaling -->
+            <div class="bar-fill" [style.height.%]="((month.count || 0) / 50) * 100"></div>
+          </div>
+          <div class="bar-label">M{{ month.month }}</div>
+        </div>
+      </div>
+      <div *ngIf="!data()?.monthlyActivity || data()!.monthlyActivity!.length === 0" class="no-data">
+        No activity recorded for this period.
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -4,9 +4,6 @@ import { CommonModule } from '@angular/common';
 
 // Standalone Child Components Import
 import { SidebarComponent } from './components/sidebar/sidebar';
-import { DashboardComponent } from './components/dashboard/dashboard';
-import { ImportCenterComponent } from './components/import-center/import-center';
-import { WrappedTeaserComponent } from './components/wrapped-teaser/wrapped-teaser';
 import { AuthService } from './core/services/auth.service';
 
 @Component({
@@ -14,10 +11,7 @@ import { AuthService } from './core/services/auth.service';
   imports: [
     RouterOutlet, 
     CommonModule, 
-    SidebarComponent, 
-    DashboardComponent, 
-    ImportCenterComponent, 
-    WrappedTeaserComponent
+    SidebarComponent
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -26,9 +20,6 @@ export class App {
   protected readonly title = signal('Frametric');
   
   public auth = inject(AuthService);
-
-  // Navigation active tab simulator
-  public activeTab = signal<'dashboard' | 'imports' | 'wrapped'>('dashboard');
 
   // Dashboard mock stats
   public stats = signal({
@@ -41,8 +32,4 @@ export class App {
 
   // UI States
   public isUploading = signal(false);
-
-  public selectTab(tab: 'dashboard' | 'imports' | 'wrapped') {
-    this.activeTab.set(tab);
-  }
 }

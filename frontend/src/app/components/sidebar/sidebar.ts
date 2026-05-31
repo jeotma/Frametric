@@ -1,17 +1,13 @@
-import { Component, input, output } from '@angular/core';
+import { Component } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })
 export class SidebarComponent {
-  // Inputs & Outputs in Angular 19 style (signals)
-  public activeTab = input.required<'dashboard' | 'imports' | 'wrapped'>();
-  public tabSelected = output<'dashboard' | 'imports' | 'wrapped'>();
-
-  public selectTab(tab: 'dashboard' | 'imports' | 'wrapped') {
-    this.tabSelected.emit(tab);
-  }
+  // We now use RouterLinkActive for state
 }

@@ -1,0 +1,155 @@
+.final-cut-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+.loader-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  color: var(--text-muted);
+  font-family: var(--font-heading);
+}
+
+.loader-pulse {
+  width: 24px;
+  height: 24px;
+}
+
+/* Year Selector */
+.year-selector {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 100;
+}
+
+.glass-select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  outline: none;
+  cursor: pointer;
+
+  option {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+  }
+}
+
+/* Progress Bars */
+.progress-bars {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  gap: 6px;
+  z-index: 100;
+}
+
+.progress-bar-bg {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: white;
+  transition: width 0.3s linear;
+}
+
+.progress-bar-bg.completed .progress-bar-fill {
+  width: 100%;
+}
+
+.progress-bar-bg.active .progress-bar-fill {
+  width: 100%;
+  /* Here we would normally animate from 0 to 100 over X seconds if auto-advancing */
+  animation: fillProgress 10s linear forwards;
+}
+
+@keyframes fillProgress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+/* Navigation Zones */
+.nav-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  z-index: 50;
+  cursor: pointer;
+}
+
+.left-zone { left: 0; }
+.right-zone { right: 0; width: 70%; } /* Right zone is larger for easier advancing */
+
+/* Slides Wrapper */
+.slides-wrapper {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Global Slide Classes */
+::ng-deep .slide-content {
+  width: 100%;
+  height: 100%;
+  padding: 64px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  animation: fadeZoomIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeZoomIn {
+  0% { opacity: 0; transform: scale(0.95) translateY(20px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+::ng-deep .slide-title {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  letter-spacing: -0.03em;
+  background: linear-gradient(to right, #fff, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+::ng-deep .slide-value {
+  font-size: 5rem;
+  font-weight: 900;
+  color: var(--accent-purple);
+  text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+  margin: 20px 0;
+}
