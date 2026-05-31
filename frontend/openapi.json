@@ -11,6 +11,1189 @@
     }
   ],
   "paths": {
+    "/api/analytics/advanced/watched/by-release-year": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "parameters": [
+          {
+            "name": "releaseYear",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieSimpleDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieSimpleDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieSimpleDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watched/directors": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DirectorCountDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DirectorCountDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DirectorCountDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watched/actors": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ActorCountDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ActorCountDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ActorCountDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watched/genres": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GenreCountDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GenreCountDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GenreCountDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watched/decades": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DecadeCountDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DecadeCountDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DecadeCountDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watched/most-repeated-actor": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorCountDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorCountDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorCountDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watched/most-watched-director": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectorCountDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectorCountDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectorCountDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watched/predominant-era": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EraBreakdownDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EraBreakdownDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EraBreakdownDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watched/director-ranking": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DirectorLeaderboardDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DirectorLeaderboardDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DirectorLeaderboardDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watched/total-time": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "parameters": [
+          {
+            "name": "filterType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filterName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeInvestedDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeInvestedDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeInvestedDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watched/preferred-day": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PreferredDayDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PreferredDayDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PreferredDayDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watched/rating-evolution": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RatingEvolutionDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RatingEvolutionDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RatingEvolutionDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watched/genre-streaks": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GenreStreakDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GenreStreakDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GenreStreakDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watched/longest-movie": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieSimpleDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieSimpleDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieSimpleDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watched/casting-repetitions": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CastingPairDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CastingPairDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CastingPairDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watchlist/by-release-year": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "parameters": [
+          {
+            "name": "releaseYear",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieSimpleDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieSimpleDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieSimpleDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watchlist/directors": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DirectorCountDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DirectorCountDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DirectorCountDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watchlist/actors": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ActorCountDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ActorCountDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ActorCountDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watchlist/genres": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GenreCountDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GenreCountDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GenreCountDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watchlist/decades": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DecadeCountDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DecadeCountDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DecadeCountDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watchlist/most-anticipated-director": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectorCountDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectorCountDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectorCountDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watchlist/most-anticipated-actor": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorCountDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorCountDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorCountDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watchlist/total-watchtime": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeInvestedDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeInvestedDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeInvestedDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watchlist/oldest-pending": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieSimpleDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieSimpleDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieSimpleDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watchlist/by-era": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EraBreakdownDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EraBreakdownDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EraBreakdownDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watchlist/ghost-actor": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GhostActorDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GhostActorDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GhostActorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watchlist/golden-director": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoldenDirectorDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoldenDirectorDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoldenDirectorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watchlist/duration-balance": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DurationBalanceDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DurationBalanceDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DurationBalanceDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/watchlist/genre-proportion": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GenreProportionDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GenreProportionDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GenreProportionDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/bonus/weekend-warrior": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeekendWarriorDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeekendWarriorDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeekendWarriorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/bonus/hidden-gems": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieSimpleDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieSimpleDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieSimpleDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/bonus/watchlist-graveyard": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieSimpleDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieSimpleDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieSimpleDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/advanced/bonus/cinematic-fatigue": {
+      "get": {
+        "tags": [
+          "AdvancedAnalytics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CinematicFatigueDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CinematicFatigueDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CinematicFatigueDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Analytics/dashboard": {
       "get": {
         "tags": [
@@ -692,6 +1875,43 @@
           }
         }
       },
+      "CastingPairDto": {
+        "required": [
+          "actor1Name",
+          "actor2Name",
+          "collaborationCount"
+        ],
+        "type": "object",
+        "properties": {
+          "actor1Name": {
+            "type": "string"
+          },
+          "actor2Name": {
+            "type": "string"
+          },
+          "collaborationCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CinematicFatigueDto": {
+        "required": [
+          "avgRatingLightDays",
+          "avgRatingHeavyDays"
+        ],
+        "type": "object",
+        "properties": {
+          "avgRatingLightDays": {
+            "type": "number",
+            "format": "double"
+          },
+          "avgRatingHeavyDays": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
       "DashboardSummaryDto": {
         "required": [
           "totalWatchtimeMinutes",
@@ -806,6 +2026,38 @@
           }
         }
       },
+      "DurationBalanceDto": {
+        "required": [
+          "durationCategory",
+          "count"
+        ],
+        "type": "object",
+        "properties": {
+          "durationCategory": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "EraBreakdownDto": {
+        "required": [
+          "eraName",
+          "count"
+        ],
+        "type": "object",
+        "properties": {
+          "eraName": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "GenreCountDto": {
         "required": [
           "genreName",
@@ -819,6 +2071,90 @@
           "count": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "GenreProportionDto": {
+        "required": [
+          "genreName",
+          "watchedCount",
+          "pendingCount"
+        ],
+        "type": "object",
+        "properties": {
+          "genreName": {
+            "type": "string"
+          },
+          "watchedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pendingCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GenreStreakDto": {
+        "required": [
+          "genreName",
+          "streakLength",
+          "startDate",
+          "endDate"
+        ],
+        "type": "object",
+        "properties": {
+          "genreName": {
+            "type": "string"
+          },
+          "streakLength": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "GhostActorDto": {
+        "required": [
+          "actorName",
+          "pendingMoviesCount"
+        ],
+        "type": "object",
+        "properties": {
+          "actorName": {
+            "type": "string"
+          },
+          "pendingMoviesCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GoldenDirectorDto": {
+        "required": [
+          "directorName",
+          "averageRatingInHistory",
+          "pendingMoviesCount"
+        ],
+        "type": "object",
+        "properties": {
+          "directorName": {
+            "type": "string"
+          },
+          "averageRatingInHistory": {
+            "type": "number",
+            "format": "double"
+          },
+          "pendingMoviesCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -927,6 +2263,49 @@
           }
         }
       },
+      "MovieSimpleDto": {
+        "required": [
+          "id",
+          "title",
+          "releaseYear",
+          "posterPath"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "releaseYear": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "posterPath": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PreferredDayDto": {
+        "required": [
+          "dayOfWeek",
+          "watchCount"
+        ],
+        "type": "object",
+        "properties": {
+          "dayOfWeek": {
+            "type": "string"
+          },
+          "watchCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "ProblemDetails": {
         "type": "object",
         "properties": {
@@ -950,6 +2329,23 @@
           "instance": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "RatingEvolutionDto": {
+        "required": [
+          "month",
+          "averageRating"
+        ],
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "averageRating": {
+            "type": "number",
+            "format": "double"
           }
         }
       },
@@ -980,6 +2376,44 @@
           },
           "password": {
             "type": "string"
+          }
+        }
+      },
+      "TimeInvestedDto": {
+        "required": [
+          "name",
+          "totalMinutes",
+          "totalHours"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "totalMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalHours": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WeekendWarriorDto": {
+        "required": [
+          "weekendWatches",
+          "weekdayWatches"
+        ],
+        "type": "object",
+        "properties": {
+          "weekendWatches": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weekdayWatches": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -1077,6 +2511,9 @@
     }
   ],
   "tags": [
+    {
+      "name": "AdvancedAnalytics"
+    },
     {
       "name": "Analytics"
     },

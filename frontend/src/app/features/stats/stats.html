@@ -5,57 +5,206 @@
       <h1 class="page-title">Advanced Statistics</h1>
       <p class="subtitle">Deep dive into your viewing habits and metrics.</p>
     </div>
+  </div>
+
+  <div class="explorer-layout">
     
-    <div class="filters-panel glass-panel">
-      <div class="filter-group">
-        <label>Time Period</label>
-        <select [(ngModel)]="selectedYear" class="form-select">
-          <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
+    <!-- Sidebar / Query Selector -->
+    <div class="explorer-sidebar glass-panel">
+      <div class="control-group">
+        <label>Category</label>
+        <select [ngModel]="selectedCategory()" (ngModelChange)="onCategoryChange($event)" class="form-select">
+          <option *ngFor="let cat of categoriesList()" [value]="cat">{{ cat }}</option>
         </select>
       </div>
-    </div>
-  </div>
 
-  <div class="loader-state" *ngIf="loading()">
-    <div class="pulse-green loader-pulse"></div>
-    <span>Crunching numbers...</span>
-  </div>
-
-  <div class="dashboard-grid" *ngIf="!loading() && data()">
-    
-    <!-- Summary Cards -->
-    <div class="stat-card glass-panel">
-      <div class="card-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="12 2 2 7 12 12 22 7 12 2" />
-          <polyline points="2 17 12 22 22 17" />
-          <polyline points="2 12 12 17 22 12" />
-        </svg>
+      <div class="control-group">
+        <label>Metric</label>
+        <select [ngModel]="selectedQueryId()" (ngModelChange)="selectedQueryId.set($event); onQueryChange()" class="form-select">
+          <option *ngFor="let q of queriesInCategory()" [value]="q.id">{{ q.name }}</option>
+        </select>
       </div>
-      <div class="card-info">
-        <span class="label">Total Watches</span>
-        <span class="value">{{ totalWatches() }}</span>
-      </div>
-    </div>
 
-    <!-- Monthly Activity Chart (CSS Bar Chart Implementation) -->
-    <div class="chart-card glass-panel full-width">
-      <h3 class="card-title">Monthly Activity</h3>
-      
-      <div class="css-chart" *ngIf="data()?.monthlyActivity && data()!.monthlyActivity!.length > 0">
-        <div class="bar-col" *ngFor="let month of data()?.monthlyActivity">
-          <!-- We calculate height percentage based on a max value. For simplicity, we just use raw count * some factor, or a fixed max -->
-          <div class="bar-value">{{ month.count }}</div>
-          <div class="bar-fill-container">
-            <!-- Assume max is around 50 movies per month for visual scaling -->
-            <div class="bar-fill" [style.height.%]="((month.count || 0) / 50) * 100"></div>
-          </div>
-          <div class="bar-label">M{{ month.month }}</div>
+      <div class="query-description">
+        {{ currentQuery().description }}
+      </div>
+
+      <!-- Dynamic Filters -->
+      <div class="dynamic-filters" *ngIf="currentQuery().inputs?.length">
+        <hr class="divider">
+        <h4>Custom Filters</h4>
+        
+        <div class="control-group" *ngFor="let input of currentQuery().inputs">
+          <label>{{ input.label }}</label>
+          
+          <ng-container *ngIf="input.type === 'number'">
+            <input type="number" [ngModel]="inputValues()[input.name]" (ngModelChange)="updateInput(input.name, $event)" class="form-input">
+          </ng-container>
+
+          <ng-container *ngIf="input.type === 'text'">
+            <input type="text" [ngModel]="inputValues()[input.name]" (ngModelChange)="updateInput(input.name, $event)" class="form-input">
+          </ng-container>
+
+          <ng-container *ngIf="input.type === 'select'">
+            <select [ngModel]="inputValues()[input.name]" (ngModelChange)="updateInput(input.name, $event)" class="form-select">
+              <option *ngFor="let opt of input.options" [value]="opt.value">{{ opt.label }}</option>
+            </select>
+          </ng-container>
         </div>
+
+        <button class="btn-primary full-width mt-4" (click)="runQuery()" [disabled]="loading()">
+          <span *ngIf="!loading()">Analyze</span>
+          <span *ngIf="loading()">Crunching...</span>
+        </button>
       </div>
-      <div *ngIf="!data()?.monthlyActivity || data()!.monthlyActivity!.length === 0" class="no-data">
-        No activity recorded for this period.
+
+    </div>
+
+    <!-- Results Canvas -->
+    <div class="explorer-results">
+      
+      <div class="loader-state" *ngIf="loading()">
+        <div class="pulse-green loader-pulse"></div>
+        <span>Crunching numbers...</span>
       </div>
+
+      <div class="results-content" *ngIf="!loading() && resultData()">
+        
+        <!-- GENERIC JSON DUMP TEMPORARY, WILL STYLE BASED ON TYPE -->
+        <ng-container *ngIf="currentQuery().type === 'list' && isArray(resultData())">
+          <div class="list-grid">
+            <div class="list-card glass-panel animate-slide-up" *ngFor="let item of resultData(); let i = index" [style.animation-delay]="i * 0.05 + 's'">
+              <div class="list-index">#{{ i + 1 }}</div>
+              <div class="list-content">
+                <h3 *ngIf="item.title">{{ item.title }}</h3>
+                <h3 *ngIf="item.name">{{ item.name }}</h3>
+                <h3 *ngIf="item.genreName">{{ item.genreName }}</h3>
+                
+                <p *ngIf="item.count !== undefined" class="stat-highlight">{{ item.count }} <small>watches</small></p>
+                <p *ngIf="item.rating !== undefined" class="stat-highlight">{{ item.rating | number:'1.1-2' }} <small>avg rating</small></p>
+                <p *ngIf="item.releaseYear">{{ item.releaseYear }}</p>
+                <p *ngIf="item.streakLength" class="stat-highlight">{{ item.streakLength }} <small>streak</small></p>
+                <p *ngIf="item.actor1 && item.actor2">{{ item.actor1 }} & {{ item.actor2 }} ({{ item.count }} movies)</p>
+              </div>
+            </div>
+            
+            <div class="no-data" *ngIf="resultData().length === 0">
+              No results found for these filters.
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="currentQuery().type === 'single' && isSingle(resultData())">
+          <div class="hero-card glass-panel animate-scale-in">
+            <h2 class="hero-title" *ngIf="resultData().name || resultData().title || resultData().genreName">
+              {{ resultData().name || resultData().title || resultData().genreName }}
+            </h2>
+            <div class="hero-stats">
+              <div class="stat-box" *ngIf="resultData().count !== undefined">
+                <span class="value">{{ resultData().count }}</span>
+                <span class="label">Movies</span>
+              </div>
+              <div class="stat-box" *ngIf="resultData().totalHours !== undefined">
+                <span class="value">{{ resultData().totalHours | number:'1.0-0' }}h {{ resultData().remainingMinutes }}m</span>
+                <span class="label">Time Invested</span>
+              </div>
+              <div class="stat-box" *ngIf="resultData().averageRating !== undefined">
+                <span class="value">{{ resultData().averageRating | number:'1.1-2' }}</span>
+                <span class="label">Avg Rating</span>
+              </div>
+              <div class="stat-box" *ngIf="resultData().actorName">
+                <span class="value">{{ resultData().actorName }}</span>
+                <span class="label">Actor</span>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="currentQuery().type === 'comparison' && isSingle(resultData())">
+          <div class="comparison-card glass-panel animate-fade-in">
+            <!-- Era Breakdown -->
+            <ng-container *ngIf="resultData().classicCount !== undefined">
+              <div class="comp-side">
+                <h3 class="classic-text">Classic</h3>
+                <span class="comp-val">{{ resultData().classicCount }}</span>
+                <small>movies</small>
+              </div>
+              <div class="comp-vs">VS</div>
+              <div class="comp-side">
+                <h3 class="modern-text">Modern</h3>
+                <span class="comp-val">{{ resultData().modernCount }}</span>
+                <small>movies</small>
+              </div>
+            </ng-container>
+
+            <!-- Weekend Warrior -->
+            <ng-container *ngIf="resultData().weekendWatches !== undefined">
+              <div class="comp-side">
+                <h3 class="classic-text">Weekend</h3>
+                <span class="comp-val">{{ resultData().weekendWatches }}</span>
+              </div>
+              <div class="comp-vs">VS</div>
+              <div class="comp-side">
+                <h3 class="modern-text">Weekday</h3>
+                <span class="comp-val">{{ resultData().weekdayWatches }}</span>
+              </div>
+            </ng-container>
+
+            <!-- Cinematic Fatigue -->
+            <ng-container *ngIf="resultData().averageRatingNormal !== undefined">
+              <div class="comp-side">
+                <h3 class="classic-text">Normal (1-2)</h3>
+                <span class="comp-val">{{ resultData().averageRatingNormal | number:'1.1-2' }}</span>
+                <small>avg rating</small>
+              </div>
+              <div class="comp-vs">VS</div>
+              <div class="comp-side">
+                <h3 class="modern-text">Binge (3+)</h3>
+                <span class="comp-val">{{ resultData().averageRatingBinge | number:'1.1-2' }}</span>
+                <small>avg rating</small>
+              </div>
+            </ng-container>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="currentQuery().type === 'chart' && isArray(resultData())">
+          <div class="chart-card glass-panel full-width animate-fade-in">
+            <div class="css-chart horizontal-scroll">
+              <div class="bar-col" *ngFor="let item of resultData()">
+                <div class="bar-value">{{ item.count || (item.averageRating | number:'1.1-2') || item.totalWatches || item.shortCount }}</div>
+                <div class="bar-fill-container">
+                  <div class="bar-fill" [style.height.%]="((item.count || item.averageRating || item.totalWatches || item.shortCount || 0) / 10) * 100"></div>
+                </div>
+                <div class="bar-label">
+                  {{ item.dayOfWeek || item.month || item.genreName || item.decade || 'Item' }}
+                </div>
+              </div>
+            </div>
+            
+            <!-- Specific handling for duration balance -->
+            <ng-container *ngIf="resultData()[0]?.shortCount !== undefined">
+               <div class="hero-stats mt-4">
+                 <div class="stat-box" *ngFor="let item of resultData()">
+                    <span class="label">Short (<90m)</span>
+                    <span class="value">{{ item.shortCount }}</span>
+                    <br>
+                    <span class="label">Medium</span>
+                    <span class="value">{{ item.mediumCount }}</span>
+                    <br>
+                    <span class="label">Long (>150m)</span>
+                    <span class="value">{{ item.longCount }}</span>
+                 </div>
+               </div>
+            </ng-container>
+          </div>
+        </ng-container>
+
+      </div>
+      
+      <div class="empty-state" *ngIf="!loading() && !resultData()">
+        Select a query and click Analyze.
+      </div>
+      
     </div>
 
   </div>
