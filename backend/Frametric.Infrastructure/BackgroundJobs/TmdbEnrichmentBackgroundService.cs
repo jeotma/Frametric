@@ -48,6 +48,9 @@ public class TmdbEnrichmentBackgroundService : BackgroundService
                     }
                     else
                     {
+                        // No more pending movies, mark imports as completed
+                        await mediator.Send(new Frametric.Application.Commands.Imports.MarkImportsCompletedCommand(), stoppingToken);
+
                         // No more pending movies, break inner loop and wait for next trigger
                         _logger.LogInformation("No more pending movies. Sleeping...");
                         break;

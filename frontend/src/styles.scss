@@ -122,7 +122,7 @@ a {
     height: 100%;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
     opacity: 0;
-    transition: var(--transition-smooth);
+    transition: opacity 0s;
     pointer-events: none;
   }
 

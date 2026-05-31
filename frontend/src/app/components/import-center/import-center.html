@@ -1,48 +1,84 @@
 <div class="imports-dashboard animate-slide-up">
-  <div class="glass-card upload-container">
-    <h3>Ingest Letterboxd Archive</h3>
-    <p class="description">Drag & drop your exported Letterboxd .zip file here to trigger rich TMDB metadata enrichment</p>
-
-    <!-- Error Message Banner -->
-    <div *ngIf="errorMessage()" class="error-banner animate-fade-in">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
-      <span>{{ errorMessage() }}</span>
+  <div class="glass-card upload-header-card">
+    <div class="upload-header">
+      <h3>Upload your Letterboxd Archive</h3>
+      <p class="description">Upload your exported Letterboxd .zip file to unlock personalized cinematic wrapped and detailed analytics.</p>
     </div>
-
-    <!-- Dropzone -->
-    <div 
-      class="upload-dropzone" 
-      [class.uploading]="isUploading()" 
-      [class.drag-active]="isDragging()"
-      (dragover)="onDragOver($event)" 
-      (dragleave)="onDragLeave($event)" 
-      (drop)="onDrop($event)"
-    >
-      <input type="file" #fileInput accept=".zip" hidden (change)="onFileSelected($event)">
+    
+    <!-- Instructions Panel -->
+    <div class="instructions-panel">
+      <h4>How to get your data:</h4>
+    <div class="steps-horizontal">
+      <div class="step-item">
+        <span class="step-num">1</span>
+        <p>Log into Letterboxd and go to your <strong>Profile Settings</strong>.</p>
+      </div>
       
-      <div class="dropzone-content" *ngIf="!isUploading()">
-        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="17 8 12 3 7 8" />
-          <line x1="12" y1="3" x2="12" y2="15" />
-        </svg>
-        <span>Drop zip archive here or click to browse</span>
-        <button class="btn btn-primary" (click)="triggerFileInput()">Select Archive</button>
+      <svg class="step-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+      
+      <div class="step-item">
+        <span class="step-num">2</span>
+        <p>Navigate to the <strong>Data</strong> tab.</p>
       </div>
 
-      <div class="upload-progress-state" *ngIf="isUploading()">
-        <div class="spinner"></div>
-        <span>Uploading & Validating Archive...</span>
-        <div class="progress-bar-container large">
-          <div class="progress-bar infinite-progress"></div>
-        </div>
+      <svg class="step-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+
+      <div class="step-item">
+        <span class="step-num">3</span>
+        <p>Click the <strong>Export Your Data</strong> button to download your .zip archive.</p>
       </div>
     </div>
   </div>
+  </div>
+
+    <!-- Dropzone Panel -->
+    <div class="glass-card dropzone-panel">
+      <!-- Error Message Banner -->
+      <div *ngIf="errorMessage()" class="error-banner animate-fade-in">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>{{ errorMessage() }}</span>
+      </div>
+
+      <!-- Dropzone -->
+      <div 
+        class="upload-dropzone" 
+        [class.uploading]="isUploading()" 
+        [class.drag-active]="isDragging()"
+        (dragover)="onDragOver($event)" 
+        (dragleave)="onDragLeave($event)" 
+        (drop)="onDrop($event)"
+      >
+        <input type="file" #fileInput accept=".zip" hidden (change)="onFileSelected($event)">
+        
+        <div class="dropzone-content" *ngIf="!isUploading()">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          <span>Drop zip archive here or click to browse</span>
+          <button class="btn btn-primary" (click)="triggerFileInput()">Select Archive</button>
+        </div>
+
+        <div class="upload-progress-state" *ngIf="isUploading()">
+          <div class="spinner"></div>
+          <span>Uploading & Validating...</span>
+          <div class="progress-bar-container large">
+            <div class="progress-bar infinite-progress"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
   <!-- History Table -->
   <div class="glass-card table-card">
@@ -88,6 +124,8 @@
               <div class="progress-bar-container table-bar">
                 <div class="progress-bar" 
                      [class.pulse]="item.status === 'Enriching'" 
+                     [class.completed]="item.status === 'Completed'"
+                     [class.failed]="item.status === 'Failed'"
                      [style.width.%]="item.status === 'Completed' ? 100 : (item.status === 'Failed' ? 0 : 50)">
                 </div>
               </div>
