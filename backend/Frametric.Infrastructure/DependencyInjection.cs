@@ -1,7 +1,10 @@
 using Frametric.Application.Interfaces;
+using Frametric.Application.Interfaces.Analytics;
+using Frametric.Infrastructure.BackgroundJobs;
+using Frametric.Infrastructure.Security;
 using Frametric.Infrastructure.Importer;
 using Frametric.Infrastructure.Persistence;
-using Frametric.Infrastructure.Security;
+using Frametric.Infrastructure.Queries;
 using Frametric.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,9 +27,18 @@ public static class DependencyInjection
 
         // Register Dapper DbConnectionFactory
         services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
-
-        // Register Decoupled Infrastructure Services
+        
+        // Classic Analytics
         services.AddScoped<IAnalyticsService, DapperAnalyticsService>();
+
+        // Advanced Analytics CQRS Queries
+        services.AddScoped<IWatchedBasicQueries, WatchedQueriesImpl>();
+        services.AddScoped<IWatchedAdvancedStatsQueries, WatchedQueriesImpl>();
+        services.AddScoped<IWatchedComplexCorrelationsQueries, WatchedQueriesImpl>();
+        services.AddScoped<IWatchlistBasicQueries, WatchlistQueriesImpl>();
+        services.AddScoped<IWatchlistAdvancedStatsQueries, WatchlistQueriesImpl>();
+        services.AddScoped<IWatchlistComplexCorrelationsQueries, WatchlistQueriesImpl>();
+        services.AddScoped<IBonusQueries, BonusQueriesImpl>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         // Register JWT Security and Current User services
