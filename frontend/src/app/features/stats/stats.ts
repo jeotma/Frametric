@@ -48,9 +48,9 @@ export class StatsComponent implements OnInit {
     { id: 'watched_decades', category: 'Watched History', name: 'Watched Decades', description: 'Count of movies watched grouped by release decade.', type: 'list', execute: (adv) => adv.apiAnalyticsAdvancedWatchedDecadesGet() },
     
     // --- WATCHED ADVANCED ---
-    { id: 'most_repeated_actor', category: 'Watched Insights', name: 'Most Repeated Actor', description: 'The actor you have seen the most.', type: 'single', execute: (adv) => adv.apiAnalyticsAdvancedWatchedMostRepeatedActorGet() },
-    { id: 'most_watched_director', category: 'Watched Insights', name: 'Most Watched Director', description: 'The director you have watched the most.', type: 'single', execute: (adv) => adv.apiAnalyticsAdvancedWatchedMostWatchedDirectorGet() },
-    { id: 'predominant_era', category: 'Watched Insights', name: 'Predominant Era', description: 'Your preference between classic and modern cinema.', type: 'comparison', execute: (adv) => adv.apiAnalyticsAdvancedWatchedPredominantEraGet() },
+    { id: 'top_actors', category: 'Watched Insights', name: 'Top Actors', description: 'Your most watched actors.', type: 'list', execute: (adv) => adv.apiAnalyticsAdvancedWatchedActorsGet() },
+    { id: 'top_directors', category: 'Watched Insights', name: 'Top Directors', description: 'Your most watched directors.', type: 'list', execute: (adv) => adv.apiAnalyticsAdvancedWatchedDirectorsGet() },
+    { id: 'predominant_era', category: 'Watched Insights', name: 'Predominant Era', description: 'Your preference between classic and modern cinema.', type: 'single', execute: (adv) => adv.apiAnalyticsAdvancedWatchedPredominantEraGet() },
     { id: 'director_ranking', category: 'Watched Insights', name: 'Director Ranking by Rating', description: 'Directors ranked by your average rating.', type: 'list', execute: (adv) => adv.apiAnalyticsAdvancedWatchedDirectorRankingGet() },
     {
       id: 'total_time', category: 'Watched Insights', name: 'Total Time Invested', description: 'Calculate total time spent watching a specific director or genre.', type: 'single',
@@ -182,7 +182,21 @@ export class StatsComponent implements OnInit {
     return Array.isArray(val);
   }
 
-  isSingle(val: any): boolean {
-    return val && !Array.isArray(val) && typeof val === 'object';
+  getChartMaxValue(): number {
+    const data = this.resultData();
+    if (!this.isArray(data) || data.length === 0) return 10;
+    const max = Math.max(...data.map((item: any) => item.count || item.averageRating || item.totalWatches || item.shortCount || 0));
+    return max > 0 ? max : 10;
+  }
+
+  isSingle(data: any): boolean {
+    return data && !Array.isArray(data);
+  }
+
+  hasNoData(data: any): boolean {
+    if (!data) return true;
+    if (data.totalMinutes === 0 && data.totalHours === 0) return true;
+    if (data.count === 0 && data.averageRating === undefined && data.totalMinutes === undefined) return true;
+    return false;
   }
 }

@@ -17,3 +17,4 @@ public record DashboardSummaryDto(
     List<ActorCountDto> TopActors,
     List<DecadeCountDto> DecadeBreakdown
 );
+

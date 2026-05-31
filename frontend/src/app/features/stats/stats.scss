@@ -407,3 +407,15 @@
     top: 0;
   }
 }
+
+.elegant-unrated {
+  color: rgba(255, 255, 255, 0.4);
+  font-style: italic;
+  font-size: 0.9em;
+  font-weight: 400;
+}
+
+.unrated-text {
+  color: rgba(255, 255, 255, 0.4) !important;
+  font-style: italic;
+}

@@ -14,5 +14,6 @@ export interface DirectorLeaderboardDto {
     name: string;
     watchCount: number;
     averageRating: number;
+    highestRatedMovieTitle: string;
 }
 

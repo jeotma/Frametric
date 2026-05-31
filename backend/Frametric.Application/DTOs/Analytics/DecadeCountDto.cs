@@ -1,3 +1,4 @@
 namespace Frametric.Application.DTOs.Analytics;
 
-public record DecadeCountDto(int Decade, long Count);
+public record DecadeCountDto(int Decade, int Count);
+

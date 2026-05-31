@@ -16,7 +16,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
-            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterPath""
+            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath""
             FROM ""WatchlistItems"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             WHERE w.""UserId"" = @userId AND m.""ReleaseYear"" = @releaseYear";
@@ -27,12 +27,33 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
-            SELECT dr.""Name"" AS DirectorName, COUNT(*) AS Count, 0.0 AS AverageRating
+            WITH UserDirectorRatings AS (
+                SELECT dr.""Id"" AS DirectorId, AVG(mr.""Score"") AS AverageRating
+                FROM ""MovieRatings"" mr
+                JOIN ""MovieDirector"" md ON mr.""MovieId"" = md.""MoviesId""
+                JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+                WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
+                GROUP BY dr.""Id""
+            ),
+            WatchedDirectors AS (
+                SELECT dr.""Id"" AS DirectorId, COUNT(DISTINCT w.""MovieId"") AS WatchedCount
+                FROM (
+                    SELECT ""MovieId"" FROM ""DiaryEntries"" WHERE ""UserId"" = @userId
+                    UNION
+                    SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
+                ) w
+                JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
+                JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+                GROUP BY dr.""Id""
+            )
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(udr.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wd.WatchedCount, 0) AS INTEGER) AS WatchedCount
             FROM ""WatchlistItems"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+            LEFT JOIN UserDirectorRatings udr ON dr.""Id"" = udr.DirectorId
+            LEFT JOIN WatchedDirectors wd ON dr.""Id"" = wd.DirectorId
             WHERE w.""UserId"" = @userId
-            GROUP BY dr.""Name""
+            GROUP BY dr.""Id"", dr.""Name"", udr.AverageRating, wd.WatchedCount
             ORDER BY Count DESC, dr.""Name""";
         return await connection.QueryAsync<DirectorCountDto>(sql, new { userId });
     }
@@ -41,12 +62,33 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
-            SELECT a.""Name"" AS ActorName, COUNT(*) AS Count, 0.0 AS AverageRating
+            WITH UserActorRatings AS (
+                SELECT a.""Id"" AS ActorId, AVG(mr.""Score"") AS AverageRating
+                FROM ""MovieRatings"" mr
+                JOIN ""MovieActor"" ma ON mr.""MovieId"" = ma.""MoviesId""
+                JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
+                WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
+                GROUP BY a.""Id""
+            ),
+            WatchedActors AS (
+                SELECT a.""Id"" AS ActorId, COUNT(DISTINCT w.""MovieId"") AS WatchedCount
+                FROM (
+                    SELECT ""MovieId"" FROM ""DiaryEntries"" WHERE ""UserId"" = @userId
+                    UNION
+                    SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
+                ) w
+                JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
+                JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
+                GROUP BY a.""Id""
+            )
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(uar.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wa.WatchedCount, 0) AS INTEGER) AS WatchedCount
             FROM ""WatchlistItems"" w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
+            LEFT JOIN UserActorRatings uar ON a.""Id"" = uar.ActorId
+            LEFT JOIN WatchedActors wa ON a.""Id"" = wa.ActorId
             WHERE w.""UserId"" = @userId
-            GROUP BY a.""Name""
+            GROUP BY a.""Id"", a.""Name"", uar.AverageRating, wa.WatchedCount
             ORDER BY Count DESC, a.""Name""";
         return await connection.QueryAsync<ActorCountDto>(sql, new { userId });
     }
@@ -55,12 +97,24 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
-            SELECT g.""Name"" AS GenreName, COUNT(*) AS Count
+            WITH WatchedGenres AS (
+                SELECT g.""Id"" AS GenreId, COUNT(DISTINCT w.""MovieId"") AS WatchedCount
+                FROM (
+                    SELECT ""MovieId"" FROM ""DiaryEntries"" WHERE ""UserId"" = @userId
+                    UNION
+                    SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
+                ) w
+                JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
+                JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
+                GROUP BY g.""Id""
+            )
+            SELECT g.""Name"" AS GenreName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(wg.WatchedCount, 0) AS INTEGER) AS WatchedCount
             FROM ""WatchlistItems"" w
             JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
             JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
+            LEFT JOIN WatchedGenres wg ON g.""Id"" = wg.GenreId
             WHERE w.""UserId"" = @userId
-            GROUP BY g.""Name""
+            GROUP BY g.""Id"", g.""Name"", wg.WatchedCount
             ORDER BY Count DESC, g.""Name""";
         return await connection.QueryAsync<GenreCountDto>(sql, new { userId });
     }
@@ -69,7 +123,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
-            SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, COUNT(*) AS Count
+            SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, CAST(COUNT(*) AS INTEGER) AS Count
             FROM ""WatchlistItems"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             WHERE w.""UserId"" = @userId AND m.""ReleaseYear"" IS NOT NULL
@@ -83,12 +137,33 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
-            SELECT dr.""Name"" AS DirectorName, COUNT(*) AS Count, 0.0 AS AverageRating
+            WITH UserDirectorRatings AS (
+                SELECT dr.""Id"" AS DirectorId, AVG(mr.""Score"") AS AverageRating
+                FROM ""MovieRatings"" mr
+                JOIN ""MovieDirector"" md ON mr.""MovieId"" = md.""MoviesId""
+                JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+                WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
+                GROUP BY dr.""Id""
+            ),
+            WatchedDirectors AS (
+                SELECT dr.""Id"" AS DirectorId, COUNT(DISTINCT w.""MovieId"") AS WatchedCount
+                FROM (
+                    SELECT ""MovieId"" FROM ""DiaryEntries"" WHERE ""UserId"" = @userId
+                    UNION
+                    SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
+                ) w
+                JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
+                JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+                GROUP BY dr.""Id""
+            )
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(udr.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wd.WatchedCount, 0) AS INTEGER) AS WatchedCount
             FROM ""WatchlistItems"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+            LEFT JOIN UserDirectorRatings udr ON dr.""Id"" = udr.DirectorId
+            LEFT JOIN WatchedDirectors wd ON dr.""Id"" = wd.DirectorId
             WHERE w.""UserId"" = @userId
-            GROUP BY dr.""Name""
+            GROUP BY dr.""Id"", dr.""Name"", udr.AverageRating, wd.WatchedCount
             ORDER BY Count DESC
             LIMIT 1";
         return await connection.QuerySingleOrDefaultAsync<DirectorCountDto>(sql, new { userId });
@@ -98,12 +173,33 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
-            SELECT a.""Name"" AS ActorName, COUNT(*) AS Count, 0.0 AS AverageRating
+            WITH UserActorRatings AS (
+                SELECT a.""Id"" AS ActorId, AVG(mr.""Score"") AS AverageRating
+                FROM ""MovieRatings"" mr
+                JOIN ""MovieActor"" ma ON mr.""MovieId"" = ma.""MoviesId""
+                JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
+                WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
+                GROUP BY a.""Id""
+            ),
+            WatchedActors AS (
+                SELECT a.""Id"" AS ActorId, COUNT(DISTINCT w.""MovieId"") AS WatchedCount
+                FROM (
+                    SELECT ""MovieId"" FROM ""DiaryEntries"" WHERE ""UserId"" = @userId
+                    UNION
+                    SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
+                ) w
+                JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
+                JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
+                GROUP BY a.""Id""
+            )
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(uar.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wa.WatchedCount, 0) AS INTEGER) AS WatchedCount
             FROM ""WatchlistItems"" w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
+            LEFT JOIN UserActorRatings uar ON a.""Id"" = uar.ActorId
+            LEFT JOIN WatchedActors wa ON a.""Id"" = wa.ActorId
             WHERE w.""UserId"" = @userId
-            GROUP BY a.""Name""
+            GROUP BY a.""Id"", a.""Name"", uar.AverageRating, wa.WatchedCount
             ORDER BY Count DESC
             LIMIT 1";
         return await connection.QuerySingleOrDefaultAsync<ActorCountDto>(sql, new { userId });
@@ -114,9 +210,9 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
             SELECT 
+                'Total Watchlist' AS Name,
                 CAST(COALESCE(SUM(m.""RuntimeMinutes""), 0) AS INTEGER) AS TotalMinutes,
-                CAST(COALESCE(SUM(m.""RuntimeMinutes"") / 60, 0) AS INTEGER) AS TotalHours,
-                'Total Watchlist' AS Name
+                CAST(COALESCE(SUM(m.""RuntimeMinutes"") / 60, 0) AS INTEGER) AS TotalHours
             FROM ""WatchlistItems"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             WHERE w.""UserId"" = @userId";
@@ -127,7 +223,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
-            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterPath""
+            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath""
             FROM ""WatchlistItems"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             WHERE w.""UserId"" = @userId
@@ -141,7 +237,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
             WITH WatchedGenres AS (
-                SELECT g.""Name"" AS GenreName, COUNT(*) AS WatchedCount
+                SELECT g.""Name"" AS GenreName, CAST(COUNT(*) AS INTEGER) AS WatchedCount
                 FROM (
                     SELECT ""MovieId"" FROM ""DiaryEntries"" WHERE ""UserId"" = @userId
                     UNION
@@ -152,7 +248,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
                 GROUP BY g.""Name""
             ),
             WatchlistGenres AS (
-                SELECT g.""Name"" AS GenreName, COUNT(*) AS PendingCount
+                SELECT g.""Name"" AS GenreName, CAST(COUNT(*) AS INTEGER) AS PendingCount
                 FROM ""WatchlistItems"" w
                 JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
                 JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
@@ -175,7 +271,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
             WITH PendingDirectors AS (
-                SELECT DISTINCT dr.""Id"", dr.""Name"", COUNT(*) as PendingCount
+                SELECT DISTINCT dr.""Id"", dr.""Name"", CAST(COUNT(*) AS INTEGER) AS PendingCount
                 FROM ""WatchlistItems"" w
                 JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
                 JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
@@ -183,11 +279,11 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
                 GROUP BY dr.""Id"", dr.""Name""
             ),
             WatchedDirectorRatings AS (
-                SELECT dr.""Id"", AVG(d.""Rating"") AS AvgRating, COUNT(*) AS WatchedCount
-                FROM ""DiaryEntries"" d
-                JOIN ""MovieDirector"" md ON d.""MovieId"" = md.""MoviesId""
+                SELECT dr.""Id"", AVG(mr.""Score"") AS AvgRating, CAST(COUNT(mr.""Id"") AS INTEGER) AS WatchedCount
+                FROM ""MovieRatings"" mr
+                JOIN ""MovieDirector"" md ON mr.""MovieId"" = md.""MoviesId""
                 JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
-                WHERE d.""UserId"" = @userId AND d.""Rating"" IS NOT NULL
+                WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
                 GROUP BY dr.""Id""
             )
             SELECT 
@@ -212,7 +308,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
                     WHEN m.""RuntimeMinutes"" BETWEEN 90 AND 140 THEN 'Medium (90m - 140m)'
                     ELSE 'Long (> 140m)' 
                 END AS DurationCategory,
-                COUNT(*) AS Count
+                CAST(COUNT(*) AS INTEGER) AS Count
             FROM ""WatchlistItems"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             WHERE w.""UserId"" = @userId AND m.""RuntimeMinutes"" IS NOT NULL
@@ -232,7 +328,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
                     WHEN m.""ReleaseYear"" BETWEEN 1990 AND 2009 THEN 'Modern (1990-2009)'
                     ELSE 'Contemporary (2010+)'
                 END AS EraName,
-                COUNT(*) AS Count
+                CAST(COUNT(*) AS INTEGER) AS Count
             FROM ""WatchlistItems"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             WHERE w.""UserId"" = @userId AND m.""ReleaseYear"" IS NOT NULL
@@ -246,7 +342,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
             WITH PendingActors AS (
-                SELECT a.""Id"", a.""Name"", COUNT(*) as PendingCount
+                SELECT a.""Id"", a.""Name"", CAST(COUNT(*) AS INTEGER) AS PendingCount
                 FROM ""WatchlistItems"" w
                 JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
                 JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
@@ -274,3 +370,4 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         return await connection.QuerySingleOrDefaultAsync<GhostActorDto>(sql, new { userId });
     }
 }
+

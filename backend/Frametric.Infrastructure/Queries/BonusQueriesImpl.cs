@@ -23,7 +23,7 @@ public class BonusQueriesImpl : IBonusQueries
             Categorized AS (
                 SELECT 
                     CASE WHEN EXTRACT(ISODOW FROM WatchDate) >= 6 THEN 'Weekend' ELSE 'Weekday' END AS DayType,
-                    COUNT(*) as Count
+                    CAST(COUNT(*) AS INTEGER) AS Count
                 FROM AllWatched
                 GROUP BY DayType
             )
@@ -38,7 +38,7 @@ public class BonusQueriesImpl : IBonusQueries
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
-            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterPath""
+            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath""
             FROM ""DiaryEntries"" d
             JOIN ""Movies"" m ON d.""MovieId"" = m.""Id""
             WHERE d.""UserId"" = @userId AND d.""Rating"" >= 4.5 AND m.""ReleaseYear"" < EXTRACT(YEAR FROM CURRENT_DATE) - 30
@@ -51,7 +51,7 @@ public class BonusQueriesImpl : IBonusQueries
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
-            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterPath""
+            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath""
             FROM ""WatchlistItems"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             WHERE w.""UserId"" = @userId
@@ -65,7 +65,7 @@ public class BonusQueriesImpl : IBonusQueries
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
             WITH DailyCounts AS (
-                SELECT ""WatchedDate"", COUNT(*) AS MoviesWatched, AVG(""Rating"") AS DailyAvgRating
+                SELECT ""WatchedDate"", CAST(COUNT(*) AS INTEGER) AS MoviesWatched, AVG(""Rating"") AS DailyAvgRating
                 FROM ""DiaryEntries""
                 WHERE ""UserId"" = @userId AND ""Rating"" IS NOT NULL
                 GROUP BY ""WatchedDate""

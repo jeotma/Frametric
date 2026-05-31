@@ -11,3 +11,4 @@ public record WrappedSummaryDto(
     List<DecadeCountDto> DecadeBreakdown,
     List<MonthlyActivityDto> MonthlyActivity
 );
+

@@ -21,7 +21,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 UNION
                 SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
             )
-            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterPath""
+            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath""
             FROM AllWatched w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             WHERE m.""ReleaseYear"" = @releaseYear";
@@ -37,10 +37,11 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 UNION
                 SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
             )
-            SELECT dr.""Name"" AS DirectorName, COUNT(*) AS Count, 0.0 AS AverageRating
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM AllWatched w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+            LEFT JOIN ""MovieRatings"" mr ON w.""MovieId"" = mr.""MovieId"" AND mr.""UserId"" = @userId
             GROUP BY dr.""Name""
             ORDER BY Count DESC, dr.""Name""";
         return await connection.QueryAsync<DirectorCountDto>(sql, new { userId });
@@ -55,10 +56,11 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 UNION
                 SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
             )
-            SELECT a.""Name"" AS ActorName, COUNT(*) AS Count, 0.0 AS AverageRating
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM AllWatched w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
+            LEFT JOIN ""MovieRatings"" mr ON w.""MovieId"" = mr.""MovieId"" AND mr.""UserId"" = @userId
             GROUP BY a.""Name""
             ORDER BY Count DESC, a.""Name""";
         return await connection.QueryAsync<ActorCountDto>(sql, new { userId });
@@ -73,7 +75,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 UNION
                 SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
             )
-            SELECT g.""Name"" AS GenreName, COUNT(*) AS Count
+            SELECT g.""Name"" AS GenreName, CAST(COUNT(*) AS INTEGER) AS Count
             FROM AllWatched w
             JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
             JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
@@ -91,7 +93,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 UNION
                 SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
             )
-            SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, COUNT(*) AS Count
+            SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, CAST(COUNT(*) AS INTEGER) AS Count
             FROM AllWatched w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             WHERE m.""ReleaseYear"" IS NOT NULL
@@ -110,10 +112,11 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 UNION
                 SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
             )
-            SELECT a.""Name"" AS ActorName, COUNT(*) AS Count, 0.0 AS AverageRating
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM AllWatched w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
+            LEFT JOIN ""MovieRatings"" mr ON w.""MovieId"" = mr.""MovieId"" AND mr.""UserId"" = @userId
             GROUP BY a.""Name""
             ORDER BY Count DESC
             LIMIT 1";
@@ -129,10 +132,11 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 UNION
                 SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
             )
-            SELECT dr.""Name"" AS DirectorName, COUNT(*) AS Count, 0.0 AS AverageRating
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM AllWatched w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+            LEFT JOIN ""MovieRatings"" mr ON w.""MovieId"" = mr.""MovieId"" AND mr.""UserId"" = @userId
             GROUP BY dr.""Name""
             ORDER BY Count DESC
             LIMIT 1";
@@ -150,7 +154,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             )
             SELECT 
                 CASE WHEN m.""ReleaseYear"" <= 1980 THEN 'Classic (Pre-1980)' ELSE 'Modern (Post-1980)' END AS EraName,
-                COUNT(*) AS Count
+                CAST(COUNT(*) AS INTEGER) AS Count
             FROM AllWatched w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             WHERE m.""ReleaseYear"" IS NOT NULL
@@ -164,14 +168,30 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
-            SELECT dr.""Id"" AS DirectorId, dr.""Name"" AS Name, COUNT(*) AS WatchCount, COALESCE(AVG(d.""Rating""), 0) AS AverageRating
-            FROM ""DiaryEntries"" d
-            JOIN ""MovieDirector"" md ON d.""MovieId"" = md.""MoviesId""
-            JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
-            WHERE d.""UserId"" = @userId AND d.""Rating"" IS NOT NULL
-            GROUP BY dr.""Id"", dr.""Name""
-            HAVING COUNT(*) >= 2
-            ORDER BY AverageRating DESC, WatchCount DESC
+            WITH DirectorStats AS (
+                SELECT dr.""Id"" AS DirectorId, dr.""Name"" AS Name, CAST(COUNT(mr.""Id"") AS INTEGER) AS WatchCount, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
+                FROM ""MovieRatings"" mr
+                JOIN ""MovieDirector"" md ON mr.""MovieId"" = md.""MoviesId""
+                JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+                WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
+                GROUP BY dr.""Id"", dr.""Name""
+                HAVING COUNT(mr.""Id"") >= 2
+            ),
+            HighestRated AS (
+                SELECT DISTINCT ON (dr.""Id"")
+                    dr.""Id"" AS DirectorId,
+                    m.""Title"" AS HighestRatedMovieTitle
+                FROM ""MovieRatings"" mr
+                JOIN ""MovieDirector"" md ON mr.""MovieId"" = md.""MoviesId""
+                JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+                JOIN ""Movies"" m ON mr.""MovieId"" = m.""Id""
+                WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
+                ORDER BY dr.""Id"", mr.""Score"" DESC, mr.""DateRated"" DESC
+            )
+            SELECT ds.DirectorId, ds.Name, ds.WatchCount, ds.AverageRating, hr.HighestRatedMovieTitle
+            FROM DirectorStats ds
+            JOIN HighestRated hr ON ds.DirectorId = hr.DirectorId
+            ORDER BY ds.AverageRating DESC, ds.WatchCount DESC
             LIMIT 20";
         return await connection.QueryAsync<DirectorLeaderboardDto>(sql, new { userId });
     }
@@ -198,16 +218,15 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         }
 
         string sql = $@"
-            WITH AllWatched AS (
-                SELECT ""MovieId"" FROM ""DiaryEntries"" WHERE ""UserId"" = @userId
-                UNION
-                SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
-            )
             SELECT 
-                CAST(COALESCE(SUM(m.""RuntimeMinutes""), 0) AS INTEGER) AS TotalMinutes,
-                CAST(COALESCE(SUM(m.""RuntimeMinutes"") / 60, 0) AS INTEGER) AS TotalHours,
-                @filterName AS Name
-            FROM AllWatched w
+                @filterName AS Name,
+                CAST(COALESCE(SUM(m.""RuntimeMinutes"" * GREATEST(1, 
+                    (SELECT COUNT(*) FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)
+                )), 0) AS INTEGER) AS TotalMinutes,
+                CAST(COALESCE(SUM(m.""RuntimeMinutes"" * GREATEST(1, 
+                    (SELECT COUNT(*) FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)
+                )) / 60, 0) AS INTEGER) AS TotalHours
+            FROM ""WatchedMovies"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             {joinSql}
             WHERE {whereSql}";
@@ -225,7 +244,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 UNION ALL
                 SELECT ""Date"" AS WatchDate FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
             )
-            SELECT TRIM(TO_CHAR(WatchDate, 'Day')) AS DayOfWeek, COUNT(*) AS WatchCount
+            SELECT TRIM(TO_CHAR(WatchDate, 'Day')) AS DayOfWeek, CAST(COUNT(*) AS INTEGER) AS WatchCount
             FROM AllWatched
             GROUP BY DayOfWeek, EXTRACT(ISODOW FROM WatchDate)
             ORDER BY EXTRACT(ISODOW FROM WatchDate) ASC";
@@ -255,7 +274,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                     GenreName, 
                     MIN(WatchDate) as StartDate, 
                     MAX(WatchDate) as EndDate, 
-                    COUNT(*) as StreakLength
+                    CAST(COUNT(*) AS INTEGER) AS StreakLength
                 FROM WatchedWithGenre
                 GROUP BY GenreName, rn1 - rn2
             )
@@ -276,7 +295,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 UNION
                 SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
             )
-            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterPath""
+            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath""
             FROM AllWatched w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             ORDER BY m.""RuntimeMinutes"" DESC NULLS LAST
@@ -288,9 +307,9 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
-            SELECT CAST(EXTRACT(MONTH FROM ""WatchedDate"") AS INTEGER) AS Month, CAST(AVG(""Rating"") AS DOUBLE PRECISION) AS AverageRating
-            FROM ""DiaryEntries""
-            WHERE ""UserId"" = @userId AND EXTRACT(YEAR FROM ""WatchedDate"") = @year AND ""Rating"" IS NOT NULL
+            SELECT CAST(EXTRACT(MONTH FROM ""DateRated"") AS INTEGER) AS Month, CAST(AVG(""Score"") AS DOUBLE PRECISION) AS AverageRating
+            FROM ""MovieRatings""
+            WHERE ""UserId"" = @userId AND EXTRACT(YEAR FROM ""DateRated"") = @year AND ""Score"" IS NOT NULL
             GROUP BY Month
             ORDER BY Month ASC";
         return await connection.QueryAsync<RatingEvolutionDto>(sql, new { userId, year });
@@ -313,7 +332,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             SELECT 
                 a1.""Name"" AS Actor1Name, 
                 a2.""Name"" AS Actor2Name, 
-                COUNT(*) AS CollaborationCount
+                CAST(COUNT(*) AS INTEGER) AS CollaborationCount
             FROM WatchedActors w1
             JOIN WatchedActors w2 ON w1.""MovieId"" = w2.""MovieId"" AND w1.""ActorsId"" < w2.""ActorsId""
             JOIN ""Actors"" a1 ON w1.""ActorsId"" = a1.""Id""
@@ -325,3 +344,5 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         return await connection.QueryAsync<CastingPairDto>(sql, new { userId });
     }
 }
+
+

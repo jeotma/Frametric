@@ -79,9 +79,18 @@
                 <h3 *ngIf="item.title">{{ item.title }}</h3>
                 <h3 *ngIf="item.name">{{ item.name }}</h3>
                 <h3 *ngIf="item.genreName">{{ item.genreName }}</h3>
+                <h3 *ngIf="item.directorName">{{ item.directorName }}</h3>
+                <h3 *ngIf="item.actorName">{{ item.actorName }}</h3>
+                <h3 *ngIf="item.decade !== undefined">{{ item.decade }}s</h3>
                 
-                <p *ngIf="item.count !== undefined" class="stat-highlight">{{ item.count }} <small>watches</small></p>
-                <p *ngIf="item.rating !== undefined" class="stat-highlight">{{ item.rating | number:'1.1-2' }} <small>avg rating</small></p>
+                <p *ngIf="item.count !== undefined" class="stat-highlight">{{ item.count }} <small>{{ selectedCategory().toLowerCase().includes('watchlist') ? 'pending' : 'watches' }}</small></p>
+                <p *ngIf="item.watchedCount && selectedCategory().toLowerCase().includes('watchlist')" class="stat-highlight">{{ item.watchedCount }} <small>watched</small></p>
+                <p *ngIf="item.watchCount !== undefined" class="stat-highlight">{{ item.watchCount }} <small>{{ selectedCategory().toLowerCase().includes('watchlist') ? 'pending' : 'watches' }}</small></p>
+                <div *ngIf="item.averageRating !== undefined" class="stat-highlight">
+                  <span *ngIf="item.averageRating > 0">{{ item.averageRating | number:'1.1-2' }} <small>avg rating</small></span>
+                  <span *ngIf="item.averageRating === 0" class="elegant-unrated">No ratings yet</span>
+                </div>
+                <p *ngIf="item.highestRatedMovieTitle" class="stat-highlight">Best: {{ item.highestRatedMovieTitle }}</p>
                 <p *ngIf="item.releaseYear">{{ item.releaseYear }}</p>
                 <p *ngIf="item.streakLength" class="stat-highlight">{{ item.streakLength }} <small>streak</small></p>
                 <p *ngIf="item.actor1 && item.actor2">{{ item.actor1 }} & {{ item.actor2 }} ({{ item.count }} movies)</p>
@@ -96,26 +105,37 @@
 
         <ng-container *ngIf="currentQuery().type === 'single' && isSingle(resultData())">
           <div class="hero-card glass-panel animate-scale-in">
-            <h2 class="hero-title" *ngIf="resultData().name || resultData().title || resultData().genreName">
-              {{ resultData().name || resultData().title || resultData().genreName }}
+            <ng-container *ngIf="!hasNoData(resultData())">
+              <h2 class="hero-title" *ngIf="resultData().name || resultData().title || resultData().genreName || resultData().directorName || resultData().actorName || resultData().eraName">
+              {{ resultData().name || resultData().title || resultData().genreName || resultData().directorName || resultData().actorName || resultData().eraName }}
             </h2>
             <div class="hero-stats">
               <div class="stat-box" *ngIf="resultData().count !== undefined">
                 <span class="value">{{ resultData().count }}</span>
-                <span class="label">Movies</span>
+                <span class="label">{{ selectedCategory().toLowerCase().includes('watchlist') ? 'Pending' : 'Watches' }}</span>
               </div>
-              <div class="stat-box" *ngIf="resultData().totalHours !== undefined">
-                <span class="value">{{ resultData().totalHours | number:'1.0-0' }}h {{ resultData().remainingMinutes }}m</span>
+              <div class="stat-box" *ngIf="resultData().watchedCount && selectedCategory().toLowerCase().includes('watchlist')">
+                <span class="value">{{ resultData().watchedCount }}</span>
+                <span class="label">Watched</span>
+              </div>
+              <div class="stat-box" *ngIf="resultData().totalMinutes !== undefined">
+                <span class="value">{{ resultData().totalHours }}h {{ resultData().totalMinutes % 60 }}m</span>
                 <span class="label">Time Invested</span>
               </div>
-              <div class="stat-box" *ngIf="resultData().averageRating !== undefined">
-                <span class="value">{{ resultData().averageRating | number:'1.1-2' }}</span>
-                <span class="label">Avg Rating</span>
-              </div>
+                <div class="stat-box" *ngIf="resultData().averageRating !== undefined">
+                  <span class="value" *ngIf="resultData().averageRating > 0">{{ resultData().averageRating | number:'1.1-2' }}</span>
+                  <span class="value unrated-text" *ngIf="resultData().averageRating === 0">N/A</span>
+                  <span class="label">Avg Rating</span>
+                </div>
               <div class="stat-box" *ngIf="resultData().actorName">
                 <span class="value">{{ resultData().actorName }}</span>
                 <span class="label">Actor</span>
               </div>
+            </div>
+            </ng-container>
+            
+            <div class="no-data" *ngIf="hasNoData(resultData())">
+              No viewing history found in your registers for this filter.
             </div>
           </div>
         </ng-container>
@@ -173,7 +193,7 @@
               <div class="bar-col" *ngFor="let item of resultData()">
                 <div class="bar-value">{{ item.count || (item.averageRating | number:'1.1-2') || item.totalWatches || item.shortCount }}</div>
                 <div class="bar-fill-container">
-                  <div class="bar-fill" [style.height.%]="((item.count || item.averageRating || item.totalWatches || item.shortCount || 0) / 10) * 100"></div>
+                  <div class="bar-fill" [style.height.%]="((item.count || item.averageRating || item.totalWatches || item.shortCount || 0) / getChartMaxValue()) * 100"></div>
                 </div>
                 <div class="bar-label">
                   {{ item.dayOfWeek || item.month || item.genreName || item.decade || 'Item' }}

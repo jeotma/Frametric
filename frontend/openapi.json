@@ -1847,7 +1847,7 @@
           },
           "count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int32"
           },
           "averageRating": {
             "type": "number",
@@ -1975,7 +1975,7 @@
           },
           "count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int32"
           }
         }
       },
@@ -1992,7 +1992,7 @@
           },
           "count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int32"
           },
           "averageRating": {
             "type": "number",
@@ -2005,7 +2005,8 @@
           "directorId",
           "name",
           "watchCount",
-          "averageRating"
+          "averageRating",
+          "highestRatedMovieTitle"
         ],
         "type": "object",
         "properties": {
@@ -2018,11 +2019,14 @@
           },
           "watchCount": {
             "type": "integer",
-            "format": "int64"
+            "format": "int32"
           },
           "averageRating": {
             "type": "number",
             "format": "double"
+          },
+          "highestRatedMovieTitle": {
+            "type": "string"
           }
         }
       },
@@ -2070,7 +2074,7 @@
           },
           "count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int32"
           }
         }
       },
@@ -2221,7 +2225,7 @@
           },
           "count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int32"
           }
         }
       },
@@ -2259,7 +2263,7 @@
           },
           "count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int32"
           }
         }
       },
@@ -2392,11 +2396,11 @@
           },
           "totalMinutes": {
             "type": "integer",
-            "format": "int32"
+            "format": "int64"
           },
           "totalHours": {
             "type": "integer",
-            "format": "int32"
+            "format": "int64"
           }
         }
       },
@@ -2429,7 +2433,7 @@
           },
           "count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int32"
           }
         }
       },

@@ -4,3 +4,4 @@ public record MonthlyActivityResponseDto(
     List<MonthlyWatchesDto> MonthlyActivity,
     List<WeeklyWatchesDto> WeeklyActivity
 );
+

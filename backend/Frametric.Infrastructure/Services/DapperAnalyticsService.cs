@@ -47,9 +47,7 @@ public class DapperAnalyticsService : IAnalyticsService
 
         // 4. Top Genres
         const string topGenresSql = @"
-            SELECT g.""Name"" AS GenreName, CAST(COALESCE(SUM(GREATEST(1, 
-                (SELECT COUNT(*) FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)
-            )), 0) AS BIGINT) AS Count
+            SELECT g.""Name"" AS GenreName, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count
             FROM ""WatchedMovies"" w
             JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
             JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
@@ -61,9 +59,7 @@ public class DapperAnalyticsService : IAnalyticsService
 
         // 5. Top Directors
         const string topDirectorsSql = @"
-            SELECT dr.""Name"" AS DirectorName, CAST(COALESCE(SUM(GREATEST(1, 
-                (SELECT COUNT(*) FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)
-            )), 0) AS BIGINT) AS Count, CAST(COALESCE(AVG((SELECT AVG(""Rating"") FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)), 0) AS DECIMAL) AS AverageRating
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG((SELECT ""Score"" FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM ""WatchedMovies"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
@@ -75,9 +71,7 @@ public class DapperAnalyticsService : IAnalyticsService
 
         // 6. Top Actors
         const string topActorsSql = @"
-            SELECT a.""Name"" AS ActorName, CAST(COALESCE(SUM(GREATEST(1, 
-                (SELECT COUNT(*) FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)
-            )), 0) AS BIGINT) AS Count, CAST(COALESCE(AVG((SELECT AVG(""Rating"") FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)), 0) AS DECIMAL) AS AverageRating
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG((SELECT ""Score"" FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM ""WatchedMovies"" w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
@@ -89,9 +83,7 @@ public class DapperAnalyticsService : IAnalyticsService
 
         // 7. Decade Breakdown
         const string decadeSql = @"
-            SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, CAST(COALESCE(SUM(GREATEST(1, 
-                (SELECT COUNT(*) FROM ""DiaryEntries"" de WHERE de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId)
-            )), 0) AS BIGINT) AS Count
+            SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count
             FROM ""WatchedMovies"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             WHERE w.""UserId"" = @userId AND m.""ReleaseYear"" IS NOT NULL
@@ -155,7 +147,7 @@ public class DapperAnalyticsService : IAnalyticsService
 
         // 4. Top Genres
         string topGenresSql = yearlyWatchesCte + @"
-            SELECT g.""Name"" AS GenreName, COUNT(*) AS Count
+            SELECT g.""Name"" AS GenreName, CAST(COUNT(*) AS INTEGER) AS Count
             FROM YearlyWatches yw
             JOIN ""MovieGenre"" mg ON yw.""MovieId"" = mg.""MoviesId""
             JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
@@ -166,7 +158,7 @@ public class DapperAnalyticsService : IAnalyticsService
 
         // 5. Top Directors
         string topDirectorsSql = yearlyWatchesCte + @"
-            SELECT dr.""Name"" AS DirectorName, COUNT(*) AS Count, COALESCE(AVG(yw.""Rating""), 0) AS AverageRating
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(*) AS INTEGER) AS Count, CAST(COALESCE(AVG(yw.""Rating""), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM YearlyWatches yw
             JOIN ""MovieDirector"" md ON yw.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
@@ -177,7 +169,7 @@ public class DapperAnalyticsService : IAnalyticsService
 
         // 6. Top Actors
         string topActorsSql = yearlyWatchesCte + @"
-            SELECT a.""Name"" AS ActorName, COUNT(*) AS Count, COALESCE(AVG(yw.""Rating""), 0) AS AverageRating
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(*) AS INTEGER) AS Count, CAST(COALESCE(AVG(yw.""Rating""), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM YearlyWatches yw
             JOIN ""MovieActor"" ma ON yw.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
@@ -188,7 +180,7 @@ public class DapperAnalyticsService : IAnalyticsService
 
         // 7. Decade Breakdown
         string decadeSql = yearlyWatchesCte + @"
-            SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, COUNT(*) AS Count
+            SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, CAST(COUNT(*) AS INTEGER) AS Count
             FROM YearlyWatches yw
             JOIN ""Movies"" m ON yw.""MovieId"" = m.""Id""
             WHERE m.""ReleaseYear"" IS NOT NULL
@@ -198,7 +190,7 @@ public class DapperAnalyticsService : IAnalyticsService
 
         // 8. Monthly Activity
         string monthlySql = yearlyWatchesCte + @"
-            SELECT CAST(EXTRACT(MONTH FROM yw.WatchDate) AS INTEGER) AS Month, COUNT(*) AS Count
+            SELECT CAST(EXTRACT(MONTH FROM yw.WatchDate) AS INTEGER) AS Month, CAST(COUNT(*) AS INTEGER) AS Count
             FROM YearlyWatches yw
             GROUP BY Month
             ORDER BY Month ASC";
@@ -247,20 +239,20 @@ public class DapperAnalyticsService : IAnalyticsService
         ";
 
         string monthlySql = yearlyWatchesCte + @"
-            SELECT CAST(EXTRACT(MONTH FROM yw.WatchDate) AS INTEGER) AS Month, COUNT(*) AS Count
+            SELECT CAST(EXTRACT(MONTH FROM yw.WatchDate) AS INTEGER) AS Month, CAST(COUNT(*) AS INTEGER) AS Count
             FROM YearlyWatches yw
             GROUP BY Month
             ORDER BY Month ASC";
         var monthlyList = (await connection.QueryAsync<MonthlyWatchesDto>(monthlySql, parameters)).ToList();
 
         string weeklySql = yearlyWatchesCte + @"
-            SELECT TRIM(TO_CHAR(yw.WatchDate, 'Day')) AS DayOfWeek, COUNT(*) AS Count,
+            SELECT TRIM(TO_CHAR(yw.WatchDate, 'Day')) AS DayOfWeek, CAST(COUNT(*) AS INTEGER) AS Count,
                    CAST(EXTRACT(ISODOW FROM yw.WatchDate) AS INTEGER) AS DayIndex
             FROM YearlyWatches yw
             GROUP BY DayOfWeek, DayIndex
             ORDER BY DayIndex ASC";
         var weeklyList = (await connection.QueryAsync<dynamic>(weeklySql, parameters))
-            .Select(x => new WeeklyWatchesDto((string)x.dayofweek, (long)x.count))
+            .Select(x => new WeeklyWatchesDto((string)x.dayofweek, (int)(long)x.count))
             .ToList();
 
         // Fill in missing months
@@ -277,7 +269,7 @@ public class DapperAnalyticsService : IAnalyticsService
         var parameters = new { userId, limit };
 
         const string sql = @"
-            SELECT dr.""Id"" AS DirectorId, dr.""Name"" AS Name, COUNT(*) AS WatchCount, COALESCE(AVG(d.""Rating""), 0) AS AverageRating
+            SELECT dr.""Id"" AS DirectorId, dr.""Name"" AS Name, CAST(COUNT(*) AS INTEGER) AS WatchCount, COALESCE(AVG(d.""Rating""), 0) AS AverageRating
             FROM ""DiaryEntries"" d
             JOIN ""MovieDirector"" md ON d.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
