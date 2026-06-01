@@ -11,6 +11,7 @@ import { MostRewatchedDto } from '../../../../core/services/final-cut.service';
       <div class="act-label">Act IV · The Climax</div>
       <h2 class="slide-title">The Return of the King.</h2>
       <p class="slide-subtitle">The movie you just couldn't stay away from.</p>
+      <p class="slide-explainer">Encore performances. The stories you just had to experience one more time.</p>
 
       <div class="rotk-container" *ngIf="data">
         <div class="rotk-poster-wrap">
@@ -36,6 +37,14 @@ import { MostRewatchedDto } from '../../../../core/services/final-cut.service';
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .rotk-bg {
       background: radial-gradient(circle at center, rgba(251, 191, 36, 0.12) 0%, transparent 60%);
     }

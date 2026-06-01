@@ -10,10 +10,15 @@ import html2canvas from 'html2canvas';
   imports: [CommonModule, RouterLink],
   template: `
     <div class="slide-content summary-wrapper">
+      <div class="final-note">
+        And that's a wrap on {{ year === 'global' ? 'All-Time' : year }}.<br>
+        <span class="fn-sub">The projector cools down, the iris fades to black, and the credits roll on your cinematic journey.</span>
+      </div>
+
       <div class="summary-card" id="final-cut-card">
         <div class="card-header">
           <div class="logo">Frametric</div>
-          <div class="year">THE {{ username | uppercase }}'S CUT {{ year }}</div>
+          <div class="year">THE {{ username | uppercase }}'S CUT {{ year === 'global' ? 'ALL-TIME' : year }}</div>
         </div>
 
         <div class="card-body">
@@ -65,8 +70,9 @@ import html2canvas from 'html2canvas';
         <div class="card-footer">
           <div class="user-handle">@{{ username }}</div>
           <div class="watermark-container">
-            <div class="app-watermark">frametric.app</div>
-            <div class="creator-watermark">jesusoteromartinez@outlook.com</div>
+            <span class="watermark-text">frametric.app</span>
+            <span class="watermark-dot">•</span>
+            <span class="watermark-text">jesusoteromartinez@outlook.com</span>
           </div>
         </div>
       </div>
@@ -79,6 +85,8 @@ import html2canvas from 'html2canvas';
           Finish & Return
         </button>
       </div>
+
+      <p class="exit-note">Press ESC or click the exit button to return.</p>
     </div>
   `,
   styles: [`
@@ -86,25 +94,51 @@ import html2canvas from 'html2canvas';
       background: radial-gradient(circle at center, rgba(139, 92, 246, 0.1) 0%, transparent 100%);
     }
     
+    .final-note {
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+    .fn-sub {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+    
+    .exit-note {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.3);
+      animation: pulse 2s infinite;
+      margin-top: 8px;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+    
     /* VERY strict CSS for html2canvas compatibility */
     .summary-card {
       background-color: #111116; /* Solid color, no rgba/blur for better html2canvas */
       border: 1px solid #333;
       border-radius: 16px;
-      padding: 36px;
+      padding: 24px 36px;
       width: 100%;
       max-width: 660px;
       color: #fff;
       font-family: 'Inter', sans-serif;
       box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-      margin-bottom: 40px;
+      margin-bottom: 24px;
     }
 
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 32px;
+      margin-bottom: 20px;
       border-bottom: 1px solid #333;
       padding-bottom: 16px;
     }
@@ -126,25 +160,25 @@ import html2canvas from 'html2canvas';
 
     .data-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
-      margin-bottom: 32px;
+      margin-bottom: 20px;
       width: 100%;
-      justify-items: center; /* Center the entire column block */
     }
 
     .data-col {
       display: flex;
       flex-direction: column;
-      align-items: flex-start; /* Ensures stat and list align to the SAME left edge */
-      gap: 36px; /* Space between stat and list */
-      width: max-content;
+      align-items: center;
+      text-align: center;
+      gap: 24px;
     }
 
     .stat-block, .list-block {
       display: flex;
       flex-direction: column;
-      text-align: left;
+      align-items: center;
+      text-align: center;
     }
 
     .stat-block {
@@ -179,29 +213,27 @@ import html2canvas from 'html2canvas';
       list-style-type: none;
       color: #ddd;
       font-size: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     li {
-      margin-bottom: 8px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
+      margin-bottom: 4px;
+      text-align: center;
     }
 
     .card-footer {
-      text-align: center;
-      color: #666;
       border-top: 1px solid #333;
-      padding-top: 24px;
-      padding-bottom: 24px;
+      padding-top: 16px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      align-items: center;
+      gap: 8px;
     }
     
     .user-handle {
-      color: var(--accent-purple);
+      color: #8b5cf6;
       font-size: 1.1rem;
       font-weight: 800;
       letter-spacing: 0.5px;
@@ -209,34 +241,35 @@ import html2canvas from 'html2canvas';
 
     .watermark-container {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 4px;
+      justify-content: center;
+      gap: 8px;
       margin-top: 4px;
       width: 100%;
     }
 
-    .app-watermark {
-      color: rgba(255, 255, 255, 0.4);
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 1px;
-    }
-    
-    .creator-watermark {
-      color: rgba(255, 255, 255, 0.2);
-      font-size: 0.65rem;
+    .watermark-text {
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 0.75rem;
       font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: lowercase;
+    }
+
+    .watermark-dot {
+      color: rgba(255, 255, 255, 0.15);
+      font-size: 0.6rem;
     }
 
     .action-buttons {
       display: flex;
-      flex-direction: column;
-      gap: 16px;
+      flex-direction: row;
+      gap: 24px;
       align-items: center;
       position: relative;
       z-index: 100;
       pointer-events: auto; /* Enable clicks for all buttons */
+      margin-bottom: 16px;
     }
 
     .share-btn {
@@ -283,7 +316,7 @@ import html2canvas from 'html2canvas';
 })
 export class SummarySlideComponent {
   @Input({ required: true }) data!: WrappedSummaryDto;
-  @Input() year!: number;
+  @Input() year!: number | 'global';
   @Input() username!: string;
 
   public isGenerating = signal<boolean>(false);

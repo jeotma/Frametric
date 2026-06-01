@@ -10,7 +10,7 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './final-cut-teaser.scss',
 })
 export class FinalCutTeaserComponent implements OnInit, OnDestroy {
-  public selectedYear = signal<number>(new Date().getFullYear() - 1);
+  public selectedYear = signal<number | 'global'>(new Date().getFullYear() - 1);
   public availableYears = [2026, 2025, 2024];
 
   private authService = inject(AuthService);
@@ -29,7 +29,8 @@ export class FinalCutTeaserComponent implements OnInit, OnDestroy {
   }
 
   onYearChange(event: any) {
-    this.selectedYear.set(Number(event.target.value));
+    const val = event.target.value;
+    this.selectedYear.set(val === 'global' ? 'global' : Number(val));
   }
 
   public togglePromo() {

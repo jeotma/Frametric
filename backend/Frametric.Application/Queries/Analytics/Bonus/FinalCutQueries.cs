@@ -13,7 +13,7 @@ using MediatR;
 namespace Frametric.Application.Queries.Analytics.Bonus;
 
 // --- The Bookends: First & Last Movie of the Year ---
-public record GetBookendsQuery(Guid UserId, int Year) : IRequest<BookendsDto?>;
+public record GetBookendsQuery(Guid UserId, int? Year) : IRequest<BookendsDto?>;
 public class GetBookendsQueryHandler : IRequestHandler<GetBookendsQuery, BookendsDto?>
 {
     private readonly IBonusQueries _queries;
@@ -23,7 +23,7 @@ public class GetBookendsQueryHandler : IRequestHandler<GetBookendsQuery, Bookend
 }
 
 // --- The Monthly Extremes: Best & Worst per Month ---
-public record GetMonthlyExtremesQuery(Guid UserId, int Year, bool IncludeRewatches = false) : IRequest<IEnumerable<MonthlyExtremeDto>>;
+public record GetMonthlyExtremesQuery(Guid UserId, int? Year, bool IncludeRewatches = false) : IRequest<IEnumerable<MonthlyExtremeDto>>;
 public class GetMonthlyExtremesQueryHandler : IRequestHandler<GetMonthlyExtremesQuery, IEnumerable<MonthlyExtremeDto>>
 {
     private readonly IBonusQueries _queries;
@@ -33,7 +33,7 @@ public class GetMonthlyExtremesQueryHandler : IRequestHandler<GetMonthlyExtremes
 }
 
 // --- The Hall of Fame / Golden Raspberry: Top & Bottom 5 ---
-public record GetTopAndBottomRatedMoviesQuery(Guid UserId, int Year) : IRequest<TopBottomMoviesDto>;
+public record GetTopAndBottomRatedMoviesQuery(Guid UserId, int? Year) : IRequest<TopBottomMoviesDto>;
 public class GetTopAndBottomRatedMoviesQueryHandler : IRequestHandler<GetTopAndBottomRatedMoviesQuery, TopBottomMoviesDto>
 {
     private readonly IBonusQueries _queries;
@@ -43,7 +43,7 @@ public class GetTopAndBottomRatedMoviesQueryHandler : IRequestHandler<GetTopAndB
 }
 
 // --- The Return of the King: Most Rewatched ---
-public record GetMostRewatchedMovieQuery(Guid UserId, int Year) : IRequest<MostRewatchedDto?>;
+public record GetMostRewatchedMovieQuery(Guid UserId, int? Year) : IRequest<MostRewatchedDto?>;
 public class GetMostRewatchedMovieQueryHandler : IRequestHandler<GetMostRewatchedMovieQuery, MostRewatchedDto?>
 {
     private readonly IBonusQueries _queries;
@@ -53,7 +53,7 @@ public class GetMostRewatchedMovieQueryHandler : IRequestHandler<GetMostRewatche
 }
 
 // --- The Best Rookies: First-time Directors & Actors ---
-public record GetBestRookiesQuery(Guid UserId, int Year) : IRequest<BestRookiesDto>;
+public record GetBestRookiesQuery(Guid UserId, int? Year) : IRequest<BestRookiesDto>;
 public class GetBestRookiesQueryHandler : IRequestHandler<GetBestRookiesQuery, BestRookiesDto>
 {
     private readonly IBonusQueries _queries;
@@ -63,7 +63,7 @@ public class GetBestRookiesQueryHandler : IRequestHandler<GetBestRookiesQuery, B
 }
 
 // --- Cinematic Fatigue (Expanded) ---
-public record GetCinematicFatigueExpandedQuery(Guid UserId, int Year) : IRequest<CinematicFatigueExpandedDto?>;
+public record GetCinematicFatigueExpandedQuery(Guid UserId, int? Year) : IRequest<CinematicFatigueExpandedDto?>;
 public class GetCinematicFatigueExpandedQueryHandler : IRequestHandler<GetCinematicFatigueExpandedQuery, CinematicFatigueExpandedDto?>
 {
     private readonly IBonusQueries _queries;

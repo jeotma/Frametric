@@ -11,6 +11,7 @@ import { DavidAndGoliathDto } from '../../../../core/services/final-cut.service'
       <div class="act-label">Act III · The Deep Cuts</div>
       <h2 class="slide-title">David and Goliath.</h2>
       <p class="slide-subtitle">The epic and the intimate — the extremes of your watch list.</p>
+      <p class="slide-explainer">From epic sagas to brief encounters. The extremes of your runtime.</p>
 
       <div class="dg-container">
         <!-- The Epic -->
@@ -46,6 +47,14 @@ import { DavidAndGoliathDto } from '../../../../core/services/final-cut.service'
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .dg-bg {
       background: radial-gradient(ellipse at 25% 50%, rgba(251, 113, 133, 0.08) 0%, transparent 50%),
                   radial-gradient(ellipse at 75% 50%, rgba(96, 165, 250, 0.08) 0%, transparent 50%);

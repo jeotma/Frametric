@@ -9,7 +9,8 @@ import { CommonModule } from '@angular/common';
     <div class="slide-content auteurs-bg">
       <div class="act-label">Act II · The Cast & Crew</div>
       <h2 class="slide-title">The Auteurs.</h2>
-      <p class="slide-subtitle">The visionaries who shaped your cinematic year in {{ year }}.</p>
+      <p class="slide-subtitle">The visionaries who shaped your cinematic year in {{ year === 'global' ? 'All-Time' : year }}.</p>
+      <p class="slide-explainer">The visionaries behind the lens. The directors whose craft you couldn't look away from.</p>
 
       <div class="director-list" *ngIf="topDirectors.length">
         <div *ngFor="let d of topDirectors; let i = index" class="director-row" [class.top-dir]="i === 0">
@@ -21,10 +22,18 @@ import { CommonModule } from '@angular/common';
         </div>
       </div>
 
-      <p class="no-data" *ngIf="!topDirectors.length">No director data for {{ year }}.</p>
+      <p class="no-data" *ngIf="!topDirectors.length">No director data for {{ year === 'global' ? 'All-Time' : year }}.</p>
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .auteurs-bg {
       background: radial-gradient(ellipse at 30% 60%, rgba(96, 165, 250, 0.1) 0%, transparent 55%);
     }
@@ -60,7 +69,7 @@ import { CommonModule } from '@angular/common';
 })
 export class AutoeursSlideComponent {
   @Input() directors: any[] = [];
-  @Input() year!: number;
+  @Input() year!: number | 'global';
 
   get topDirectors(): any[] {
     return (this.directors ?? []).slice(0, 7);

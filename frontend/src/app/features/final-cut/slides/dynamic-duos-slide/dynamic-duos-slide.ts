@@ -11,6 +11,7 @@ import { DirectorActorPairDto } from '../../../../core/services/final-cut.servic
       <div class="act-label">Act II · The Cast & Crew</div>
       <h2 class="slide-title">Dynamic Duos & Perfect Pairs.</h2>
       <p class="slide-subtitle">The director-actor collaborations you returned to again and again.</p>
+      <p class="slide-explainer">Iconic collaborations. The director-actor pairings that sparked magic.</p>
 
       <div class="pairs-section" *ngIf="topPairs.length">
         <div *ngFor="let p of topPairs; let i = index" class="pair-card" [class.top-pair]="i === 0">
@@ -43,6 +44,14 @@ import { DirectorActorPairDto } from '../../../../core/services/final-cut.servic
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .duos-bg {
       background: radial-gradient(ellipse at 50% 40%, rgba(52, 211, 153, 0.08) 0%, transparent 55%);
     }

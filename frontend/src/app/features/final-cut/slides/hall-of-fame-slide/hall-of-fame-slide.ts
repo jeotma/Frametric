@@ -10,7 +10,8 @@ import { TopBottomMoviesDto } from '../../../../core/services/final-cut.service'
     <div class="slide-content hof-bg">
       <div class="act-label">Act IV · The Climax</div>
       <h2 class="slide-title">The Hall of Fame.</h2>
-      <p class="slide-subtitle">Your top rated masterpieces of {{ year }}.</p>
+      <p class="slide-subtitle">Your top rated masterpieces of {{ year === 'global' ? 'All-Time' : year }}.</p>
+      <p class="slide-explainer">Five stars. Pure cinema. The absolute masterpieces that left a lasting mark.</p>
 
       <div class="top5-grid" *ngIf="data?.topRated?.length">
         <div *ngFor="let m of data!.topRated; let i = index" class="hof-card" [class.number-one]="i === 0">
@@ -33,6 +34,14 @@ import { TopBottomMoviesDto } from '../../../../core/services/final-cut.service'
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .hof-bg {
       background: radial-gradient(ellipse at 50% 40%, rgba(52, 211, 153, 0.1) 0%, transparent 60%);
     }
@@ -114,7 +123,7 @@ import { TopBottomMoviesDto } from '../../../../core/services/final-cut.service'
 })
 export class HallOfFameSlideComponent {
   @Input() data?: TopBottomMoviesDto | null;
-  @Input() year!: number;
+  @Input() year!: number | 'global';
 
   posterUrl(path: string): string {
     if (path?.startsWith('http')) return path;

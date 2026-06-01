@@ -102,7 +102,7 @@ public class DapperAnalyticsService : IAnalyticsService
         );
     }
 
-    public async Task<WrappedSummaryDto> GetWrappedSummaryAsync(Guid userId, int year, CancellationToken cancellationToken)
+    public async Task<WrappedSummaryDto> GetWrappedSummaryAsync(Guid userId, int? year, CancellationToken cancellationToken)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         var parameters = new { userId, year };
@@ -111,17 +111,17 @@ public class DapperAnalyticsService : IAnalyticsService
             WITH YearlyWatches AS (
                 SELECT d.""MovieId"", d.""WatchedDate"" AS WatchDate, d.""Rating""
                 FROM ""DiaryEntries"" d
-                WHERE d.""UserId"" = @userId AND EXTRACT(YEAR FROM d.""WatchedDate"") = @year
+                WHERE d.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM d.""WatchedDate"") = @year)
 
                 UNION ALL
 
                 SELECT w.""MovieId"", w.""Date"" AS WatchDate, NULL AS Rating
                 FROM ""WatchedMovies"" w
-                WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year
+                WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year)
                 AND NOT EXISTS (
                     SELECT 1 FROM ""DiaryEntries"" d2
                     WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId"" 
-                    AND EXTRACT(YEAR FROM d2.""WatchedDate"") = @year
+                    AND (@year IS NULL OR EXTRACT(YEAR FROM d2.""WatchedDate"") = @year)
                 )
             )
         ";
@@ -143,7 +143,7 @@ public class DapperAnalyticsService : IAnalyticsService
         string uniqueMoviesSql = @"
             SELECT CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER)
             FROM ""WatchedMovies"" w
-            WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year";
+            WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year)";
         var uniqueMovies = await connection.ExecuteScalarAsync<int>(uniqueMoviesSql, parameters);
 
         // 4. Top Genres
@@ -152,7 +152,7 @@ public class DapperAnalyticsService : IAnalyticsService
             FROM ""WatchedMovies"" w
             JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
             JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
-            WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year
+            WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year)
             GROUP BY g.""Name""
             ORDER BY Count DESC, g.""Name""
             LIMIT 5";
@@ -164,7 +164,7 @@ public class DapperAnalyticsService : IAnalyticsService
             FROM ""WatchedMovies"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
-            WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year
+            WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year)
             GROUP BY dr.""Name""
             ORDER BY Count DESC, AverageRating DESC
             LIMIT 5";
@@ -176,7 +176,7 @@ public class DapperAnalyticsService : IAnalyticsService
             FROM ""WatchedMovies"" w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
-            WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year
+            WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year)
             GROUP BY a.""Name""
             ORDER BY Count DESC, AverageRating DESC
             LIMIT 5";
@@ -187,7 +187,7 @@ public class DapperAnalyticsService : IAnalyticsService
             SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count
             FROM ""WatchedMovies"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
-            WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year AND m.""ReleaseYear"" IS NOT NULL
+            WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year) AND m.""ReleaseYear"" IS NOT NULL
             GROUP BY Decade
             ORDER BY Decade ASC";
         var decadeBreakdown = (await connection.QueryAsync<DecadeCountDto>(decadeSql, parameters)).ToList();
@@ -218,7 +218,7 @@ public class DapperAnalyticsService : IAnalyticsService
         );
     }
 
-    public async Task<MonthlyActivityResponseDto> GetMonthlyActivityAsync(Guid userId, int year, CancellationToken cancellationToken)
+    public async Task<MonthlyActivityResponseDto> GetMonthlyActivityAsync(Guid userId, int? year, CancellationToken cancellationToken)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         var parameters = new { userId, year };
@@ -227,17 +227,17 @@ public class DapperAnalyticsService : IAnalyticsService
             WITH YearlyWatches AS (
                 SELECT d.""MovieId"", d.""WatchedDate"" AS WatchDate
                 FROM ""DiaryEntries"" d
-                WHERE d.""UserId"" = @userId AND EXTRACT(YEAR FROM d.""WatchedDate"") = @year
+                WHERE d.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM d.""WatchedDate"") = @year)
 
                 UNION ALL
 
                 SELECT w.""MovieId"", w.""Date"" AS WatchDate
                 FROM ""WatchedMovies"" w
-                WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year
+                WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year)
                 AND NOT EXISTS (
                     SELECT 1 FROM ""DiaryEntries"" d2
                     WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId"" 
-                    AND EXTRACT(YEAR FROM d2.""WatchedDate"") = @year
+                    AND (@year IS NULL OR EXTRACT(YEAR FROM d2.""WatchedDate"") = @year)
                 )
             )
         ";

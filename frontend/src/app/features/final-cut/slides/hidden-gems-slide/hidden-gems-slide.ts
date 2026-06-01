@@ -10,6 +10,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
       <div class="act-label">Act III · The Deep Cuts</div>
       <h2 class="slide-title">Obscure Masterpieces.</h2>
       <p class="slide-subtitle">The hidden gems you unearthed that most people missed.</p>
+      <p class="slide-explainer">The road less traveled. Your favorite obscure and niche discoveries.</p>
 
       <div class="gems-list" *ngIf="topGems.length">
         <div *ngFor="let g of topGems; let i = index" class="gem-card">
@@ -28,10 +29,18 @@ import { CommonModule, DecimalPipe } from '@angular/common';
         </div>
       </div>
 
-      <p class="no-data" *ngIf="!topGems.length">No hidden gems found for {{ year }}.</p>
+      <p class="no-data" *ngIf="!topGems.length">No hidden gems found for {{ year === 'global' ? 'All-Time' : year }}.</p>
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .gems-bg {
       background: radial-gradient(ellipse at 40% 70%, rgba(45, 212, 191, 0.08) 0%, transparent 55%);
     }
@@ -76,7 +85,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 })
 export class HiddenGemsSlideComponent {
   @Input() gems: any[] = [];
-  @Input() year?: number;
+  @Input() year!: number | 'global';
 
   get topGems(): any[] {
     return (this.gems ?? []).slice(0, 3);

@@ -33,7 +33,7 @@ public class GetDirectorActorPairingsQueryHandler : IRequestHandler<GetDirectorA
 }
 
 // --- Prime Time Stats (Peak & Slump habits) ---
-public record GetPrimeTimeStatsQuery(Guid UserId, int Year) : IRequest<PrimeTimeStatsDto?>;
+public record GetPrimeTimeStatsQuery(Guid UserId, int? Year) : IRequest<PrimeTimeStatsDto?>;
 public class GetPrimeTimeStatsQueryHandler : IRequestHandler<GetPrimeTimeStatsQuery, PrimeTimeStatsDto?>
 {
     private readonly IWatchedComplexCorrelationsQueries _queries;
@@ -43,7 +43,7 @@ public class GetPrimeTimeStatsQueryHandler : IRequestHandler<GetPrimeTimeStatsQu
 }
 
 // --- Genre Landscape Expanded (with ratings) ---
-public record GetGenresWithRatingQuery(Guid UserId, int Year) : IRequest<IEnumerable<GenreWithRatingDto>>;
+public record GetGenresWithRatingQuery(Guid UserId, int? Year) : IRequest<IEnumerable<GenreWithRatingDto>>;
 public class GetGenresWithRatingQueryHandler : IRequestHandler<GetGenresWithRatingQuery, IEnumerable<GenreWithRatingDto>>
 {
     private readonly IWatchedComplexCorrelationsQueries _queries;

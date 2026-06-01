@@ -11,6 +11,7 @@ import { WeekendWarriorDto } from '../../../../core/services/final-cut.service';
       <div class="act-label">Act I · The Establishing Shot</div>
       <h2 class="slide-title">Weekday Warrior vs Weekend Enjoyer.</h2>
       <p class="slide-subtitle">The eternal battle of the cinema-goer's soul.</p>
+      <p class="slide-explainer">Escaping reality on a Tuesday or saving the blockbusters for the weekend.</p>
 
       <div class="vs-container" *ngIf="data">
         <div class="vs-card weekday-side" [class.winner]="data.weekdayWatches >= data.weekendWatches">
@@ -34,6 +35,14 @@ import { WeekendWarriorDto } from '../../../../core/services/final-cut.service';
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .warrior-bg {
       background: radial-gradient(ellipse at 30% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
                   radial-gradient(ellipse at 70% 50%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);

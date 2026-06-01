@@ -3,6 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin, map } from 'rxjs';
 
 
+import { WrappedSummaryDto } from '../api/model/wrapped-summary-dto';
+
 // ── DTO interfaces ────────────────────────────────────────────────────────────
 
 export interface WrappedMovie {
@@ -139,28 +141,34 @@ export class FinalCutService {
     return this.http.get<T>(`${this.base}${path}`, { params: httpParams });
   }
 
-  loadAllData(year: number): Observable<FinalCutData> {
+  loadSummary(year: number | 'global'): Observable<WrappedSummaryDto> {
+    const params = year === 'global' ? {} : { year };
+    return this.get<WrappedSummaryDto>('/api/analytics/wrapped', params);
+  }
+
+  loadAllData(year: number | 'global'): Observable<FinalCutData> {
+    const params = year === 'global' ? {} : { year };
     return forkJoin({
-      primeTime: this.get<PrimeTimeStatsDto>('/api/analytics/advanced/final-cut/prime-time', { year }),
-      cinemaFatigue: this.get<CinematicFatigueExpandedDto>('/api/analytics/advanced/bonus/cinematic-fatigue', { year }),
-      weekendWarrior: this.get<WeekendWarriorDto>('/api/analytics/advanced/bonus/weekend-warrior', { year }),
-      genreLandscape: this.get<GenreWithRatingDto[]>('/api/analytics/advanced/final-cut/genre-landscape', { year }),
-      castingPairs: this.get<any[]>('/api/analytics/advanced/watched/casting-repetitions', { year }),
-      directorActorPairs: this.get<DirectorActorPairDto[]>('/api/analytics/advanced/final-cut/director-actor-pairs', { year }),
-      bestRookies: this.get<BestRookiesDto>('/api/analytics/advanced/final-cut/best-rookies', { year }),
-      bookends: this.get<BookendsDto>('/api/analytics/advanced/final-cut/bookends', { year }),
-      longestMovie: this.get<WrappedMovie>('/api/analytics/advanced/watched/longest-movie', { year }),
-      shortestMovie: this.get<WrappedMovie>('/api/analytics/advanced/final-cut/shortest-movie', { year }),
-      monthlyExtremes: this.get<MonthlyExtremeDto[]>('/api/analytics/advanced/final-cut/monthly-extremes', { year }),
-      mostRewatched: this.get<MostRewatchedDto>('/api/analytics/advanced/final-cut/most-rewatched', { year }),
-      topBottom: this.get<TopBottomMoviesDto>('/api/analytics/advanced/final-cut/top-bottom-rated', { year }),
-      hiddenGems: this.get<any[]>('/api/analytics/advanced/bonus/hidden-gems', { year }),
-      ratingEvolution: this.get<any[]>('/api/analytics/advanced/watched/rating-evolution', { year }),
-      genreStreaks: this.get<any[]>('/api/analytics/advanced/watched/genre-streaks', { year }),
-      directors: this.get<any[]>('/api/analytics/advanced/watched/directors', { year }),
-      actors: this.get<any[]>('/api/analytics/advanced/watched/actors', { year }),
-      decadeBreakdown: this.get<any[]>('/api/analytics/advanced/watched/decades', { year }),
-      eraBreakdown: this.get<any>('/api/analytics/advanced/watched/predominant-era', { year }),
+      primeTime: this.get<PrimeTimeStatsDto>('/api/analytics/advanced/final-cut/prime-time', params),
+      cinemaFatigue: this.get<CinematicFatigueExpandedDto>('/api/analytics/advanced/bonus/cinematic-fatigue', params),
+      weekendWarrior: this.get<WeekendWarriorDto>('/api/analytics/advanced/bonus/weekend-warrior', params),
+      genreLandscape: this.get<GenreWithRatingDto[]>('/api/analytics/advanced/final-cut/genre-landscape', params),
+      castingPairs: this.get<any[]>('/api/analytics/advanced/watched/casting-repetitions', params),
+      directorActorPairs: this.get<DirectorActorPairDto[]>('/api/analytics/advanced/final-cut/director-actor-pairs', params),
+      bestRookies: this.get<BestRookiesDto>('/api/analytics/advanced/final-cut/best-rookies', params),
+      bookends: this.get<BookendsDto>('/api/analytics/advanced/final-cut/bookends', params),
+      longestMovie: this.get<WrappedMovie>('/api/analytics/advanced/watched/longest-movie', params),
+      shortestMovie: this.get<WrappedMovie>('/api/analytics/advanced/final-cut/shortest-movie', params),
+      monthlyExtremes: this.get<MonthlyExtremeDto[]>('/api/analytics/advanced/final-cut/monthly-extremes', params),
+      mostRewatched: this.get<MostRewatchedDto>('/api/analytics/advanced/final-cut/most-rewatched', params),
+      topBottom: this.get<TopBottomMoviesDto>('/api/analytics/advanced/final-cut/top-bottom-rated', params),
+      hiddenGems: this.get<any[]>('/api/analytics/advanced/bonus/hidden-gems', params),
+      ratingEvolution: this.get<any[]>('/api/analytics/advanced/watched/rating-evolution', params),
+      genreStreaks: this.get<any[]>('/api/analytics/advanced/watched/genre-streaks', params),
+      directors: this.get<any[]>('/api/analytics/advanced/watched/directors', params),
+      actors: this.get<any[]>('/api/analytics/advanced/watched/actors', params),
+      decadeBreakdown: this.get<any[]>('/api/analytics/advanced/watched/decades', params),
+      eraBreakdown: this.get<any>('/api/analytics/advanced/watched/predominant-era', params),
     }).pipe(
       map(r => ({
         primeTime: r.primeTime,

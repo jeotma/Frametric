@@ -330,24 +330,24 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         return await connection.QueryAsync<DirectorActorPairDto>(sql, new { userId, year });
     }
 
-    public async Task<PrimeTimeStatsDto?> GetPrimeTimeStatsAsync(Guid userId, int year, CancellationToken ct = default)
+    public async Task<PrimeTimeStatsDto?> GetPrimeTimeStatsAsync(Guid userId, int? year = null, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
             WITH AllWatched AS (
                 SELECT ""MovieId"", CAST(""WatchedDate"" AS DATE) AS WatchDate
                 FROM ""DiaryEntries""
-                WHERE ""UserId"" = @userId AND EXTRACT(YEAR FROM ""WatchedDate"") = @year
+                WHERE ""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM ""WatchedDate"") = @year)
 
                 UNION ALL
 
                 SELECT ""MovieId"", CAST(""Date"" AS DATE) AS WatchDate
                 FROM ""WatchedMovies"" w
-                WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM ""Date"") = @year
+                WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM ""Date"") = @year)
                 AND NOT EXISTS (
                     SELECT 1 FROM ""DiaryEntries"" d2
                     WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId""
-                    AND EXTRACT(YEAR FROM d2.""WatchedDate"") = @year
+                    AND (@year IS NULL OR EXTRACT(YEAR FROM d2.""WatchedDate"") = @year)
                 )
             ),
             ByDay AS (
@@ -372,7 +372,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         return await connection.QuerySingleOrDefaultAsync<PrimeTimeStatsDto>(sql, new { userId, year });
     }
 
-    public async Task<IEnumerable<GenreWithRatingDto>> GetGenresWithRatingAsync(Guid userId, int year, CancellationToken ct = default)
+    public async Task<IEnumerable<GenreWithRatingDto>> GetGenresWithRatingAsync(Guid userId, int? year = null, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
@@ -384,19 +384,19 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
             JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId
-            WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year
+            WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year)
             GROUP BY g.""Name""
             ORDER BY Count DESC, g.""Name""";
         return await connection.QueryAsync<GenreWithRatingDto>(sql, new { userId, year });
     }
 
-    public async Task<IEnumerable<RatingEvolutionDto>> GetRatingEvolutionAsync(Guid userId, int year, CancellationToken ct = default)
+    public async Task<IEnumerable<RatingEvolutionDto>> GetRatingEvolutionAsync(Guid userId, int? year = null, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
             SELECT CAST(EXTRACT(MONTH FROM ""DateRated"") AS INTEGER) AS Month, CAST(AVG(""Score"") AS DOUBLE PRECISION) AS AverageRating
             FROM ""MovieRatings""
-            WHERE ""UserId"" = @userId AND EXTRACT(YEAR FROM ""DateRated"") = @year AND ""Score"" IS NOT NULL
+            WHERE ""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM ""DateRated"") = @year) AND ""Score"" IS NOT NULL
             GROUP BY Month
             ORDER BY Month ASC";
         return await connection.QueryAsync<RatingEvolutionDto>(sql, new { userId, year });

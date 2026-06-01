@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
       <div class="act-label">Act III · The Deep Cuts</div>
       <h2 class="slide-title">The Obsession Streak.</h2>
       <p class="slide-subtitle">Getting stuck in a cinematic loop. Your longest streaks in a single genre.</p>
+      <p class="slide-explainer">Binge-watching masterclass. When one genre took complete control of the narrative.</p>
 
       <div class="streaks-list" *ngIf="topStreaks.length">
         <div *ngFor="let s of topStreaks; let i = index" class="streak-card" [class.top-streak]="i === 0">
@@ -24,6 +25,14 @@ import { CommonModule } from '@angular/common';
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .streak-bg {
       background: radial-gradient(ellipse at 50% 30%, rgba(168, 85, 247, 0.1) 0%, transparent 55%);
     }

@@ -11,6 +11,7 @@ import { CinematicFatigueExpandedDto } from '../../../../core/services/final-cut
       <div class="act-label">Act III · The Deep Cuts</div>
       <h2 class="slide-title">Cinematic Fatigue.</h2>
       <p class="slide-subtitle">The binge toll: Does watching more make you enjoy it less?</p>
+      <p class="slide-explainer">Quality vs. Quantity. How your ratings shifted during your movie marathons.</p>
 
       <div class="fatigue-container" *ngIf="data">
         <div class="fatigue-card">
@@ -37,6 +38,14 @@ import { CinematicFatigueExpandedDto } from '../../../../core/services/final-cut
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .fatigue-bg {
       background: radial-gradient(ellipse at 70% 30%, rgba(244, 63, 94, 0.08) 0%, transparent 60%);
     }

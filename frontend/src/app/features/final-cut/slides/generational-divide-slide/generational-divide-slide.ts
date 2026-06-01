@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
       <div class="act-label">Act II · The Cast & Crew</div>
       <h2 class="slide-title">The Generational Divide.</h2>
       <p class="slide-subtitle">Which era of cinema did you call home?</p>
+      <p class="slide-explainer">Time traveling through cinema. How your watches spanned the decades.</p>
 
       <div class="decades-viz" *ngIf="topDecades.length">
         <div *ngFor="let d of topDecades; let i = index" class="decade-row">
@@ -30,6 +31,14 @@ import { CommonModule } from '@angular/common';
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .gen-bg {
       background: radial-gradient(ellipse at 40% 50%, rgba(251, 191, 36, 0.08) 0%, transparent 60%);
     }

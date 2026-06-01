@@ -11,7 +11,8 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
     <div class="slide-content rasp-bg">
       <div class="act-label">Act IV · The Climax</div>
       <h2 class="slide-title">The Razzies.</h2>
-      <p class="slide-subtitle">We don't talk about these. The lowest rated of {{ year }}.</p>
+      <p class="slide-subtitle">We don't talk about these. The lowest rated of {{ year === 'global' ? 'All-Time' : year }}.</p>
+      <p class="slide-explainer">The cutting room floor. The films that completely missed the mark.</p>
 
       <div class="bottom5-grid" *ngIf="data?.bottomRated?.length">
         <div *ngFor="let m of data!.bottomRated" class="rasp-card">
@@ -29,15 +30,17 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
         * Films ordered by lowest rating, disfavor, and ultimately, chance.
       </div>
 
-      <!-- Final Summary Note -->
-      <div class="final-note" *ngIf="summary">
-        And that's a wrap on {{ year }}.<br>
-        <span class="fn-sub">You watched {{ summary.totalWatches }} films and spent {{ summary.totalWatchtimeMinutes / 60 | number:'1.0-0' }} hours in front of the screen.</span>
-      </div>
-      <p class="exit-note">Press ESC or click the exit button to return.</p>
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .rasp-bg {
       background: radial-gradient(ellipse at 50% 40%, rgba(244, 63, 94, 0.08) 0%, transparent 60%);
     }
@@ -88,32 +91,7 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
     }
     .rasp-rating { font-size: 0.8rem; color: #f43f5e; font-weight: 700; margin-top: 2px; }
     .heart { font-size: 0.85em; margin-left: 2px; }
-    
-    .final-note {
-      margin-top: 60px;
-      text-align: center;
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--text-primary);
-    }
-    .fn-sub {
-      display: block;
-      font-size: 0.9rem;
-      font-weight: 400;
-      color: var(--text-muted);
-      margin-top: 8px;
-    }
-    .exit-note {
-      position: absolute;
-      bottom: 30px;
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.3);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 1; }
-    }
+    .heart { font-size: 0.85em; margin-left: 2px; }
     .tie-breaker-note {
       font-size: 0.75rem;
       color: rgba(255, 255, 255, 0.3);
@@ -127,7 +105,7 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
 export class GoldenRaspberrySlideComponent {
   @Input() data?: TopBottomMoviesDto | null;
   @Input() summary!: WrappedSummaryDto;
-  @Input() year!: number;
+  @Input() year!: number | 'global';
 
   posterUrl(path: string): string {
     if (path?.startsWith('http')) return path;

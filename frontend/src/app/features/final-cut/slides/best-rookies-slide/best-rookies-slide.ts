@@ -10,7 +10,8 @@ import { BestRookiesDto } from '../../../../core/services/final-cut.service';
     <div class="slide-content rookies-bg">
       <div class="act-label">Act II · The Cast & Crew</div>
       <h2 class="slide-title">The Best Rookies.</h2>
-      <p class="slide-subtitle">First-time encounters that blew you away in {{ year }}.</p>
+      <p class="slide-subtitle">First-time encounters that blew you away in {{ year === 'global' ? 'All-Time' : year }}.</p>
+      <p class="slide-explainer">Fresh faces and new voices. The talents you recently discovered for the very first time.</p>
 
       <div class="rookies-grid" *ngIf="data">
         <div class="rookie-column">
@@ -36,10 +37,18 @@ import { BestRookiesDto } from '../../../../core/services/final-cut.service';
         </div>
       </div>
 
-      <p class="no-data" *ngIf="!data">No rookies data for {{ year }}.</p>
+      <p class="no-data" *ngIf="!data">No rookies data for {{ year === 'global' ? 'All-Time' : year }}.</p>
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .rookies-bg {
       background: radial-gradient(ellipse at 50% 40%, rgba(45, 212, 191, 0.08) 0%, transparent 55%);
     }
@@ -84,5 +93,5 @@ import { BestRookiesDto } from '../../../../core/services/final-cut.service';
 })
 export class BestRookiesSlideComponent {
   @Input() data?: BestRookiesDto | null;
-  @Input() year!: number;
+  @Input() year!: number | 'global';
 }

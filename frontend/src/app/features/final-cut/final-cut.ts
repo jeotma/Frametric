@@ -1,7 +1,7 @@
 // Final Cut Smart Component — 20-slide cinematic experience
-import { Component, OnInit, OnDestroy, inject, signal, effect, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, effect, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { AnalyticsService } from '../../core/api/api/analytics.service';
 import { AdvancedAnalyticsService } from '../../core/api/api/advanced-analytics.service';
@@ -68,13 +68,14 @@ import { SummarySlideComponent } from './slides/summary-slide/summary-slide';
 })
 export class FinalCutComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private analytics = inject(AnalyticsService);
   private finalCutService = inject(FinalCutService);
   private authService = inject(AuthService);
 
   public username = computed(() => this.authService.currentUser()?.username || 'User');
 
-  public year = signal<number>(new Date().getFullYear() - 1);
+  public year = signal<number | 'global'>(new Date().getFullYear() - 1);
   public summary = signal<WrappedSummaryDto | null>(null);
   public extData = signal<FinalCutData | null>(null);
   public loading = signal<boolean>(true);
@@ -99,7 +100,11 @@ export class FinalCutComponent implements OnInit, OnDestroy {
     this.route.paramMap.subscribe(params => {
       const yearParam = params.get('year');
       if (yearParam) {
-        this.year.set(parseInt(yearParam, 10));
+        if (yearParam === 'global') {
+          this.year.set('global');
+        } else {
+          this.year.set(parseInt(yearParam, 10));
+        }
       }
     });
   }
@@ -135,12 +140,12 @@ export class FinalCutComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadData(year: number) {
+  private loadData(year: number | 'global') {
     this.loading.set(true);
     this.activeSlide.set(0);
 
     forkJoin({
-      summary: this.analytics.apiAnalyticsWrappedYearGet(year),
+      summary: this.finalCutService.loadSummary(year),
       extended: this.finalCutService.loadAllData(year),
     }).subscribe({
       next: (res) => {
@@ -203,5 +208,10 @@ export class FinalCutComponent implements OnInit, OnDestroy {
   /** Slide index helper */
   public get slideIndices(): number[] {
     return Array.from({ length: this.SLIDE_COUNT }, (_, i) => i);
+  }
+
+  @HostListener('window:keydown.escape')
+  handleEscape() {
+    this.router.navigate(['/']);
   }
 }

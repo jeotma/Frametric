@@ -11,7 +11,8 @@ interface ActorCount { actorName: string; count: number; }
     <div class="slide-content alist-bg">
       <div class="act-label">Act II · The Cast & Crew</div>
       <h2 class="slide-title">The A-List.</h2>
-      <p class="slide-subtitle">The faces that dominated your screens in {{ year }}.</p>
+      <p class="slide-subtitle">The faces that dominated your screens in {{ year === 'global' ? 'All-Time' : year }}.</p>
+      <p class="slide-explainer">Your leading stars. The actors who captured the screen and your attention the most.</p>
 
       <div class="actor-list" *ngIf="topActors.length">
         <div *ngFor="let a of topActors; let i = index" class="actor-row" [class.top-actor]="i === 0">
@@ -21,10 +22,18 @@ interface ActorCount { actorName: string; count: number; }
         </div>
       </div>
 
-      <p class="no-data" *ngIf="!topActors.length">No actor data for {{ year }}.</p>
+      <p class="no-data" *ngIf="!topActors.length">No actor data for {{ year === 'global' ? 'All-Time' : year }}.</p>
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .alist-bg {
       background: radial-gradient(ellipse at 60% 30%, rgba(251, 113, 133, 0.1) 0%, transparent 55%);
     }
@@ -73,7 +82,7 @@ interface ActorCount { actorName: string; count: number; }
 })
 export class AListSlideComponent {
   @Input() actors: any[] = [];
-  @Input() year!: number;
+  @Input() year!: number | 'global';
 
   get topActors(): any[] {
     return (this.actors ?? []).slice(0, 7);

@@ -10,7 +10,8 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
     <div class="slide-content big-numbers-bg">
       <div class="act-label">Act I · The Establishing Shot</div>
       <h2 class="slide-title">The Box Office Receipts.</h2>
-      <p class="slide-subtitle">Here's what {{ year }} looked like in raw numbers.</p>
+      <p class="slide-subtitle">Here's what {{ year === 'global' ? 'All-Time' : year }} looked like in raw numbers.</p>
+      <p class="slide-explainer">Every frame watched is a moment lived. The raw scale of your cinematic journey.</p>
 
       <div class="numbers-grid">
         <div class="number-card accent-purple">
@@ -41,6 +42,14 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .big-numbers-bg {
       background: radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.12) 0%, transparent 60%),
                   radial-gradient(ellipse at 80% 20%, rgba(234, 179, 8, 0.08) 0%, transparent 50%);
@@ -90,7 +99,7 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
 })
 export class BigNumbersSlideComponent {
   @Input({ required: true }) summary!: WrappedSummaryDto;
-  @Input() year!: number;
+  @Input() year!: number | 'global';
 
   get totalHours(): number {
     return (this.summary.totalWatchtimeMinutes ?? 0) / 60;

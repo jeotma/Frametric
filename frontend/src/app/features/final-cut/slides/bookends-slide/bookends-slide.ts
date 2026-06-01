@@ -10,7 +10,8 @@ import { BookendsDto } from '../../../../core/services/final-cut.service';
     <div class="slide-content bookends-bg">
       <div class="act-label">Act IV · The Climax</div>
       <h2 class="slide-title">The Bookends.</h2>
-      <p class="slide-subtitle">How it started, and how it ended in {{ year }}.</p>
+      <p class="slide-subtitle">How it started, and how it ended in {{ year === 'global' ? 'All-Time' : year }}.</p>
+      <p class="slide-explainer">The opening sequence and the final fade to black. The Alpha and Omega of your journey.</p>
 
       <div class="bookends-container" *ngIf="data">
         
@@ -35,10 +36,18 @@ import { BookendsDto } from '../../../../core/services/final-cut.service';
         </div>
       </div>
 
-      <p class="no-data" *ngIf="!data?.openingScene && !data?.fadeToBlack">No bookend data for {{ year }}.</p>
+      <p class="no-data" *ngIf="!data?.openingScene && !data?.fadeToBlack">No bookend data for {{ year === 'global' ? 'All-Time' : year }}.</p>
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .bookends-bg {
       background: radial-gradient(ellipse at 30% 50%, rgba(251, 191, 36, 0.08) 0%, transparent 50%),
                   radial-gradient(ellipse at 70% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
@@ -95,7 +104,7 @@ import { BookendsDto } from '../../../../core/services/final-cut.service';
 })
 export class BookendsSlideComponent {
   @Input() data?: BookendsDto | null;
-  @Input() year!: number;
+  @Input() year!: number | 'global';
 
   posterUrl(path: string): string {
     if (path?.startsWith('http')) return path;

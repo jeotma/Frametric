@@ -10,7 +10,8 @@ import { GenreWithRatingDto } from '../../../../core/services/final-cut.service'
     <div class="slide-content genre-bg">
       <div class="act-label">Act II · The Cast & Crew</div>
       <h2 class="slide-title">The Genre Landscape.</h2>
-      <p class="slide-subtitle">The cinematic territories you explored in {{ year }}.</p>
+      <p class="slide-subtitle">The cinematic territories you explored in {{ year === 'global' ? 'All-Time' : year }}.</p>
+      <p class="slide-explainer">The colors of your palette. The genres that defined your personal film festival.</p>
 
       <div class="genre-bars" *ngIf="genres.length">
         <div *ngFor="let g of topGenres; let i = index" class="genre-row">
@@ -24,10 +25,18 @@ import { GenreWithRatingDto } from '../../../../core/services/final-cut.service'
         </div>
       </div>
 
-      <p class="no-data" *ngIf="!genres.length">No genre data for {{ year }}.</p>
+      <p class="no-data" *ngIf="!genres.length">No genre data for {{ year === 'global' ? 'All-Time' : year }}.</p>
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .genre-bg {
       background: radial-gradient(ellipse at 40% 30%, rgba(168, 85, 247, 0.1) 0%, transparent 55%);
     }
@@ -83,7 +92,7 @@ import { GenreWithRatingDto } from '../../../../core/services/final-cut.service'
 })
 export class GenreLandscapeSlideComponent {
   @Input() genres: GenreWithRatingDto[] = [];
-  @Input() year!: number;
+  @Input() year!: number | 'global';
 
   private readonly COLORS = ['#a78bfa','#60a5fa','#34d399','#fbbf24','#fb7185','#f472b6','#2dd4bf','#818cf8'];
 

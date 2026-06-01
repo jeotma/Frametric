@@ -44,7 +44,7 @@ public class GetLongestWatchedMovieQueryHandler : IRequestHandler<GetLongestWatc
 }
 
 // 15. Evolution of ratings throughout the year
-public record GetRatingEvolutionQuery(Guid UserId, int Year) : IRequest<IEnumerable<RatingEvolutionDto>>;
+public record GetRatingEvolutionQuery(Guid UserId, int? Year) : IRequest<IEnumerable<RatingEvolutionDto>>;
 public class GetRatingEvolutionQueryHandler : IRequestHandler<GetRatingEvolutionQuery, IEnumerable<RatingEvolutionDto>>
 {
     private readonly IWatchedComplexCorrelationsQueries _queries;

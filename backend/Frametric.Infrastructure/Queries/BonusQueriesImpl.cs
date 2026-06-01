@@ -72,24 +72,24 @@ public class BonusQueriesImpl : IBonusQueries
         return await connection.QueryAsync<MovieSimpleDto>(sql, new { userId });
     }
 
-    public async Task<CinematicFatigueExpandedDto?> GetCinematicFatigueExpandedAsync(Guid userId, int year, CancellationToken ct = default)
+    public async Task<CinematicFatigueExpandedDto?> GetCinematicFatigueExpandedAsync(Guid userId, int? year = null, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
             WITH AllWatched AS (
                 SELECT ""MovieId"", CAST(""WatchedDate"" AS DATE) AS ""WatchDate""
                 FROM ""DiaryEntries""
-                WHERE ""UserId"" = @userId AND EXTRACT(YEAR FROM ""WatchedDate"") = @year
+                WHERE ""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM ""WatchedDate"") = @year)
                 
                 UNION ALL
                 
                 SELECT ""MovieId"", CAST(""Date"" AS DATE) AS ""WatchDate""
                 FROM ""WatchedMovies"" w
-                WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM ""Date"") = @year
+                WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM ""Date"") = @year)
                 AND NOT EXISTS (
                     SELECT 1 FROM ""DiaryEntries"" d2
                     WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId""
-                    AND EXTRACT(YEAR FROM d2.""WatchedDate"") = @year
+                    AND (@year IS NULL OR EXTRACT(YEAR FROM d2.""WatchedDate"") = @year)
                 )
             ),
             DailyCounts AS (
@@ -121,24 +121,24 @@ public class BonusQueriesImpl : IBonusQueries
         return await connection.QuerySingleOrDefaultAsync<CinematicFatigueExpandedDto>(sql, new { userId, year });
     }
 
-    public async Task<BookendsDto?> GetBookendsAsync(Guid userId, int year, CancellationToken ct = default)
+    public async Task<BookendsDto?> GetBookendsAsync(Guid userId, int? year = null, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
             WITH AllWatched AS (
                 SELECT ""MovieId"", CAST(""WatchedDate"" AS DATE) AS ""WatchDate""
                 FROM ""DiaryEntries"" 
-                WHERE ""UserId"" = @userId AND EXTRACT(YEAR FROM ""WatchedDate"") = @year
+                WHERE ""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM ""WatchedDate"") = @year)
                 
                 UNION ALL
                 
                 SELECT ""MovieId"", CAST(""Date"" AS DATE) AS ""WatchDate""
                 FROM ""WatchedMovies"" w
-                WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM ""Date"") = @year
+                WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM ""Date"") = @year)
                 AND NOT EXISTS (
                     SELECT 1 FROM ""DiaryEntries"" d2
                     WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId""
-                    AND EXTRACT(YEAR FROM d2.""WatchedDate"") = @year
+                    AND (@year IS NULL OR EXTRACT(YEAR FROM d2.""WatchedDate"") = @year)
                 )
             ),
             FirstWatch AS (
@@ -180,7 +180,7 @@ public class BonusQueriesImpl : IBonusQueries
         return new BookendsDto(opening, fade);
     }
 
-    public async Task<IEnumerable<MonthlyExtremeDto>> GetMonthlyExtremesAsync(Guid userId, int year, bool includeRewatches = false, CancellationToken ct = default)
+    public async Task<IEnumerable<MonthlyExtremeDto>> GetMonthlyExtremesAsync(Guid userId, int? year = null, bool includeRewatches = false, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         // Get best per month
@@ -189,17 +189,17 @@ public class BonusQueriesImpl : IBonusQueries
             WITH AllWatched AS (
                 SELECT ""MovieId"", CAST(""WatchedDate"" AS DATE) AS ""WatchDate""
                 FROM ""DiaryEntries"" 
-                WHERE ""UserId"" = @userId AND EXTRACT(YEAR FROM ""WatchedDate"") = @year{rewatchFilter}
+                WHERE ""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM ""WatchedDate"") = @year){rewatchFilter}
                 
                 UNION ALL
                 
                 SELECT ""MovieId"", CAST(""Date"" AS DATE) AS ""WatchDate""
                 FROM ""WatchedMovies"" w
-                WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM ""Date"") = @year
+                WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM ""Date"") = @year)
                 AND NOT EXISTS (
                     SELECT 1 FROM ""DiaryEntries"" d2
                     WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId""
-                    AND EXTRACT(YEAR FROM d2.""WatchedDate"") = @year
+                    AND (@year IS NULL OR EXTRACT(YEAR FROM d2.""WatchedDate"") = @year)
                 )
             ),
             Ranked AS (
@@ -250,7 +250,7 @@ public class BonusQueriesImpl : IBonusQueries
         return result;
     }
 
-    public async Task<TopBottomMoviesDto> GetTopAndBottomRatedMoviesAsync(Guid userId, int year, CancellationToken ct = default)
+    public async Task<TopBottomMoviesDto> GetTopAndBottomRatedMoviesAsync(Guid userId, int? year = null, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
@@ -262,7 +262,7 @@ public class BonusQueriesImpl : IBonusQueries
                 JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
                 JOIN ""MovieRatings"" mr ON mr.""MovieId"" = m.""Id"" AND mr.""UserId"" = @userId
                 LEFT JOIN ""MovieLikes"" ml ON ml.""MovieId"" = m.""Id"" AND ml.""UserId"" = @userId
-                WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year AND mr.""Score"" IS NOT NULL
+                WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year) AND mr.""Score"" IS NOT NULL
                 ORDER BY mr.""Score"" DESC, ""Liked"" DESC, RANDOM()
                 LIMIT 5
             ) top_movies
@@ -275,7 +275,7 @@ public class BonusQueriesImpl : IBonusQueries
                 JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
                 JOIN ""MovieRatings"" mr ON mr.""MovieId"" = m.""Id"" AND mr.""UserId"" = @userId
                 LEFT JOIN ""MovieLikes"" ml ON ml.""MovieId"" = m.""Id"" AND ml.""UserId"" = @userId
-                WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year AND mr.""Score"" IS NOT NULL
+                WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year) AND mr.""Score"" IS NOT NULL
                 ORDER BY mr.""Score"" ASC, ""Liked"" ASC, RANDOM()
                 LIMIT 5
             ) bottom_movies";
@@ -294,14 +294,14 @@ public class BonusQueriesImpl : IBonusQueries
         return new TopBottomMoviesDto(top, bottom);
     }
 
-    public async Task<MostRewatchedDto?> GetMostRewatchedMovieAsync(Guid userId, int year, CancellationToken ct = default)
+    public async Task<MostRewatchedDto?> GetMostRewatchedMovieAsync(Guid userId, int? year = null, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"
             WITH RewatchCounts AS (
                 SELECT ""MovieId"", CAST(COUNT(*) AS INTEGER) AS RewatchCount
                 FROM ""DiaryEntries""
-                WHERE ""UserId"" = @userId AND ""IsRewatch"" = true AND EXTRACT(YEAR FROM ""WatchedDate"") = @year
+                WHERE ""UserId"" = @userId AND ""IsRewatch"" = true AND (@year IS NULL OR EXTRACT(YEAR FROM ""WatchedDate"") = @year)
                 GROUP BY ""MovieId""
             )
             SELECT m.""Title"", m.""PosterUrl"" AS ""PosterPath"", m.""ReleaseYear"", rc.RewatchCount
@@ -314,28 +314,37 @@ public class BonusQueriesImpl : IBonusQueries
         return await connection.QuerySingleOrDefaultAsync<MostRewatchedDto>(sql, new { userId, year });
     }
 
-    public async Task<BestRookiesDto> GetBestRookiesAsync(Guid userId, int year, CancellationToken ct = default)
+    public async Task<BestRookiesDto> GetBestRookiesAsync(Guid userId, int? year = null, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
 
-        // Directors seen for the first time this year
+        // Directors seen for the first time this year or last 12 months
         const string directorsSql = @"
             WITH ThisYear AS (
                 SELECT DISTINCT md.""DirectorsId"" AS DirId
                 FROM ""DiaryEntries"" de
                 JOIN ""MovieDirector"" md ON de.""MovieId"" = md.""MoviesId""
-                WHERE de.""UserId"" = @userId AND EXTRACT(YEAR FROM de.""WatchedDate"") = @year
+                WHERE de.""UserId"" = @userId AND (
+                    (@year IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") = @year) OR 
+                    (@year IS NULL AND de.""WatchedDate"" >= CURRENT_DATE - INTERVAL '1 year')
+                )
             ),
             PriorYears AS (
                 SELECT DISTINCT md.""DirectorsId"" AS DirId
                 FROM ""DiaryEntries"" de
                 JOIN ""MovieDirector"" md ON de.""MovieId"" = md.""MoviesId""
-                WHERE de.""UserId"" = @userId AND EXTRACT(YEAR FROM de.""WatchedDate"") < @year
+                WHERE de.""UserId"" = @userId AND (
+                    (@year IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") < @year) OR 
+                    (@year IS NULL AND de.""WatchedDate"" < CURRENT_DATE - INTERVAL '1 year')
+                )
                 UNION
                 SELECT DISTINCT md.""DirectorsId"" AS DirId
                 FROM ""WatchedMovies"" wm
                 JOIN ""MovieDirector"" md ON wm.""MovieId"" = md.""MoviesId""
-                WHERE wm.""UserId"" = @userId AND EXTRACT(YEAR FROM wm.""Date"") < @year
+                WHERE wm.""UserId"" = @userId AND (
+                    (@year IS NOT NULL AND EXTRACT(YEAR FROM wm.""Date"") < @year) OR 
+                    (@year IS NULL AND wm.""Date"" < CURRENT_DATE - INTERVAL '1 year')
+                )
             ),
             Rookies AS (
                 SELECT ty.DirId FROM ThisYear ty
@@ -347,30 +356,42 @@ public class BonusQueriesImpl : IBonusQueries
             FROM Rookies r
             JOIN ""Directors"" dr ON r.DirId = dr.""Id""
             JOIN ""MovieDirector"" md ON r.DirId = md.""DirectorsId""
-            JOIN ""DiaryEntries"" de ON md.""MoviesId"" = de.""MovieId"" AND de.""UserId"" = @userId AND EXTRACT(YEAR FROM de.""WatchedDate"") = @year
+            JOIN ""DiaryEntries"" de ON md.""MoviesId"" = de.""MovieId"" AND de.""UserId"" = @userId AND (
+                (@year IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") = @year) OR 
+                (@year IS NULL AND de.""WatchedDate"" >= CURRENT_DATE - INTERVAL '1 year')
+            )
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = de.""MovieId"" AND mr.""UserId"" = @userId
             GROUP BY dr.""Name""
             ORDER BY MoviesWatchedThisYear DESC, AverageRating DESC
             LIMIT 5";
 
-        // Actors seen for the first time this year
+        // Actors seen for the first time this year or last 12 months
         const string actorsSql = @"
             WITH ThisYear AS (
                 SELECT DISTINCT ma.""ActorsId"" AS ActId
                 FROM ""DiaryEntries"" de
                 JOIN ""MovieActor"" ma ON de.""MovieId"" = ma.""MoviesId""
-                WHERE de.""UserId"" = @userId AND EXTRACT(YEAR FROM de.""WatchedDate"") = @year
+                WHERE de.""UserId"" = @userId AND (
+                    (@year IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") = @year) OR 
+                    (@year IS NULL AND de.""WatchedDate"" >= CURRENT_DATE - INTERVAL '1 year')
+                )
             ),
             PriorYears AS (
                 SELECT DISTINCT ma.""ActorsId"" AS ActId
                 FROM ""DiaryEntries"" de
                 JOIN ""MovieActor"" ma ON de.""MovieId"" = ma.""MoviesId""
-                WHERE de.""UserId"" = @userId AND EXTRACT(YEAR FROM de.""WatchedDate"") < @year
+                WHERE de.""UserId"" = @userId AND (
+                    (@year IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") < @year) OR 
+                    (@year IS NULL AND de.""WatchedDate"" < CURRENT_DATE - INTERVAL '1 year')
+                )
                 UNION
                 SELECT DISTINCT ma.""ActorsId"" AS ActId
                 FROM ""WatchedMovies"" wm
                 JOIN ""MovieActor"" ma ON wm.""MovieId"" = ma.""MoviesId""
-                WHERE wm.""UserId"" = @userId AND EXTRACT(YEAR FROM wm.""Date"") < @year
+                WHERE wm.""UserId"" = @userId AND (
+                    (@year IS NOT NULL AND EXTRACT(YEAR FROM wm.""Date"") < @year) OR 
+                    (@year IS NULL AND wm.""Date"" < CURRENT_DATE - INTERVAL '1 year')
+                )
             ),
             Rookies AS (
                 SELECT ty.ActId FROM ThisYear ty
@@ -382,7 +403,10 @@ public class BonusQueriesImpl : IBonusQueries
             FROM Rookies r
             JOIN ""Actors"" a ON r.ActId = a.""Id""
             JOIN ""MovieActor"" ma ON r.ActId = ma.""ActorsId""
-            JOIN ""DiaryEntries"" de ON ma.""MoviesId"" = de.""MovieId"" AND de.""UserId"" = @userId AND EXTRACT(YEAR FROM de.""WatchedDate"") = @year
+            JOIN ""DiaryEntries"" de ON ma.""MoviesId"" = de.""MovieId"" AND de.""UserId"" = @userId AND (
+                (@year IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") = @year) OR 
+                (@year IS NULL AND de.""WatchedDate"" >= CURRENT_DATE - INTERVAL '1 year')
+            )
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = de.""MovieId"" AND mr.""UserId"" = @userId
             GROUP BY a.""Name""
             ORDER BY MoviesWatchedThisYear DESC, AverageRating DESC

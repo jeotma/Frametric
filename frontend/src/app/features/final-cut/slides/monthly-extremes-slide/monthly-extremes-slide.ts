@@ -9,8 +9,9 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
   template: `
     <div class="slide-content mx-bg">
       <div class="act-label">Act IV · The Climax</div>
-      <h2 class="slide-title">A Year of Extremes.</h2>
-      <p class="slide-subtitle">The highest highs and lowest lows of {{ year }}, month by month.</p>
+      <h2 class="slide-title">{{ year === 'global' ? 'The Monthly Anthology.' : 'A Year of Extremes.' }}</h2>
+      <p class="slide-subtitle">{{ year === 'global' ? 'The all-time highest highs and lowest lows, aggregated month by month.' : 'The highest highs and lowest lows of ' + year + ', month by month.' }}</p>
+      <p class="slide-explainer">{{ year === 'global' ? 'A lifetime of logging. The absolute triumphs and the colossal misfires you\\'ve witnessed across the calendar.' : 'The soaring highs and the crushing lows. Your peak cinematic triumphs and your biggest misfires, month by month.' }}</p>
 
       <div class="mx-grid" *ngIf="topMonths.length">
         <div *ngFor="let m of topMonths" class="mx-month-row">
@@ -40,6 +41,14 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .mx-bg {
       background: radial-gradient(ellipse at 50% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 60%);
     }
@@ -99,7 +108,7 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
 })
 export class MonthlyExtremesSlideComponent {
   @Input() months: MonthlyExtremeDto[] = [];
-  @Input() year!: number;
+  @Input() year!: number | 'global';
   @Input() part: number = 1;
 
   get topMonths(): MonthlyExtremeDto[] {

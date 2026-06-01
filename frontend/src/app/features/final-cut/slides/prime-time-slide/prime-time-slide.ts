@@ -11,6 +11,7 @@ import { PrimeTimeStatsDto } from '../../../../core/services/final-cut.service';
       <div class="act-label">Act I · The Establishing Shot</div>
       <h2 class="slide-title">The Prime Time Blockbuster.</h2>
       <p class="slide-subtitle">When the projector lights up brightest for you.</p>
+      <p class="slide-explainer">When the lights go down. Your rhythm and preferred screening times.</p>
 
       <div class="peak-stats" *ngIf="data">
         <div class="peak-card main-peak">
@@ -32,10 +33,18 @@ import { PrimeTimeStatsDto } from '../../../../core/services/final-cut.service';
         </div>
       </div>
 
-      <p class="no-data" *ngIf="!data">No activity data available for {{ year }}.</p>
+      <p class="no-data" *ngIf="!data">No activity data available for {{ year === 'global' ? 'All-Time' : year }}.</p>
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .prime-time-bg {
       background: radial-gradient(ellipse at 30% 40%, rgba(251, 191, 36, 0.1) 0%, transparent 60%),
                   radial-gradient(ellipse at 70% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
@@ -85,5 +94,5 @@ import { PrimeTimeStatsDto } from '../../../../core/services/final-cut.service';
 })
 export class PrimeTimeSlideComponent {
   @Input() data?: PrimeTimeStatsDto | null;
-  @Input() year!: number;
+  @Input() year!: number | 'global';
 }

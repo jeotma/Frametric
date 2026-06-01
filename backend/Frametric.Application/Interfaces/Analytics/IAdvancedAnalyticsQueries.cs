@@ -26,11 +26,11 @@ public interface IWatchedComplexCorrelationsQueries
     Task<IEnumerable<GenreStreakDto>> GetGenreStreakAsync(Guid userId, int? year = null, CancellationToken ct = default);
     Task<WrappedMovieDto?> GetLongestWatchedMovieAsync(Guid userId, int? year = null, CancellationToken ct = default);
     Task<WrappedMovieDto?> GetShortestWatchedMovieAsync(Guid userId, int? year = null, CancellationToken ct = default);
-    Task<IEnumerable<RatingEvolutionDto>> GetRatingEvolutionAsync(Guid userId, int year, CancellationToken ct = default);
+    Task<IEnumerable<RatingEvolutionDto>> GetRatingEvolutionAsync(Guid userId, int? year = null, CancellationToken ct = default);
     Task<IEnumerable<CastingPairDto>> GetCastingRepetitionsAsync(Guid userId, int? year = null, CancellationToken ct = default);
     Task<IEnumerable<DirectorActorPairDto>> GetDirectorActorPairingsAsync(Guid userId, int? year = null, CancellationToken ct = default);
-    Task<PrimeTimeStatsDto?> GetPrimeTimeStatsAsync(Guid userId, int year, CancellationToken ct = default);
-    Task<IEnumerable<GenreWithRatingDto>> GetGenresWithRatingAsync(Guid userId, int year, CancellationToken ct = default);
+    Task<PrimeTimeStatsDto?> GetPrimeTimeStatsAsync(Guid userId, int? year = null, CancellationToken ct = default);
+    Task<IEnumerable<GenreWithRatingDto>> GetGenresWithRatingAsync(Guid userId, int? year = null, CancellationToken ct = default);
 }
 
 public interface IWatchlistBasicQueries
@@ -64,10 +64,10 @@ public interface IBonusQueries
     Task<WeekendWarriorDto?> GetWeekendWarriorStatsAsync(Guid userId, int? year = null, CancellationToken ct = default);
     Task<IEnumerable<MovieSimpleDto>> GetHiddenGemsAsync(Guid userId, int? year = null, CancellationToken ct = default);
     Task<IEnumerable<MovieSimpleDto>> GetWatchlistGraveyardAsync(Guid userId, CancellationToken ct = default);
-    Task<CinematicFatigueExpandedDto?> GetCinematicFatigueExpandedAsync(Guid userId, int year, CancellationToken ct = default);
-    Task<BookendsDto?> GetBookendsAsync(Guid userId, int year, CancellationToken ct = default);
-    Task<IEnumerable<MonthlyExtremeDto>> GetMonthlyExtremesAsync(Guid userId, int year, bool includeRewatches = false, CancellationToken ct = default);
-    Task<TopBottomMoviesDto> GetTopAndBottomRatedMoviesAsync(Guid userId, int year, CancellationToken ct = default);
-    Task<MostRewatchedDto?> GetMostRewatchedMovieAsync(Guid userId, int year, CancellationToken ct = default);
-    Task<BestRookiesDto> GetBestRookiesAsync(Guid userId, int year, CancellationToken ct = default);
+    Task<CinematicFatigueExpandedDto?> GetCinematicFatigueExpandedAsync(Guid userId, int? year = null, CancellationToken ct = default);
+    Task<BookendsDto?> GetBookendsAsync(Guid userId, int? year = null, CancellationToken ct = default);
+    Task<IEnumerable<MonthlyExtremeDto>> GetMonthlyExtremesAsync(Guid userId, int? year = null, bool includeRewatches = false, CancellationToken ct = default);
+    Task<TopBottomMoviesDto> GetTopAndBottomRatedMoviesAsync(Guid userId, int? year = null, CancellationToken ct = default);
+    Task<MostRewatchedDto?> GetMostRewatchedMovieAsync(Guid userId, int? year = null, CancellationToken ct = default);
+    Task<BestRookiesDto> GetBestRookiesAsync(Guid userId, int? year = null, CancellationToken ct = default);
 }

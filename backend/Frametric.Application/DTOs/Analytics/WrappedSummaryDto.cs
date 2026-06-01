@@ -1,7 +1,7 @@
 namespace Frametric.Application.DTOs.Analytics;
 
 public record WrappedSummaryDto(
-    int Year,
+    int? Year,
     int TotalWatchtimeMinutes,
     int TotalWatches,
     int UniqueMoviesCount,
