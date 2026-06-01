@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Frametric.Application.Queries.Analytics;
 
-public record GetWrappedSummaryQuery(Guid UserId, int Year) : IRequest<WrappedSummaryDto>;
+public record GetWrappedSummaryQuery(Guid UserId, int? Year = null) : IRequest<WrappedSummaryDto>;
 
 public class GetWrappedSummaryQueryHandler : IRequestHandler<GetWrappedSummaryQuery, WrappedSummaryDto>
 {

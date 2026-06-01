@@ -43,20 +43,20 @@ public class AdvancedAnalyticsController : ControllerBase
         => Ok(await _mediator.Send(new GetWatchedMoviesByReleaseYearQuery(GetUserIdOrThrow(), releaseYear)));
 
     [HttpGet("watched/directors")]
-    public async Task<ActionResult<IEnumerable<DirectorCountDto>>> GetWatchedDirectors()
-        => Ok(await _mediator.Send(new GetWatchedDirectorsQuery(GetUserIdOrThrow())));
+    public async Task<ActionResult<IEnumerable<DirectorCountDto>>> GetWatchedDirectors([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetWatchedDirectorsQuery(GetUserIdOrThrow(), year)));
 
     [HttpGet("watched/actors")]
-    public async Task<ActionResult<IEnumerable<ActorCountDto>>> GetWatchedActors()
-        => Ok(await _mediator.Send(new GetWatchedActorsQuery(GetUserIdOrThrow())));
+    public async Task<ActionResult<IEnumerable<ActorCountDto>>> GetWatchedActors([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetWatchedActorsQuery(GetUserIdOrThrow(), year)));
 
     [HttpGet("watched/genres")]
     public async Task<ActionResult<IEnumerable<GenreCountDto>>> GetWatchedMoviesByGenre()
         => Ok(await _mediator.Send(new GetWatchedMoviesByGenreQuery(GetUserIdOrThrow())));
 
     [HttpGet("watched/decades")]
-    public async Task<ActionResult<IEnumerable<DecadeCountDto>>> GetWatchedMoviesByDecade()
-        => Ok(await _mediator.Send(new GetWatchedMoviesByDecadeQuery(GetUserIdOrThrow())));
+    public async Task<ActionResult<IEnumerable<DecadeCountDto>>> GetWatchedMoviesByDecade([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetWatchedMoviesByDecadeQuery(GetUserIdOrThrow(), year)));
 
     // --- WATCHED ADVANCED ---
 
@@ -69,8 +69,8 @@ public class AdvancedAnalyticsController : ControllerBase
         => Ok(await _mediator.Send(new GetMostWatchedDirectorQuery(GetUserIdOrThrow())));
 
     [HttpGet("watched/predominant-era")]
-    public async Task<ActionResult<EraBreakdownDto>> GetPredominantEra()
-        => Ok(await _mediator.Send(new GetPredominantEraQuery(GetUserIdOrThrow())));
+    public async Task<ActionResult<EraBreakdownDto>> GetPredominantEra([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetPredominantEraQuery(GetUserIdOrThrow(), year)));
 
     [HttpGet("watched/director-ranking")]
     public async Task<ActionResult<IEnumerable<DirectorLeaderboardDto>>> GetDirectorRankingByRating()
@@ -87,20 +87,20 @@ public class AdvancedAnalyticsController : ControllerBase
         => Ok(await _mediator.Send(new GetPreferredWatchDayOfWeekQuery(GetUserIdOrThrow())));
 
     [HttpGet("watched/rating-evolution")]
-    public async Task<ActionResult<IEnumerable<RatingEvolutionDto>>> GetRatingEvolution([FromQuery] int year)
+    public async Task<ActionResult<IEnumerable<RatingEvolutionDto>>> GetRatingEvolution([FromQuery] int? year)
         => Ok(await _mediator.Send(new GetRatingEvolutionQuery(GetUserIdOrThrow(), year)));
 
     [HttpGet("watched/genre-streaks")]
-    public async Task<ActionResult<IEnumerable<GenreStreakDto>>> GetGenreStreaks()
-        => Ok(await _mediator.Send(new GetGenreStreakQuery(GetUserIdOrThrow())));
+    public async Task<ActionResult<IEnumerable<GenreStreakDto>>> GetGenreStreaks([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetGenreStreakQuery(GetUserIdOrThrow(), year)));
 
     [HttpGet("watched/longest-movie")]
-    public async Task<ActionResult<MovieSimpleDto>> GetLongestMovie()
-        => Ok(await _mediator.Send(new GetLongestWatchedMovieQuery(GetUserIdOrThrow())));
+    public async Task<ActionResult<MovieSimpleDto>> GetLongestMovie([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetLongestWatchedMovieQuery(GetUserIdOrThrow(), year)));
 
     [HttpGet("watched/casting-repetitions")]
-    public async Task<ActionResult<IEnumerable<CastingPairDto>>> GetCastingRepetitions()
-        => Ok(await _mediator.Send(new GetCastingRepetitionsQuery(GetUserIdOrThrow())));
+    public async Task<ActionResult<IEnumerable<CastingPairDto>>> GetCastingRepetitions([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetCastingRepetitionsQuery(GetUserIdOrThrow(), year)));
 
     // --- WATCHLIST BASIC ---
 
@@ -167,18 +167,57 @@ public class AdvancedAnalyticsController : ControllerBase
     // --- BONUS ---
 
     [HttpGet("bonus/weekend-warrior")]
-    public async Task<ActionResult<WeekendWarriorDto>> GetWeekendWarrior()
-        => Ok(await _mediator.Send(new GetWeekendWarriorStatsQuery(GetUserIdOrThrow())));
+    public async Task<ActionResult<WeekendWarriorDto>> GetWeekendWarrior([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetWeekendWarriorStatsQuery(GetUserIdOrThrow(), year)));
 
     [HttpGet("bonus/hidden-gems")]
-    public async Task<ActionResult<IEnumerable<MovieSimpleDto>>> GetHiddenGems()
-        => Ok(await _mediator.Send(new GetHiddenGemsQuery(GetUserIdOrThrow())));
+    public async Task<ActionResult<IEnumerable<MovieSimpleDto>>> GetHiddenGems([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetHiddenGemsQuery(GetUserIdOrThrow(), year)));
 
     [HttpGet("bonus/watchlist-graveyard")]
     public async Task<ActionResult<IEnumerable<MovieSimpleDto>>> GetWatchlistGraveyard()
         => Ok(await _mediator.Send(new GetWatchlistGraveyardQuery(GetUserIdOrThrow())));
 
     [HttpGet("bonus/cinematic-fatigue")]
-    public async Task<ActionResult<CinematicFatigueDto>> GetCinematicFatigue()
-        => Ok(await _mediator.Send(new GetCinematicFatigueQuery(GetUserIdOrThrow())));
+    public async Task<ActionResult<CinematicFatigueExpandedDto>> GetCinematicFatigue([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetCinematicFatigueExpandedQuery(GetUserIdOrThrow(), year)));
+
+    // --- FINAL CUT ---
+
+    [HttpGet("final-cut/bookends")]
+    public async Task<ActionResult<BookendsDto>> GetBookends([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetBookendsQuery(GetUserIdOrThrow(), year)));
+
+    [HttpGet("final-cut/monthly-extremes")]
+    public async Task<ActionResult<IEnumerable<MonthlyExtremeDto>>> GetMonthlyExtremes([FromQuery] int? year, [FromQuery] bool includeRewatches = false)
+        => Ok(await _mediator.Send(new GetMonthlyExtremesQuery(GetUserIdOrThrow(), year, includeRewatches)));
+
+    [HttpGet("final-cut/top-bottom-rated")]
+    public async Task<ActionResult<TopBottomMoviesDto>> GetTopAndBottomRated([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetTopAndBottomRatedMoviesQuery(GetUserIdOrThrow(), year)));
+
+    [HttpGet("final-cut/most-rewatched")]
+    public async Task<ActionResult<MostRewatchedDto>> GetMostRewatched([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetMostRewatchedMovieQuery(GetUserIdOrThrow(), year)));
+
+    [HttpGet("final-cut/best-rookies")]
+    public async Task<ActionResult<BestRookiesDto>> GetBestRookies([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetBestRookiesQuery(GetUserIdOrThrow(), year)));
+
+    [HttpGet("final-cut/prime-time")]
+    public async Task<ActionResult<PrimeTimeStatsDto>> GetPrimeTime([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetPrimeTimeStatsQuery(GetUserIdOrThrow(), year)));
+
+    [HttpGet("final-cut/genre-landscape")]
+    public async Task<ActionResult<IEnumerable<GenreWithRatingDto>>> GetGenreLandscape([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetGenresWithRatingQuery(GetUserIdOrThrow(), year)));
+
+    [HttpGet("final-cut/shortest-movie")]
+    public async Task<ActionResult<WrappedMovieDto>> GetShortestMovie([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetShortestWatchedMovieQuery(GetUserIdOrThrow(), year)));
+
+    [HttpGet("final-cut/director-actor-pairs")]
+    public async Task<ActionResult<IEnumerable<DirectorActorPairDto>>> GetDirectorActorPairs([FromQuery] int? year)
+        => Ok(await _mediator.Send(new GetDirectorActorPairingsQuery(GetUserIdOrThrow(), year)));
 }
+

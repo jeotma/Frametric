@@ -18,7 +18,7 @@ public class GetPreferredWatchDayOfWeekQueryHandler : IRequestHandler<GetPreferr
 }
 
 // 13. Genre streaks
-public record GetGenreStreakQuery(Guid UserId) : IRequest<IEnumerable<GenreStreakDto>>;
+public record GetGenreStreakQuery(Guid UserId, int? Year = null) : IRequest<IEnumerable<GenreStreakDto>>;
 public class GetGenreStreakQueryHandler : IRequestHandler<GetGenreStreakQuery, IEnumerable<GenreStreakDto>>
 {
     private readonly IWatchedComplexCorrelationsQueries _queries;
@@ -26,25 +26,25 @@ public class GetGenreStreakQueryHandler : IRequestHandler<GetGenreStreakQuery, I
 
     public async Task<IEnumerable<GenreStreakDto>> Handle(GetGenreStreakQuery request, CancellationToken ct)
     {
-        return await _queries.GetGenreStreakAsync(request.UserId, ct);
+        return await _queries.GetGenreStreakAsync(request.UserId, request.Year, ct);
     }
 }
 
-// 14. Longest watched movie (Película "Ladrillo")
-public record GetLongestWatchedMovieQuery(Guid UserId) : IRequest<MovieSimpleDto?>;
-public class GetLongestWatchedMovieQueryHandler : IRequestHandler<GetLongestWatchedMovieQuery, MovieSimpleDto?>
+// 14. Longest watched movie ("El Ladrillo")
+public record GetLongestWatchedMovieQuery(Guid UserId, int? Year = null) : IRequest<WrappedMovieDto?>;
+public class GetLongestWatchedMovieQueryHandler : IRequestHandler<GetLongestWatchedMovieQuery, WrappedMovieDto?>
 {
     private readonly IWatchedComplexCorrelationsQueries _queries;
     public GetLongestWatchedMovieQueryHandler(IWatchedComplexCorrelationsQueries queries) => _queries = queries;
 
-    public async Task<MovieSimpleDto?> Handle(GetLongestWatchedMovieQuery request, CancellationToken ct)
+    public async Task<WrappedMovieDto?> Handle(GetLongestWatchedMovieQuery request, CancellationToken ct)
     {
-        return await _queries.GetLongestWatchedMovieAsync(request.UserId, ct);
+        return await _queries.GetLongestWatchedMovieAsync(request.UserId, request.Year, ct);
     }
 }
 
 // 15. Evolution of ratings throughout the year
-public record GetRatingEvolutionQuery(Guid UserId, int Year) : IRequest<IEnumerable<RatingEvolutionDto>>;
+public record GetRatingEvolutionQuery(Guid UserId, int? Year) : IRequest<IEnumerable<RatingEvolutionDto>>;
 public class GetRatingEvolutionQueryHandler : IRequestHandler<GetRatingEvolutionQuery, IEnumerable<RatingEvolutionDto>>
 {
     private readonly IWatchedComplexCorrelationsQueries _queries;
@@ -57,7 +57,7 @@ public class GetRatingEvolutionQueryHandler : IRequestHandler<GetRatingEvolution
 }
 
 // 17. Casting repetitions (actor pairs)
-public record GetCastingRepetitionsQuery(Guid UserId) : IRequest<IEnumerable<CastingPairDto>>;
+public record GetCastingRepetitionsQuery(Guid UserId, int? Year = null) : IRequest<IEnumerable<CastingPairDto>>;
 public class GetCastingRepetitionsQueryHandler : IRequestHandler<GetCastingRepetitionsQuery, IEnumerable<CastingPairDto>>
 {
     private readonly IWatchedComplexCorrelationsQueries _queries;
@@ -65,6 +65,6 @@ public class GetCastingRepetitionsQueryHandler : IRequestHandler<GetCastingRepet
 
     public async Task<IEnumerable<CastingPairDto>> Handle(GetCastingRepetitionsQuery request, CancellationToken ct)
     {
-        return await _queries.GetCastingRepetitionsAsync(request.UserId, ct);
+        return await _queries.GetCastingRepetitionsAsync(request.UserId, request.Year, ct);
     }
 }

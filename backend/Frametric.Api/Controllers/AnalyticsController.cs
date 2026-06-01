@@ -42,10 +42,10 @@ public class AnalyticsController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("wrapped/{year:int}")]
+    [HttpGet("wrapped")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<WrappedSummaryDto>> GetWrappedSummary(int year, CancellationToken cancellationToken)
+    public async Task<ActionResult<WrappedSummaryDto>> GetWrappedSummary([FromQuery] int? year, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId;
         if (userId == null)

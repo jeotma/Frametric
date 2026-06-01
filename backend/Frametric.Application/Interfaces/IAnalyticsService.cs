@@ -5,7 +5,7 @@ namespace Frametric.Application.Interfaces;
 public interface IAnalyticsService
 {
     Task<DashboardSummaryDto> GetDashboardSummaryAsync(Guid userId, CancellationToken cancellationToken);
-    Task<WrappedSummaryDto> GetWrappedSummaryAsync(Guid userId, int year, CancellationToken cancellationToken);
-    Task<MonthlyActivityResponseDto> GetMonthlyActivityAsync(Guid userId, int year, CancellationToken cancellationToken);
+    Task<WrappedSummaryDto> GetWrappedSummaryAsync(Guid userId, int? year, CancellationToken cancellationToken);
+    Task<MonthlyActivityResponseDto> GetMonthlyActivityAsync(Guid userId, int? year, CancellationToken cancellationToken);
     Task<List<DirectorLeaderboardDto>> GetTopDirectorsAsync(Guid userId, int limit, CancellationToken cancellationToken);
 }
