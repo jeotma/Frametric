@@ -31,7 +31,7 @@ public class GetMostWatchedDirectorQueryHandler : IRequestHandler<GetMostWatched
 }
 
 // 8. Determine the predominant era (classic or modern) in the user's history
-public record GetPredominantEraQuery(Guid UserId) : IRequest<EraBreakdownDto?>;
+public record GetPredominantEraQuery(Guid UserId, int? Year = null) : IRequest<EraBreakdownDto?>;
 public class GetPredominantEraQueryHandler : IRequestHandler<GetPredominantEraQuery, EraBreakdownDto?>
 {
     private readonly IWatchedAdvancedStatsQueries _queries;
@@ -39,7 +39,7 @@ public class GetPredominantEraQueryHandler : IRequestHandler<GetPredominantEraQu
 
     public async Task<EraBreakdownDto?> Handle(GetPredominantEraQuery request, CancellationToken ct)
     {
-        return await _queries.GetPredominantEraAsync(request.UserId, ct);
+        return await _queries.GetPredominantEraAsync(request.UserId, request.Year, ct);
     }
 }
 

@@ -44,6 +44,15 @@
   pointer-events: auto; /* Re-enable clicks on controls */
 }
 
+.branding {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
 .pause-btn {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -123,14 +132,22 @@
 ::ng-deep .slide-content {
   width: 100%;
   height: 100%;
-  padding: 64px 32px;
+  padding: min(48px, 6vh) 32px min(24px, 3vh);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   text-align: center;
   animation: fadeZoomIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   pointer-events: none;
+  overflow: hidden;
+}
+
+::ng-deep .slide-content::before,
+::ng-deep .slide-content::after {
+  content: '';
+  flex: 1;
+  min-height: 0;
 }
 
 @keyframes fadeZoomIn {
@@ -140,7 +157,7 @@
 
 ::ng-deep .slide-title {
   font-family: var(--font-heading);
-  font-size: 3rem;
+  font-size: 3.3rem;
   font-weight: 800;
   margin-bottom: 16px;
   letter-spacing: -0.03em;
@@ -151,9 +168,25 @@
 }
 
 ::ng-deep .slide-value {
-  font-size: 5rem;
+  font-size: 5.5rem;
   font-weight: 900;
   color: var(--accent-purple);
   text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
   margin: 20px 0;
+}
+
+::ng-deep .slide-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-bottom: min(24px, 3vh);
+  font-weight: 500;
+}
+
+::ng-deep .act-label {
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 16px;
 }

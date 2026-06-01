@@ -99,13 +99,10 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         const string sql = @"
             WITH WatchedGenres AS (
                 SELECT g.""Id"" AS GenreId, COUNT(DISTINCT w.""MovieId"") AS WatchedCount
-                FROM (
-                    SELECT ""MovieId"" FROM ""DiaryEntries"" WHERE ""UserId"" = @userId
-                    UNION
-                    SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
-                ) w
+                FROM ""WatchedMovies"" w
                 JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
                 JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
+                WHERE w.""UserId"" = @userId
                 GROUP BY g.""Id""
             )
             SELECT g.""Name"" AS GenreName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(wg.WatchedCount, 0) AS INTEGER) AS WatchedCount
@@ -147,13 +144,10 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
             ),
             WatchedDirectors AS (
                 SELECT dr.""Id"" AS DirectorId, COUNT(DISTINCT w.""MovieId"") AS WatchedCount
-                FROM (
-                    SELECT ""MovieId"" FROM ""DiaryEntries"" WHERE ""UserId"" = @userId
-                    UNION
-                    SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
-                ) w
+                FROM ""WatchedMovies"" w
                 JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
                 JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+                WHERE w.""UserId"" = @userId
                 GROUP BY dr.""Id""
             )
             SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(udr.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wd.WatchedCount, 0) AS INTEGER) AS WatchedCount
@@ -183,13 +177,10 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
             ),
             WatchedActors AS (
                 SELECT a.""Id"" AS ActorId, COUNT(DISTINCT w.""MovieId"") AS WatchedCount
-                FROM (
-                    SELECT ""MovieId"" FROM ""DiaryEntries"" WHERE ""UserId"" = @userId
-                    UNION
-                    SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
-                ) w
+                FROM ""WatchedMovies"" w
                 JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
                 JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
+                WHERE w.""UserId"" = @userId
                 GROUP BY a.""Id""
             )
             SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(uar.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wa.WatchedCount, 0) AS INTEGER) AS WatchedCount
@@ -238,13 +229,10 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         const string sql = @"
             WITH WatchedGenres AS (
                 SELECT g.""Name"" AS GenreName, CAST(COUNT(*) AS INTEGER) AS WatchedCount
-                FROM (
-                    SELECT ""MovieId"" FROM ""DiaryEntries"" WHERE ""UserId"" = @userId
-                    UNION
-                    SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
-                ) w
+                FROM ""WatchedMovies"" w
                 JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
                 JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
+                WHERE w.""UserId"" = @userId
                 GROUP BY g.""Name""
             ),
             WatchlistGenres AS (
@@ -351,13 +339,10 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
             ),
             WatchedActors AS (
                 SELECT DISTINCT a.""Id""
-                FROM (
-                    SELECT ""MovieId"" FROM ""DiaryEntries"" WHERE ""UserId"" = @userId
-                    UNION
-                    SELECT ""MovieId"" FROM ""WatchedMovies"" WHERE ""UserId"" = @userId
-                ) w
+                FROM ""WatchedMovies"" w
                 JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
                 JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
+                WHERE w.""UserId"" = @userId
             )
             SELECT 
                 p.""Name"" AS ActorName, 

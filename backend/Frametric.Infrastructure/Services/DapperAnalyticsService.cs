@@ -140,50 +140,54 @@ public class DapperAnalyticsService : IAnalyticsService
         var totalWatches = await connection.ExecuteScalarAsync<int>(totalWatchesSql, parameters);
 
         // 3. Unique Movies Count
-        string uniqueMoviesSql = yearlyWatchesCte + @"
-            SELECT COUNT(DISTINCT yw.""MovieId"")
-            FROM YearlyWatches yw";
+        string uniqueMoviesSql = @"
+            SELECT CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER)
+            FROM ""WatchedMovies"" w
+            WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year";
         var uniqueMovies = await connection.ExecuteScalarAsync<int>(uniqueMoviesSql, parameters);
 
         // 4. Top Genres
-        string topGenresSql = yearlyWatchesCte + @"
-            SELECT g.""Name"" AS GenreName, CAST(COUNT(*) AS INTEGER) AS Count
-            FROM YearlyWatches yw
-            JOIN ""MovieGenre"" mg ON yw.""MovieId"" = mg.""MoviesId""
+        string topGenresSql = @"
+            SELECT g.""Name"" AS GenreName, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count
+            FROM ""WatchedMovies"" w
+            JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
             JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
+            WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year
             GROUP BY g.""Name""
             ORDER BY Count DESC, g.""Name""
             LIMIT 5";
         var topGenres = (await connection.QueryAsync<GenreCountDto>(topGenresSql, parameters)).ToList();
 
         // 5. Top Directors
-        string topDirectorsSql = yearlyWatchesCte + @"
-            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(*) AS INTEGER) AS Count, CAST(COALESCE(AVG(yw.""Rating""), 0) AS DOUBLE PRECISION) AS AverageRating
-            FROM YearlyWatches yw
-            JOIN ""MovieDirector"" md ON yw.""MovieId"" = md.""MoviesId""
+        string topDirectorsSql = @"
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG((SELECT ""Score"" FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating
+            FROM ""WatchedMovies"" w
+            JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+            WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year
             GROUP BY dr.""Name""
             ORDER BY Count DESC, AverageRating DESC
             LIMIT 5";
         var topDirectors = (await connection.QueryAsync<DirectorCountDto>(topDirectorsSql, parameters)).ToList();
 
         // 6. Top Actors
-        string topActorsSql = yearlyWatchesCte + @"
-            SELECT a.""Name"" AS ActorName, CAST(COUNT(*) AS INTEGER) AS Count, CAST(COALESCE(AVG(yw.""Rating""), 0) AS DOUBLE PRECISION) AS AverageRating
-            FROM YearlyWatches yw
-            JOIN ""MovieActor"" ma ON yw.""MovieId"" = ma.""MoviesId""
+        string topActorsSql = @"
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG((SELECT ""Score"" FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating
+            FROM ""WatchedMovies"" w
+            JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
+            WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year
             GROUP BY a.""Name""
             ORDER BY Count DESC, AverageRating DESC
             LIMIT 5";
         var topActors = (await connection.QueryAsync<ActorCountDto>(topActorsSql, parameters)).ToList();
 
         // 7. Decade Breakdown
-        string decadeSql = yearlyWatchesCte + @"
-            SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, CAST(COUNT(*) AS INTEGER) AS Count
-            FROM YearlyWatches yw
-            JOIN ""Movies"" m ON yw.""MovieId"" = m.""Id""
-            WHERE m.""ReleaseYear"" IS NOT NULL
+        string decadeSql = @"
+            SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count
+            FROM ""WatchedMovies"" w
+            JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
+            WHERE w.""UserId"" = @userId AND EXTRACT(YEAR FROM w.""Date"") = @year AND m.""ReleaseYear"" IS NOT NULL
             GROUP BY Decade
             ORDER BY Decade ASC";
         var decadeBreakdown = (await connection.QueryAsync<DecadeCountDto>(decadeSql, parameters)).ToList();
@@ -269,11 +273,11 @@ public class DapperAnalyticsService : IAnalyticsService
         var parameters = new { userId, limit };
 
         const string sql = @"
-            SELECT dr.""Id"" AS DirectorId, dr.""Name"" AS Name, CAST(COUNT(*) AS INTEGER) AS WatchCount, COALESCE(AVG(d.""Rating""), 0) AS AverageRating
-            FROM ""DiaryEntries"" d
-            JOIN ""MovieDirector"" md ON d.""MovieId"" = md.""MoviesId""
+            SELECT dr.""Id"" AS DirectorId, dr.""Name"" AS Name, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS WatchCount, CAST(COALESCE(AVG((SELECT ""Score"" FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating
+            FROM ""WatchedMovies"" w
+            JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
-            WHERE d.""UserId"" = @userId
+            WHERE w.""UserId"" = @userId
             GROUP BY dr.""Id"", dr.""Name""
             ORDER BY WatchCount DESC, AverageRating DESC
             LIMIT @limit";

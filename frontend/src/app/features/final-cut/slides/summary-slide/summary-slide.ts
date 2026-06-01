@@ -13,50 +13,61 @@ import html2canvas from 'html2canvas';
       <div class="summary-card" id="final-cut-card">
         <div class="card-header">
           <div class="logo">Frametric</div>
-          <div class="year">FINAL CUT {{ year }}</div>
+          <div class="year">THE {{ username | uppercase }}'S CUT {{ year }}</div>
         </div>
 
         <div class="card-body">
-          <div class="stat-row">
-            <div class="stat-col">
-              <span class="lbl">Movies</span>
-              <span class="val">{{ data.totalWatches }}</span>
+          <div class="data-grid">
+            <!-- Column 1 -->
+            <div class="data-col">
+              <div class="stat-block">
+                <span class="lbl">Movies</span>
+                <span class="val">{{ data.totalWatches }}</span>
+              </div>
+              <div class="list-block">
+                <span class="list-title">Top Genres</span>
+                <ol>
+                  <li *ngFor="let g of data.topGenres.slice(0, 5)">{{ g.genreName }}</li>
+                </ol>
+              </div>
             </div>
-            <div class="stat-col">
-              <span class="lbl">Unique</span>
-              <span class="val">{{ data.uniqueMoviesCount }}</span>
-            </div>
-            <div class="stat-col">
-              <span class="lbl">Hours</span>
-              <span class="val">{{ (data.totalWatchtimeMinutes / 60) | number:'1.0-0' }}</span>
-            </div>
-          </div>
 
-          <div class="lists-container">
-            <div class="list-box">
-              <span class="list-title">Top Genres</span>
-              <ol>
-                <li *ngFor="let g of data.topGenres.slice(0, 5)">{{ g.genreName }}</li>
-              </ol>
+            <!-- Column 2 -->
+            <div class="data-col">
+              <div class="stat-block">
+                <span class="lbl">Unique</span>
+                <span class="val">{{ data.uniqueMoviesCount }}</span>
+              </div>
+              <div class="list-block">
+                <span class="list-title">Top Directors</span>
+                <ol>
+                  <li *ngFor="let d of data.topDirectors.slice(0, 5)">{{ d.directorName }}</li>
+                </ol>
+              </div>
             </div>
-            <div class="list-box">
-              <span class="list-title">Top Directors</span>
-              <ol>
-                <li *ngFor="let d of data.topDirectors.slice(0, 5)">{{ d.directorName }}</li>
-              </ol>
-            </div>
-            <div class="list-box">
-              <span class="list-title">Top Actors</span>
-              <ol>
-                <li *ngFor="let a of data.topActors.slice(0, 5)">{{ a.actorName }}</li>
-              </ol>
+
+            <!-- Column 3 -->
+            <div class="data-col">
+              <div class="stat-block">
+                <span class="lbl">Hours</span>
+                <span class="val">{{ (data.totalWatchtimeMinutes / 60) | number:'1.0-0' }}</span>
+              </div>
+              <div class="list-block">
+                <span class="list-title">Top Actors</span>
+                <ol>
+                  <li *ngFor="let a of data.topActors.slice(0, 5)">{{ a.actorName }}</li>
+                </ol>
+              </div>
             </div>
           </div>
         </div>
 
         <div class="card-footer">
-          <div>frametric.app</div>
-          <div class="user-handle">jesusoteromartinez@outlook.com</div>
+          <div class="user-handle">@{{ username }}</div>
+          <div class="watermark-container">
+            <div class="app-watermark">frametric.app</div>
+            <div class="creator-watermark">jesusoteromartinez@outlook.com</div>
+          </div>
         </div>
       </div>
 
@@ -80,9 +91,9 @@ import html2canvas from 'html2canvas';
       background-color: #111116; /* Solid color, no rgba/blur for better html2canvas */
       border: 1px solid #333;
       border-radius: 16px;
-      padding: 32px;
+      padding: 36px;
       width: 100%;
-      max-width: 600px;
+      max-width: 660px;
       color: #fff;
       font-family: 'Inter', sans-serif;
       box-shadow: 0 20px 40px rgba(0,0,0,0.5);
@@ -100,7 +111,7 @@ import html2canvas from 'html2canvas';
 
     .logo {
       font-weight: 800;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       letter-spacing: -0.5px;
     }
 
@@ -110,42 +121,47 @@ import html2canvas from 'html2canvas';
       padding: 4px 10px;
       border-radius: 4px;
       font-weight: 700;
-      font-size: 0.8rem;
+      font-size: 0.9rem;
     }
 
-    .stat-row {
-      display: flex;
-      justify-content: space-between;
+    .data-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
       margin-bottom: 32px;
+      width: 100%;
+      justify-items: center; /* Center the entire column block */
     }
 
-    .stat-col {
+    .data-col {
       display: flex;
       flex-direction: column;
+      align-items: flex-start; /* Ensures stat and list align to the SAME left edge */
+      gap: 36px; /* Space between stat and list */
+      width: max-content;
+    }
+
+    .stat-block, .list-block {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .stat-block {
       gap: 4px;
     }
 
     .lbl {
       color: #aaa;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
 
     .val {
-      font-size: 1.8rem;
+      font-size: 2rem;
       font-weight: 800;
       color: #fff;
-    }
-
-    .lists-container {
-      display: flex;
-      gap: 24px;
-      margin-bottom: 32px;
-    }
-
-    .list-box {
-      flex: 1;
     }
 
     .list-title {
@@ -153,15 +169,16 @@ import html2canvas from 'html2canvas';
       color: #8b5cf6;
       font-weight: 700;
       margin-bottom: 12px;
-      font-size: 0.9rem;
+      font-size: 1rem;
       text-transform: uppercase;
     }
 
     ol {
       margin: 0;
-      padding: 0 0 0 16px;
+      padding: 0;
+      list-style-type: none;
       color: #ddd;
-      font-size: 0.9rem;
+      font-size: 1rem;
     }
 
     li {
@@ -176,22 +193,40 @@ import html2canvas from 'html2canvas';
       text-align: center;
       color: #666;
       border-top: 1px solid #333;
-      padding-top: 16px;
-      padding-bottom: 8px;
+      padding-top: 24px;
+      padding-bottom: 24px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
-    }
-    
-    .card-footer div {
-      font-size: 0.85rem;
-      font-weight: 600;
+      gap: 12px;
     }
     
     .user-handle {
       color: var(--accent-purple);
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .watermark-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      width: 100%;
+    }
+
+    .app-watermark {
+      color: rgba(255, 255, 255, 0.4);
       font-size: 0.8rem;
-      letter-spacing: normal;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    
+    .creator-watermark {
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 0.65rem;
+      font-weight: 500;
     }
 
     .action-buttons {
@@ -249,6 +284,7 @@ import html2canvas from 'html2canvas';
 export class SummarySlideComponent {
   @Input({ required: true }) data!: WrappedSummaryDto;
   @Input() year!: number;
+  @Input() username!: string;
 
   public isGenerating = signal<boolean>(false);
 

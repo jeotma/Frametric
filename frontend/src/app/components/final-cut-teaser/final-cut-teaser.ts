@@ -1,7 +1,7 @@
-import { Component, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy, inject, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-
+import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-final-cut-teaser',
   standalone: true,
@@ -12,6 +12,9 @@ import { CommonModule } from '@angular/common';
 export class FinalCutTeaserComponent implements OnInit, OnDestroy {
   public selectedYear = signal<number>(new Date().getFullYear() - 1);
   public availableYears = [2026, 2025, 2024];
+
+  private authService = inject(AuthService);
+  public username = computed(() => this.authService.currentUser()?.username || 'User');
 
   public isPlayingPromo = signal<boolean>(true);
   public promoStep = signal<number>(0);

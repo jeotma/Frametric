@@ -8,7 +8,7 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
   imports: [CommonModule],
   template: `
     <div class="slide-content intro-bg">
-      <h2 class="slide-title">The Final Cut.</h2>
+      <h2 class="slide-title">The {{ username }}'s Cut.</h2>
       <p class="subtitle">Relive your year through the art of filmmaking.</p>
       
       <div class="stats-grid">
@@ -74,4 +74,5 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
 export class IntroSlideComponent {
   @Input({ required: true }) data!: WrappedSummaryDto;
   @Input() year!: number;
+  @Input() username!: string;
 }

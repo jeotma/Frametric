@@ -1,50 +1,110 @@
-<div class="final-cut-container" *ngIf="!loading() && data(); else loader">
-  
+<div class="final-cut-container" *ngIf="!loading() && summary() && extData(); else loader">
+
   <!-- Top Controls -->
   <div class="top-controls">
+    <div class="branding" *ngIf="activeSlide() !== 20">The {{ username() }}'s Cut</div>
     <div style="flex: 1;"></div>
-    
     <button class="pause-btn" (click)="togglePause()" title="Play/Pause">
-      <!-- Pause Icon -->
       <svg *ngIf="!isManuallyPaused()" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="6" y="4" width="4" height="16"></rect>
         <rect x="14" y="4" width="4" height="16"></rect>
       </svg>
-      <!-- Play Icon -->
       <svg *ngIf="isManuallyPaused()" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polygon points="5 3 19 12 5 21 5 3"></polygon>
       </svg>
     </button>
   </div>
 
-  <!-- Progress Bar -->
+  <!-- Progress Bars -->
   <div class="progress-bars">
-    <div *ngFor="let i of [0, 1, 2, 3, 4, 5]" class="progress-bar-bg" [class.active]="i === activeSlide()" [class.completed]="i < activeSlide()">
+    <div *ngFor="let i of slideIndices" class="progress-bar-bg" [class.active]="i === activeSlide()" [class.completed]="i < activeSlide()">
       <div class="progress-bar-fill" [style.width.%]="i === activeSlide() ? slideProgress() : (i < activeSlide() ? 100 : 0)"></div>
     </div>
   </div>
 
   <!-- Navigation Overlays -->
-  <div class="nav-zone left-zone" 
-       (pointerdown)="onPointerDown()" 
-       (pointerup)="onPointerUp('left')" 
+  <div class="nav-zone left-zone"
+       (pointerdown)="onPointerDown()"
+       (pointerup)="onPointerUp('left')"
        (pointerleave)="onPointerLeave()"
        (pointercancel)="onPointerLeave()"></div>
-       
-  <div class="nav-zone right-zone" 
-       (pointerdown)="onPointerDown()" 
-       (pointerup)="onPointerUp('right')" 
+
+  <div class="nav-zone right-zone"
+       (pointerdown)="onPointerDown()"
+       (pointerup)="onPointerUp('right')"
        (pointerleave)="onPointerLeave()"
        (pointercancel)="onPointerLeave()"></div>
 
   <!-- Slides -->
   <div class="slides-wrapper">
-    <app-intro-slide *ngIf="activeSlide() === 0" [data]="data()!" [year]="year()"></app-intro-slide>
-    <app-genre-slide *ngIf="activeSlide() === 1" [data]="data()!"></app-genre-slide>
-    <app-director-slide *ngIf="activeSlide() === 2" [data]="data()!"></app-director-slide>
-    <app-actor-slide *ngIf="activeSlide() === 3" [data]="data()!"></app-actor-slide>
-    <app-decade-slide *ngIf="activeSlide() === 4" [data]="data()!"></app-decade-slide>
-    <app-summary-slide *ngIf="activeSlide() === 5" [data]="data()!" [year]="year()"></app-summary-slide>
+
+    <!-- ACT I: The Establishing Shots -->
+    <!-- 0: The Opening Credits -->
+    <app-intro-slide *ngIf="activeSlide() === 0" [data]="summary()!" [year]="year()" [username]="username()"></app-intro-slide>
+
+    <!-- 1: The Box Office Receipts (Big Numbers) -->
+    <app-big-numbers-slide *ngIf="activeSlide() === 1" [summary]="summary()!" [year]="year()"></app-big-numbers-slide>
+
+    <!-- 2: The Prime Time Blockbuster -->
+    <app-prime-time-slide *ngIf="activeSlide() === 2" [data]="extData()!.primeTime" [year]="year()"></app-prime-time-slide>
+
+    <!-- 3: The Box Office Bomb (Slump) -->
+    <app-slump-slide *ngIf="activeSlide() === 3" [data]="extData()!.cinemaFatigue" [year]="year()"></app-slump-slide>
+
+    <!-- 4: Weekday Warrior vs Weekend Enjoyer -->
+    <app-weekday-warrior-slide *ngIf="activeSlide() === 4" [data]="extData()!.weekendWarrior"></app-weekday-warrior-slide>
+
+    <!-- ACT II: The Cast & Crew -->
+    <!-- 5: The Genre Landscape (Expanded) -->
+    <app-genre-landscape-slide *ngIf="activeSlide() === 5" [genres]="extData()!.genreLandscape" [year]="year()"></app-genre-landscape-slide>
+
+    <!-- 6: The A-List (Actors Expanded) -->
+    <app-a-list-slide *ngIf="activeSlide() === 6" [actors]="extData()!.actors" [year]="year()"></app-a-list-slide>
+
+    <!-- 7: The Auteurs (Directors Expanded) -->
+    <app-auteurs-slide *ngIf="activeSlide() === 7" [directors]="extData()!.directors" [year]="year()"></app-auteurs-slide>
+
+    <!-- 8: Dynamic Duos & Perfect Pairs -->
+    <app-dynamic-duos-slide *ngIf="activeSlide() === 8" [castingPairs]="extData()!.castingPairs" [directorActorPairs]="extData()!.directorActorPairs"></app-dynamic-duos-slide>
+
+    <!-- 9: The Best Rookies -->
+    <app-best-rookies-slide *ngIf="activeSlide() === 9" [data]="extData()!.bestRookies" [year]="year()"></app-best-rookies-slide>
+
+    <!-- 10: The Generational Divide (Eras) -->
+    <app-generational-divide-slide *ngIf="activeSlide() === 10" [decades]="extData()!.decadeBreakdown" [era]="extData()!.eraBreakdown"></app-generational-divide-slide>
+
+    <!-- ACT III: The Deep Cuts -->
+    <!-- 11: The Obsession Streak -->
+    <app-obsession-streak-slide *ngIf="activeSlide() === 11" [streaks]="extData()!.genreStreaks"></app-obsession-streak-slide>
+
+    <!-- 12: The David and Goliath -->
+    <app-david-goliath-slide *ngIf="activeSlide() === 12" [data]="extData()!.davidAndGoliath"></app-david-goliath-slide>
+
+    <!-- 13: Cinematic Fatigue (The Binge Toll) -->
+    <app-cinematic-fatigue-slide *ngIf="activeSlide() === 13" [data]="extData()!.cinemaFatigue" [ratingEvolution]="extData()!.ratingEvolution"></app-cinematic-fatigue-slide>
+
+    <!-- ACT IV: The Climax -->
+    <!-- 14: The Bookends -->
+    <app-bookends-slide *ngIf="activeSlide() === 14" [data]="extData()!.bookends" [year]="year()"></app-bookends-slide>
+
+    <!-- 15: The Monthly Extremes (H1) -->
+    <app-monthly-extremes-slide *ngIf="activeSlide() === 15" [months]="extData()!.monthlyExtremes" [year]="year()" [part]="1"></app-monthly-extremes-slide>
+
+    <!-- 16: The Monthly Extremes (H2) -->
+    <app-monthly-extremes-slide *ngIf="activeSlide() === 16" [months]="extData()!.monthlyExtremes" [year]="year()" [part]="2"></app-monthly-extremes-slide>
+
+    <!-- 17: The Return of the King -->
+    <app-return-of-the-king-slide *ngIf="activeSlide() === 17" [data]="extData()!.mostRewatched"></app-return-of-the-king-slide>
+
+    <!-- 18: The Hall of Fame (Top 5) -->
+    <app-hall-of-fame-slide *ngIf="activeSlide() === 18" [data]="extData()!.topBottom" [year]="year()"></app-hall-of-fame-slide>
+
+    <!-- 19: The Golden Raspberry (Bottom 5) -->
+    <app-golden-raspberry-slide *ngIf="activeSlide() === 19" [data]="extData()!.topBottom" [summary]="summary()!" [year]="year()"></app-golden-raspberry-slide>
+
+    <!-- 20: Summary -->
+    <app-summary-slide *ngIf="activeSlide() === 20" [data]="summary()!" [year]="year()" [username]="username()"></app-summary-slide>
+
   </div>
 </div>
 
@@ -52,5 +112,6 @@
   <div class="loader-container">
     <div class="pulse-green loader-pulse"></div>
     <p>Preparing the Final Cut...</p>
+    <p class="loader-sub">Assembling your cinematic year, frame by frame.</p>
   </div>
 </ng-template>
