@@ -95,7 +95,7 @@
     <app-monthly-extremes-slide *ngIf="activeSlide() === 16" [months]="extData()!.monthlyExtremes" [year]="year()" [part]="2"></app-monthly-extremes-slide>
 
     <!-- 17: The Return of the King -->
-    <app-return-of-the-king-slide *ngIf="activeSlide() === 17" [data]="extData()!.mostRewatched"></app-return-of-the-king-slide>
+    <app-return-of-the-king-slide *ngIf="activeSlide() === 17" [data]="extData()!.mostRewatched" [year]="year()"></app-return-of-the-king-slide>
 
     <!-- 18: The Hall of Fame (Top 5) -->
     <app-hall-of-fame-slide *ngIf="activeSlide() === 18" [data]="extData()!.topBottom" [year]="year()"></app-hall-of-fame-slide>

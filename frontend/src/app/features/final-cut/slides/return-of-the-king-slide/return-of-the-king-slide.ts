@@ -24,12 +24,12 @@ import { MostRewatchedDto } from '../../../../core/services/final-cut.service';
           <div class="rotk-year">{{ data.releaseYear }}</div>
           <div class="rotk-meta">
             <span class="rotk-count">{{ data.rewatchCount }}</span>
-            <span class="rotk-label">rewatches this year</span>
+            <span class="rotk-label">{{ year === 'global' ? 'all-time rewatches' : 'rewatches this year' }}</span>
           </div>
         </div>
       </div>
 
-      <p class="no-data" *ngIf="!data">No rewatches found this year. Always moving forward!</p>
+      <p class="no-data" *ngIf="!data">No rewatches found {{ year === 'global' ? 'overall' : 'this year' }}. Always moving forward!</p>
       
       <div class="tie-breaker-note" *ngIf="data">
         * Films ordered by highest rating, favor, and ultimately, chance.
@@ -114,6 +114,7 @@ import { MostRewatchedDto } from '../../../../core/services/final-cut.service';
 })
 export class ReturnOfTheKingSlideComponent {
   @Input() data?: MostRewatchedDto | null;
+  @Input() year!: number | 'global';
 
   posterUrl(path: string): string {
     if (path?.startsWith('http')) return path;

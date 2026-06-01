@@ -86,7 +86,15 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
     .mx-movie.best-movie { border-color: rgba(52, 211, 153, 0.15); }
     .mx-movie.worst-movie { border-color: rgba(244, 63, 94, 0.15); }
     .mx-icon { font-size: 1.2rem; flex-shrink: 0; }
-    .mx-info { display: flex; flex-direction: column; min-width: 0; align-items: flex-start; justify-content: center; }
+    .mx-info { 
+      display: flex; 
+      flex-direction: column; 
+      min-width: 0; 
+      align-items: flex-start; 
+      justify-content: center;
+      overflow: hidden;
+      flex: 1;
+    }
     .mx-title {
       font-size: 0.85rem;
       font-weight: 600;
@@ -94,6 +102,7 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: 100%;
     }
     .mx-rating { font-size: 0.75rem; color: var(--text-muted); }
     .no-data-box {
