@@ -56,3 +56,7 @@ scratch/
 RewriteTool/
 
 .markdownlint.json
+
+# === Portfolio ===
+portfolio/
+
