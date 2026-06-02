@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "generate:api": "openapi-generator-cli generate -i openapi.json -g typescript-angular -o src/app/core/api --additional-properties=fileNaming=kebab-case",
-    "download:spec": "curl -o openapi.json http://localhost:5168/openapi/v1.json"
+    "download:spec": "node scripts/download-spec.js"
   },
   "private": true,
   "packageManager": "npm@11.14.1",
