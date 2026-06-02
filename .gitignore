@@ -54,3 +54,5 @@ AGENTS.md
 # Local one-off diagnostic and dev tools, never committed
 scratch/
 RewriteTool/
+
+.markdownlint.json

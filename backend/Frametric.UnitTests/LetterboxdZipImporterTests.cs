@@ -42,12 +42,43 @@ public class LetterboxdZipImporterTests
                 writer.WriteLine("2026-05-30,Dunkirk,2017,https://letterboxd.com/film/dunkirk/");
             }
 
+            // Create profile.csv (required for strict validation)
+            var profileEntry = archive.CreateEntry("profile.csv");
+            using (var writer = new StreamWriter(profileEntry.Open()))
+            {
+                writer.WriteLine("Favorite Films");
+                writer.WriteLine("\"https://letterboxd.com/film/inception/\"");
+            }
+
+            // Create reviews.csv (required for strict validation)
+            var reviewsEntry = archive.CreateEntry("reviews.csv");
+            using (var writer = new StreamWriter(reviewsEntry.Open()))
+            {
+                writer.WriteLine("Date,Name,Year,Letterboxd URI,Rating,Rewatch,Review");
+                writer.WriteLine("2026-05-30,Inception,2010,https://letterboxd.com/film/inception/,4.5,No,Amazing!");
+            }
+
+            // Create watched.csv (required for strict validation)
+            var watchedEntry = archive.CreateEntry("watched.csv");
+            using (var writer = new StreamWriter(watchedEntry.Open()))
+            {
+                writer.WriteLine("Date,Name,Year,Letterboxd URI");
+                writer.WriteLine("2026-05-30,Inception,2010,https://letterboxd.com/film/inception/");
+            }
+
             // Create likes/films.csv
             var likesEntry = archive.CreateEntry("likes/films.csv");
             using (var writer = new StreamWriter(likesEntry.Open()))
             {
                 writer.WriteLine("Date,Name,Year,Letterboxd URI");
                 writer.WriteLine("2026-05-30,Memento,2000,https://letterboxd.com/film/memento/");
+            }
+
+            // Create likes/reviews.csv (required for strict validation)
+            var likesReviewsEntry = archive.CreateEntry("likes/reviews.csv");
+            using (var writer = new StreamWriter(likesReviewsEntry.Open()))
+            {
+                writer.WriteLine("Date,Name,Year,Letterboxd URI");
             }
         }
 
@@ -92,13 +123,13 @@ public class LetterboxdZipImporterTests
     }
 
     [Fact]
-    public async Task ImportFromZipAsync_ShouldHandleGracefully_WhenFilesAreMissing()
+    public async Task ImportFromZipAsync_ShouldThrowInvalidDataException_WhenFilesAreMissing()
     {
         // Arrange
         using var memoryStream = new MemoryStream();
         using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
         {
-            // Only create diary.csv, leave others missing
+            // Only create diary.csv, leave others missing to trigger strict validation error
             var diaryEntry = archive.CreateEntry("diary.csv");
             using (var writer = new StreamWriter(diaryEntry.Open()))
             {
@@ -110,19 +141,7 @@ public class LetterboxdZipImporterTests
         memoryStream.Position = 0;
         var importer = new LetterboxdZipImporter();
 
-        // Act
-        var result = await importer.ImportFromZipAsync(memoryStream);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Single(result.DiaryEntries);
-        Assert.Empty(result.Ratings);
-        Assert.Empty(result.Watchlist);
-        Assert.Empty(result.Likes);
-
-        var diary = result.DiaryEntries.First();
-        Assert.Equal("Inception", diary.Name);
-        Assert.False(diary.Rewatch);
-        Assert.Equal(new DateOnly(2026, 5, 30), diary.WatchedDate); // Fallback to Date since Watched Date is missing
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidDataException>(() => importer.ImportFromZipAsync(memoryStream));
     }
 }
