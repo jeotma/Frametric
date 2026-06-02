@@ -20,7 +20,7 @@ const proseMap = {
   'bookends-slide': "The opening sequence and the final fade to black. The Alpha and Omega of your journey.",
   'monthly-extremes-slide': "The highs and lows. The masterpieces and the box office bombs of every month.",
   'return-of-the-king-slide': "Encore performances. The stories you just had to experience one more time.",
-  'hall-of-fame-slide': "Five stars. Pure cinema. The absolute masterpieces that left a lasting mark.",
+  'hall-of-fame-slide': "Five stars. Absolute cinema. The masterpieces that left a lasting mark.",
   'golden-raspberry-slide': "The cutting room floor. The films that completely missed the mark.",
   'intro-slide': "Grab your popcorn and take a seat. The show is about to begin."
 };
