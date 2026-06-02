@@ -20,8 +20,18 @@ public class SqlFilterBuilder
     private readonly string _targetAlias;
     private readonly string _targetDateColumn;
     private readonly bool _isMoviesJoined;
+    private readonly bool _isRatingsJoined;
+    private readonly string _ratingAlias;
 
-    public SqlFilterBuilder(AnalyticsFilterDto filter, DynamicParameters parameters, string movieAlias = "m", string targetAlias = "w", string targetDateColumn = "Date", bool isMoviesJoined = true)
+    public SqlFilterBuilder(
+        AnalyticsFilterDto filter, 
+        DynamicParameters parameters, 
+        string movieAlias = "m", 
+        string targetAlias = "w", 
+        string targetDateColumn = "Date", 
+        bool isMoviesJoined = true,
+        bool isRatingsJoined = false,
+        string ratingAlias = "mr")
     {
         _filter = filter ?? new AnalyticsFilterDto();
         _parameters = parameters;
@@ -29,6 +39,8 @@ public class SqlFilterBuilder
         _targetAlias = targetAlias;
         _targetDateColumn = targetDateColumn;
         _isMoviesJoined = isMoviesJoined;
+        _isRatingsJoined = isRatingsJoined;
+        _ratingAlias = ratingAlias;
     }
 
     public string BuildJoins()
@@ -59,15 +71,18 @@ public class SqlFilterBuilder
         }
 
         // Only join MovieRatings if we actually need it for filtering and it's not assumed to be joined already.
-        // Usually, complex queries already join MovieRatings as 'mr'.
-        // So we will assume 'mr' is the alias if they want to filter by Min/Max rating.
+        if (!_isRatingsJoined && (_filter.MinRating.HasValue || _filter.MaxRating.HasValue))
+        {
+            joins.AppendLine($"LEFT JOIN \"MovieRatings\" {_ratingAlias} ON {_movieAlias}.\"Id\" = {_ratingAlias}.\"MovieId\" AND {_ratingAlias}.\"UserId\" = @userId");
+        }
 
         return joins.ToString();
     }
 
-    public string BuildWhereClause(string ratingAlias = "mr")
+    public string BuildWhereClause(string? ratingAlias = null)
     {
         var where = new StringBuilder();
+        var rAlias = ratingAlias ?? _ratingAlias;
 
         if (_filter.WatchYear.HasValue)
         {
@@ -92,13 +107,13 @@ public class SqlFilterBuilder
 
         if (_filter.MinRating.HasValue)
         {
-            where.AppendLine($"AND {ratingAlias}.\"Score\" >= @MinRating");
+            where.AppendLine($"AND {rAlias}.\"Score\" >= @MinRating");
             _parameters.Add("MinRating", _filter.MinRating.Value);
         }
 
         if (_filter.MaxRating.HasValue)
         {
-            where.AppendLine($"AND {ratingAlias}.\"Score\" <= @MaxRating");
+            where.AppendLine($"AND {rAlias}.\"Score\" <= @MaxRating");
             _parameters.Add("MaxRating", _filter.MaxRating.Value);
         }
 
