@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AnalyticsService, DashboardSummaryDto } from '../../core/api';
+import { AnalyticsService, DashboardSummaryDto, ImportService } from '../../core/api';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,12 +12,15 @@ import { AnalyticsService, DashboardSummaryDto } from '../../core/api';
 })
 export class DashboardComponent implements OnInit {
   private analyticsService = inject(AnalyticsService);
+  private importService = inject(ImportService);
 
   summary = signal<DashboardSummaryDto | null>(null);
   isLoading = signal(true);
   errorMessage = signal<string | null>(null);
+  hasSuccessfulImport = signal<boolean>(true); // Defaults to true to avoid initial flicker
 
   ngOnInit() {
+    // 1. Fetch dashboard stats
     this.analyticsService.apiAnalyticsDashboardGet().subscribe({
       next: (data: DashboardSummaryDto) => {
         this.summary.set(data);
@@ -27,6 +30,17 @@ export class DashboardComponent implements OnInit {
         console.error('Error fetching dashboard summary', err);
         this.errorMessage.set('Could not load dashboard data. Ensure the backend is running and you have imported data.');
         this.isLoading.set(false);
+      }
+    });
+
+    // 2. Check if we have at least one successful import in history
+    this.importService.apiImportHistoryGet().subscribe({
+      next: (history) => {
+        const hasValid = history.some(item => item.status === 'Completed' || item.status === 'Enriching');
+        this.hasSuccessfulImport.set(hasValid);
+      },
+      error: (err) => {
+        console.error('Failed to fetch import history', err);
       }
     });
   }

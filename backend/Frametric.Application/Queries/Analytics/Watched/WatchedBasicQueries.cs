@@ -4,21 +4,21 @@ using MediatR;
 
 namespace Frametric.Application.Queries.Analytics.Watched;
 
-// 1. Filter watched movies by original release year
-public record GetWatchedMoviesByReleaseYearQuery(Guid UserId, int ReleaseYear) : IRequest<IEnumerable<MovieSimpleDto>>;
-public class GetWatchedMoviesByReleaseYearQueryHandler : IRequestHandler<GetWatchedMoviesByReleaseYearQuery, IEnumerable<MovieSimpleDto>>
+// 1. List watched movies
+public record GetWatchedMoviesQuery(Guid UserId, AnalyticsFilterDto Filter) : IRequest<IEnumerable<WatchedMovieStatsDto>>;
+public class GetWatchedMoviesQueryHandler : IRequestHandler<GetWatchedMoviesQuery, IEnumerable<WatchedMovieStatsDto>>
 {
     private readonly IWatchedBasicQueries _queries;
-    public GetWatchedMoviesByReleaseYearQueryHandler(IWatchedBasicQueries queries) => _queries = queries;
+    public GetWatchedMoviesQueryHandler(IWatchedBasicQueries queries) => _queries = queries;
 
-    public async Task<IEnumerable<MovieSimpleDto>> Handle(GetWatchedMoviesByReleaseYearQuery request, CancellationToken ct)
+    public async Task<IEnumerable<WatchedMovieStatsDto>> Handle(GetWatchedMoviesQuery request, CancellationToken ct)
     {
-        return await _queries.GetMoviesByReleaseYearAsync(request.UserId, request.ReleaseYear, ct);
+        return await _queries.GetMoviesAsync(request.UserId, request.Filter, ct);
     }
 }
 
 // 2. List directors present in the watched history
-public record GetWatchedDirectorsQuery(Guid UserId, int? Year = null) : IRequest<IEnumerable<DirectorCountDto>>;
+public record GetWatchedDirectorsQuery(Guid UserId, AnalyticsFilterDto Filter) : IRequest<IEnumerable<DirectorCountDto>>;
 public class GetWatchedDirectorsQueryHandler : IRequestHandler<GetWatchedDirectorsQuery, IEnumerable<DirectorCountDto>>
 {
     private readonly IWatchedBasicQueries _queries;
@@ -26,12 +26,12 @@ public class GetWatchedDirectorsQueryHandler : IRequestHandler<GetWatchedDirecto
 
     public async Task<IEnumerable<DirectorCountDto>> Handle(GetWatchedDirectorsQuery request, CancellationToken ct)
     {
-        return await _queries.GetDirectorsAsync(request.UserId, request.Year, ct);
+        return await _queries.GetDirectorsAsync(request.UserId, request.Filter, ct);
     }
 }
 
 // 3. List actors that appear in watched movies
-public record GetWatchedActorsQuery(Guid UserId, int? Year = null) : IRequest<IEnumerable<ActorCountDto>>;
+public record GetWatchedActorsQuery(Guid UserId, AnalyticsFilterDto Filter) : IRequest<IEnumerable<ActorCountDto>>;
 public class GetWatchedActorsQueryHandler : IRequestHandler<GetWatchedActorsQuery, IEnumerable<ActorCountDto>>
 {
     private readonly IWatchedBasicQueries _queries;
@@ -39,12 +39,12 @@ public class GetWatchedActorsQueryHandler : IRequestHandler<GetWatchedActorsQuer
 
     public async Task<IEnumerable<ActorCountDto>> Handle(GetWatchedActorsQuery request, CancellationToken ct)
     {
-        return await _queries.GetActorsAsync(request.UserId, request.Year, ct);
+        return await _queries.GetActorsAsync(request.UserId, request.Filter, ct);
     }
 }
 
 // 4. Group watched movies by cinematic genre
-public record GetWatchedMoviesByGenreQuery(Guid UserId) : IRequest<IEnumerable<GenreCountDto>>;
+public record GetWatchedMoviesByGenreQuery(Guid UserId, AnalyticsFilterDto Filter) : IRequest<IEnumerable<GenreCountDto>>;
 public class GetWatchedMoviesByGenreQueryHandler : IRequestHandler<GetWatchedMoviesByGenreQuery, IEnumerable<GenreCountDto>>
 {
     private readonly IWatchedBasicQueries _queries;
@@ -52,12 +52,12 @@ public class GetWatchedMoviesByGenreQueryHandler : IRequestHandler<GetWatchedMov
 
     public async Task<IEnumerable<GenreCountDto>> Handle(GetWatchedMoviesByGenreQuery request, CancellationToken ct)
     {
-        return await _queries.GetMoviesByGenreAsync(request.UserId, ct);
+        return await _queries.GetMoviesByGenreAsync(request.UserId, request.Filter, ct);
     }
 }
 
 // 5. Count of watched movies by release decade
-public record GetWatchedMoviesByDecadeQuery(Guid UserId, int? Year = null) : IRequest<IEnumerable<DecadeCountDto>>;
+public record GetWatchedMoviesByDecadeQuery(Guid UserId, AnalyticsFilterDto Filter) : IRequest<IEnumerable<DecadeCountDto>>;
 public class GetWatchedMoviesByDecadeQueryHandler : IRequestHandler<GetWatchedMoviesByDecadeQuery, IEnumerable<DecadeCountDto>>
 {
     private readonly IWatchedBasicQueries _queries;
@@ -65,6 +65,9 @@ public class GetWatchedMoviesByDecadeQueryHandler : IRequestHandler<GetWatchedMo
 
     public async Task<IEnumerable<DecadeCountDto>> Handle(GetWatchedMoviesByDecadeQuery request, CancellationToken ct)
     {
-        return await _queries.GetMoviesByDecadeAsync(request.UserId, request.Year, ct);
+        return await _queries.GetMoviesByDecadeAsync(request.UserId, request.Filter, ct);
     }
 }
+
+
+

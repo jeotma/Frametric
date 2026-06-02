@@ -210,6 +210,11 @@ export class FinalCutComponent implements OnInit, OnDestroy {
     return Array.from({ length: this.SLIDE_COUNT }, (_, i) => i);
   }
 
+  public includesRewatches(slideIndex: number): boolean {
+    const uniqueSlides = [5, 6, 7, 8, 9, 10, 12, 15, 16, 18, 19];
+    return !uniqueSlides.includes(slideIndex);
+  }
+
   @HostListener('window:keydown.escape')
   handleEscape() {
     this.router.navigate(['/']);
