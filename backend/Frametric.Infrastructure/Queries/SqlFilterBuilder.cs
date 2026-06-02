@@ -35,24 +35,27 @@ public class SqlFilterBuilder
     {
         var joins = new StringBuilder();
 
-        bool needsMovieJoin = _filter.ActorId.HasValue || _filter.DirectorId.HasValue || _filter.GenreId.HasValue || _filter.ReleaseYear.HasValue;
+        bool needsMovieJoin = !string.IsNullOrWhiteSpace(_filter.Actor) || !string.IsNullOrWhiteSpace(_filter.Director) || !string.IsNullOrWhiteSpace(_filter.Genre) || _filter.ReleaseYear.HasValue;
 
         if (!_isMoviesJoined && needsMovieJoin)
         {
             joins.AppendLine($"JOIN \"Movies\" {_movieAlias} ON {_targetAlias}.\"MovieId\" = {_movieAlias}.\"Id\"");
         }
 
-        if (_filter.ActorId.HasValue)
+        if (!string.IsNullOrWhiteSpace(_filter.Actor))
         {
             joins.AppendLine($"JOIN \"MovieActor\" f_ma ON {_movieAlias}.\"Id\" = f_ma.\"MoviesId\"");
+            joins.AppendLine($"JOIN \"Actors\" f_actor ON f_ma.\"ActorsId\" = f_actor.\"Id\"");
         }
-        if (_filter.DirectorId.HasValue)
+        if (!string.IsNullOrWhiteSpace(_filter.Director))
         {
             joins.AppendLine($"JOIN \"MovieDirector\" f_md ON {_movieAlias}.\"Id\" = f_md.\"MoviesId\"");
+            joins.AppendLine($"JOIN \"Directors\" f_director ON f_md.\"DirectorsId\" = f_director.\"Id\"");
         }
-        if (_filter.GenreId.HasValue)
+        if (!string.IsNullOrWhiteSpace(_filter.Genre))
         {
             joins.AppendLine($"JOIN \"MovieGenre\" f_mg ON {_movieAlias}.\"Id\" = f_mg.\"MoviesId\"");
+            joins.AppendLine($"JOIN \"Genres\" f_genre ON f_mg.\"GenresId\" = f_genre.\"Id\"");
         }
 
         // Only join MovieRatings if we actually need it for filtering and it's not assumed to be joined already.
@@ -68,7 +71,16 @@ public class SqlFilterBuilder
 
         if (_filter.WatchYear.HasValue)
         {
-            where.AppendLine($"AND EXTRACT(YEAR FROM {_targetAlias}.\"{_targetDateColumn}\") = @WatchYear");
+            string dateExpr;
+            if (_targetAlias == "w" && _targetDateColumn == "Date")
+            {
+                dateExpr = $"COALESCE((SELECT MIN(de.\"WatchedDate\") FROM \"DiaryEntries\" de WHERE de.\"MovieId\" = {_targetAlias}.\"MovieId\" AND de.\"UserId\" = {_targetAlias}.\"UserId\"), {_targetAlias}.\"Date\")";
+            }
+            else
+            {
+                dateExpr = $"{_targetAlias}.\"{_targetDateColumn}\"";
+            }
+            where.AppendLine($"AND EXTRACT(YEAR FROM {dateExpr}) = @WatchYear");
             _parameters.Add("WatchYear", _filter.WatchYear.Value);
         }
         
@@ -90,22 +102,22 @@ public class SqlFilterBuilder
             _parameters.Add("MaxRating", _filter.MaxRating.Value);
         }
 
-        if (_filter.ActorId.HasValue)
+        if (!string.IsNullOrWhiteSpace(_filter.Actor))
         {
-            where.AppendLine($"AND f_ma.\"ActorsId\" = @ActorId");
-            _parameters.Add("ActorId", _filter.ActorId.Value);
+            where.AppendLine($"AND f_actor.\"Name\" ILIKE @Actor");
+            _parameters.Add("Actor", $"%{_filter.Actor}%");
         }
 
-        if (_filter.DirectorId.HasValue)
+        if (!string.IsNullOrWhiteSpace(_filter.Director))
         {
-            where.AppendLine($"AND f_md.\"DirectorsId\" = @DirectorId");
-            _parameters.Add("DirectorId", _filter.DirectorId.Value);
+            where.AppendLine($"AND f_director.\"Name\" ILIKE @Director");
+            _parameters.Add("Director", $"%{_filter.Director}%");
         }
 
-        if (_filter.GenreId.HasValue)
+        if (!string.IsNullOrWhiteSpace(_filter.Genre))
         {
-            where.AppendLine($"AND f_mg.\"GenresId\" = @GenreId");
-            _parameters.Add("GenreId", _filter.GenreId.Value);
+            where.AppendLine($"AND f_genre.\"Name\" ILIKE @Genre");
+            _parameters.Add("Genre", $"%{_filter.Genre}%");
         }
 
         return where.ToString();

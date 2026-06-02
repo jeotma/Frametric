@@ -7,11 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { WrappedMovieDto2 } from './wrapped-movie-dto2';
 
 
-export interface TopBottomMoviesDto { 
-    topRated: Array<WrappedMovieDto2>;
-    bottomRated?: Array<WrappedMovieDto2>;
+export interface WatchedMovieStatsDto { 
+    title: string;
+    releaseYear: number | null;
+    director: string;
+    rating: number;
+    liked: boolean;
 }
 

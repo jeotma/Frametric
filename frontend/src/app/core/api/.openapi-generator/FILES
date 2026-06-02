@@ -48,6 +48,8 @@ model/register-user-request.ts
 model/rookie-dto.ts
 model/time-invested-dto.ts
 model/top-bottom-movies-dto.ts
+model/watched-movie-stats-dto.ts
+model/watchlist-movie-stats-dto.ts
 model/weekend-warrior-dto.ts
 model/weekly-watches-dto.ts
 model/wrapped-movie-dto.ts

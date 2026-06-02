@@ -8,11 +8,10 @@
  * Do not edit the class manually.
  */
 import { RookieDto } from './rookie-dto';
-import { Items } from './items';
 
 
 export interface BestRookiesDto { 
     newDirectors: Array<RookieDto>;
-    newActors: Array<Items>;
+    newActors?: Array<RookieDto>;
 }
 

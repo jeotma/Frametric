@@ -34,6 +34,8 @@ export * from './register-user-request';
 export * from './rookie-dto';
 export * from './time-invested-dto';
 export * from './top-bottom-movies-dto';
+export * from './watched-movie-stats-dto';
+export * from './watchlist-movie-stats-dto';
 export * from './weekend-warrior-dto';
 export * from './weekly-watches-dto';
 export * from './wrapped-movie-dto';

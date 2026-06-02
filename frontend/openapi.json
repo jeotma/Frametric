@@ -11,7 +11,7 @@
     }
   ],
   "paths": {
-    "/api/analytics/advanced/watched/by-release-year": {
+    "/api/analytics/advanced/watched": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -50,27 +50,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -82,7 +79,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/MovieSimpleDto"
+                    "$ref": "#/components/schemas/WatchedMovieStatsDto"
                   }
                 }
               },
@@ -90,7 +87,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/MovieSimpleDto"
+                    "$ref": "#/components/schemas/WatchedMovieStatsDto"
                   }
                 }
               },
@@ -98,7 +95,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/MovieSimpleDto"
+                    "$ref": "#/components/schemas/WatchedMovieStatsDto"
                   }
                 }
               }
@@ -146,27 +143,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -242,27 +236,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -338,27 +329,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -434,27 +422,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -530,27 +515,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -617,27 +599,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -704,27 +683,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -791,27 +767,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -901,27 +874,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -988,27 +958,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -1084,27 +1051,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -1180,27 +1144,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -1276,27 +1237,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -1363,27 +1321,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -1420,7 +1375,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist/by-release-year": {
+    "/api/analytics/advanced/watchlist": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -1459,27 +1414,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -1491,7 +1443,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/MovieSimpleDto"
+                    "$ref": "#/components/schemas/WatchlistMovieStatsDto"
                   }
                 }
               },
@@ -1499,7 +1451,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/MovieSimpleDto"
+                    "$ref": "#/components/schemas/WatchlistMovieStatsDto"
                   }
                 }
               },
@@ -1507,7 +1459,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/MovieSimpleDto"
+                    "$ref": "#/components/schemas/WatchlistMovieStatsDto"
                   }
                 }
               }
@@ -1555,27 +1507,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -1651,27 +1600,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -1747,27 +1693,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -1843,27 +1786,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -1939,27 +1879,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -2026,27 +1963,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -2113,27 +2047,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -2200,27 +2131,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -2287,27 +2215,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -2383,27 +2308,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -2470,27 +2392,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -2557,27 +2476,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -2653,27 +2569,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -2749,27 +2662,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -2836,27 +2746,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -2932,27 +2839,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -3028,27 +2932,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -3115,27 +3016,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -3202,27 +3100,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
@@ -3306,27 +3201,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -3393,27 +3285,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -3480,27 +3369,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -3567,27 +3453,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -3654,27 +3537,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -3750,27 +3630,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -3837,27 +3714,24 @@
             }
           },
           {
-            "name": "GenreId",
+            "name": "Genre",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "DirectorId",
+            "name": "Director",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "ActorId",
+            "name": "Actor",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -4575,8 +4449,7 @@
       },
       "BestRookiesDto": {
         "required": [
-          "newDirectors",
-          "newActors"
+          "newDirectors"
         ],
         "type": "object",
         "properties": {
@@ -4589,7 +4462,7 @@
           "newActors": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/#/properties/newDirectors/items"
+              "$ref": "#/components/schemas/RookieDto"
             }
           }
         }
@@ -5314,8 +5187,7 @@
       },
       "TopBottomMoviesDto": {
         "required": [
-          "topRated",
-          "bottomRated"
+          "topRated"
         ],
         "type": "object",
         "properties": {
@@ -5328,8 +5200,63 @@
           "bottomRated": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/#/properties/topRated/items"
+              "$ref": "#/components/schemas/WrappedMovieDto2"
             }
+          }
+        }
+      },
+      "WatchedMovieStatsDto": {
+        "required": [
+          "title",
+          "releaseYear",
+          "director",
+          "rating",
+          "liked"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "releaseYear": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "director": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number",
+            "format": "double"
+          },
+          "liked": {
+            "type": "boolean"
+          }
+        }
+      },
+      "WatchlistMovieStatsDto": {
+        "required": [
+          "title",
+          "releaseYear",
+          "director",
+          "dateAdded"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "releaseYear": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "director": {
+            "type": "string"
+          },
+          "dateAdded": {
+            "type": "string"
           }
         }
       },

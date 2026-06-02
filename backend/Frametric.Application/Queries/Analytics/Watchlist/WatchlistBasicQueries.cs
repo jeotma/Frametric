@@ -5,15 +5,15 @@ using MediatR;
 namespace Frametric.Application.Queries.Analytics.Watchlist;
 
 // 18. Filter pending movies by original release year
-public record GetWatchlistByYearQuery(Guid UserId, AnalyticsFilterDto Filter) : IRequest<IEnumerable<MovieSimpleDto>>;
-public class GetWatchlistByYearQueryHandler : IRequestHandler<GetWatchlistByYearQuery, IEnumerable<MovieSimpleDto>>
+public record GetWatchlistQuery(Guid UserId, AnalyticsFilterDto Filter) : IRequest<IEnumerable<WatchlistMovieStatsDto>>;
+public class GetWatchlistQueryHandler : IRequestHandler<GetWatchlistQuery, IEnumerable<WatchlistMovieStatsDto>>
 {
     private readonly IWatchlistBasicQueries _queries;
-    public GetWatchlistByYearQueryHandler(IWatchlistBasicQueries queries) => _queries = queries;
+    public GetWatchlistQueryHandler(IWatchlistBasicQueries queries) => _queries = queries;
 
-    public async Task<IEnumerable<MovieSimpleDto>> Handle(GetWatchlistByYearQuery request, CancellationToken ct)
+    public async Task<IEnumerable<WatchlistMovieStatsDto>> Handle(GetWatchlistQuery request, CancellationToken ct)
     {
-        return await _queries.GetWatchlistByYearAsync(request.UserId, request.Filter, ct);
+        return await _queries.GetWatchlistAsync(request.UserId, request.Filter, ct);
     }
 }
 

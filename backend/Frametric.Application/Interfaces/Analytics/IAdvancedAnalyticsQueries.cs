@@ -4,7 +4,7 @@ namespace Frametric.Application.Interfaces.Analytics;
 
 public interface IWatchedBasicQueries
 {
-    Task<IEnumerable<MovieSimpleDto>> GetMoviesByReleaseYearAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default);
+    Task<IEnumerable<WatchedMovieStatsDto>> GetMoviesAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default);
     Task<IEnumerable<DirectorCountDto>> GetDirectorsAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default);
     Task<IEnumerable<ActorCountDto>> GetActorsAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default);
     Task<IEnumerable<GenreCountDto>> GetMoviesByGenreAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default);
@@ -35,7 +35,7 @@ public interface IWatchedComplexCorrelationsQueries
 
 public interface IWatchlistBasicQueries
 {
-    Task<IEnumerable<MovieSimpleDto>> GetWatchlistByYearAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default);
+    Task<IEnumerable<WatchlistMovieStatsDto>> GetWatchlistAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default);
     Task<IEnumerable<DirectorCountDto>> GetWatchlistDirectorsAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default);
     Task<IEnumerable<ActorCountDto>> GetWatchlistActorsAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default);
     Task<IEnumerable<GenreCountDto>> GetWatchlistByGenreAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default);

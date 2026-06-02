@@ -38,9 +38,9 @@ public class AdvancedAnalyticsController : ControllerBase
 
     // --- WATCHED BASIC ---
 
-    [HttpGet("watched/by-release-year")]
-    public async Task<ActionResult<IEnumerable<MovieSimpleDto>>> GetWatchedMoviesByReleaseYear([FromQuery] AnalyticsFilterDto filter)
-        => Ok(await _mediator.Send(new GetWatchedMoviesByReleaseYearQuery(GetUserIdOrThrow(), filter)));
+    [HttpGet("watched")]
+    public async Task<ActionResult<IEnumerable<WatchedMovieStatsDto>>> GetWatchedMovies([FromQuery] AnalyticsFilterDto filter)
+        => Ok(await _mediator.Send(new GetWatchedMoviesQuery(GetUserIdOrThrow(), filter)));
 
     [HttpGet("watched/directors")]
     public async Task<ActionResult<IEnumerable<DirectorCountDto>>> GetWatchedDirectors([FromQuery] AnalyticsFilterDto filter)
@@ -104,9 +104,9 @@ public class AdvancedAnalyticsController : ControllerBase
 
     // --- WATCHLIST BASIC ---
 
-    [HttpGet("watchlist/by-release-year")]
-    public async Task<ActionResult<IEnumerable<MovieSimpleDto>>> GetWatchlistByYear([FromQuery] AnalyticsFilterDto filter)
-        => Ok(await _mediator.Send(new GetWatchlistByYearQuery(GetUserIdOrThrow(), filter)));
+    [HttpGet("watchlist")]
+    public async Task<ActionResult<IEnumerable<WatchlistMovieStatsDto>>> GetWatchlist([FromQuery] AnalyticsFilterDto filter)
+        => Ok(await _mediator.Send(new GetWatchlistQuery(GetUserIdOrThrow(), filter)));
 
     [HttpGet("watchlist/directors")]
     public async Task<ActionResult<IEnumerable<DirectorCountDto>>> GetWatchlistDirectors([FromQuery] AnalyticsFilterDto filter)

@@ -1,115 +1,164 @@
 <div class="stats-container animate-fade-in">
   
+  <!-- HEADER -->
   <div class="header-section">
     <div>
-      <h1 class="page-title">Advanced Statistics</h1>
-      <p class="subtitle">Deep dive into your viewing habits and metrics.</p>
+      <h1 class="page-title">
+        Advanced Statistics 
+        <span class="info-icon tooltip-container" style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.1); margin-left: 12px; cursor: help; vertical-align: middle;">
+          <span style="font-size: 16px; font-weight: bold; font-family: serif;">i</span>
+          <span class="tooltip-text">Combine category metrics with global filters below. Filters that are irrelevant for the selected metric will be disabled automatically. Partial text matching is supported for names.</span>
+        </span>
+      </h1>
+      <p class="subtitle">Deep dive into your viewing habits with unified cross-filtering.</p>
     </div>
   </div>
 
-  <div class="explorer-layout">
-    
-    <!-- Sidebar / Query Selector -->
-    <div class="explorer-sidebar glass-panel">
-      <div class="control-group">
+  <!-- HORIZONTAL UNIFIED FILTER BAR -->
+  <div class="topbar-filters glass-panel">
+    <div class="filter-row">
+      <!-- Query Selection -->
+      <div class="filter-group select-group">
         <label>Category</label>
         <select [ngModel]="selectedCategory()" (ngModelChange)="onCategoryChange($event)" class="form-select">
           <option *ngFor="let cat of categoriesList()" [value]="cat">{{ cat }}</option>
         </select>
       </div>
 
-      <div class="control-group">
+      <div class="filter-group select-group">
         <label>Metric</label>
         <select [ngModel]="selectedQueryId()" (ngModelChange)="selectedQueryId.set($event); onQueryChange()" class="form-select">
           <option *ngFor="let q of queriesInCategory()" [value]="q.id">{{ q.name }}</option>
         </select>
       </div>
 
-      <div class="query-description">
-        {{ currentQuery().description }}
+      <!-- Divider -->
+      <div class="filter-divider"></div>
+
+      <!-- Unified Filters -->
+      <div class="filter-group" [class.disabled-group]="!isFilterAllowed('watchYear')">
+        <label>Watch Year</label>
+        <input type="number" [(ngModel)]="globalFilters.watchYear" placeholder="e.g. 2024" class="form-input short-input" [disabled]="!isFilterAllowed('watchYear')">
+      </div>
+      
+      <div class="filter-group" [class.disabled-group]="!isFilterAllowed('releaseYear')">
+        <label>Release Year</label>
+        <input type="number" [(ngModel)]="globalFilters.releaseYear" placeholder="e.g. 1994" class="form-input short-input" [disabled]="!isFilterAllowed('releaseYear')">
       </div>
 
-      <!-- Dynamic Filters -->
-      <div class="dynamic-filters" *ngIf="currentQuery().inputs?.length">
-        <hr class="divider">
-        <h4>Custom Filters</h4>
-        
-        <div class="control-group" *ngFor="let input of currentQuery().inputs">
-          <label>{{ input.label }}</label>
-          
-          <ng-container *ngIf="input.type === 'number'">
-            <input type="number" [ngModel]="inputValues()[input.name]" (ngModelChange)="updateInput(input.name, $event)" class="form-input">
-          </ng-container>
-
-          <ng-container *ngIf="input.type === 'text'">
-            <input type="text" [ngModel]="inputValues()[input.name]" (ngModelChange)="updateInput(input.name, $event)" class="form-input">
-          </ng-container>
-
-          <ng-container *ngIf="input.type === 'select'">
-            <select [ngModel]="inputValues()[input.name]" (ngModelChange)="updateInput(input.name, $event)" class="form-select">
-              <option *ngFor="let opt of input.options" [value]="opt.value">{{ opt.label }}</option>
-            </select>
-          </ng-container>
+      <div class="filter-group rating-group" [class.disabled-group]="!isFilterAllowed('minRating')">
+        <label>Rating Range</label>
+        <div class="rating-inputs">
+          <input type="number" [(ngModel)]="globalFilters.minRating" step="0.5" min="0" max="5" placeholder="Min" class="form-input mini-input" [disabled]="!isFilterAllowed('minRating')">
+          <span>-</span>
+          <input type="number" [(ngModel)]="globalFilters.maxRating" step="0.5" min="0" max="5" placeholder="Max" class="form-input mini-input" [disabled]="!isFilterAllowed('maxRating')">
         </div>
+      </div>
 
-        <button class="btn-primary full-width mt-4" (click)="runQuery()" [disabled]="loading()">
+      <div class="filter-group" [class.disabled-group]="!isFilterAllowed('actor')">
+        <label>Actor</label>
+        <input type="text" [(ngModel)]="globalFilters.actor" placeholder="Name" class="form-input mini-input" [disabled]="!isFilterAllowed('actor')">
+      </div>
+
+      <div class="filter-group" [class.disabled-group]="!isFilterAllowed('director')">
+        <label>Director</label>
+        <input type="text" [(ngModel)]="globalFilters.director" placeholder="Name" class="form-input mini-input" [disabled]="!isFilterAllowed('director')">
+      </div>
+
+      <div class="filter-group" [class.disabled-group]="!isFilterAllowed('genre')">
+        <label>Genre</label>
+        <input type="text" [(ngModel)]="globalFilters.genre" placeholder="Name" class="form-input mini-input" [disabled]="!isFilterAllowed('genre')">
+      </div>
+
+      <!-- Dynamic Query Specific Inputs (if any) -->
+      <ng-container *ngIf="currentQuery().inputs?.length">
+        <div class="filter-divider"></div>
+        <div class="filter-group" *ngFor="let input of currentQuery().inputs">
+          <label>{{ input.label }}</label>
+          <input *ngIf="input.type === 'number'" type="number" [(ngModel)]="querySpecificInputs[input.name]" class="form-input short-input">
+          <input *ngIf="input.type === 'text'" type="text" [(ngModel)]="querySpecificInputs[input.name]" class="form-input short-input">
+          <select *ngIf="input.type === 'select'" [(ngModel)]="querySpecificInputs[input.name]" class="form-select short-input">
+            <option *ngFor="let opt of input.options" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+        </div>
+      </ng-container>
+
+      <!-- Action Button -->
+      <div class="action-group">
+        <button class="btn-primary analyze-btn" (click)="runQuery()" [disabled]="loading()">
           <span *ngIf="!loading()">Analyze</span>
           <span *ngIf="loading()">Crunching...</span>
         </button>
       </div>
+    </div>
+    <div class="query-description-bar">
+      <i class="icon-info"></i> {{ currentQuery().description }}
+    </div>
+  </div>
 
+  <!-- PROFESSIONAL RESULTS CANVAS -->
+  <div class="explorer-results professional-panel">
+    
+    <div class="loader-state" *ngIf="loading()">
+      <div class="pulse-green loader-pulse"></div>
+      <span>Crunching numbers...</span>
     </div>
 
-    <!-- Results Canvas -->
-    <div class="explorer-results">
+    <div class="empty-state" *ngIf="!loading() && !resultData()">
+      Configure your filters above and click Analyze.
+    </div>
+
+    <div class="results-content" *ngIf="!loading() && resultData()">
       
-      <div class="loader-state" *ngIf="loading()">
-        <div class="pulse-green loader-pulse"></div>
-        <span>Crunching numbers...</span>
-      </div>
-
-      <div class="results-content" *ngIf="!loading() && resultData()">
-        
-        <!-- GENERIC JSON DUMP TEMPORARY, WILL STYLE BASED ON TYPE -->
-        <ng-container *ngIf="currentQuery().type === 'list' && isArray(resultData())">
-          <div class="list-grid">
-            <div class="list-card glass-panel animate-slide-up" *ngFor="let item of resultData(); let i = index" [style.animation-delay]="i * 0.05 + 's'">
-              <div class="list-index">#{{ i + 1 }}</div>
-              <div class="list-content">
-                <h3 *ngIf="item.title">{{ item.title }}</h3>
-                <h3 *ngIf="item.name">{{ item.name }}</h3>
-                <h3 *ngIf="item.genreName">{{ item.genreName }}</h3>
-                <h3 *ngIf="item.directorName">{{ item.directorName }}</h3>
-                <h3 *ngIf="item.actorName">{{ item.actorName }}</h3>
-                <h3 *ngIf="item.decade !== undefined">{{ item.decade }}s</h3>
-                
-                <p *ngIf="item.count !== undefined" class="stat-highlight">{{ item.count }} <small>{{ selectedCategory().toLowerCase().includes('watchlist') ? 'pending' : 'watches' }}</small></p>
-                <p *ngIf="item.watchedCount && selectedCategory().toLowerCase().includes('watchlist')" class="stat-highlight">{{ item.watchedCount }} <small>watched</small></p>
-                <p *ngIf="item.watchCount !== undefined" class="stat-highlight">{{ item.watchCount }} <small>{{ selectedCategory().toLowerCase().includes('watchlist') ? 'pending' : 'watches' }}</small></p>
-                <div *ngIf="item.averageRating !== undefined" class="stat-highlight">
-                  <span *ngIf="item.averageRating > 0">{{ item.averageRating | number:'1.1-2' }} <small>avg rating</small></span>
-                  <span *ngIf="item.averageRating === 0" class="elegant-unrated">No ratings yet</span>
-                </div>
-                <p *ngIf="item.highestRatedMovieTitle" class="stat-highlight">Best: {{ item.highestRatedMovieTitle }}</p>
-                <p *ngIf="item.releaseYear">{{ item.releaseYear }}</p>
-                <p *ngIf="item.streakLength" class="stat-highlight">{{ item.streakLength }} <small>streak</small></p>
-                <p *ngIf="item.actor1 && item.actor2">{{ item.actor1 }} & {{ item.actor2 }} ({{ item.count }} movies)</p>
-              </div>
-            </div>
-            
-            <div class="no-data" *ngIf="resultData().length === 0">
-              No results found for these filters.
-            </div>
+      <!-- LIST VIEW (TABULAR) -->
+      <ng-container *ngIf="currentQuery().type === 'list' && isArray(resultData())">
+        <div class="table-container animate-fade-in">
+          <table class="glass-table">
+            <thead>
+              <tr>
+                <th *ngFor="let col of getColNames()" (click)="sortBy(col)" [class.sortable]="true">
+                  {{ formatColName(col) }}
+                  <span class="sort-icon" *ngIf="sortColumn() === col">
+                    {{ sortDirection() === 'asc' ? '▲' : '▼' }}
+                  </span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of sortedResultData(); let i = index" class="animate-slide-up" [style.animation-delay]="(i % 10) * 0.02 + 's'">
+                <td *ngFor="let col of getColNames()">
+                  <!-- Generic formatting based on key -->
+                  <ng-container *ngIf="col.toLowerCase().includes('rating') && item[col] === 0">
+                    <span class="elegant-unrated">No ratings</span>
+                  </ng-container>
+                  <ng-container *ngIf="col.toLowerCase().includes('rating') && item[col] > 0">
+                    <span class="rating-badge">{{ item[col] | number:'1.1-2' }}</span>
+                  </ng-container>
+                  <ng-container *ngIf="!col.toLowerCase().includes('rating') && col.toLowerCase() !== 'liked'">
+                    {{ item[col] }}
+                  </ng-container>
+                  <ng-container *ngIf="col.toLowerCase() === 'liked'">
+                    <span *ngIf="item[col]" style="color: #e25c5c; font-size: 1.2rem;">❤️</span>
+                    <span *ngIf="!item[col]" style="color: rgba(255,255,255,0.25); font-size: 1.2rem; filter: grayscale(100%); opacity: 0.4;">❤️</span>
+                  </ng-container>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="no-data-msg" *ngIf="resultData().length === 0">
+            No results found for these filters.
           </div>
-        </ng-container>
+        </div>
+      </ng-container>
 
-        <ng-container *ngIf="currentQuery().type === 'single' && isSingle(resultData())">
-          <div class="hero-card glass-panel animate-scale-in">
-            <ng-container *ngIf="!hasNoData(resultData())">
-              <h2 class="hero-title" *ngIf="resultData().name || resultData().title || resultData().genreName || resultData().directorName || resultData().actorName || resultData().eraName">
+      <!-- SINGLE METRIC VIEW -->
+      <ng-container *ngIf="currentQuery().type === 'single' && isSingle(resultData())">
+        <div class="hero-card animate-scale-in">
+          <ng-container *ngIf="!hasNoData(resultData())">
+            <h2 class="hero-title" *ngIf="resultData().name || resultData().title || resultData().genreName || resultData().directorName || resultData().actorName || resultData().eraName">
               {{ resultData().name || resultData().title || resultData().genreName || resultData().directorName || resultData().actorName || resultData().eraName }}
             </h2>
-            <div class="hero-stats">
+            <div class="hero-stats-grid">
               <div class="stat-box" *ngIf="resultData().count !== undefined">
                 <span class="value">{{ resultData().count }}</span>
                 <span class="label">{{ selectedCategory().toLowerCase().includes('watchlist') ? 'Pending' : 'Watches' }}</span>
@@ -119,113 +168,101 @@
                 <span class="label">Watched</span>
               </div>
               <div class="stat-box" *ngIf="resultData().totalMinutes !== undefined">
-                <span class="value">{{ resultData().totalHours }}h {{ resultData().totalMinutes % 60 }}m</span>
+                <span class="value">{{ resultData().totalHours }}<span class="unit">h</span> {{ resultData().totalMinutes % 60 }}<span class="unit">m</span></span>
                 <span class="label">Time Invested</span>
               </div>
-                <div class="stat-box" *ngIf="resultData().averageRating !== undefined">
-                  <span class="value" *ngIf="resultData().averageRating > 0">{{ resultData().averageRating | number:'1.1-2' }}</span>
-                  <span class="value unrated-text" *ngIf="resultData().averageRating === 0">N/A</span>
-                  <span class="label">Avg Rating</span>
-                </div>
+              <div class="stat-box" *ngIf="resultData().averageRating !== undefined">
+                <span class="value" *ngIf="resultData().averageRating > 0">{{ resultData().averageRating | number:'1.1-2' }}</span>
+                <span class="value unrated-text" *ngIf="resultData().averageRating === 0">N/A</span>
+                <span class="label">Avg Rating</span>
+              </div>
               <div class="stat-box" *ngIf="resultData().actorName">
                 <span class="value">{{ resultData().actorName }}</span>
                 <span class="label">Actor</span>
               </div>
             </div>
-            </ng-container>
-            
-            <div class="no-data" *ngIf="hasNoData(resultData())">
-              No viewing history found in your registers for this filter.
+          </ng-container>
+          
+          <div class="no-data-msg" *ngIf="hasNoData(resultData())">
+            No viewing history found for this combination of filters.
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- COMPARISON VIEW -->
+      <ng-container *ngIf="currentQuery().type === 'comparison' && isSingle(resultData())">
+        <div class="comparison-card animate-fade-in">
+          <ng-container *ngIf="resultData().classicCount !== undefined">
+            <div class="comp-side">
+              <h3>Classic</h3>
+              <span class="comp-val">{{ resultData().classicCount }}</span>
+            </div>
+            <div class="comp-vs">VS</div>
+            <div class="comp-side">
+              <h3>Modern</h3>
+              <span class="comp-val">{{ resultData().modernCount }}</span>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="resultData().weekendWatches !== undefined">
+            <div class="comp-side">
+              <h3>Weekend</h3>
+              <span class="comp-val">{{ resultData().weekendWatches }}</span>
+            </div>
+            <div class="comp-vs">VS</div>
+            <div class="comp-side">
+              <h3>Weekday</h3>
+              <span class="comp-val">{{ resultData().weekdayWatches }}</span>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="resultData().averageRatingNormal !== undefined">
+            <div class="comp-side">
+              <h3>Normal (1-2)</h3>
+              <span class="comp-val">{{ resultData().averageRatingNormal | number:'1.1-2' }}</span>
+            </div>
+            <div class="comp-vs">VS</div>
+            <div class="comp-side">
+              <h3>Binge (3+)</h3>
+              <span class="comp-val">{{ resultData().averageRatingBinge | number:'1.1-2' }}</span>
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+
+      <!-- CHART VIEW -->
+      <ng-container *ngIf="currentQuery().type === 'chart' && isArray(resultData())">
+        <div class="chart-card animate-fade-in">
+          <div class="css-chart horizontal-scroll">
+            <div class="bar-col" *ngFor="let item of resultData()">
+              <div class="bar-value">{{ item.count || (item.averageRating | number:'1.1-2') || item.totalWatches || item.shortCount }}</div>
+              <div class="bar-fill-container">
+                <div class="bar-fill" [style.height.%]="((item.count || item.averageRating || item.totalWatches || item.shortCount || 0) / getChartMaxValue()) * 100"></div>
+              </div>
+              <div class="bar-label">
+                {{ item.dayOfWeek || item.month || item.genreName || item.durationCategory || item.eraName || item.decade || 'Item' }}
+              </div>
             </div>
           </div>
-        </ng-container>
-
-        <ng-container *ngIf="currentQuery().type === 'comparison' && isSingle(resultData())">
-          <div class="comparison-card glass-panel animate-fade-in">
-            <!-- Era Breakdown -->
-            <ng-container *ngIf="resultData().classicCount !== undefined">
-              <div class="comp-side">
-                <h3 class="classic-text">Classic</h3>
-                <span class="comp-val">{{ resultData().classicCount }}</span>
-                <small>movies</small>
-              </div>
-              <div class="comp-vs">VS</div>
-              <div class="comp-side">
-                <h3 class="modern-text">Modern</h3>
-                <span class="comp-val">{{ resultData().modernCount }}</span>
-                <small>movies</small>
-              </div>
-            </ng-container>
-
-            <!-- Weekend Warrior -->
-            <ng-container *ngIf="resultData().weekendWatches !== undefined">
-              <div class="comp-side">
-                <h3 class="classic-text">Weekend</h3>
-                <span class="comp-val">{{ resultData().weekendWatches }}</span>
-              </div>
-              <div class="comp-vs">VS</div>
-              <div class="comp-side">
-                <h3 class="modern-text">Weekday</h3>
-                <span class="comp-val">{{ resultData().weekdayWatches }}</span>
-              </div>
-            </ng-container>
-
-            <!-- Cinematic Fatigue -->
-            <ng-container *ngIf="resultData().averageRatingNormal !== undefined">
-              <div class="comp-side">
-                <h3 class="classic-text">Normal (1-2)</h3>
-                <span class="comp-val">{{ resultData().averageRatingNormal | number:'1.1-2' }}</span>
-                <small>avg rating</small>
-              </div>
-              <div class="comp-vs">VS</div>
-              <div class="comp-side">
-                <h3 class="modern-text">Binge (3+)</h3>
-                <span class="comp-val">{{ resultData().averageRatingBinge | number:'1.1-2' }}</span>
-                <small>avg rating</small>
-              </div>
-            </ng-container>
-          </div>
-        </ng-container>
-
-        <ng-container *ngIf="currentQuery().type === 'chart' && isArray(resultData())">
-          <div class="chart-card glass-panel full-width animate-fade-in">
-            <div class="css-chart horizontal-scroll">
-              <div class="bar-col" *ngFor="let item of resultData()">
-                <div class="bar-value">{{ item.count || (item.averageRating | number:'1.1-2') || item.totalWatches || item.shortCount }}</div>
-                <div class="bar-fill-container">
-                  <div class="bar-fill" [style.height.%]="((item.count || item.averageRating || item.totalWatches || item.shortCount || 0) / getChartMaxValue()) * 100"></div>
-                </div>
-                <div class="bar-label">
-                  {{ item.dayOfWeek || item.month || item.genreName || item.decade || 'Item' }}
-                </div>
-              </div>
-            </div>
-            
-            <!-- Specific handling for duration balance -->
-            <ng-container *ngIf="resultData()[0]?.shortCount !== undefined">
-               <div class="hero-stats mt-4">
-                 <div class="stat-box" *ngFor="let item of resultData()">
-                    <span class="label">Short (<90m)</span>
-                    <span class="value">{{ item.shortCount }}</span>
-                    <br>
-                    <span class="label">Medium</span>
-                    <span class="value">{{ item.mediumCount }}</span>
-                    <br>
-                    <span class="label">Long (>150m)</span>
-                    <span class="value">{{ item.longCount }}</span>
-                 </div>
+          
+          <ng-container *ngIf="resultData()[0]?.shortCount !== undefined">
+             <div class="hero-stats-grid mt-4">
+               <div class="stat-box" *ngFor="let item of resultData()">
+                  <span class="label">Short (<90m)</span>
+                  <span class="value">{{ item.shortCount }}</span>
+                  <br>
+                  <span class="label">Medium</span>
+                  <span class="value">{{ item.mediumCount }}</span>
+                  <br>
+                  <span class="label">Long (>150m)</span>
+                  <span class="value">{{ item.longCount }}</span>
                </div>
-            </ng-container>
-          </div>
-        </ng-container>
+             </div>
+          </ng-container>
+        </div>
+      </ng-container>
 
-      </div>
-      
-      <div class="empty-state" *ngIf="!loading() && !resultData()">
-        Select a query and click Analyze.
-      </div>
-      
     </div>
-
   </div>
+
 </div>

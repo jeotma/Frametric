@@ -14,7 +14,7 @@ public record AnalyticsFilterDto
     public int? ReleaseYear { get; init; }
     public decimal? MinRating { get; init; }
     public decimal? MaxRating { get; init; }
-    public int? GenreId { get; init; }
-    public int? DirectorId { get; init; }
-    public int? ActorId { get; init; }
+    public string? Genre { get; init; }
+    public string? Director { get; init; }
+    public string? Actor { get; init; }
 }
