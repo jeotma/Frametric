@@ -10,35 +10,42 @@ When a user uploads a Letterboxd `.zip` file, the `LetterboxdCsvImporter` can on
 - Release Year
 - Letterboxd URI
 
-Analytics heavily depend on Genres and Directors, making this raw data insufficient.
+Analytics heavily depend on Genres, Directors, Runtimes, and Cast. This makes raw CSV data insufficient on its own.
+
+---
 
 ## The Asynchronous Solution
 
-To keep the initial ZIP parsing fast and prevent hitting TMDB API rate limits synchronously during the HTTP request, the system uses a Background Job pattern.
+To keep the initial ZIP parsing fast and prevent hitting TMDB API rate limits synchronously during the HTTP request, the system uses an in-memory **Producer-Consumer** background queue.
 
 ### 1. Ingestion Phase
 
 1. User uploads the ZIP file.
 2. The system parses the CSV files and generates `Movie` entities.
-3. These `Movie` entities are inserted into the database with an initial `EnrichmentStatus = Pending`.
-4. The system returns a success response to the user immediately.
+3. These `Movie` entities are inserted into the database with `EnrichmentStatus = Pending`.
+4. The import batch status is set to `Enriching` inside `ImportHistory`.
+5. The API layer fires `ITmdbEnrichmentTrigger.TriggerEnrichment()` which writes to an in-memory `System.Threading.Channels.Channel`.
+6. The system returns a success response to the user immediately.
 
 ### 2. Enrichment Phase (Background Job)
 
-1. A background processor (e.g., Hangfire or Quartz.NET) periodically polls for `Movie` entities where `EnrichmentStatus == Pending`.
-2. For each pending movie, an `ITmdbClient` (Infrastructure layer) makes an HTTP request to the TMDB API.
-3. The search is performed using the `Title` and `ReleaseYear`.
+1. `TmdbEnrichmentBackgroundService` listens to the channel.
+2. Upon receiving a trigger (or during application startup sweeps), it queries PostgreSQL for movies where `EnrichmentStatus == Pending` in batches of **20**.
+3. For each pending movie, the `ITmdbClient` makes an HTTP request to the TMDB API using the `Title` and `ReleaseYear`.
 4. Once a match is found, the system extracts:
    - `RuntimeMinutes`
    - `PosterUrl`
-   - List of `Genres`
-   - List of `Directors` (via Credits endpoint)
-   - List of top-billed `Actors` (via Credits endpoint, limited to main cast to avoid DB bloat)
+   - List of `Genres` (mapped to local DB)
+   - List of `Directors` (via Credits)
+   - List of top-billed `Actors` (via Credits, limited to the primary cast to avoid DB bloat)
 5. The system saves the new relationships (`GenreMovie`, `DirectorMovie`, `ActorMovie`) to the database.
-6. The `Movie.EnrichmentStatus` is updated to `Completed` (or `Failed` if no match was found).
+6. The `Movie.EnrichmentStatus` is updated to `Completed` (or `Failed` if no match was found on TMDB).
+7. If a batch contains `0` pending movies, the background worker fires `MarkImportsCompletedCommand` to transition the import batch status from `Enriching` to `Success` inside `ImportHistory`.
 
-### 3. Resilience & Rate Limiting
+---
 
-- **Rate Limits:** The background job must respect TMDB rate limits. Requests should be throttled (e.g., via `Polly` policies) or processed in safe batches.
-- **Retries:** Network failures should trigger a retry mechanism.
-- **Failures:** If a movie simply doesn't exist on TMDB, its status becomes `Failed`, allowing the system to ignore it in future sweeps without crashing the analytics.
+## Resilience & Rate Limiting
+
+- **Rate Limits**: The background job respects external API limit recommendations. It throttles processing by waiting for **10 seconds** between database batches.
+- **Retries**: Transient failures are logged, and the service sleeps for **30 seconds** before retrying to prevent crashing the worker thread.
+- **Unmatched Movies**: If a movie cannot be found on TMDB, its status is marked as `Failed`. This allows the dashboard queries to execute while avoiding repeated API queries on subsequent sweeps.

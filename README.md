@@ -1,22 +1,20 @@
 # Frametric
 
-**Frametric** is a modern cinematic analytics platform inspired by services such as Letterboxd and Spotify Wrapped. It acts as a centralized audiovisual data engine capable of ingesting, normalizing, and analyzing viewing activity from multiple sources.
+**Frametric** is a premium cinematic analytics platform inspired by services such as Letterboxd and Spotify Wrapped. It processes, normalizes, and enriches a user's historical viewing activity to generate advanced data intelligence and highly interactive year-in-review presentations.
 
-Built with .NET 9 and a modular architecture designed for long-term scalability.
+The backend is built with **.NET 9** as a modular data engine that ingests bulk source archives (initially Letterboxd ZIP exports), normalizes them, asynchronously enriches them with the TMDB API's metadata (runtimes, posters, cast/crew), and exposes them via a high-performance REST API. The frontend is an **Angular 19** standalone application featuring interactive analytics dashboards and a beautiful cinematic slide experience known as **"The Final Cut"**.
 
 ---
 
 ## Core Vision
 
-Frametric is not a Letterboxd clone.
+Frametric is a dedicated cinematic intelligence engine designed to:
 
-It is a cinematic data intelligence platform designed to:
-
-- Aggregate viewing activity from multiple providers
-- Normalize heterogeneous data structures
-- Generate advanced analytics and “Wrapped”-style insights
-- Support multiple clients (Web, Mobile, Dashboards)
-- Maintain strict separation of concerns
+- **Ingest & Normalize**: Safely parse, clean, and deduplicate bulk exports (e.g., Letterboxd CSVs/ZIPs) in memory without leaking provider-specific structures.
+- **Asynchronously Enrich**: Auto-supplement basic CSV logs with detailed metadata (genres, runtimes, posters, directors, and top cast) from TMDB in the background.
+- **Generate Advanced Insights**: Execute high-performance Dapper queries to uncover deep viewing patterns (e.g., casting repetitions, rating trends, weekend binge habits, watchlist graveyards).
+- **Cinematic Presentation**: Render **"The Final Cut"**—a custom, micro-animated Spotify Wrapped-style slideshow.
+- **Clean Architecture & Decoupling**: Maintain provider-agnostic domain entities and strict layer separation for long-term scalability.
 
 ---
 
@@ -107,39 +105,38 @@ Core entities:
 ### Commands
 
 - RegisterUserCommand
-- ImportLetterboxdZipCommand
-- GenerateWrappedSummaryCommand
+- LoginUserCommand
+- ImportLetterboxdArchiveCommand
+- DeleteImportCommand
+- EnrichPendingMoviesCommand
+- MarkImportsCompletedCommand
 
 ### Queries (Dapper optimized)
 
-- GetTopGenresQuery
-- GetTopDirectorsQuery
-- GetYearSummaryQuery
+- GetDashboardSummaryQuery
+- GetWrappedSummaryQuery
 - GetMonthlyActivityQuery
+- GetTopDirectorsQuery
+- GetImportHistoryQuery
+- Advanced Analytics Queries (e.g., Watched & Watchlist stats, Bonus, and Final Cut stats)
 
 ---
 
 ## API & Security
 
-- Versioned API: /api/v1/
-- OpenAPI / Swagger
-- JWT authentication + refresh tokens
-- Role-based authorization
-- FluentValidation pipeline
+- Versioned API under `/api/` (Auth, Import, Analytics, and Advanced Analytics)
+- OpenAPI / Swagger integration
+- JWT authentication + sliding-expiration refresh tokens
+- Role-based authorization claims
+- Request validation via FluentValidation pipeline
 
 ---
 
 ## Background Processing
 
-Future support:
-
-- Hangfire or Quartz.NET
-
-Use cases:
-
-- Async analytics
-- Wrapped generation
-- Maintenance jobs
+- **TMDB Enrichment Pipeline**: Asynchronous background worker using `System.Threading.Channels` for in-memory producer-consumer queueing.
+- **Batch Processing**: Enriches imported movie catalog with Director, Actor, Genre, and Poster metadata from TMDB in throttled batches to respect rate limits.
+- **History Status Lifecycle**: Updates import progress dynamically and flags failed TMDB lookups to avoid redundant calls.
 
 ---
 

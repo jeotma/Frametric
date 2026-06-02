@@ -145,13 +145,13 @@ CQRS fits efficiently due to the intensive analytical nature of the platform.
 
 ---
 
-## 9. Background Processing (Should Have)
+## 9. Background Processing
 
-While the MVP focuses on synchronous transaction validation within the API pipeline, background orchestration via **Hangfire** or **Quartz.NET** is scheduled for progressive execution:
+Frametric implements an in-memory Channel-based background worker pipeline for movie metadata enrichment:
 
-* Asynchronous analytics calculation.
-* Automated historical summary generation.
-* Periodic database maintenance tasks.
+* **Trigger Mechanism**: Signals the background service when imports complete using System.Threading.Channels.
+* **Batch Processing**: Enriches movies asynchronously in batches of 20 with rate-limit delays to respect external APIs (TMDB).
+* **Future Caching & Tasks**: Caching orchestration and periodic database maintenance remain planned for future updates.
 
 ---
 
@@ -206,7 +206,7 @@ The testing strategy strictly follows the **Testing Pyramid**, prioritizing fast
 ### End-to-End (E2E) Testing
 
 * **Scope:** Critical user journeys from frontend to database.
-* **Tools:** Cypress.
+* **Tools:** Playwright.
 * **Key Scenarios:**
   * User registration and login.
   * ZIP file upload and data ingestion.
