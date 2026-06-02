@@ -5,7 +5,7 @@ using MediatR;
 namespace Frametric.Application.Queries.Analytics.Bonus;
 
 // 33. Weekend Warrior vs Weekday Watcher
-public record GetWeekendWarriorStatsQuery(Guid UserId, int? Year = null) : IRequest<WeekendWarriorDto?>;
+public record GetWeekendWarriorStatsQuery(Guid UserId, AnalyticsFilterDto Filter) : IRequest<WeekendWarriorDto?>;
 public class GetWeekendWarriorStatsQueryHandler : IRequestHandler<GetWeekendWarriorStatsQuery, WeekendWarriorDto?>
 {
     private readonly IBonusQueries _queries;
@@ -13,12 +13,12 @@ public class GetWeekendWarriorStatsQueryHandler : IRequestHandler<GetWeekendWarr
 
     public async Task<WeekendWarriorDto?> Handle(GetWeekendWarriorStatsQuery request, CancellationToken ct)
     {
-        return await _queries.GetWeekendWarriorStatsAsync(request.UserId, request.Year, ct);
+        return await _queries.GetWeekendWarriorStatsAsync(request.UserId, request.Filter, ct);
     }
 }
 
 // 34. Hidden Gems
-public record GetHiddenGemsQuery(Guid UserId, int? Year = null) : IRequest<IEnumerable<MovieSimpleDto>>;
+public record GetHiddenGemsQuery(Guid UserId, AnalyticsFilterDto Filter) : IRequest<IEnumerable<MovieSimpleDto>>;
 public class GetHiddenGemsQueryHandler : IRequestHandler<GetHiddenGemsQuery, IEnumerable<MovieSimpleDto>>
 {
     private readonly IBonusQueries _queries;
@@ -26,12 +26,12 @@ public class GetHiddenGemsQueryHandler : IRequestHandler<GetHiddenGemsQuery, IEn
 
     public async Task<IEnumerable<MovieSimpleDto>> Handle(GetHiddenGemsQuery request, CancellationToken ct)
     {
-        return await _queries.GetHiddenGemsAsync(request.UserId, request.Year, ct);
+        return await _queries.GetHiddenGemsAsync(request.UserId, request.Filter, ct);
     }
 }
 
 // 35. Watchlist Graveyard (Movies in watchlist for the longest time that haven't been watched)
-public record GetWatchlistGraveyardQuery(Guid UserId) : IRequest<IEnumerable<MovieSimpleDto>>;
+public record GetWatchlistGraveyardQuery(Guid UserId, AnalyticsFilterDto Filter) : IRequest<IEnumerable<MovieSimpleDto>>;
 public class GetWatchlistGraveyardQueryHandler : IRequestHandler<GetWatchlistGraveyardQuery, IEnumerable<MovieSimpleDto>>
 {
     private readonly IBonusQueries _queries;
@@ -39,12 +39,12 @@ public class GetWatchlistGraveyardQueryHandler : IRequestHandler<GetWatchlistGra
 
     public async Task<IEnumerable<MovieSimpleDto>> Handle(GetWatchlistGraveyardQuery request, CancellationToken ct)
     {
-        return await _queries.GetWatchlistGraveyardAsync(request.UserId, ct);
+        return await _queries.GetWatchlistGraveyardAsync(request.UserId, request.Filter, ct);
     }
 }
 
 // 36. Cinematic Fatigue Expanded (The Binge Toll - includes binge vs light day ratings + lowest activity periods)
-public record GetCinematicFatigueQuery(Guid UserId, int Year) : IRequest<CinematicFatigueExpandedDto?>;
+public record GetCinematicFatigueQuery(Guid UserId, AnalyticsFilterDto Filter) : IRequest<CinematicFatigueExpandedDto?>;
 public class GetCinematicFatigueQueryHandler : IRequestHandler<GetCinematicFatigueQuery, CinematicFatigueExpandedDto?>
 {
     private readonly IBonusQueries _queries;
@@ -52,6 +52,9 @@ public class GetCinematicFatigueQueryHandler : IRequestHandler<GetCinematicFatig
 
     public async Task<CinematicFatigueExpandedDto?> Handle(GetCinematicFatigueQuery request, CancellationToken ct)
     {
-        return await _queries.GetCinematicFatigueExpandedAsync(request.UserId, request.Year, ct);
+        return await _queries.GetCinematicFatigueExpandedAsync(request.UserId, request.Filter, ct);
     }
 }
+
+
+

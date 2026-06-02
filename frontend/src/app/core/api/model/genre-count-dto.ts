@@ -10,7 +10,8 @@
 
 
 export interface GenreCountDto { 
-    genreName: string;
-    count: number;
+    genreName?: string;
+    count?: number;
+    watchedCount?: number;
 }
 

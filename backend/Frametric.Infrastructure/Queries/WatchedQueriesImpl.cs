@@ -12,134 +12,197 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
     public WatchedQueriesImpl(IDbConnectionFactory db) => _dbConnectionFactory = db;
 
     // --- Basic Queries ---
-    public async Task<IEnumerable<MovieSimpleDto>> GetMoviesByReleaseYearAsync(Guid userId, int releaseYear, CancellationToken ct = default)
+    public async Task<IEnumerable<MovieSimpleDto>> GetMoviesByReleaseYearAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath""
             FROM ""WatchedMovies"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
-            WHERE w.""UserId"" = @userId AND m.""ReleaseYear"" = @releaseYear";
-        return await connection.QueryAsync<MovieSimpleDto>(sql, new { userId, releaseYear });
+            
+            {filterBuilder.BuildJoins()}
+            WHERE w.""UserId"" = @userId AND m.""ReleaseYear"" = @releaseYear
+            {filterBuilder.BuildWhereClause()}
+            ";
+        return await connection.QueryAsync<MovieSimpleDto>(sql, parameters);
     }
 
-    public async Task<IEnumerable<DirectorCountDto>> GetDirectorsAsync(Guid userId, int? year = null, CancellationToken ct = default)
+    public async Task<IEnumerable<DirectorCountDto>> GetDirectorsAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM ""WatchedMovies"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
             LEFT JOIN ""MovieRatings"" mr ON w.""MovieId"" = mr.""MovieId"" AND mr.""UserId"" = @userId
-            WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year)
+            
+            {filterBuilder.BuildJoins()}
+            WHERE w.""UserId"" = @userId 
+            
+            {filterBuilder.BuildWhereClause()}
             GROUP BY dr.""Name""
             ORDER BY Count DESC, dr.""Name""";
-        return await connection.QueryAsync<DirectorCountDto>(sql, new { userId, year });
+        return await connection.QueryAsync<DirectorCountDto>(sql, parameters);
     }
 
-    public async Task<IEnumerable<ActorCountDto>> GetActorsAsync(Guid userId, int? year = null, CancellationToken ct = default)
+    public async Task<IEnumerable<ActorCountDto>> GetActorsAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM ""WatchedMovies"" w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
+            {filterBuilder.BuildJoins()}
             LEFT JOIN ""MovieRatings"" mr ON w.""MovieId"" = mr.""MovieId"" AND mr.""UserId"" = @userId
-            WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year)
+            WHERE w.""UserId"" = @userId 
+            {filterBuilder.BuildWhereClause()}
             GROUP BY a.""Name""
             ORDER BY Count DESC, a.""Name""";
-        return await connection.QueryAsync<ActorCountDto>(sql, new { userId, year });
+        return await connection.QueryAsync<ActorCountDto>(sql, parameters);
     }
 
-    public async Task<IEnumerable<GenreCountDto>> GetMoviesByGenreAsync(Guid userId, CancellationToken ct = default)
+    public async Task<IEnumerable<GenreCountDto>> GetMoviesByGenreAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             SELECT g.""Name"" AS GenreName, CAST(COUNT(*) AS INTEGER) AS Count
             FROM ""WatchedMovies"" w
             JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
             JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
-            WHERE w.""UserId"" = @userId
+            {filterBuilder.BuildJoins()}
+            WHERE w.""UserId"" = @userId 
+            {filterBuilder.BuildWhereClause()}
             GROUP BY g.""Name""
             ORDER BY Count DESC, g.""Name""";
-        return await connection.QueryAsync<GenreCountDto>(sql, new { userId });
+        return await connection.QueryAsync<GenreCountDto>(sql, parameters);
     }
 
-    public async Task<IEnumerable<DecadeCountDto>> GetMoviesByDecadeAsync(Guid userId, int? year = null, CancellationToken ct = default)
+    public async Task<IEnumerable<DecadeCountDto>> GetMoviesByDecadeAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: true);
+        string sql = $@"
             SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, CAST(COUNT(*) AS INTEGER) AS Count
             FROM ""WatchedMovies"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
-            WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year) AND m.""ReleaseYear"" IS NOT NULL
+            {filterBuilder.BuildJoins()}
+            WHERE w.""UserId"" = @userId AND m.""ReleaseYear"" IS NOT NULL 
+            {filterBuilder.BuildWhereClause()}
             GROUP BY Decade
             ORDER BY Decade ASC";
-        return await connection.QueryAsync<DecadeCountDto>(sql, new { userId, year });
+        return await connection.QueryAsync<DecadeCountDto>(sql, parameters);
     }
 
     // --- Advanced Stats ---
-    public async Task<ActorCountDto?> GetMostRepeatedActorAsync(Guid userId, CancellationToken ct = default)
+    public async Task<ActorCountDto?> GetMostRepeatedActorAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM ""WatchedMovies"" w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
             LEFT JOIN ""MovieRatings"" mr ON w.""MovieId"" = mr.""MovieId"" AND mr.""UserId"" = @userId
+            
+            {filterBuilder.BuildJoins()}
             WHERE w.""UserId"" = @userId
+            
+            {filterBuilder.BuildWhereClause()}
             GROUP BY a.""Name""
             ORDER BY Count DESC
             LIMIT 1";
-        return await connection.QuerySingleOrDefaultAsync<ActorCountDto>(sql, new { userId });
+        return await connection.QuerySingleOrDefaultAsync<ActorCountDto>(sql, parameters);
     }
 
-    public async Task<DirectorCountDto?> GetMostWatchedDirectorAsync(Guid userId, CancellationToken ct = default)
+    public async Task<DirectorCountDto?> GetMostWatchedDirectorAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM ""WatchedMovies"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
             LEFT JOIN ""MovieRatings"" mr ON w.""MovieId"" = mr.""MovieId"" AND mr.""UserId"" = @userId
+            
+            {filterBuilder.BuildJoins()}
             WHERE w.""UserId"" = @userId
+            
+            {filterBuilder.BuildWhereClause()}
             GROUP BY dr.""Name""
             ORDER BY Count DESC
             LIMIT 1";
-        return await connection.QuerySingleOrDefaultAsync<DirectorCountDto>(sql, new { userId });
+        return await connection.QuerySingleOrDefaultAsync<DirectorCountDto>(sql, parameters);
     }
 
-    public async Task<EraBreakdownDto?> GetPredominantEraAsync(Guid userId, int? year = null, CancellationToken ct = default)
+    public async Task<EraBreakdownDto?> GetPredominantEraAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             SELECT 
                 CASE WHEN m.""ReleaseYear"" <= 1980 THEN 'Classic (Pre-1980)' ELSE 'Modern (Post-1980)' END AS EraName,
                 CAST(COUNT(*) AS INTEGER) AS Count
             FROM ""WatchedMovies"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
-            WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year) AND m.""ReleaseYear"" IS NOT NULL
+            
+            {filterBuilder.BuildJoins()}
+            WHERE w.""UserId"" = @userId  AND m.""ReleaseYear"" IS NOT NULL
+            
+            {filterBuilder.BuildWhereClause()}
             GROUP BY EraName
             ORDER BY Count DESC
             LIMIT 1";
-        return await connection.QuerySingleOrDefaultAsync<EraBreakdownDto>(sql, new { userId, year });
+        return await connection.QuerySingleOrDefaultAsync<EraBreakdownDto>(sql, parameters);
     }
 
-    public async Task<IEnumerable<DirectorLeaderboardDto>> GetDirectorRankingByRatingAsync(Guid userId, CancellationToken ct = default)
+    public async Task<IEnumerable<DirectorLeaderboardDto>> GetDirectorRankingByRatingAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             WITH DirectorStats AS (
                 SELECT dr.""Id"" AS DirectorId, dr.""Name"" AS Name, CAST(COUNT(mr.""Id"") AS INTEGER) AS WatchCount, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
                 FROM ""MovieRatings"" mr
                 JOIN ""MovieDirector"" md ON mr.""MovieId"" = md.""MoviesId""
                 JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
-                WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
-                GROUP BY dr.""Id"", dr.""Name""
+                
+            {filterBuilder.BuildJoins()}
+            WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
+                
+            {filterBuilder.BuildWhereClause()}
+            GROUP BY dr.""Id"", dr.""Name""
                 HAVING COUNT(mr.""Id"") >= 2
             ),
             HighestRated AS (
@@ -158,10 +221,10 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             JOIN HighestRated hr ON ds.DirectorId = hr.DirectorId
             ORDER BY ds.AverageRating DESC, ds.WatchCount DESC
             LIMIT 20";
-        return await connection.QueryAsync<DirectorLeaderboardDto>(sql, new { userId });
+        return await connection.QueryAsync<DirectorLeaderboardDto>(sql, parameters);
     }
 
-    public async Task<TimeInvestedDto?> GetTotalTimeByDirectorOrGenreAsync(Guid userId, string filterType, string filterName, CancellationToken ct = default)
+    public async Task<TimeInvestedDto?> GetTotalTimeByDirectorOrGenreAsync(Guid userId, string filterType, string filterName, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         string joinSql = "";
@@ -200,14 +263,20 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
     }
 
     // --- Complex Correlations ---
-    public async Task<IEnumerable<PreferredDayDto>> GetPreferredWatchDayOfWeekAsync(Guid userId, CancellationToken ct = default)
+    public async Task<IEnumerable<PreferredDayDto>> GetPreferredWatchDayOfWeekAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             WITH AllWatched AS (
                 SELECT ""MovieId"", CAST(""WatchedDate"" AS DATE) AS WatchDate
                 FROM ""DiaryEntries""
-                WHERE ""UserId"" = @userId
+                
+            {filterBuilder.BuildJoins()}
+            WHERE ""UserId"" = @userId
 
                 UNION ALL
 
@@ -221,29 +290,37 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             )
             SELECT TRIM(TO_CHAR(WatchDate, 'Day')) AS DayOfWeek, CAST(COUNT(*) AS INTEGER) AS WatchCount
             FROM AllWatched
+            
+            {filterBuilder.BuildWhereClause()}
             GROUP BY DayOfWeek, EXTRACT(ISODOW FROM WatchDate)
             ORDER BY EXTRACT(ISODOW FROM WatchDate) ASC";
-        return await connection.QueryAsync<PreferredDayDto>(sql, new { userId });
+        return await connection.QueryAsync<PreferredDayDto>(sql, parameters);
     }
 
-    public async Task<IEnumerable<GenreStreakDto>> GetGenreStreakAsync(Guid userId, int? year = null, CancellationToken ct = default)
+    public async Task<IEnumerable<GenreStreakDto>> GetGenreStreakAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             WITH AllWatched AS (
                 SELECT ""MovieId"", CAST(""WatchedDate"" AS DATE) AS WatchDate
                 FROM ""DiaryEntries""
-                WHERE ""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM ""WatchedDate"") = @year)
+                
+            {filterBuilder.BuildJoins()}
+            WHERE ""UserId"" = @userId 
 
                 UNION ALL
 
                 SELECT ""MovieId"", CAST(""Date"" AS DATE) AS WatchDate
                 FROM ""WatchedMovies"" w
-                WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM ""Date"") = @year)
+                WHERE w.""UserId"" = @userId 
                 AND NOT EXISTS (
                     SELECT 1 FROM ""DiaryEntries"" d2
                     WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId""
-                    AND (@year IS NULL OR EXTRACT(YEAR FROM d2.""WatchedDate"") = @year)
+                    
                 )
             ),
             WatchedWithGenre AS (
@@ -263,7 +340,9 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                     MAX(WatchDate) as EndDate, 
                     CAST(COUNT(*) AS INTEGER) AS StreakLength
                 FROM WatchedWithGenre
-                GROUP BY GenreName, rn1 - rn2
+                
+            {filterBuilder.BuildWhereClause()}
+            GROUP BY GenreName, rn1 - rn2
             ),
             MaxStreaks AS (
                 SELECT GenreName, StreakLength, StartDate, EndDate,
@@ -276,43 +355,63 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             WHERE rank = 1
             ORDER BY StreakLength DESC
             LIMIT 10";
-        return await connection.QueryAsync<GenreStreakDto>(sql, new { userId, year });
+        return await connection.QueryAsync<GenreStreakDto>(sql, parameters);
     }
 
-    public async Task<WrappedMovieDto?> GetLongestWatchedMovieAsync(Guid userId, int? year = null, CancellationToken ct = default)
+    public async Task<WrappedMovieDto?> GetLongestWatchedMovieAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS PosterPath,
                    m.""RuntimeMinutes"", CAST(mr.""Score"" AS DOUBLE PRECISION) AS Rating
             FROM ""WatchedMovies"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = m.""Id"" AND mr.""UserId"" = @userId
-            WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year) AND m.""RuntimeMinutes"" IS NOT NULL
+            
+            {filterBuilder.BuildJoins()}
+            WHERE w.""UserId"" = @userId  AND m.""RuntimeMinutes"" IS NOT NULL
+            
+            {filterBuilder.BuildWhereClause()}
             ORDER BY m.""RuntimeMinutes"" DESC NULLS LAST
             LIMIT 1";
-        return await connection.QuerySingleOrDefaultAsync<WrappedMovieDto>(sql, new { userId, year });
+        return await connection.QuerySingleOrDefaultAsync<WrappedMovieDto>(sql, parameters);
     }
 
-    public async Task<WrappedMovieDto?> GetShortestWatchedMovieAsync(Guid userId, int? year = null, CancellationToken ct = default)
+    public async Task<WrappedMovieDto?> GetShortestWatchedMovieAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS PosterPath,
                    m.""RuntimeMinutes"", CAST(mr.""Score"" AS DOUBLE PRECISION) AS Rating
             FROM ""WatchedMovies"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = m.""Id"" AND mr.""UserId"" = @userId
-            WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year) AND m.""RuntimeMinutes"" IS NOT NULL AND m.""RuntimeMinutes"" > 0
+            
+            {filterBuilder.BuildJoins()}
+            WHERE w.""UserId"" = @userId  AND m.""RuntimeMinutes"" IS NOT NULL AND m.""RuntimeMinutes"" > 0
+            
+            {filterBuilder.BuildWhereClause()}
             ORDER BY m.""RuntimeMinutes"" ASC
             LIMIT 1";
-        return await connection.QuerySingleOrDefaultAsync<WrappedMovieDto>(sql, new { userId, year });
+        return await connection.QuerySingleOrDefaultAsync<WrappedMovieDto>(sql, parameters);
     }
 
-    public async Task<IEnumerable<DirectorActorPairDto>> GetDirectorActorPairingsAsync(Guid userId, int? year = null, CancellationToken ct = default)
+    public async Task<IEnumerable<DirectorActorPairDto>> GetDirectorActorPairingsAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             SELECT 
                 dr.""Name"" AS DirectorName,
                 a.""Name"" AS ActorName,
@@ -322,38 +421,50 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
-            WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year)
+            
+            {filterBuilder.BuildJoins()}
+            WHERE w.""UserId"" = @userId 
+            
+            {filterBuilder.BuildWhereClause()}
             GROUP BY dr.""Name"", a.""Name""
             HAVING COUNT(DISTINCT w.""MovieId"") >= 2
             ORDER BY CollaborationCount DESC
             LIMIT 10";
-        return await connection.QueryAsync<DirectorActorPairDto>(sql, new { userId, year });
+        return await connection.QueryAsync<DirectorActorPairDto>(sql, parameters);
     }
 
-    public async Task<PrimeTimeStatsDto?> GetPrimeTimeStatsAsync(Guid userId, int? year = null, CancellationToken ct = default)
+    public async Task<PrimeTimeStatsDto?> GetPrimeTimeStatsAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             WITH AllWatched AS (
                 SELECT ""MovieId"", CAST(""WatchedDate"" AS DATE) AS WatchDate
                 FROM ""DiaryEntries""
-                WHERE ""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM ""WatchedDate"") = @year)
+                
+            {filterBuilder.BuildJoins()}
+            WHERE ""UserId"" = @userId 
 
                 UNION ALL
 
                 SELECT ""MovieId"", CAST(""Date"" AS DATE) AS WatchDate
                 FROM ""WatchedMovies"" w
-                WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM ""Date"") = @year)
+                WHERE w.""UserId"" = @userId 
                 AND NOT EXISTS (
                     SELECT 1 FROM ""DiaryEntries"" d2
                     WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId""
-                    AND (@year IS NULL OR EXTRACT(YEAR FROM d2.""WatchedDate"") = @year)
+                    
                 )
             ),
             ByDay AS (
                 SELECT TRIM(TO_CHAR(WatchDate, 'Day')) AS DayName, EXTRACT(ISODOW FROM WatchDate) AS DowNum, CAST(COUNT(*) AS INTEGER) AS Cnt
                 FROM AllWatched
-                GROUP BY DayName, DowNum
+                
+            {filterBuilder.BuildWhereClause()}
+            GROUP BY DayName, DowNum
             ),
             ByMonth AS (
                 SELECT TO_CHAR(WatchDate, 'Month') AS MonthName, EXTRACT(MONTH FROM WatchDate) AS MonthNum, CAST(COUNT(*) AS INTEGER) AS Cnt
@@ -369,13 +480,17 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 (SELECT Cnt FROM ByDay ORDER BY Cnt ASC LIMIT 1) AS SlumpDayCount,
                 (SELECT TRIM(MonthName) FROM ByMonth ORDER BY Cnt ASC LIMIT 1) AS SlumpMonth,
                 (SELECT Cnt FROM ByMonth ORDER BY Cnt ASC LIMIT 1) AS SlumpMonthCount";
-        return await connection.QuerySingleOrDefaultAsync<PrimeTimeStatsDto>(sql, new { userId, year });
+        return await connection.QuerySingleOrDefaultAsync<PrimeTimeStatsDto>(sql, parameters);
     }
 
-    public async Task<IEnumerable<GenreWithRatingDto>> GetGenresWithRatingAsync(Guid userId, int? year = null, CancellationToken ct = default)
+    public async Task<IEnumerable<GenreWithRatingDto>> GetGenresWithRatingAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             SELECT 
                 g.""Name"" AS GenreName,
                 CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count,
@@ -384,33 +499,51 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
             JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId
-            WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year)
+            
+            {filterBuilder.BuildJoins()}
+            WHERE w.""UserId"" = @userId 
+            
+            {filterBuilder.BuildWhereClause()}
             GROUP BY g.""Name""
             ORDER BY Count DESC, g.""Name""";
-        return await connection.QueryAsync<GenreWithRatingDto>(sql, new { userId, year });
+        return await connection.QueryAsync<GenreWithRatingDto>(sql, parameters);
     }
 
-    public async Task<IEnumerable<RatingEvolutionDto>> GetRatingEvolutionAsync(Guid userId, int? year = null, CancellationToken ct = default)
+    public async Task<IEnumerable<RatingEvolutionDto>> GetRatingEvolutionAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             SELECT CAST(EXTRACT(MONTH FROM ""DateRated"") AS INTEGER) AS Month, CAST(AVG(""Score"") AS DOUBLE PRECISION) AS AverageRating
             FROM ""MovieRatings""
-            WHERE ""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM ""DateRated"") = @year) AND ""Score"" IS NOT NULL
+            
+            {filterBuilder.BuildJoins()}
+            WHERE ""UserId"" = @userId  AND ""Score"" IS NOT NULL
+            
+            {filterBuilder.BuildWhereClause()}
             GROUP BY Month
             ORDER BY Month ASC";
-        return await connection.QueryAsync<RatingEvolutionDto>(sql, new { userId, year });
+        return await connection.QueryAsync<RatingEvolutionDto>(sql, parameters);
     }
 
-    public async Task<IEnumerable<CastingPairDto>> GetCastingRepetitionsAsync(Guid userId, int? year = null, CancellationToken ct = default)
+    public async Task<IEnumerable<CastingPairDto>> GetCastingRepetitionsAsync(Guid userId, AnalyticsFilterDto filter, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
-        const string sql = @"
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("userId", userId);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        string sql = $@"
             WITH WatchedActors AS (
                 SELECT w.""MovieId"", ma.""ActorsId""
                 FROM ""WatchedMovies"" w
                 JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
-                WHERE w.""UserId"" = @userId AND (@year IS NULL OR EXTRACT(YEAR FROM w.""Date"") = @year)
+                
+            {filterBuilder.BuildJoins()}
+            WHERE w.""UserId"" = @userId 
             )
             SELECT 
                 a1.""Name"" AS Actor1Name, 
@@ -420,12 +553,17 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             JOIN WatchedActors w2 ON w1.""MovieId"" = w2.""MovieId"" AND w1.""ActorsId"" < w2.""ActorsId""
             JOIN ""Actors"" a1 ON w1.""ActorsId"" = a1.""Id""
             JOIN ""Actors"" a2 ON w2.""ActorsId"" = a2.""Id""
+            
+            {filterBuilder.BuildWhereClause()}
             GROUP BY a1.""Name"", a2.""Name""
             HAVING COUNT(*) >= 2
             ORDER BY CollaborationCount DESC
             LIMIT 10";
-        return await connection.QueryAsync<CastingPairDto>(sql, new { userId, year });
+        return await connection.QueryAsync<CastingPairDto>(sql, parameters);
     }
 }
+
+
+
 
 

@@ -229,19 +229,27 @@ export class AnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/Analytics/wrapped/{year}
+     * @endpoint get /api/Analytics/wrapped
      * @param year 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsWrappedYearGet(year: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<WrappedSummaryDto>;
-    public apiAnalyticsWrappedYearGet(year: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WrappedSummaryDto>>;
-    public apiAnalyticsWrappedYearGet(year: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WrappedSummaryDto>>;
-    public apiAnalyticsWrappedYearGet(year: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (year === null || year === undefined) {
-            throw new Error('Required parameter year was null or undefined when calling apiAnalyticsWrappedYearGet.');
-        }
+    public apiAnalyticsWrappedGet(year?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<WrappedSummaryDto>;
+    public apiAnalyticsWrappedGet(year?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WrappedSummaryDto>>;
+    public apiAnalyticsWrappedGet(year?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WrappedSummaryDto>>;
+    public apiAnalyticsWrappedGet(year?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'year',
+            <any>year,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -273,11 +281,12 @@ export class AnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Analytics/wrapped/${this.configuration.encodeParam({name: "year", value: year, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}`;
+        let localVarPath = `/api/Analytics/wrapped`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<WrappedSummaryDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
