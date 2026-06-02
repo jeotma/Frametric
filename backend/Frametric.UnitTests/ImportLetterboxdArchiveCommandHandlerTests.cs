@@ -94,8 +94,8 @@ public class ImportLetterboxdArchiveCommandHandlerTests : IDisposable
         {
             new ParsedLikeDto { Name = "Inception", Year = 2010, Date = today }
         };
-
-        var exportData = new LetterboxdExportData(diary, ratings, watchlist, likes);
+        var watched = new List<ParsedWatchedDto>();
+        var exportData = new LetterboxdExportData(diary, ratings, watchlist, likes, watched);
 
         _importerMock.Setup(i => i.ImportFromZipAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(exportData);
@@ -114,7 +114,7 @@ public class ImportLetterboxdArchiveCommandHandlerTests : IDisposable
         var importHistory = await assertContext.ImportHistories.FindAsync(importId);
         Assert.NotNull(importHistory);
         Assert.Equal(userId, importHistory.UserId);
-        Assert.Equal(4, importHistory.RowCount);
+        Assert.Equal(2, importHistory.RowCount);
         Assert.Equal("Enriching", importHistory.Status);
         Assert.Equal("Letterboxd", importHistory.ProviderSource);
 

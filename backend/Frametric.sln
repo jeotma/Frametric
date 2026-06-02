@@ -1,19 +1,19 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{E1B5257E-5C4F-4B86-B088-73DD01D978FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frametric.Domain", "backend\Frametric.Domain\Frametric.Domain.csproj", "{DF29953D-45B8-4C02-B07C-08238239290B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frametric.Domain", "Frametric.Domain\Frametric.Domain.csproj", "{DF29953D-45B8-4C02-B07C-08238239290B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frametric.Application", "backend\Frametric.Application\Frametric.Application.csproj", "{F1EF4C2B-89C5-480B-AD32-AE2B8AB4C582}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frametric.Application", "Frametric.Application\Frametric.Application.csproj", "{F1EF4C2B-89C5-480B-AD32-AE2B8AB4C582}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frametric.Infrastructure", "backend\Frametric.Infrastructure\Frametric.Infrastructure.csproj", "{F03431F3-BEC3-478A-9771-248702BE9482}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frametric.Infrastructure", "Frametric.Infrastructure\Frametric.Infrastructure.csproj", "{F03431F3-BEC3-478A-9771-248702BE9482}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frametric.Api", "backend\Frametric.Api\Frametric.Api.csproj", "{BA45B0B3-4C40-4A2B-A06B-19A428FEAA04}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frametric.Api", "Frametric.Api\Frametric.Api.csproj", "{BA45B0B3-4C40-4A2B-A06B-19A428FEAA04}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frametric.UnitTests", "backend\Frametric.UnitTests\Frametric.UnitTests.csproj", "{A56CC69C-C8B4-47ED-B6CD-F8AEBED8BD01}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frametric.UnitTests", "Frametric.UnitTests\Frametric.UnitTests.csproj", "{A56CC69C-C8B4-47ED-B6CD-F8AEBED8BD01}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
