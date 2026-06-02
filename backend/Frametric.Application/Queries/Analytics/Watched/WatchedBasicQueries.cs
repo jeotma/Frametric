@@ -4,16 +4,16 @@ using MediatR;
 
 namespace Frametric.Application.Queries.Analytics.Watched;
 
-// 1. Filter watched movies by original release year
-public record GetWatchedMoviesByReleaseYearQuery(Guid UserId, AnalyticsFilterDto Filter) : IRequest<IEnumerable<MovieSimpleDto>>;
-public class GetWatchedMoviesByReleaseYearQueryHandler : IRequestHandler<GetWatchedMoviesByReleaseYearQuery, IEnumerable<MovieSimpleDto>>
+// 1. List watched movies
+public record GetWatchedMoviesQuery(Guid UserId, AnalyticsFilterDto Filter) : IRequest<IEnumerable<WatchedMovieStatsDto>>;
+public class GetWatchedMoviesQueryHandler : IRequestHandler<GetWatchedMoviesQuery, IEnumerable<WatchedMovieStatsDto>>
 {
     private readonly IWatchedBasicQueries _queries;
-    public GetWatchedMoviesByReleaseYearQueryHandler(IWatchedBasicQueries queries) => _queries = queries;
+    public GetWatchedMoviesQueryHandler(IWatchedBasicQueries queries) => _queries = queries;
 
-    public async Task<IEnumerable<MovieSimpleDto>> Handle(GetWatchedMoviesByReleaseYearQuery request, CancellationToken ct)
+    public async Task<IEnumerable<WatchedMovieStatsDto>> Handle(GetWatchedMoviesQuery request, CancellationToken ct)
     {
-        return await _queries.GetMoviesByReleaseYearAsync(request.UserId, request.Filter, ct);
+        return await _queries.GetMoviesAsync(request.UserId, request.Filter, ct);
     }
 }
 

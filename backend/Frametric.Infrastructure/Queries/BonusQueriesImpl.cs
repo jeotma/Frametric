@@ -17,34 +17,35 @@ public class BonusQueriesImpl : IBonusQueries
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "WatchDate", isMoviesJoined: false);
         string sql = $@"
             WITH AllWatched AS (
-                SELECT ""MovieId"", CAST(""WatchedDate"" AS DATE) AS WatchDate
+                SELECT ""MovieId"", CAST(""WatchedDate"" AS DATE) AS ""WatchDate""
                 FROM ""DiaryEntries""
-                
-            {filterBuilder.BuildJoins()}
-            WHERE ""UserId"" = @userId 
+                WHERE ""UserId"" = @userId 
 
                 UNION ALL
 
-                SELECT ""MovieId"", CAST(""Date"" AS DATE) AS WatchDate
+                SELECT ""MovieId"", CAST(""Date"" AS DATE) AS ""WatchDate""
                 FROM ""WatchedMovies"" w
                 WHERE w.""UserId"" = @userId 
                 AND NOT EXISTS (
                     SELECT 1 FROM ""DiaryEntries"" d2
                     WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId""
-                    
                 )
+            ),
+            FilteredWatched AS (
+                SELECT w.""MovieId"", w.""WatchDate""
+                FROM AllWatched w
+                {filterBuilder.BuildJoins()}
+                WHERE 1=1 {filterBuilder.BuildWhereClause()}
             ),
             Categorized AS (
                 SELECT 
-                    CASE WHEN EXTRACT(ISODOW FROM WatchDate) >= 6 THEN 'Weekend' ELSE 'Weekday' END AS DayType,
+                    CASE WHEN EXTRACT(ISODOW FROM ""WatchDate"") >= 6 THEN 'Weekend' ELSE 'Weekday' END AS DayType,
                     CAST(COUNT(*) AS INTEGER) AS Count
-                FROM AllWatched
-                
-            {filterBuilder.BuildWhereClause()}
-            GROUP BY DayType
+                FROM FilteredWatched
+                GROUP BY DayType
             )
             SELECT 
                 COALESCE(MAX(CASE WHEN DayType = 'Weekend' THEN Count END), 0) AS WeekendWatches,
@@ -102,14 +103,12 @@ public class BonusQueriesImpl : IBonusQueries
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "WatchDate", isMoviesJoined: false);
         string sql = $@"
             WITH AllWatched AS (
                 SELECT ""MovieId"", CAST(""WatchedDate"" AS DATE) AS ""WatchDate""
                 FROM ""DiaryEntries""
-                
-            {filterBuilder.BuildJoins()}
-            WHERE ""UserId"" = @userId 
+                WHERE ""UserId"" = @userId 
                 
                 UNION ALL
                 
@@ -119,27 +118,30 @@ public class BonusQueriesImpl : IBonusQueries
                 AND NOT EXISTS (
                     SELECT 1 FROM ""DiaryEntries"" d2
                     WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId""
-                    
                 )
             ),
-            DailyCounts AS (
-                SELECT w.""WatchDate"", 
-                       CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS MoviesWatched, 
-                       CAST(AVG(mr.""Score"") AS DOUBLE PRECISION) AS DailyAvgRating
+            FilteredWatched AS (
+                SELECT w.""MovieId"", w.""WatchDate""
                 FROM AllWatched w
-                LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId
-                
-            {filterBuilder.BuildWhereClause()}
-            GROUP BY w.""WatchDate""
+                {filterBuilder.BuildJoins()}
+                WHERE 1=1 {filterBuilder.BuildWhereClause()}
+            ),
+            DailyCounts AS (
+                SELECT fw.""WatchDate"", 
+                       CAST(COUNT(DISTINCT fw.""MovieId"") AS INTEGER) AS MoviesWatched, 
+                       CAST(AVG(mr.""Score"") AS DOUBLE PRECISION) AS DailyAvgRating
+                FROM FilteredWatched fw
+                LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = fw.""MovieId"" AND mr.""UserId"" = @userId
+                GROUP BY fw.""WatchDate""
             ),
             ByDay AS (
                 SELECT TRIM(TO_CHAR(""WatchDate"", 'Day')) AS DayName, EXTRACT(ISODOW FROM ""WatchDate"") AS DowNum, CAST(COUNT(*) AS INTEGER) AS Cnt
-                FROM AllWatched
+                FROM FilteredWatched
                 GROUP BY DayName, DowNum
             ),
             ByMonth AS (
                 SELECT TRIM(TO_CHAR(""WatchDate"", 'Month')) AS MonthName, EXTRACT(MONTH FROM ""WatchDate"") AS MonthNum, CAST(COUNT(*) AS INTEGER) AS Cnt
-                FROM AllWatched
+                FROM FilteredWatched
                 GROUP BY MonthName, MonthNum
             )
             SELECT 
@@ -159,14 +161,12 @@ public class BonusQueriesImpl : IBonusQueries
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "WatchDate", isMoviesJoined: false);
         string sql = $@"
             WITH AllWatched AS (
                 SELECT ""MovieId"", CAST(""WatchedDate"" AS DATE) AS ""WatchDate""
                 FROM ""DiaryEntries"" 
-                
-            {filterBuilder.BuildJoins()}
-            WHERE ""UserId"" = @userId 
+                WHERE ""UserId"" = @userId 
                 
                 UNION ALL
                 
@@ -176,16 +176,21 @@ public class BonusQueriesImpl : IBonusQueries
                 AND NOT EXISTS (
                     SELECT 1 FROM ""DiaryEntries"" d2
                     WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId""
-                    
                 )
             ),
+            FilteredWatched AS (
+                SELECT w.""MovieId"", w.""WatchDate""
+                FROM AllWatched w
+                {filterBuilder.BuildJoins()}
+                WHERE 1=1 {filterBuilder.BuildWhereClause()}
+            ),
             FirstWatch AS (
-                SELECT ""MovieId"" FROM AllWatched 
-            {filterBuilder.BuildWhereClause()}
-            ORDER BY ""WatchDate"" ASC LIMIT 1
+                SELECT ""MovieId"" FROM FilteredWatched
+                ORDER BY ""WatchDate"" ASC LIMIT 1
             ),
             LastWatch AS (
-                SELECT ""MovieId"" FROM AllWatched ORDER BY ""WatchDate"" DESC LIMIT 1
+                SELECT ""MovieId"" FROM FilteredWatched
+                ORDER BY ""WatchDate"" DESC LIMIT 1
             )
             SELECT 
                 'first' AS ""Which"",
@@ -225,14 +230,13 @@ public class BonusQueriesImpl : IBonusQueries
         using var connection = _dbConnectionFactory.CreateConnection();
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "WatchDate", isMoviesJoined: false);
 
         string rewatchFilter = includeRewatches ? "" : @" AND ""IsRewatch"" = false";
         string bestSql = $@"
             WITH AllWatched AS (
                 SELECT ""MovieId"", CAST(""WatchedDate"" AS DATE) AS ""WatchDate""
                 FROM ""DiaryEntries"" 
-                {filterBuilder.BuildJoins()}
                 WHERE ""UserId"" = @userId {rewatchFilter}
                 
                 UNION ALL
@@ -245,15 +249,20 @@ public class BonusQueriesImpl : IBonusQueries
                     WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId""
                 )
             ),
+            FilteredWatched AS (
+                SELECT w.""MovieId"", w.""WatchDate""
+                FROM AllWatched w
+                {filterBuilder.BuildJoins()}
+                WHERE 1=1 {filterBuilder.BuildWhereClause()}
+            ),
             Ranked AS (
                 SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath"",
                        m.""RuntimeMinutes"", CAST(mr.""Score"" AS DOUBLE PRECISION) AS ""Rating"",
-                       EXTRACT(MONTH FROM w.""WatchDate"") AS ""Month"",
-                       ROW_NUMBER() OVER (PARTITION BY EXTRACT(MONTH FROM w.""WatchDate"") ORDER BY mr.""Score"" DESC, w.""WatchDate"" ASC) AS rn
-                FROM AllWatched w
-                JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
+                       EXTRACT(MONTH FROM fw.""WatchDate"") AS ""Month"",
+                       ROW_NUMBER() OVER (PARTITION BY EXTRACT(MONTH FROM fw.""WatchDate"") ORDER BY mr.""Score"" DESC, fw.""WatchDate"" ASC) AS rn
+                FROM FilteredWatched fw
+                JOIN ""Movies"" m ON fw.""MovieId"" = m.""Id""
                 JOIN ""MovieRatings"" mr ON mr.""MovieId"" = m.""Id"" AND mr.""UserId"" = @userId
-                {filterBuilder.BuildWhereClause()}
                 AND mr.""Score"" IS NOT NULL
             )
             SELECT 'best' AS ""Kind"", CAST(""Month"" AS INTEGER) AS ""Month"", ""Id"", ""Title"", ""ReleaseYear"", ""PosterPath"", ""RuntimeMinutes"", ""Rating""
@@ -263,12 +272,11 @@ public class BonusQueriesImpl : IBonusQueries
             FROM (
                 SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath"",
                        m.""RuntimeMinutes"", CAST(mr.""Score"" AS DOUBLE PRECISION) AS ""Rating"",
-                       EXTRACT(MONTH FROM w.""WatchDate"") AS ""Month"",
-                       ROW_NUMBER() OVER (PARTITION BY EXTRACT(MONTH FROM w.""WatchDate"") ORDER BY mr.""Score"" ASC, w.""WatchDate"" ASC) AS rn
-                FROM AllWatched w
-                JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
+                       EXTRACT(MONTH FROM fw.""WatchDate"") AS ""Month"",
+                       ROW_NUMBER() OVER (PARTITION BY EXTRACT(MONTH FROM fw.""WatchDate"") ORDER BY mr.""Score"" ASC, fw.""WatchDate"" ASC) AS rn
+                FROM FilteredWatched fw
+                JOIN ""Movies"" m ON fw.""MovieId"" = m.""Id""
                 JOIN ""MovieRatings"" mr ON mr.""MovieId"" = m.""Id"" AND mr.""UserId"" = @userId
-                {filterBuilder.BuildWhereClause()}
                 AND mr.""Score"" IS NOT NULL
             ) w WHERE rn = 1
             ORDER BY ""Month"" ASC";
@@ -300,20 +308,38 @@ public class BonusQueriesImpl : IBonusQueries
         using var connection = _dbConnectionFactory.CreateConnection();
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "WatchDate", isMoviesJoined: false);
 
         string sql = $@"
+            WITH AllWatched AS (
+                SELECT ""MovieId"", CAST(""WatchedDate"" AS DATE) AS ""WatchDate""
+                FROM ""DiaryEntries""
+                WHERE ""UserId"" = @userId AND ""IsRewatch"" = false
+
+                UNION ALL
+
+                SELECT ""MovieId"", CAST(""Date"" AS DATE) AS ""WatchDate""
+                FROM ""WatchedMovies"" w
+                WHERE w.""UserId"" = @userId
+                AND NOT EXISTS (
+                    SELECT 1 FROM ""DiaryEntries"" d2
+                    WHERE d2.""UserId"" = w.""UserId"" AND d2.""MovieId"" = w.""MovieId""
+                )
+            ),
+            FilteredWatched AS (
+                SELECT w.""MovieId"", w.""WatchDate""
+                FROM AllWatched w
+                {filterBuilder.BuildJoins()}
+                WHERE 1=1 {filterBuilder.BuildWhereClause()}
+            )
             SELECT * FROM (
                 SELECT 'top' AS ""Kind"", m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath"",
                        m.""RuntimeMinutes"", CAST(mr.""Score"" AS DOUBLE PRECISION) AS ""Rating"",
                        CASE WHEN ml.""Id"" IS NOT NULL THEN TRUE ELSE FALSE END AS ""Liked""
-                FROM ""WatchedMovies"" w
-                JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
+                FROM FilteredWatched fw
+                JOIN ""Movies"" m ON fw.""MovieId"" = m.""Id""
                 JOIN ""MovieRatings"" mr ON mr.""MovieId"" = m.""Id"" AND mr.""UserId"" = @userId
                 LEFT JOIN ""MovieLikes"" ml ON ml.""MovieId"" = m.""Id"" AND ml.""UserId"" = @userId
-                {filterBuilder.BuildJoins()}
-                WHERE w.""UserId"" = @userId 
-                {filterBuilder.BuildWhereClause()} 
                 AND mr.""Score"" IS NOT NULL
                 ORDER BY mr.""Score"" DESC, ""Liked"" DESC, RANDOM()
                 LIMIT 5
@@ -323,13 +349,10 @@ public class BonusQueriesImpl : IBonusQueries
                 SELECT 'bottom' AS ""Kind"", m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath"",
                        m.""RuntimeMinutes"", CAST(mr.""Score"" AS DOUBLE PRECISION) AS ""Rating"",
                        CASE WHEN ml.""Id"" IS NOT NULL THEN TRUE ELSE FALSE END AS ""Liked""
-                FROM ""WatchedMovies"" w
-                JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
+                FROM FilteredWatched fw
+                JOIN ""Movies"" m ON fw.""MovieId"" = m.""Id""
                 JOIN ""MovieRatings"" mr ON mr.""MovieId"" = m.""Id"" AND mr.""UserId"" = @userId
                 LEFT JOIN ""MovieLikes"" ml ON ml.""MovieId"" = m.""Id"" AND ml.""UserId"" = @userId
-                {filterBuilder.BuildJoins()}
-                WHERE w.""UserId"" = @userId 
-                {filterBuilder.BuildWhereClause()} 
                 AND mr.""Score"" IS NOT NULL
                 ORDER BY mr.""Score"" ASC, ""Liked"" ASC, RANDOM()
                 LIMIT 5
@@ -354,13 +377,26 @@ public class BonusQueriesImpl : IBonusQueries
         using var connection = _dbConnectionFactory.CreateConnection();
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "de", "WatchedDate", isMoviesJoined: true);
+        
+        var cteFilter = new AnalyticsFilterDto { WatchYear = filter?.WatchYear };
+        var cteFilterBuilder = new SqlFilterBuilder(cteFilter, parameters, "m", "de", "WatchedDate", isMoviesJoined: false);
+
+        var mainFilter = new AnalyticsFilterDto { 
+            ReleaseYear = filter?.ReleaseYear,
+            MinRating = filter?.MinRating,
+            MaxRating = filter?.MaxRating,
+            Genre = filter?.Genre,
+            Director = filter?.Director,
+            Actor = filter?.Actor
+        };
+        var mainFilterBuilder = new SqlFilterBuilder(mainFilter, parameters, "m", "de", "WatchedDate", isMoviesJoined: true);
 
         string sql = $@"
             WITH RewatchCounts AS (
                 SELECT ""MovieId"", CAST(COUNT(*) AS INTEGER) AS RewatchCount
                 FROM ""DiaryEntries"" de
                 WHERE ""UserId"" = @userId AND ""IsRewatch"" = true 
+                {cteFilterBuilder.BuildWhereClause()}
                 GROUP BY ""MovieId""
             )
             SELECT m.""Title"", m.""PosterUrl"" AS ""PosterPath"", m.""ReleaseYear"", rc.RewatchCount
@@ -368,8 +404,8 @@ public class BonusQueriesImpl : IBonusQueries
             JOIN ""Movies"" m ON rc.""MovieId"" = m.""Id""
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = m.""Id"" AND mr.""UserId"" = @userId
             LEFT JOIN ""MovieLikes"" ml ON ml.""MovieId"" = m.""Id"" AND ml.""UserId"" = @userId
-            {filterBuilder.BuildJoins()}
-            WHERE 1=1 {filterBuilder.BuildWhereClause()}
+            {mainFilterBuilder.BuildJoins()}
+            WHERE 1=1 {mainFilterBuilder.BuildWhereClause()}
             ORDER BY rc.RewatchCount DESC, mr.""Score"" DESC, CASE WHEN ml.""Id"" IS NOT NULL THEN 1 ELSE 0 END DESC, RANDOM()
             LIMIT 1";
         return await connection.QuerySingleOrDefaultAsync<MostRewatchedDto>(sql, parameters);
@@ -386,8 +422,8 @@ public class BonusQueriesImpl : IBonusQueries
                 FROM ""DiaryEntries"" de
                 JOIN ""MovieDirector"" md ON de.""MovieId"" = md.""MoviesId""
                 WHERE de.""UserId"" = @userId AND (
-                    (@year IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") = @year) OR 
-                    (@year IS NULL AND de.""WatchedDate"" >= CURRENT_DATE - INTERVAL '1 year')
+                    (CAST(@year AS INTEGER) IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") = CAST(@year AS INTEGER)) OR 
+                    (CAST(@year AS INTEGER) IS NULL AND de.""WatchedDate"" >= CURRENT_DATE - INTERVAL '1 year')
                 )
             ),
             PriorYears AS (
@@ -395,16 +431,16 @@ public class BonusQueriesImpl : IBonusQueries
                 FROM ""DiaryEntries"" de
                 JOIN ""MovieDirector"" md ON de.""MovieId"" = md.""MoviesId""
                 WHERE de.""UserId"" = @userId AND (
-                    (@year IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") < @year) OR 
-                    (@year IS NULL AND de.""WatchedDate"" < CURRENT_DATE - INTERVAL '1 year')
+                    (CAST(@year AS INTEGER) IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") < CAST(@year AS INTEGER)) OR 
+                    (CAST(@year AS INTEGER) IS NULL AND de.""WatchedDate"" < CURRENT_DATE - INTERVAL '1 year')
                 )
                 UNION
                 SELECT DISTINCT md.""DirectorsId"" AS DirId
                 FROM ""WatchedMovies"" wm
                 JOIN ""MovieDirector"" md ON wm.""MovieId"" = md.""MoviesId""
                 WHERE wm.""UserId"" = @userId AND (
-                    (@year IS NOT NULL AND EXTRACT(YEAR FROM wm.""Date"") < @year) OR 
-                    (@year IS NULL AND wm.""Date"" < CURRENT_DATE - INTERVAL '1 year')
+                    (CAST(@year AS INTEGER) IS NOT NULL AND EXTRACT(YEAR FROM wm.""Date"") < CAST(@year AS INTEGER)) OR 
+                    (CAST(@year AS INTEGER) IS NULL AND wm.""Date"" < CURRENT_DATE - INTERVAL '1 year')
                 )
             ),
             Rookies AS (
@@ -418,8 +454,8 @@ public class BonusQueriesImpl : IBonusQueries
             JOIN ""Directors"" dr ON r.DirId = dr.""Id""
             JOIN ""MovieDirector"" md ON r.DirId = md.""DirectorsId""
             JOIN ""DiaryEntries"" de ON md.""MoviesId"" = de.""MovieId"" AND de.""UserId"" = @userId AND (
-                (@year IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") = @year) OR 
-                (@year IS NULL AND de.""WatchedDate"" >= CURRENT_DATE - INTERVAL '1 year')
+                (CAST(@year AS INTEGER) IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") = CAST(@year AS INTEGER)) OR 
+                (CAST(@year AS INTEGER) IS NULL AND de.""WatchedDate"" >= CURRENT_DATE - INTERVAL '1 year')
             )
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = de.""MovieId"" AND mr.""UserId"" = @userId
             GROUP BY dr.""Name""
@@ -433,8 +469,8 @@ public class BonusQueriesImpl : IBonusQueries
                 FROM ""DiaryEntries"" de
                 JOIN ""MovieActor"" ma ON de.""MovieId"" = ma.""MoviesId""
                 WHERE de.""UserId"" = @userId AND (
-                    (@year IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") = @year) OR 
-                    (@year IS NULL AND de.""WatchedDate"" >= CURRENT_DATE - INTERVAL '1 year')
+                    (CAST(@year AS INTEGER) IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") = CAST(@year AS INTEGER)) OR 
+                    (CAST(@year AS INTEGER) IS NULL AND de.""WatchedDate"" >= CURRENT_DATE - INTERVAL '1 year')
                 )
             ),
             PriorYears AS (
@@ -442,16 +478,16 @@ public class BonusQueriesImpl : IBonusQueries
                 FROM ""DiaryEntries"" de
                 JOIN ""MovieActor"" ma ON de.""MovieId"" = ma.""MoviesId""
                 WHERE de.""UserId"" = @userId AND (
-                    (@year IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") < @year) OR 
-                    (@year IS NULL AND de.""WatchedDate"" < CURRENT_DATE - INTERVAL '1 year')
+                    (CAST(@year AS INTEGER) IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") < CAST(@year AS INTEGER)) OR 
+                    (CAST(@year AS INTEGER) IS NULL AND de.""WatchedDate"" < CURRENT_DATE - INTERVAL '1 year')
                 )
                 UNION
                 SELECT DISTINCT ma.""ActorsId"" AS ActId
                 FROM ""WatchedMovies"" wm
                 JOIN ""MovieActor"" ma ON wm.""MovieId"" = ma.""MoviesId""
                 WHERE wm.""UserId"" = @userId AND (
-                    (@year IS NOT NULL AND EXTRACT(YEAR FROM wm.""Date"") < @year) OR 
-                    (@year IS NULL AND wm.""Date"" < CURRENT_DATE - INTERVAL '1 year')
+                    (CAST(@year AS INTEGER) IS NOT NULL AND EXTRACT(YEAR FROM wm.""Date"") < CAST(@year AS INTEGER)) OR 
+                    (CAST(@year AS INTEGER) IS NULL AND wm.""Date"" < CURRENT_DATE - INTERVAL '1 year')
                 )
             ),
             Rookies AS (
@@ -465,8 +501,8 @@ public class BonusQueriesImpl : IBonusQueries
             JOIN ""Actors"" a ON r.ActId = a.""Id""
             JOIN ""MovieActor"" ma ON r.ActId = ma.""ActorsId""
             JOIN ""DiaryEntries"" de ON ma.""MoviesId"" = de.""MovieId"" AND de.""UserId"" = @userId AND (
-                (@year IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") = @year) OR 
-                (@year IS NULL AND de.""WatchedDate"" >= CURRENT_DATE - INTERVAL '1 year')
+                (CAST(@year AS INTEGER) IS NOT NULL AND EXTRACT(YEAR FROM de.""WatchedDate"") = CAST(@year AS INTEGER)) OR 
+                (CAST(@year AS INTEGER) IS NULL AND de.""WatchedDate"" >= CURRENT_DATE - INTERVAL '1 year')
             )
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = de.""MovieId"" AND mr.""UserId"" = @userId
             GROUP BY a.""Name""
