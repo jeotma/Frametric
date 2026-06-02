@@ -38,21 +38,37 @@ This will compile your project and store the build artifacts in the `dist/` dire
 
 ## Running unit tests
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+To execute unit tests with the [Vitest](https://vitest.dev/) test runner, run:
 
 ```bash
+npm run test
+# or
 ng test
 ```
 
 ## Running end-to-end tests
 
-For end-to-end (e2e) testing, run:
+For end-to-end (e2e) testing using **Playwright**, run:
 
 ```bash
-ng e2e
+# Run tests in headless mode
+npm run e2e
+
+# Run tests with the Playwright UI runner
+npm run e2e:ui
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## OpenAPI Client Generation
+
+The API client is automatically generated from the backend OpenAPI/Swagger specification. To update the generated client files:
+
+```bash
+# 1. Download the latest spec from the running backend
+npm run download:spec
+
+# 2. Re-generate the Angular services and model DTOs
+npm run generate:api
+```
 
 ## Additional Resources
 
