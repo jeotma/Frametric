@@ -11,7 +11,7 @@ import { TopBottomMoviesDto } from '../../../../core/services/final-cut.service'
       <div class="act-label">Act IV · The Climax</div>
       <h2 class="slide-title">The Hall of Fame.</h2>
       <p class="slide-subtitle">Your top rated masterpieces of {{ year === 'global' ? 'All-Time' : year }}.</p>
-      <p class="slide-explainer">Five stars. Pure cinema. The absolute masterpieces that left a lasting mark.</p>
+      <p class="slide-explainer">Five stars. Absolute cinema. The masterpieces that left a lasting mark.</p>
 
       <div class="top5-grid" *ngIf="data?.topRated?.length">
         <div *ngFor="let m of data!.topRated; let i = index" class="hof-card" [class.number-one]="i === 0">
