@@ -27,7 +27,7 @@ public class AnalyticsApplication : IAnalyticsApplication
         return await _mediator.Send(new GetDashboardSummaryQuery(userId), cancellationToken);
     }
 
-    public async Task<WrappedSummaryDto> GetWrappedSummaryAsync(Guid userId, int year, CancellationToken cancellationToken)
+    public async Task<WrappedSummaryDto> GetWrappedSummaryAsync(Guid userId, int? year = null, CancellationToken cancellationToken = default)
     {
         return await _mediator.Send(new GetWrappedSummaryQuery(userId, year), cancellationToken);
     }

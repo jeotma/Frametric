@@ -1,7 +1,7 @@
 <div class="wrapped-showcase animate-slide-up">
   <div class="card-glow glow-purple glass-card cinematic-teaser-card">
     <span class="teaser-tag">CINEMATIC PREVIEW</span>
-    <h2>Your Final Cut</h2>
+    <h2>The {{ username() }}'s Cut</h2>
     <p>Relive your year through the art of filmmaking. We analyzed every frame, genre, and director you encountered along the year.</p>
     
     <div class="teaser-poster-mock" (click)="togglePromo()" style="cursor: pointer;">
@@ -37,6 +37,7 @@
 
     <div style="margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 16px;">
       <select (change)="onYearChange($event)" class="glass-select" style="width: 120px; text-align: center;">
+        <option value="global" [selected]="selectedYear() === 'global'">All-Time</option>
         <option *ngFor="let y of availableYears" [value]="y" [selected]="y === selectedYear()">{{ y }}</option>
       </select>
       <button [routerLink]="['/final-cut', selectedYear()]" class="btn btn-primary btn-lg">

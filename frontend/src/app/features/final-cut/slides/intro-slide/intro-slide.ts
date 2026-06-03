@@ -8,7 +8,8 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
   imports: [CommonModule],
   template: `
     <div class="slide-content intro-bg">
-      <h2 class="slide-title">The Final Cut.</h2>
+      <h2 class="slide-title">The {{ username }}'s Cut.</h2>
+      <p class="slide-explainer">Grab your popcorn and take a seat. The show is about to begin.</p>
       <p class="subtitle">Relive your year through the art of filmmaking.</p>
       
       <div class="stats-grid">
@@ -25,6 +26,14 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
     </div>
   `,
   styles: [`
+    .slide-explainer {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      font-style: italic;
+      max-width: 600px;
+      text-align: center;
+    }
     .intro-bg {
       background: radial-gradient(circle at center, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
     }
@@ -73,5 +82,6 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
 })
 export class IntroSlideComponent {
   @Input({ required: true }) data!: WrappedSummaryDto;
-  @Input() year!: number;
+  @Input() year!: number | 'global';
+  @Input() username!: string;
 }
