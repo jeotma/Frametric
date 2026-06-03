@@ -19,11 +19,17 @@ import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 // @ts-ignore
 import { ActorCountDto } from '../model/actor-count-dto';
 // @ts-ignore
+import { BestRookiesDto } from '../model/best-rookies-dto';
+// @ts-ignore
+import { BookendsDto } from '../model/bookends-dto';
+// @ts-ignore
 import { CastingPairDto } from '../model/casting-pair-dto';
 // @ts-ignore
-import { CinematicFatigueDto } from '../model/cinematic-fatigue-dto';
+import { CinematicFatigueExpandedDto } from '../model/cinematic-fatigue-expanded-dto';
 // @ts-ignore
 import { DecadeCountDto } from '../model/decade-count-dto';
+// @ts-ignore
+import { DirectorActorPairDto } from '../model/director-actor-pair-dto';
 // @ts-ignore
 import { DirectorCountDto } from '../model/director-count-dto';
 // @ts-ignore
@@ -39,19 +45,35 @@ import { GenreProportionDto } from '../model/genre-proportion-dto';
 // @ts-ignore
 import { GenreStreakDto } from '../model/genre-streak-dto';
 // @ts-ignore
+import { GenreWithRatingDto } from '../model/genre-with-rating-dto';
+// @ts-ignore
 import { GhostActorDto } from '../model/ghost-actor-dto';
 // @ts-ignore
 import { GoldenDirectorDto } from '../model/golden-director-dto';
+// @ts-ignore
+import { MonthlyExtremeDto } from '../model/monthly-extreme-dto';
+// @ts-ignore
+import { MostRewatchedDto } from '../model/most-rewatched-dto';
 // @ts-ignore
 import { MovieSimpleDto } from '../model/movie-simple-dto';
 // @ts-ignore
 import { PreferredDayDto } from '../model/preferred-day-dto';
 // @ts-ignore
+import { PrimeTimeStatsDto } from '../model/prime-time-stats-dto';
+// @ts-ignore
 import { RatingEvolutionDto } from '../model/rating-evolution-dto';
 // @ts-ignore
 import { TimeInvestedDto } from '../model/time-invested-dto';
 // @ts-ignore
+import { TopBottomMoviesDto } from '../model/top-bottom-movies-dto';
+// @ts-ignore
+import { WatchedMovieStatsDto } from '../model/watched-movie-stats-dto';
+// @ts-ignore
+import { WatchlistMovieStatsDto } from '../model/watchlist-movie-stats-dto';
+// @ts-ignore
 import { WeekendWarriorDto } from '../model/weekend-warrior-dto';
+// @ts-ignore
+import { WrappedMovieDto2 } from '../model/wrapped-movie-dto2';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -71,14 +93,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/bonus/cinematic-fatigue
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedBonusCinematicFatigueGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<CinematicFatigueDto>;
-    public apiAnalyticsAdvancedBonusCinematicFatigueGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CinematicFatigueDto>>;
-    public apiAnalyticsAdvancedBonusCinematicFatigueGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CinematicFatigueDto>>;
-    public apiAnalyticsAdvancedBonusCinematicFatigueGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedBonusCinematicFatigueGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<CinematicFatigueExpandedDto>;
+    public apiAnalyticsAdvancedBonusCinematicFatigueGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CinematicFatigueExpandedDto>>;
+    public apiAnalyticsAdvancedBonusCinematicFatigueGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CinematicFatigueExpandedDto>>;
+    public apiAnalyticsAdvancedBonusCinematicFatigueGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -112,9 +206,10 @@ export class AdvancedAnalyticsService extends BaseService {
 
         let localVarPath = `/api/analytics/advanced/bonus/cinematic-fatigue`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<CinematicFatigueDto>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<CinematicFatigueExpandedDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -127,14 +222,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/bonus/hidden-gems
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedBonusHiddenGemsGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<MovieSimpleDto>>;
-    public apiAnalyticsAdvancedBonusHiddenGemsGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<MovieSimpleDto>>>;
-    public apiAnalyticsAdvancedBonusHiddenGemsGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<MovieSimpleDto>>>;
-    public apiAnalyticsAdvancedBonusHiddenGemsGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedBonusHiddenGemsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<MovieSimpleDto>>;
+    public apiAnalyticsAdvancedBonusHiddenGemsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<MovieSimpleDto>>>;
+    public apiAnalyticsAdvancedBonusHiddenGemsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<MovieSimpleDto>>>;
+    public apiAnalyticsAdvancedBonusHiddenGemsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -171,6 +338,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<MovieSimpleDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -183,14 +351,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/bonus/watchlist-graveyard
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedBonusWatchlistGraveyardGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<MovieSimpleDto>>;
-    public apiAnalyticsAdvancedBonusWatchlistGraveyardGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<MovieSimpleDto>>>;
-    public apiAnalyticsAdvancedBonusWatchlistGraveyardGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<MovieSimpleDto>>>;
-    public apiAnalyticsAdvancedBonusWatchlistGraveyardGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedBonusWatchlistGraveyardGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<MovieSimpleDto>>;
+    public apiAnalyticsAdvancedBonusWatchlistGraveyardGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<MovieSimpleDto>>>;
+    public apiAnalyticsAdvancedBonusWatchlistGraveyardGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<MovieSimpleDto>>>;
+    public apiAnalyticsAdvancedBonusWatchlistGraveyardGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -227,6 +467,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<MovieSimpleDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -239,14 +480,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/bonus/weekend-warrior
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedBonusWeekendWarriorGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<WeekendWarriorDto>;
-    public apiAnalyticsAdvancedBonusWeekendWarriorGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WeekendWarriorDto>>;
-    public apiAnalyticsAdvancedBonusWeekendWarriorGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WeekendWarriorDto>>;
-    public apiAnalyticsAdvancedBonusWeekendWarriorGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedBonusWeekendWarriorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<WeekendWarriorDto>;
+    public apiAnalyticsAdvancedBonusWeekendWarriorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WeekendWarriorDto>>;
+    public apiAnalyticsAdvancedBonusWeekendWarriorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WeekendWarriorDto>>;
+    public apiAnalyticsAdvancedBonusWeekendWarriorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -283,6 +596,1178 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<WeekendWarriorDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/analytics/advanced/final-cut/best-rookies
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAnalyticsAdvancedFinalCutBestRookiesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<BestRookiesDto>;
+    public apiAnalyticsAdvancedFinalCutBestRookiesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<BestRookiesDto>>;
+    public apiAnalyticsAdvancedFinalCutBestRookiesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<BestRookiesDto>>;
+    public apiAnalyticsAdvancedFinalCutBestRookiesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (Bearer) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'text/plain',
+            'application/json',
+            'text/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/analytics/advanced/final-cut/best-rookies`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<BestRookiesDto>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/analytics/advanced/final-cut/bookends
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAnalyticsAdvancedFinalCutBookendsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<BookendsDto>;
+    public apiAnalyticsAdvancedFinalCutBookendsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<BookendsDto>>;
+    public apiAnalyticsAdvancedFinalCutBookendsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<BookendsDto>>;
+    public apiAnalyticsAdvancedFinalCutBookendsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (Bearer) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'text/plain',
+            'application/json',
+            'text/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/analytics/advanced/final-cut/bookends`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<BookendsDto>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/analytics/advanced/final-cut/director-actor-pairs
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAnalyticsAdvancedFinalCutDirectorActorPairsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DirectorActorPairDto>>;
+    public apiAnalyticsAdvancedFinalCutDirectorActorPairsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DirectorActorPairDto>>>;
+    public apiAnalyticsAdvancedFinalCutDirectorActorPairsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DirectorActorPairDto>>>;
+    public apiAnalyticsAdvancedFinalCutDirectorActorPairsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (Bearer) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'text/plain',
+            'application/json',
+            'text/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/analytics/advanced/final-cut/director-actor-pairs`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<DirectorActorPairDto>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/analytics/advanced/final-cut/genre-landscape
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAnalyticsAdvancedFinalCutGenreLandscapeGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GenreWithRatingDto>>;
+    public apiAnalyticsAdvancedFinalCutGenreLandscapeGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GenreWithRatingDto>>>;
+    public apiAnalyticsAdvancedFinalCutGenreLandscapeGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GenreWithRatingDto>>>;
+    public apiAnalyticsAdvancedFinalCutGenreLandscapeGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (Bearer) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'text/plain',
+            'application/json',
+            'text/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/analytics/advanced/final-cut/genre-landscape`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<GenreWithRatingDto>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/analytics/advanced/final-cut/monthly-extremes
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
+     * @param includeRewatches 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAnalyticsAdvancedFinalCutMonthlyExtremesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, includeRewatches?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<MonthlyExtremeDto>>;
+    public apiAnalyticsAdvancedFinalCutMonthlyExtremesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, includeRewatches?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<MonthlyExtremeDto>>>;
+    public apiAnalyticsAdvancedFinalCutMonthlyExtremesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, includeRewatches?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<MonthlyExtremeDto>>>;
+    public apiAnalyticsAdvancedFinalCutMonthlyExtremesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, includeRewatches?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'includeRewatches',
+            <any>includeRewatches,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (Bearer) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'text/plain',
+            'application/json',
+            'text/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/analytics/advanced/final-cut/monthly-extremes`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<MonthlyExtremeDto>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/analytics/advanced/final-cut/most-rewatched
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAnalyticsAdvancedFinalCutMostRewatchedGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<MostRewatchedDto>;
+    public apiAnalyticsAdvancedFinalCutMostRewatchedGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MostRewatchedDto>>;
+    public apiAnalyticsAdvancedFinalCutMostRewatchedGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MostRewatchedDto>>;
+    public apiAnalyticsAdvancedFinalCutMostRewatchedGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (Bearer) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'text/plain',
+            'application/json',
+            'text/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/analytics/advanced/final-cut/most-rewatched`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<MostRewatchedDto>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/analytics/advanced/final-cut/prime-time
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAnalyticsAdvancedFinalCutPrimeTimeGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<PrimeTimeStatsDto>;
+    public apiAnalyticsAdvancedFinalCutPrimeTimeGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PrimeTimeStatsDto>>;
+    public apiAnalyticsAdvancedFinalCutPrimeTimeGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PrimeTimeStatsDto>>;
+    public apiAnalyticsAdvancedFinalCutPrimeTimeGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (Bearer) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'text/plain',
+            'application/json',
+            'text/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/analytics/advanced/final-cut/prime-time`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PrimeTimeStatsDto>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/analytics/advanced/final-cut/shortest-movie
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAnalyticsAdvancedFinalCutShortestMovieGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<WrappedMovieDto2>;
+    public apiAnalyticsAdvancedFinalCutShortestMovieGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WrappedMovieDto2>>;
+    public apiAnalyticsAdvancedFinalCutShortestMovieGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WrappedMovieDto2>>;
+    public apiAnalyticsAdvancedFinalCutShortestMovieGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (Bearer) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'text/plain',
+            'application/json',
+            'text/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/analytics/advanced/final-cut/shortest-movie`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<WrappedMovieDto2>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/analytics/advanced/final-cut/top-bottom-rated
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAnalyticsAdvancedFinalCutTopBottomRatedGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<TopBottomMoviesDto>;
+    public apiAnalyticsAdvancedFinalCutTopBottomRatedGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TopBottomMoviesDto>>;
+    public apiAnalyticsAdvancedFinalCutTopBottomRatedGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TopBottomMoviesDto>>;
+    public apiAnalyticsAdvancedFinalCutTopBottomRatedGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (Bearer) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'text/plain',
+            'application/json',
+            'text/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/analytics/advanced/final-cut/top-bottom-rated`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<TopBottomMoviesDto>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -295,14 +1780,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watched/actors
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchedActorsGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ActorCountDto>>;
-    public apiAnalyticsAdvancedWatchedActorsGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ActorCountDto>>>;
-    public apiAnalyticsAdvancedWatchedActorsGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ActorCountDto>>>;
-    public apiAnalyticsAdvancedWatchedActorsGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchedActorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ActorCountDto>>;
+    public apiAnalyticsAdvancedWatchedActorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ActorCountDto>>>;
+    public apiAnalyticsAdvancedWatchedActorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ActorCountDto>>>;
+    public apiAnalyticsAdvancedWatchedActorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -339,74 +1896,6 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<ActorCountDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @endpoint get /api/analytics/advanced/watched/by-release-year
-     * @param releaseYear 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public apiAnalyticsAdvancedWatchedByReleaseYearGet(releaseYear?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<MovieSimpleDto>>;
-    public apiAnalyticsAdvancedWatchedByReleaseYearGet(releaseYear?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<MovieSimpleDto>>>;
-    public apiAnalyticsAdvancedWatchedByReleaseYearGet(releaseYear?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<MovieSimpleDto>>>;
-    public apiAnalyticsAdvancedWatchedByReleaseYearGet(releaseYear?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'releaseYear',
-            <any>releaseYear,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (Bearer) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'text/plain',
-            'application/json',
-            'text/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/api/analytics/advanced/watched/by-release-year`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<MovieSimpleDto>>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
@@ -420,14 +1909,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watched/casting-repetitions
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchedCastingRepetitionsGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CastingPairDto>>;
-    public apiAnalyticsAdvancedWatchedCastingRepetitionsGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CastingPairDto>>>;
-    public apiAnalyticsAdvancedWatchedCastingRepetitionsGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CastingPairDto>>>;
-    public apiAnalyticsAdvancedWatchedCastingRepetitionsGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchedCastingRepetitionsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CastingPairDto>>;
+    public apiAnalyticsAdvancedWatchedCastingRepetitionsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CastingPairDto>>>;
+    public apiAnalyticsAdvancedWatchedCastingRepetitionsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CastingPairDto>>>;
+    public apiAnalyticsAdvancedWatchedCastingRepetitionsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -464,6 +2025,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<CastingPairDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -476,14 +2038,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watched/decades
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchedDecadesGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DecadeCountDto>>;
-    public apiAnalyticsAdvancedWatchedDecadesGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DecadeCountDto>>>;
-    public apiAnalyticsAdvancedWatchedDecadesGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DecadeCountDto>>>;
-    public apiAnalyticsAdvancedWatchedDecadesGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchedDecadesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DecadeCountDto>>;
+    public apiAnalyticsAdvancedWatchedDecadesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DecadeCountDto>>>;
+    public apiAnalyticsAdvancedWatchedDecadesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DecadeCountDto>>>;
+    public apiAnalyticsAdvancedWatchedDecadesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -520,6 +2154,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<DecadeCountDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -532,14 +2167,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watched/director-ranking
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchedDirectorRankingGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DirectorLeaderboardDto>>;
-    public apiAnalyticsAdvancedWatchedDirectorRankingGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DirectorLeaderboardDto>>>;
-    public apiAnalyticsAdvancedWatchedDirectorRankingGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DirectorLeaderboardDto>>>;
-    public apiAnalyticsAdvancedWatchedDirectorRankingGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchedDirectorRankingGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DirectorLeaderboardDto>>;
+    public apiAnalyticsAdvancedWatchedDirectorRankingGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DirectorLeaderboardDto>>>;
+    public apiAnalyticsAdvancedWatchedDirectorRankingGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DirectorLeaderboardDto>>>;
+    public apiAnalyticsAdvancedWatchedDirectorRankingGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -576,6 +2283,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<DirectorLeaderboardDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -588,14 +2296,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watched/directors
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchedDirectorsGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DirectorCountDto>>;
-    public apiAnalyticsAdvancedWatchedDirectorsGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DirectorCountDto>>>;
-    public apiAnalyticsAdvancedWatchedDirectorsGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DirectorCountDto>>>;
-    public apiAnalyticsAdvancedWatchedDirectorsGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchedDirectorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DirectorCountDto>>;
+    public apiAnalyticsAdvancedWatchedDirectorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DirectorCountDto>>>;
+    public apiAnalyticsAdvancedWatchedDirectorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DirectorCountDto>>>;
+    public apiAnalyticsAdvancedWatchedDirectorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -632,6 +2412,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<DirectorCountDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -644,14 +2425,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watched/genre-streaks
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchedGenreStreaksGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GenreStreakDto>>;
-    public apiAnalyticsAdvancedWatchedGenreStreaksGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GenreStreakDto>>>;
-    public apiAnalyticsAdvancedWatchedGenreStreaksGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GenreStreakDto>>>;
-    public apiAnalyticsAdvancedWatchedGenreStreaksGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchedGenreStreaksGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GenreStreakDto>>;
+    public apiAnalyticsAdvancedWatchedGenreStreaksGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GenreStreakDto>>>;
+    public apiAnalyticsAdvancedWatchedGenreStreaksGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GenreStreakDto>>>;
+    public apiAnalyticsAdvancedWatchedGenreStreaksGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -688,6 +2541,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<GenreStreakDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -700,14 +2554,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watched/genres
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchedGenresGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GenreCountDto>>;
-    public apiAnalyticsAdvancedWatchedGenresGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GenreCountDto>>>;
-    public apiAnalyticsAdvancedWatchedGenresGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GenreCountDto>>>;
-    public apiAnalyticsAdvancedWatchedGenresGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchedGenresGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GenreCountDto>>;
+    public apiAnalyticsAdvancedWatchedGenresGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GenreCountDto>>>;
+    public apiAnalyticsAdvancedWatchedGenresGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GenreCountDto>>>;
+    public apiAnalyticsAdvancedWatchedGenresGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -744,6 +2670,136 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<GenreCountDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/analytics/advanced/watched
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAnalyticsAdvancedWatchedGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<WatchedMovieStatsDto>>;
+    public apiAnalyticsAdvancedWatchedGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<WatchedMovieStatsDto>>>;
+    public apiAnalyticsAdvancedWatchedGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<WatchedMovieStatsDto>>>;
+    public apiAnalyticsAdvancedWatchedGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (Bearer) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'text/plain',
+            'application/json',
+            'text/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/analytics/advanced/watched`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<WatchedMovieStatsDto>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -756,14 +2812,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watched/longest-movie
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchedLongestMovieGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<MovieSimpleDto>;
-    public apiAnalyticsAdvancedWatchedLongestMovieGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MovieSimpleDto>>;
-    public apiAnalyticsAdvancedWatchedLongestMovieGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MovieSimpleDto>>;
-    public apiAnalyticsAdvancedWatchedLongestMovieGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchedLongestMovieGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<MovieSimpleDto>;
+    public apiAnalyticsAdvancedWatchedLongestMovieGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MovieSimpleDto>>;
+    public apiAnalyticsAdvancedWatchedLongestMovieGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MovieSimpleDto>>;
+    public apiAnalyticsAdvancedWatchedLongestMovieGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -800,6 +2928,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<MovieSimpleDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -812,14 +2941,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watched/most-repeated-actor
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchedMostRepeatedActorGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<ActorCountDto>;
-    public apiAnalyticsAdvancedWatchedMostRepeatedActorGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ActorCountDto>>;
-    public apiAnalyticsAdvancedWatchedMostRepeatedActorGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ActorCountDto>>;
-    public apiAnalyticsAdvancedWatchedMostRepeatedActorGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchedMostRepeatedActorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<ActorCountDto>;
+    public apiAnalyticsAdvancedWatchedMostRepeatedActorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ActorCountDto>>;
+    public apiAnalyticsAdvancedWatchedMostRepeatedActorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ActorCountDto>>;
+    public apiAnalyticsAdvancedWatchedMostRepeatedActorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -856,6 +3057,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<ActorCountDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -868,14 +3070,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watched/most-watched-director
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchedMostWatchedDirectorGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<DirectorCountDto>;
-    public apiAnalyticsAdvancedWatchedMostWatchedDirectorGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DirectorCountDto>>;
-    public apiAnalyticsAdvancedWatchedMostWatchedDirectorGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DirectorCountDto>>;
-    public apiAnalyticsAdvancedWatchedMostWatchedDirectorGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchedMostWatchedDirectorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<DirectorCountDto>;
+    public apiAnalyticsAdvancedWatchedMostWatchedDirectorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DirectorCountDto>>;
+    public apiAnalyticsAdvancedWatchedMostWatchedDirectorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DirectorCountDto>>;
+    public apiAnalyticsAdvancedWatchedMostWatchedDirectorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -912,6 +3186,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<DirectorCountDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -924,14 +3199,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watched/predominant-era
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchedPredominantEraGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<EraBreakdownDto>;
-    public apiAnalyticsAdvancedWatchedPredominantEraGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<EraBreakdownDto>>;
-    public apiAnalyticsAdvancedWatchedPredominantEraGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<EraBreakdownDto>>;
-    public apiAnalyticsAdvancedWatchedPredominantEraGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchedPredominantEraGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<EraBreakdownDto>;
+    public apiAnalyticsAdvancedWatchedPredominantEraGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<EraBreakdownDto>>;
+    public apiAnalyticsAdvancedWatchedPredominantEraGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<EraBreakdownDto>>;
+    public apiAnalyticsAdvancedWatchedPredominantEraGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -968,6 +3315,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<EraBreakdownDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -980,14 +3328,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watched/preferred-day
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchedPreferredDayGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<PreferredDayDto>>;
-    public apiAnalyticsAdvancedWatchedPreferredDayGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<PreferredDayDto>>>;
-    public apiAnalyticsAdvancedWatchedPreferredDayGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<PreferredDayDto>>>;
-    public apiAnalyticsAdvancedWatchedPreferredDayGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchedPreferredDayGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<PreferredDayDto>>;
+    public apiAnalyticsAdvancedWatchedPreferredDayGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<PreferredDayDto>>>;
+    public apiAnalyticsAdvancedWatchedPreferredDayGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<PreferredDayDto>>>;
+    public apiAnalyticsAdvancedWatchedPreferredDayGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -1024,6 +3444,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<PreferredDayDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -1036,22 +3457,82 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watched/rating-evolution
-     * @param year 
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchedRatingEvolutionGet(year?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<RatingEvolutionDto>>;
-    public apiAnalyticsAdvancedWatchedRatingEvolutionGet(year?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<RatingEvolutionDto>>>;
-    public apiAnalyticsAdvancedWatchedRatingEvolutionGet(year?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<RatingEvolutionDto>>>;
-    public apiAnalyticsAdvancedWatchedRatingEvolutionGet(year?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchedRatingEvolutionGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<RatingEvolutionDto>>;
+    public apiAnalyticsAdvancedWatchedRatingEvolutionGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<RatingEvolutionDto>>>;
+    public apiAnalyticsAdvancedWatchedRatingEvolutionGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<RatingEvolutionDto>>>;
+    public apiAnalyticsAdvancedWatchedRatingEvolutionGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
         localVarQueryParameters = this.addToHttpParams(
             localVarQueryParameters,
-            'year',
-            <any>year,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
             QueryParamStyle.Form,
             true,
         );
@@ -1107,14 +3588,21 @@ export class AdvancedAnalyticsService extends BaseService {
      * @endpoint get /api/analytics/advanced/watched/total-time
      * @param filterType 
      * @param filterName 
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchedTotalTimeGet(filterType?: string, filterName?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeInvestedDto>;
-    public apiAnalyticsAdvancedWatchedTotalTimeGet(filterType?: string, filterName?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeInvestedDto>>;
-    public apiAnalyticsAdvancedWatchedTotalTimeGet(filterType?: string, filterName?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeInvestedDto>>;
-    public apiAnalyticsAdvancedWatchedTotalTimeGet(filterType?: string, filterName?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchedTotalTimeGet(filterType?: string, filterName?: string, watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeInvestedDto>;
+    public apiAnalyticsAdvancedWatchedTotalTimeGet(filterType?: string, filterName?: string, watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeInvestedDto>>;
+    public apiAnalyticsAdvancedWatchedTotalTimeGet(filterType?: string, filterName?: string, watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeInvestedDto>>;
+    public apiAnalyticsAdvancedWatchedTotalTimeGet(filterType?: string, filterName?: string, watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -1131,6 +3619,69 @@ export class AdvancedAnalyticsService extends BaseService {
             localVarQueryParameters,
             'filterName',
             <any>filterName,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
             QueryParamStyle.Form,
             true,
         );
@@ -1184,14 +3735,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watchlist/actors
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchlistActorsGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ActorCountDto>>;
-    public apiAnalyticsAdvancedWatchlistActorsGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ActorCountDto>>>;
-    public apiAnalyticsAdvancedWatchlistActorsGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ActorCountDto>>>;
-    public apiAnalyticsAdvancedWatchlistActorsGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchlistActorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ActorCountDto>>;
+    public apiAnalyticsAdvancedWatchlistActorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ActorCountDto>>>;
+    public apiAnalyticsAdvancedWatchlistActorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ActorCountDto>>>;
+    public apiAnalyticsAdvancedWatchlistActorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -1228,6 +3851,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<ActorCountDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -1240,14 +3864,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watchlist/by-era
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchlistByEraGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<EraBreakdownDto>>;
-    public apiAnalyticsAdvancedWatchlistByEraGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<EraBreakdownDto>>>;
-    public apiAnalyticsAdvancedWatchlistByEraGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<EraBreakdownDto>>>;
-    public apiAnalyticsAdvancedWatchlistByEraGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchlistByEraGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<EraBreakdownDto>>;
+    public apiAnalyticsAdvancedWatchlistByEraGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<EraBreakdownDto>>>;
+    public apiAnalyticsAdvancedWatchlistByEraGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<EraBreakdownDto>>>;
+    public apiAnalyticsAdvancedWatchlistByEraGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -1284,74 +3980,6 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<EraBreakdownDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @endpoint get /api/analytics/advanced/watchlist/by-release-year
-     * @param releaseYear 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public apiAnalyticsAdvancedWatchlistByReleaseYearGet(releaseYear?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<MovieSimpleDto>>;
-    public apiAnalyticsAdvancedWatchlistByReleaseYearGet(releaseYear?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<MovieSimpleDto>>>;
-    public apiAnalyticsAdvancedWatchlistByReleaseYearGet(releaseYear?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<MovieSimpleDto>>>;
-    public apiAnalyticsAdvancedWatchlistByReleaseYearGet(releaseYear?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'releaseYear',
-            <any>releaseYear,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (Bearer) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'text/plain',
-            'application/json',
-            'text/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/api/analytics/advanced/watchlist/by-release-year`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<MovieSimpleDto>>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
@@ -1365,14 +3993,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watchlist/decades
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchlistDecadesGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DecadeCountDto>>;
-    public apiAnalyticsAdvancedWatchlistDecadesGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DecadeCountDto>>>;
-    public apiAnalyticsAdvancedWatchlistDecadesGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DecadeCountDto>>>;
-    public apiAnalyticsAdvancedWatchlistDecadesGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchlistDecadesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DecadeCountDto>>;
+    public apiAnalyticsAdvancedWatchlistDecadesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DecadeCountDto>>>;
+    public apiAnalyticsAdvancedWatchlistDecadesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DecadeCountDto>>>;
+    public apiAnalyticsAdvancedWatchlistDecadesGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -1409,6 +4109,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<DecadeCountDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -1421,14 +4122,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watchlist/directors
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchlistDirectorsGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DirectorCountDto>>;
-    public apiAnalyticsAdvancedWatchlistDirectorsGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DirectorCountDto>>>;
-    public apiAnalyticsAdvancedWatchlistDirectorsGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DirectorCountDto>>>;
-    public apiAnalyticsAdvancedWatchlistDirectorsGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchlistDirectorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DirectorCountDto>>;
+    public apiAnalyticsAdvancedWatchlistDirectorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DirectorCountDto>>>;
+    public apiAnalyticsAdvancedWatchlistDirectorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DirectorCountDto>>>;
+    public apiAnalyticsAdvancedWatchlistDirectorsGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -1465,6 +4238,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<DirectorCountDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -1477,14 +4251,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watchlist/duration-balance
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchlistDurationBalanceGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DurationBalanceDto>>;
-    public apiAnalyticsAdvancedWatchlistDurationBalanceGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DurationBalanceDto>>>;
-    public apiAnalyticsAdvancedWatchlistDurationBalanceGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DurationBalanceDto>>>;
-    public apiAnalyticsAdvancedWatchlistDurationBalanceGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchlistDurationBalanceGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DurationBalanceDto>>;
+    public apiAnalyticsAdvancedWatchlistDurationBalanceGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DurationBalanceDto>>>;
+    public apiAnalyticsAdvancedWatchlistDurationBalanceGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DurationBalanceDto>>>;
+    public apiAnalyticsAdvancedWatchlistDurationBalanceGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -1521,6 +4367,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<DurationBalanceDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -1533,14 +4380,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watchlist/genre-proportion
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchlistGenreProportionGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GenreProportionDto>>;
-    public apiAnalyticsAdvancedWatchlistGenreProportionGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GenreProportionDto>>>;
-    public apiAnalyticsAdvancedWatchlistGenreProportionGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GenreProportionDto>>>;
-    public apiAnalyticsAdvancedWatchlistGenreProportionGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchlistGenreProportionGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GenreProportionDto>>;
+    public apiAnalyticsAdvancedWatchlistGenreProportionGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GenreProportionDto>>>;
+    public apiAnalyticsAdvancedWatchlistGenreProportionGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GenreProportionDto>>>;
+    public apiAnalyticsAdvancedWatchlistGenreProportionGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -1577,6 +4496,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<GenreProportionDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -1589,14 +4509,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watchlist/genres
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchlistGenresGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GenreCountDto>>;
-    public apiAnalyticsAdvancedWatchlistGenresGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GenreCountDto>>>;
-    public apiAnalyticsAdvancedWatchlistGenresGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GenreCountDto>>>;
-    public apiAnalyticsAdvancedWatchlistGenresGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchlistGenresGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GenreCountDto>>;
+    public apiAnalyticsAdvancedWatchlistGenresGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GenreCountDto>>>;
+    public apiAnalyticsAdvancedWatchlistGenresGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GenreCountDto>>>;
+    public apiAnalyticsAdvancedWatchlistGenresGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -1633,6 +4625,136 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<Array<GenreCountDto>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/analytics/advanced/watchlist
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAnalyticsAdvancedWatchlistGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<WatchlistMovieStatsDto>>;
+    public apiAnalyticsAdvancedWatchlistGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<WatchlistMovieStatsDto>>>;
+    public apiAnalyticsAdvancedWatchlistGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<WatchlistMovieStatsDto>>>;
+    public apiAnalyticsAdvancedWatchlistGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (Bearer) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'text/plain',
+            'application/json',
+            'text/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/analytics/advanced/watchlist`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<WatchlistMovieStatsDto>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -1645,14 +4767,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watchlist/ghost-actor
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchlistGhostActorGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<GhostActorDto>;
-    public apiAnalyticsAdvancedWatchlistGhostActorGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GhostActorDto>>;
-    public apiAnalyticsAdvancedWatchlistGhostActorGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GhostActorDto>>;
-    public apiAnalyticsAdvancedWatchlistGhostActorGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchlistGhostActorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<GhostActorDto>;
+    public apiAnalyticsAdvancedWatchlistGhostActorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GhostActorDto>>;
+    public apiAnalyticsAdvancedWatchlistGhostActorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GhostActorDto>>;
+    public apiAnalyticsAdvancedWatchlistGhostActorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -1689,6 +4883,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<GhostActorDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -1701,14 +4896,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watchlist/golden-director
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchlistGoldenDirectorGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<GoldenDirectorDto>;
-    public apiAnalyticsAdvancedWatchlistGoldenDirectorGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GoldenDirectorDto>>;
-    public apiAnalyticsAdvancedWatchlistGoldenDirectorGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GoldenDirectorDto>>;
-    public apiAnalyticsAdvancedWatchlistGoldenDirectorGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchlistGoldenDirectorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<GoldenDirectorDto>;
+    public apiAnalyticsAdvancedWatchlistGoldenDirectorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GoldenDirectorDto>>;
+    public apiAnalyticsAdvancedWatchlistGoldenDirectorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GoldenDirectorDto>>;
+    public apiAnalyticsAdvancedWatchlistGoldenDirectorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -1745,6 +5012,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<GoldenDirectorDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -1757,14 +5025,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watchlist/most-anticipated-actor
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchlistMostAnticipatedActorGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<ActorCountDto>;
-    public apiAnalyticsAdvancedWatchlistMostAnticipatedActorGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ActorCountDto>>;
-    public apiAnalyticsAdvancedWatchlistMostAnticipatedActorGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ActorCountDto>>;
-    public apiAnalyticsAdvancedWatchlistMostAnticipatedActorGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchlistMostAnticipatedActorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<ActorCountDto>;
+    public apiAnalyticsAdvancedWatchlistMostAnticipatedActorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ActorCountDto>>;
+    public apiAnalyticsAdvancedWatchlistMostAnticipatedActorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ActorCountDto>>;
+    public apiAnalyticsAdvancedWatchlistMostAnticipatedActorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -1801,6 +5141,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<ActorCountDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -1813,14 +5154,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watchlist/most-anticipated-director
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchlistMostAnticipatedDirectorGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<DirectorCountDto>;
-    public apiAnalyticsAdvancedWatchlistMostAnticipatedDirectorGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DirectorCountDto>>;
-    public apiAnalyticsAdvancedWatchlistMostAnticipatedDirectorGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DirectorCountDto>>;
-    public apiAnalyticsAdvancedWatchlistMostAnticipatedDirectorGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchlistMostAnticipatedDirectorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<DirectorCountDto>;
+    public apiAnalyticsAdvancedWatchlistMostAnticipatedDirectorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DirectorCountDto>>;
+    public apiAnalyticsAdvancedWatchlistMostAnticipatedDirectorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DirectorCountDto>>;
+    public apiAnalyticsAdvancedWatchlistMostAnticipatedDirectorGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -1857,6 +5270,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<DirectorCountDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -1869,14 +5283,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watchlist/oldest-pending
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchlistOldestPendingGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<MovieSimpleDto>;
-    public apiAnalyticsAdvancedWatchlistOldestPendingGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MovieSimpleDto>>;
-    public apiAnalyticsAdvancedWatchlistOldestPendingGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MovieSimpleDto>>;
-    public apiAnalyticsAdvancedWatchlistOldestPendingGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchlistOldestPendingGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<MovieSimpleDto>;
+    public apiAnalyticsAdvancedWatchlistOldestPendingGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MovieSimpleDto>>;
+    public apiAnalyticsAdvancedWatchlistOldestPendingGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MovieSimpleDto>>;
+    public apiAnalyticsAdvancedWatchlistOldestPendingGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -1913,6 +5399,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<MovieSimpleDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -1925,14 +5412,86 @@ export class AdvancedAnalyticsService extends BaseService {
 
     /**
      * @endpoint get /api/analytics/advanced/watchlist/total-watchtime
+     * @param watchYear 
+     * @param releaseYear 
+     * @param minRating 
+     * @param maxRating 
+     * @param genre 
+     * @param director 
+     * @param actor 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAnalyticsAdvancedWatchlistTotalWatchtimeGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeInvestedDto>;
-    public apiAnalyticsAdvancedWatchlistTotalWatchtimeGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeInvestedDto>>;
-    public apiAnalyticsAdvancedWatchlistTotalWatchtimeGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeInvestedDto>>;
-    public apiAnalyticsAdvancedWatchlistTotalWatchtimeGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiAnalyticsAdvancedWatchlistTotalWatchtimeGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeInvestedDto>;
+    public apiAnalyticsAdvancedWatchlistTotalWatchtimeGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeInvestedDto>>;
+    public apiAnalyticsAdvancedWatchlistTotalWatchtimeGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeInvestedDto>>;
+    public apiAnalyticsAdvancedWatchlistTotalWatchtimeGet(watchYear?: number, releaseYear?: number, minRating?: number, maxRating?: number, genre?: string, director?: string, actor?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'WatchYear',
+            <any>watchYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ReleaseYear',
+            <any>releaseYear,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MinRating',
+            <any>minRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'MaxRating',
+            <any>maxRating,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Genre',
+            <any>genre,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Director',
+            <any>director,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'Actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -1969,6 +5528,7 @@ export class AdvancedAnalyticsService extends BaseService {
         return this.httpClient.request<TimeInvestedDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

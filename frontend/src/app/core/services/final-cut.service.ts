@@ -147,7 +147,7 @@ export class FinalCutService {
   }
 
   loadAllData(year: number | 'global'): Observable<FinalCutData> {
-    const params = year === 'global' ? {} : { year };
+    const params = year === 'global' ? {} : { watchYear: year };
     return forkJoin({
       primeTime: this.get<PrimeTimeStatsDto>('/api/analytics/advanced/final-cut/prime-time', params),
       cinemaFatigue: this.get<CinematicFatigueExpandedDto>('/api/analytics/advanced/bonus/cinematic-fatigue', params),

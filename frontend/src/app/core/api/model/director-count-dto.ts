@@ -10,8 +10,9 @@
 
 
 export interface DirectorCountDto { 
-    directorName: string;
-    count: number;
-    averageRating: number;
+    directorName?: string;
+    count?: number;
+    averageRating?: number;
+    watchedCount?: number;
 }
 

@@ -15,7 +15,7 @@ import { DirectorCountDto } from './director-count-dto';
 
 
 export interface WrappedSummaryDto { 
-    year: number;
+    year: number | null;
     totalWatchtimeMinutes: number;
     totalWatches: number;
     uniqueMoviesCount: number;

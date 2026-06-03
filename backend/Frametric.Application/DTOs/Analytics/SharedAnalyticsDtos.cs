@@ -1,6 +1,8 @@
 namespace Frametric.Application.DTOs.Analytics;
 
 public record MovieSimpleDto(Guid Id, string Title, int? ReleaseYear, string? PosterPath);
+public record WatchedMovieStatsDto(string Title, int? ReleaseYear, string Director, double Rating, bool Liked);
+public record WatchlistMovieStatsDto(string Title, int? ReleaseYear, string Director, string DateAdded);
 public record WrappedMovieDto(Guid Id, string Title, int? ReleaseYear, string? PosterPath, int? RuntimeMinutes, double? Rating)
 {
     public bool Liked { get; init; } = false;
@@ -54,10 +56,17 @@ public record MonthlyExtremeDto(
 );
 
 // For The Hall of Fame / Golden Raspberry: top and bottom rated movies
-public record TopBottomMoviesDto(
-    IEnumerable<WrappedMovieDto> TopRated,
-    IEnumerable<WrappedMovieDto> BottomRated
-);
+public class TopBottomMoviesDto
+{
+    public IEnumerable<WrappedMovieDto> TopRated { get; set; } = new List<WrappedMovieDto>();
+    public IReadOnlyCollection<WrappedMovieDto> BottomRated { get; set; } = new List<WrappedMovieDto>();
+
+    public TopBottomMoviesDto(IEnumerable<WrappedMovieDto> topRated, IEnumerable<WrappedMovieDto> bottomRated)
+    {
+        TopRated = topRated;
+        BottomRated = bottomRated.ToList();
+    }
+}
 
 // For The Return of the King: most rewatched
 public record MostRewatchedDto(string Title, string? PosterPath, int? ReleaseYear, int RewatchCount);
@@ -70,10 +79,17 @@ public record DavidAndGoliathDto(
 
 // For The Best Rookies: actors/directors new to the user this year
 public record RookieDto(string Name, int MoviesWatchedThisYear, double AverageRating);
-public record BestRookiesDto(
-    IEnumerable<RookieDto> NewDirectors,
-    IEnumerable<RookieDto> NewActors
-);
+public class BestRookiesDto
+{
+    public IEnumerable<RookieDto> NewDirectors { get; set; } = new List<RookieDto>();
+    public IReadOnlyCollection<RookieDto> NewActors { get; set; } = new List<RookieDto>();
+
+    public BestRookiesDto(IEnumerable<RookieDto> newDirectors, IEnumerable<RookieDto> newActors)
+    {
+        NewDirectors = newDirectors;
+        NewActors = newActors.ToList();
+    }
+}
 
 // For The Genre Landscape (Expanded): top by volume + best/worst rated
 public record GenreWithRatingDto(string GenreName, int Count, double AverageRating);

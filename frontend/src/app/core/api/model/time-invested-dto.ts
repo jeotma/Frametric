@@ -10,8 +10,8 @@
 
 
 export interface TimeInvestedDto { 
-    name: string;
-    totalMinutes: number;
-    totalHours: number;
+    name?: string;
+    totalMinutes?: number;
+    totalHours?: number;
 }
 

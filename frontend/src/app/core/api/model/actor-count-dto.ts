@@ -10,8 +10,9 @@
 
 
 export interface ActorCountDto { 
-    actorName: string;
-    count: number;
-    averageRating: number;
+    actorName?: string;
+    count?: number;
+    averageRating?: number;
+    watchedCount?: number;
 }
 

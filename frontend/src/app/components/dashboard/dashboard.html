@@ -19,6 +19,30 @@
     <p>{{ errorMessage() }}</p>
   </div>
 
+  <!-- Warning Banner for empty Import History -->
+  <div *ngIf="!hasSuccessfulImport() && !isLoading()" class="no-imports-banner glass-panel">
+    <div class="banner-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+    </div>
+    <div class="banner-message">
+      <h3>No active film imports found</h3>
+      <p>Your dashboard stats are currently empty. Upload your films data export (.zip) to unlock your cinematic statistics and custom presentation!</p>
+    </div>
+    <div class="banner-actions">
+      <a routerLink="/imports" class="btn btn-warning-action">
+        Go to Import Center
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    </div>
+  </div>
+
   <div *ngIf="summary() as data" class="dashboard-grid">
     <!-- Quick Stats -->
     <section class="stat-cards">
@@ -48,7 +72,7 @@
             </div>
             <!-- Dynamic width calculation based on the top genre count -->
             <div class="bar-track">
-              <div class="bar-fill" [style.width.%]="genre.count / (data.topGenres[0].count / 100)"></div>
+              <div class="bar-fill" [style.width.%]="(genre.count || 0) / ((data.topGenres[0].count || 1) / 100)"></div>
             </div>
           </div>
         </div>
@@ -63,7 +87,7 @@
               <span>{{ decade.count }}</span>
             </div>
             <div class="bar-track">
-              <div class="bar-fill decade-fill" [style.width.%]="decade.count / (data.decadeBreakdown[0].count / 100)"></div>
+              <div class="bar-fill decade-fill" [style.width.%]="(decade.count || 0) / ((data.decadeBreakdown[0].count || 1) / 100)"></div>
             </div>
           </div>
         </div>
