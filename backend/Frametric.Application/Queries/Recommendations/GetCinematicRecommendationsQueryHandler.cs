@@ -200,7 +200,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
             score += (ratingValue / 10.0) * 10.0;
 
             double match = Math.Min(100.0, Math.Round(score, 1));
-            string reason = reasons.Any() ? $"Aligns with your recent mood because it {string.Join(" and ", reasons)}." : "Fits well with your recent viewing history.";
+            string reason = reasons.Any() ? $"Aligns with your recent mood because it {FormatReasons(reasons)}." : "Fits well with your recent viewing history.";
 
             return new RecommendedMovieDto(
                 c.MovieId,
@@ -254,7 +254,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
             score += (ratingValue / 10.0) * 30.0;
 
             double match = Math.Min(100.0, Math.Round(score, 1));
-            string reason = reasons.Any() ? $"A perfect palette cleanser: it {string.Join(" and ", reasons)}." : "Great selection to diversify your movie cycle.";
+            string reason = reasons.Any() ? $"A perfect palette cleanser: it {FormatReasons(reasons)}." : "Great selection to diversify your movie cycle.";
 
             return new RecommendedMovieDto(
                 c.MovieId,
@@ -328,7 +328,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
             score += (ratingValue / 10.0) * 10.0;
 
             double match = Math.Min(100.0, Math.Round(score, 1));
-            string reason = reasons.Any() ? $"Disrupts your comfort zone: it {string.Join(" and ", reasons)}." : "Pushes your boundaries with a solid critical consensus.";
+            string reason = reasons.Any() ? $"Disrupts your comfort zone: it {FormatReasons(reasons)}." : "Pushes your boundaries with a solid critical consensus.";
 
             // If we don't have a familiar anchor, match score should be lower so we prioritize anchored disruptors
             if (!hasFamiliarAnchor) match = Math.Max(10.0, match - 30.0);
@@ -382,7 +382,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
             }
 
             double match = Math.Min(100.0, Math.Round(score, 1));
-            string reason = reasons.Any() ? $"A guilty pleasure pick: it {string.Join(" and ", reasons)}." : "Underrated movie matching your niche genre ratings.";
+            string reason = reasons.Any() ? $"A guilty pleasure pick: it {FormatReasons(reasons)}." : "Underrated movie matching your niche genre ratings.";
 
             return new RecommendedMovieDto(
                 c.MovieId,
@@ -425,7 +425,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
             }
 
             double match = Math.Min(100.0, Math.Round(score, 1));
-            string reason = reasons.Any() ? $"Cinephile Elite choice: it {string.Join(" and ", reasons)}." : "Acclaimed cinematic masterpiece.";
+            string reason = reasons.Any() ? $"Cinephile Elite choice: it {FormatReasons(reasons)}." : "Acclaimed cinematic masterpiece.";
 
             return new RecommendedMovieDto(
                 c.MovieId,
@@ -507,7 +507,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
             score += (ratingValue / 10.0) * 20.0;
 
             double match = Math.Min(100.0, Math.Round(score, 1));
-            string reason = reasons.Any() ? $"Perfect context fit: it {string.Join(" and ", reasons)}." : "Great runtime match for your availability.";
+            string reason = reasons.Any() ? $"Perfect context fit: it {FormatReasons(reasons)}." : "Great runtime match for your availability.";
 
             return new RecommendedMovieDto(
                 c.MovieId,
@@ -538,5 +538,14 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                 c.RuntimeMinutes
             ))
             .ToList();
+    }
+
+    private static string FormatReasons(List<string> reasons)
+    {
+        if (reasons == null || reasons.Count == 0) return string.Empty;
+        if (reasons.Count == 1) return reasons[0];
+        if (reasons.Count == 2) return $"{reasons[0]} and {reasons[1]}";
+        
+        return $"{string.Join(", ", reasons.Take(reasons.Count - 1))}, and {reasons.Last()}";
     }
 }

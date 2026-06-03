@@ -37,6 +37,7 @@
             class="scope-btn" 
             [class.active]="selectedScope() === 0"
             (click)="selectScope(0)"
+            title="Watchlist: Recommendations will be strictly selected from items in your personal Watchlist."
           >
             Watchlist
           </button>
@@ -45,6 +46,7 @@
             class="scope-btn" 
             [class.active]="selectedScope() === 1"
             (click)="selectScope(1)"
+            title="Discover Pool: Recommendations will search across the global cinematic database for unwatched matches."
           >
             Discover Pool
           </button>
@@ -53,6 +55,7 @@
             class="scope-btn" 
             [class.active]="selectedScope() === 2"
             (click)="selectScope(2)"
+            title="Hybrid: Recommendations will pull from both your Watchlist and the global database pool."
           >
             Hybrid
           </button>
