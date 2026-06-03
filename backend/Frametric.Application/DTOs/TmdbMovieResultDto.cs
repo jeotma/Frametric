@@ -12,7 +12,11 @@ public record TmdbMovieResultDto(
     int? FirstAirYear = null,
     double? TmdbRating = null,
     double? TmdbPopularity = null,
-    string? ImdbId = null
+    string? ImdbId = null,
+    string? ReleaseDate = null,
+    string? Keywords = null,
+    string? StreamingProviders = null,
+    string? Overview = null
 )
 {
     public const int DocumentaryGenreId = 99;

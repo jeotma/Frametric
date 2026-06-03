@@ -38,7 +38,8 @@ public class RecommendationQueriesImpl : IRecommendationQueries
                    (SELECT STRING_AGG(d.""Name"", ',') FROM ""MovieDirector"" md JOIN ""Directors"" d ON md.""DirectorsId"" = d.""Id"" WHERE md.""MoviesId"" = m.""Id"") AS Directors,
                    (SELECT STRING_AGG(a.""Name"", ',') FROM ""MovieActor"" ma JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id"" WHERE ma.""MoviesId"" = m.""Id"") AS Actors,
                    CAST(mr.""Score"" AS DOUBLE PRECISION) AS UserRating,
-                   CAST(COALESCE(de.""WatchedDate"", w.""Date"") AS TIMESTAMP) AS WatchDate
+                   CAST(COALESCE(de.""WatchedDate"", w.""Date"") AS TIMESTAMP) AS WatchDate,
+                   m.""Keywords""
             FROM ""WatchedMovies"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             LEFT JOIN ""MovieRatings"" mr ON w.""MovieId"" = mr.""MovieId"" AND mr.""UserId"" = @userId
@@ -93,7 +94,19 @@ public class RecommendationQueriesImpl : IRecommendationQueries
                    CAST(c.""CustomAverageRating"" AS DOUBLE PRECISION) AS CustomAverageRating,
                    (SELECT STRING_AGG(g.""Name"", ',') FROM ""MovieGenre"" mg JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id"" WHERE mg.""MoviesId"" = c.""Id"") AS Genres,
                    (SELECT STRING_AGG(d.""Name"", ',') FROM ""MovieDirector"" md JOIN ""Directors"" d ON md.""DirectorsId"" = d.""Id"" WHERE md.""MoviesId"" = c.""Id"") AS Directors,
-                   (SELECT STRING_AGG(a.""Name"", ',') FROM ""MovieActor"" ma JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id"" WHERE ma.""MoviesId"" = c.""Id"") AS Actors
+                   (SELECT STRING_AGG(a.""Name"", ',') FROM ""MovieActor"" ma JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id"" WHERE ma.""MoviesId"" = c.""Id"") AS Actors,
+                   c.""Keywords"",
+                   c.""Awards"",
+                   c.""Writers"",
+                   c.""Language"",
+                   c.""Country"",
+                   c.""BoxOffice"",
+                   c.""Certification"",
+                   c.""StreamingProviders"",
+                   c.""Overview"",
+                   CAST(c.""ImdbRating"" AS DOUBLE PRECISION) AS ImdbRating,
+                   CAST(c.""RottenTomatoesRating"" AS DOUBLE PRECISION) AS RottenTomatoesRating,
+                   CAST(c.""MetacriticRating"" AS DOUBLE PRECISION) AS MetacriticRating
             FROM Candidates c
             WHERE NOT EXISTS (
                 SELECT 1 FROM ""WatchedMovies"" wm WHERE wm.""MovieId"" = c.""Id"" AND wm.""UserId"" = @userId
@@ -102,8 +115,15 @@ public class RecommendationQueriesImpl : IRecommendationQueries
                 SELECT 1 FROM ""DiaryEntries"" de WHERE de.""MovieId"" = c.""Id"" AND de.""UserId"" = @userId
             )
             AND c.""EnrichmentStatus"" = 'Completed'
-            AND (@maxRuntimeMinutes IS NULL OR c.""RuntimeMinutes"" <= @maxRuntimeMinutes)";
+            AND (@maxRuntimeMinutes IS NULL OR c.""RuntimeMinutes"" <= @maxRuntimeMinutes)
+            AND c.""ReleaseYear"" > 0
+            AND (
+                c.""ReleaseYear"" < @currentYear
+                OR (c.""ReleaseYear"" = @currentYear AND c.""ReleaseDate"" IS NOT NULL AND c.""ReleaseDate"" <= @currentDate)
+            )";
 
-        return await connection.QueryAsync<CandidateMovieDto>(sql, new { userId, maxRuntimeMinutes });
+        var currentYear = DateTime.UtcNow.Year;
+        var currentDate = DateTime.UtcNow.Date;
+        return await connection.QueryAsync<CandidateMovieDto>(sql, new { userId, maxRuntimeMinutes, currentYear, currentDate });
     }
 }

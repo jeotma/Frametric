@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.Http.Json;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,10 +16,18 @@ using Frametric.Application.DTOs;
 using Frametric.Application.Interfaces.Analytics;
 using Frametric.Application.Queries.Recommendations;
 using Frametric.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
+using Frametric.Infrastructure.Persistence;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Frametric.Application.Interfaces;
+using Frametric.Infrastructure.Providers.Tmdb;
+using Frametric.Infrastructure.Providers.Omdb;
+using MediatR;
 
 namespace Frametric.UnitTests;
 
@@ -126,5 +135,38 @@ public class GetCinematicRecommendationsQueryHandlerTests
         Assert.Single(result);
         Assert.Equal(normalMovieId, result[0].MovieId);
         Assert.Equal("Normal Movie", result[0].Title);
+    }
+
+    // TEMPORARY: ResetRemainingMoviesToPending is a migration test script to reset completed movies lacking OMDb fields.
+    // Delete this test when the database cleanup/enrichment is finished.
+    [Fact]
+    public async Task ResetRemainingMoviesToPending()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<FrametricDbContext>();
+        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=Frametric;Username=postgres;Password=1234");
+        using var context = new FrametricDbContext(optionsBuilder.Options);
+
+        var moviesToReset = await context.Movies
+            .Include(m => m.Genres)
+            .Include(m => m.Directors)
+            .Include(m => m.Actors)
+            .Where(m => m.EnrichmentStatus == EnrichmentStatus.Completed 
+                && m.ImdbRating == null 
+                && m.Awards == null 
+                && m.Writers == null)
+            .ToListAsync();
+
+        foreach (var movie in moviesToReset)
+        {
+            movie.ResetToPending();
+        }
+
+        await context.SaveChangesAsync();
+
+        var total = await context.Movies.CountAsync();
+        var completed = await context.Movies.CountAsync(m => m.EnrichmentStatus == EnrichmentStatus.Completed);
+        var pending = await context.Movies.CountAsync(m => m.EnrichmentStatus == EnrichmentStatus.Pending);
+
+        Assert.Fail($"Reset completo. Total: {total}\nCompleted: {completed}\nPending: {pending}");
     }
 }

@@ -18,5 +18,6 @@ export interface RecommendedMovieDto {
     recommendationReason: string;
     posterUrl?: string | null;
     runtimeMinutes?: number | null;
+    customAverageRating?: number | null;
 }
 

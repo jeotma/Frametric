@@ -22,7 +22,8 @@ public record WatchedMovieDetailDto(
     string? Directors,
     string? Actors,
     double? UserRating,
-    DateTime WatchDate
+    DateTime WatchDate,
+    string? Keywords = null
 );
 
 public record CandidateMovieDto(
@@ -36,7 +37,19 @@ public record CandidateMovieDto(
     double? CustomAverageRating,
     string? Genres,
     string? Directors,
-    string? Actors
+    string? Actors,
+    string? Keywords = null,
+    string? Awards = null,
+    string? Writers = null,
+    string? Language = null,
+    string? Country = null,
+    string? BoxOffice = null,
+    string? Certification = null,
+    string? StreamingProviders = null,
+    string? Overview = null,
+    double? ImdbRating = null,
+    double? RottenTomatoesRating = null,
+    double? MetacriticRating = null
 );
 
 public interface IRecommendationQueries

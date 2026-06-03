@@ -159,6 +159,22 @@ namespace Frametric.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Awards")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("BoxOffice")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Certification")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Country")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<double?>("CustomAverageRating")
                         .HasColumnType("double precision");
 
@@ -173,11 +189,26 @@ namespace Frametric.Infrastructure.Migrations
                     b.Property<bool>("IsDocumentary")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Keywords")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<double?>("MetacriticRating")
                         .HasColumnType("double precision");
 
+                    b.Property<string>("Overview")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
                     b.Property<string>("PosterUrl")
                         .HasColumnType("text");
+
+                    b.Property<DateOnly?>("ReleaseDate")
+                        .HasColumnType("date");
 
                     b.Property<int?>("ReleaseYear")
                         .HasColumnType("integer");
@@ -187,6 +218,10 @@ namespace Frametric.Infrastructure.Migrations
 
                     b.Property<int?>("RuntimeMinutes")
                         .HasColumnType("integer");
+
+                    b.Property<string>("StreamingProviders")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -198,6 +233,10 @@ namespace Frametric.Infrastructure.Migrations
 
                     b.Property<double?>("TmdbRating")
                         .HasColumnType("double precision");
+
+                    b.Property<string>("Writers")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.HasKey("Id");
 

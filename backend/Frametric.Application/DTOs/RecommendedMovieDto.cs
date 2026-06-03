@@ -18,5 +18,6 @@ public record RecommendedMovieDto(
     double MatchPercentage,
     string RecommendationReason,
     string? PosterUrl = null,
-    int? RuntimeMinutes = null
+    int? RuntimeMinutes = null,
+    double? CustomAverageRating = null
 );

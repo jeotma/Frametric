@@ -14,7 +14,13 @@ namespace Frametric.Application.Interfaces;
 public record OmdbRatingsDto(
     double? ImdbRating,
     double? RottenTomatoesRating,
-    double? MetacriticRating
+    double? MetacriticRating,
+    string? Writers = null,
+    string? Awards = null,
+    string? BoxOffice = null,
+    string? Language = null,
+    string? Country = null,
+    string? Rated = null
 );
 
 public interface IOmdbService

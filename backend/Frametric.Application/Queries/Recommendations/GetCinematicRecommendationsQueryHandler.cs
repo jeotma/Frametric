@@ -84,7 +84,8 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                     90.0,
                     "Highly acclaimed movie to start your cinematic journey.",
                     c.PosterUrl,
-                    c.RuntimeMinutes
+                    c.RuntimeMinutes,
+                    c.CustomAverageRating
                 ))
                 .OrderByDescending(r => r.MatchPercentage)
                 .Take(request.Quantity)
@@ -130,14 +131,89 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
     private List<RecommendedMovieDto> ApplyRecentMood(List<CandidateMovieDto> candidates, List<WatchedMovieDetailDto> watched, int quantity)
     {
         var recent = watched.OrderByDescending(w => w.WatchDate).Take(10).ToList();
-        var recentGenres = recent.SelectMany(r => r.Genres?.Split(',') ?? Array.Empty<string>())
-            .GroupBy(g => g).ToDictionary(g => g.Key, g => g.Count());
-        var recentDecades = recent.Where(r => r.ReleaseYear.HasValue)
-            .Select(r => (r.ReleaseYear!.Value / 10) * 10)
-            .GroupBy(d => d).ToDictionary(d => d.Key, d => d.Count());
-        var recentDirectors = recent.SelectMany(r => r.Directors?.Split(',') ?? Array.Empty<string>()).Distinct().ToList();
-        var recentActors = recent.SelectMany(r => r.Actors?.Split(',') ?? Array.Empty<string>()).Distinct().ToList();
-        double avgRuntime = recent.Any(r => r.RuntimeMinutes > 0) ? recent.Where(r => r.RuntimeMinutes > 0).Average(r => r.RuntimeMinutes!.Value) : 100.0;
+        
+        var recentGenres = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+        var recentDecades = new Dictionary<int, double>();
+        var recentDirectors = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+        var recentActors = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+        var recentKeywords = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var r in recent)
+        {
+            double weight = r.UserRating.HasValue ? Math.Max(0.1, r.UserRating.Value / 10.0) : 0.7;
+
+            // Genres
+            var genresList = r.Genres?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+            foreach (var g in genresList)
+            {
+                var trimmed = g.Trim();
+                if (!string.IsNullOrEmpty(trimmed))
+                {
+                    recentGenres[trimmed] = recentGenres.GetValueOrDefault(trimmed) + weight;
+                }
+            }
+
+            // Decades
+            if (r.ReleaseYear.HasValue)
+            {
+                int decade = (r.ReleaseYear.Value / 10) * 10;
+                recentDecades[decade] = recentDecades.GetValueOrDefault(decade) + weight;
+            }
+
+            // Directors
+            var dirList = r.Directors?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+            foreach (var d in dirList)
+            {
+                var trimmed = d.Trim();
+                if (!string.IsNullOrEmpty(trimmed))
+                {
+                    recentDirectors[trimmed] = recentDirectors.GetValueOrDefault(trimmed) + weight;
+                }
+            }
+
+            // Actors
+            var actList = r.Actors?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+            foreach (var a in actList)
+            {
+                var trimmed = a.Trim();
+                if (!string.IsNullOrEmpty(trimmed))
+                {
+                    recentActors[trimmed] = recentActors.GetValueOrDefault(trimmed) + weight;
+                }
+            }
+
+            // Keywords (from highly rated watches: user rating >= 7.0 or not rated)
+            if (!r.UserRating.HasValue || r.UserRating.Value >= 7.0)
+            {
+                var kwList = r.Keywords?.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                foreach (var kw in kwList)
+                {
+                    var trimmed = kw.Trim();
+                    if (!string.IsNullOrEmpty(trimmed))
+                    {
+                        recentKeywords[trimmed] = recentKeywords.GetValueOrDefault(trimmed) + weight;
+                    }
+                }
+            }
+        }
+
+        // Weighted average runtime
+        double avgRuntime = 100.0;
+        double runtimeWeightSum = 0;
+        double runtimeSum = 0;
+        foreach (var r in recent)
+        {
+            if (r.RuntimeMinutes.HasValue && r.RuntimeMinutes.Value > 0)
+            {
+                double weight = r.UserRating.HasValue ? Math.Max(0.1, r.UserRating.Value / 10.0) : 0.7;
+                runtimeSum += r.RuntimeMinutes.Value * weight;
+                runtimeWeightSum += weight;
+            }
+        }
+        if (runtimeWeightSum > 0)
+        {
+            avgRuntime = runtimeSum / runtimeWeightSum;
+        }
 
         return candidates.Select(c =>
         {
@@ -145,26 +221,45 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
             var reasons = new List<string>();
 
             // Genre alignment
-            var cGenres = c.Genres?.Split(',') ?? Array.Empty<string>();
+            var cGenres = c.Genres?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
             double genreOverlap = 0;
             foreach (var cg in cGenres)
             {
-                if (recentGenres.TryGetValue(cg, out int count))
+                var trimmed = cg.Trim();
+                if (recentGenres.TryGetValue(trimmed, out double count))
                 {
                     genreOverlap += count;
                 }
             }
             if (genreOverlap > 0)
             {
-                double weight = Math.Min(40.0, genreOverlap * 8.0);
+                double weight = Math.Min(35.0, genreOverlap * 8.0);
                 score += weight;
                 reasons.Add("shares recent favorite genres");
+            }
+
+            // Keyword alignment (plot themes/tropes)
+            var cKws = c.Keywords?.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+            double keywordOverlap = 0;
+            foreach (var ckw in cKws)
+            {
+                var trimmed = ckw.Trim();
+                if (recentKeywords.TryGetValue(trimmed, out double kwWeight))
+                {
+                    keywordOverlap += kwWeight;
+                }
+            }
+            if (keywordOverlap > 0)
+            {
+                double weight = Math.Min(25.0, keywordOverlap * 5.0);
+                score += weight;
+                reasons.Add("matches your preferred themes and tropes");
             }
 
             // Runtime alignment
             if (c.RuntimeMinutes.HasValue && Math.Abs(c.RuntimeMinutes.Value - avgRuntime) <= 20)
             {
-                score += 20;
+                score += 15;
                 reasons.Add("perfect pacing match");
             }
 
@@ -172,26 +267,44 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
             if (c.ReleaseYear.HasValue)
             {
                 int cDecade = (c.ReleaseYear.Value / 10) * 10;
-                if (recentDecades.TryGetValue(cDecade, out int count))
+                if (recentDecades.TryGetValue(cDecade, out double count))
                 {
-                    score += Math.Min(20.0, count * 5.0);
+                    score += Math.Min(15.0, count * 5.0);
                     reasons.Add($"matches your recent era ({cDecade}s)");
                 }
             }
 
             // Director alignment
-            var cDirs = c.Directors?.Split(',') ?? Array.Empty<string>();
-            if (cDirs.Any(d => recentDirectors.Contains(d)))
+            var cDirs = c.Directors?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+            double dirScore = 0;
+            foreach (var d in cDirs)
             {
-                score += 10;
+                var trimmed = d.Trim();
+                if (recentDirectors.TryGetValue(trimmed, out double dWeight))
+                {
+                    dirScore += dWeight;
+                }
+            }
+            if (dirScore > 0)
+            {
+                score += Math.Min(10.0, dirScore * 5.0);
                 reasons.Add("directed by a filmmaker you watched recently");
             }
 
             // Actor alignment
-            var cActors = c.Actors?.Split(',') ?? Array.Empty<string>();
-            if (cActors.Any(a => recentActors.Contains(a)))
+            var cActors = c.Actors?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+            double actorScore = 0;
+            foreach (var a in cActors)
             {
-                score += 10;
+                var trimmed = a.Trim();
+                if (recentActors.TryGetValue(trimmed, out double aWeight))
+                {
+                    actorScore += aWeight;
+                }
+            }
+            if (actorScore > 0)
+            {
+                score += Math.Min(10.0, actorScore * 3.0);
                 reasons.Add("stars familiar faces");
             }
 
@@ -210,7 +323,8 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                 match,
                 reason,
                 c.PosterUrl,
-                c.RuntimeMinutes
+                c.RuntimeMinutes,
+                c.CustomAverageRating
             );
         }).OrderByDescending(r => r.MatchPercentage).Take(quantity).ToList();
     }
@@ -218,8 +332,17 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
     private List<RecommendedMovieDto> ApplyOppositeMood(List<CandidateMovieDto> candidates, List<WatchedMovieDetailDto> watched, int quantity)
     {
         var recent = watched.OrderByDescending(w => w.WatchDate).Take(10).ToList();
-        var recentGenres = recent.SelectMany(r => r.Genres?.Split(',') ?? Array.Empty<string>()).Distinct().ToList();
+        var recentGenres = recent.SelectMany(r => r.Genres?.Split(',') ?? Array.Empty<string>())
+            .Select(g => g.Trim())
+            .Where(g => !string.IsNullOrEmpty(g))
+            .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         double avgRuntime = recent.Any(r => r.RuntimeMinutes > 0) ? recent.Where(r => r.RuntimeMinutes > 0).Average(r => r.RuntimeMinutes!.Value) : 100.0;
+
+        var recentKeywords = recent.SelectMany(r => r.Keywords?.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>())
+            .Select(kw => kw.Trim())
+            .Where(kw => !string.IsNullOrEmpty(kw))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
         return candidates.Select(c =>
         {
@@ -228,10 +351,24 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
 
             // Genre inversion
             var cGenres = c.Genres?.Split(',') ?? Array.Empty<string>();
-            if (!cGenres.Any(cg => recentGenres.Contains(cg)))
+            if (!cGenres.Any(cg => recentGenres.Contains(cg.Trim(), StringComparer.OrdinalIgnoreCase)))
             {
-                score += 40;
+                score += 30;
                 reasons.Add("breaks away from recent genres");
+            }
+
+            // Keyword inversion (low keyword similarity)
+            var cKws = c.Keywords?.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+            int keywordOverlapCount = cKws.Count(ckw => recentKeywords.Contains(ckw.Trim(), StringComparer.OrdinalIgnoreCase));
+            if (keywordOverlapCount == 0 && cKws.Any())
+            {
+                score += 30;
+                reasons.Add("explores entirely different plot themes and tropes");
+            }
+            else if (keywordOverlapCount < 2)
+            {
+                score += 15;
+                reasons.Add("has minimal theme overlap with recent watches");
             }
 
             // Pacing inversion
@@ -239,19 +376,19 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
             {
                 if (avgRuntime > 115 && c.RuntimeMinutes < 95)
                 {
-                    score += 30;
+                    score += 20;
                     reasons.Add("offers a quicker, faster-paced watch");
                 }
                 else if (avgRuntime < 95 && c.RuntimeMinutes > 115)
                 {
-                    score += 30;
+                    score += 20;
                     reasons.Add("dives into a deeper, slower-paced cinematic experience");
                 }
             }
 
             // Quality score contribution
             double ratingValue = c.CustomAverageRating ?? c.TmdbRating ?? 6.0;
-            score += (ratingValue / 10.0) * 30.0;
+            score += (ratingValue / 10.0) * 20.0;
 
             double match = Math.Min(100.0, Math.Round(score, 1));
             string reason = reasons.Any() ? $"A perfect palette cleanser: it {FormatReasons(reasons)}." : "Great selection to diversify your movie cycle.";
@@ -264,7 +401,8 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                 match,
                 reason,
                 c.PosterUrl,
-                c.RuntimeMinutes
+                c.RuntimeMinutes,
+                c.CustomAverageRating
             );
         }).OrderByDescending(r => r.MatchPercentage).Take(quantity).ToList();
     }
@@ -341,14 +479,15 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                 match,
                 reason,
                 c.PosterUrl,
-                c.RuntimeMinutes
+                c.RuntimeMinutes,
+                c.CustomAverageRating
             );
         }).OrderByDescending(r => r.MatchPercentage).Take(quantity).ToList();
     }
 
     private List<RecommendedMovieDto> ApplyGuiltyPleasure(List<CandidateMovieDto> candidates, List<WatchedMovieDetailDto> watched, int quantity)
     {
-        double userAvgRating = watched.Where(w => w.UserRating.HasValue).Average(w => w.UserRating!.Value);
+        double userAvgRating = watched.Any(w => w.UserRating.HasValue) ? watched.Where(w => w.UserRating.HasValue).Average(w => w.UserRating!.Value) : 6.0;
 
         // Find sub-genres where user historically rates higher than their average rating
         var genreStats = watched.SelectMany(w => (w.Genres?.Split(',') ?? Array.Empty<string>()).Select(g => new { Genre = g, Rating = w.UserRating }))
@@ -369,7 +508,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
 
             if (pop < 25.0 && rating < 7.0)
             {
-                score += 40;
+                score += 30;
                 reasons.Add("is a hidden, less-mainstream title");
             }
 
@@ -377,8 +516,34 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
             var cGenres = c.Genres?.Split(',') ?? Array.Empty<string>();
             if (cGenres.Any(g => genreStats.Contains(g)))
             {
-                score += 60;
+                score += 40;
                 reasons.Add("precisely fits a sub-genre you rate higher than average");
+            }
+
+            // Critic vs Audience rating discrepancy
+            double criticRatingSum = 0;
+            int criticRatingCount = 0;
+            if (c.MetacriticRating.HasValue)
+            {
+                criticRatingSum += c.MetacriticRating.Value;
+                criticRatingCount++;
+            }
+            if (c.RottenTomatoesRating.HasValue)
+            {
+                criticRatingSum += c.RottenTomatoesRating.Value;
+                criticRatingCount++;
+            }
+
+            if (criticRatingCount > 0)
+            {
+                double avgCriticRating = criticRatingSum / criticRatingCount;
+                double audienceRating = c.TmdbRating ?? 5.0;
+                double discrepancy = audienceRating - avgCriticRating;
+                if (discrepancy > 0.5)
+                {
+                    score += Math.Min(30.0, discrepancy * 15.0);
+                    reasons.Add("has high audience appeal despite lower critical reviews");
+                }
             }
 
             double match = Math.Min(100.0, Math.Round(score, 1));
@@ -392,7 +557,8 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                 match,
                 reason,
                 c.PosterUrl,
-                c.RuntimeMinutes
+                c.RuntimeMinutes,
+                c.CustomAverageRating
             );
         }).OrderByDescending(r => r.MatchPercentage).Take(quantity).ToList();
     }
@@ -409,19 +575,45 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
 
             if (rating >= 8.2)
             {
-                score += 70;
+                score += 40;
                 reasons.Add("is widely acclaimed as a critical masterpiece");
             }
             else if (rating >= 7.6)
             {
-                score += 40;
+                score += 25;
                 reasons.Add("has exceptionally high reviews");
             }
 
             if (popularity < 35.0)
             {
-                score += 30;
+                score += 20;
                 reasons.Add("retains high prestige away from mainstream popularity");
+            }
+
+            // Awards analysis
+            if (!string.IsNullOrEmpty(c.Awards))
+            {
+                string awardsLower = c.Awards.ToLowerInvariant();
+                if (awardsLower.Contains("oscar") && (awardsLower.Contains("won") || awardsLower.Contains("winner") || awardsLower.Contains("wins")))
+                {
+                    score += 30;
+                    reasons.Add("won Academy Awards");
+                }
+                else if (awardsLower.Contains("oscar"))
+                {
+                    score += 20;
+                    reasons.Add("nominated for Academy Awards");
+                }
+                else if (awardsLower.Contains("won") || awardsLower.Contains("wins") || awardsLower.Contains("winner"))
+                {
+                    score += 15;
+                    reasons.Add("has received notable industry accolade wins");
+                }
+                else if (awardsLower.Contains("nomination") || awardsLower.Contains("nominated"))
+                {
+                    score += 10;
+                    reasons.Add("nominated for prestigious awards");
+                }
             }
 
             double match = Math.Min(100.0, Math.Round(score, 1));
@@ -435,7 +627,8 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                 match,
                 reason,
                 c.PosterUrl,
-                c.RuntimeMinutes
+                c.RuntimeMinutes,
+                c.CustomAverageRating
             );
         }).OrderByDescending(r => r.MatchPercentage).Take(quantity).ToList();
     }
@@ -461,7 +654,8 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                     100.0,
                     $"Continues your exploration of {dir}'s filmography chronologically.",
                     c.PosterUrl,
-                    c.RuntimeMinutes
+                    c.RuntimeMinutes,
+                    c.CustomAverageRating
                 );
             })
             .OrderBy(r => r.ReleaseYear) // Chronological order
@@ -517,7 +711,8 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                 match,
                 reason,
                 c.PosterUrl,
-                c.RuntimeMinutes
+                c.RuntimeMinutes,
+                c.CustomAverageRating
             );
         }).OrderByDescending(r => r.MatchPercentage).Take(quantity).ToList();
     }
@@ -535,7 +730,8 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                 50.0,
                 "A completely random pick to let chance guide your night.",
                 c.PosterUrl,
-                c.RuntimeMinutes
+                c.RuntimeMinutes,
+                c.CustomAverageRating
             ))
             .ToList();
     }

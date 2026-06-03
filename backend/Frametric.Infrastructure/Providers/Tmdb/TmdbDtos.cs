@@ -12,6 +12,15 @@ public class TmdbSearchResult
 {
     [JsonPropertyName("id")]
     public int Id { get; set; }
+
+    [JsonPropertyName("title")]
+    public string? Title { get; set; }
+
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    [JsonPropertyName("popularity")]
+    public double? Popularity { get; set; }
 }
 
 public class TmdbMovieDetails
@@ -39,6 +48,12 @@ public class TmdbMovieDetails
 
     [JsonPropertyName("popularity")]
     public double? Popularity { get; set; }
+
+    [JsonPropertyName("release_date")]
+    public string? ReleaseDate { get; set; }
+
+    [JsonPropertyName("overview")]
+    public string? Overview { get; set; }
 }
 
 public class TmdbGenreItem
@@ -132,5 +147,35 @@ public class TmdbEpisodeItem
 
     [JsonPropertyName("runtime")]
     public int? Runtime { get; set; }
+}
+
+public class TmdbKeywordsResponse
+{
+    [JsonPropertyName("keywords")]
+    public List<TmdbKeywordItem> Keywords { get; set; } = new();
+}
+
+public class TmdbKeywordItem
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+}
+
+public class TmdbWatchProvidersResponse
+{
+    [JsonPropertyName("results")]
+    public Dictionary<string, TmdbCountryWatchProviders>? Results { get; set; }
+}
+
+public class TmdbCountryWatchProviders
+{
+    [JsonPropertyName("flatrate")]
+    public List<TmdbWatchProviderItem>? Flatrate { get; set; }
+}
+
+public class TmdbWatchProviderItem
+{
+    [JsonPropertyName("provider_name")]
+    public string ProviderName { get; set; } = string.Empty;
 }
 

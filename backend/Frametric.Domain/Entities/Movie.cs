@@ -19,6 +19,16 @@ public class Movie
     public double? RottenTomatoesRating { get; private set; }
     public double? MetacriticRating { get; private set; }
     public double? CustomAverageRating { get; private set; }
+    public DateOnly? ReleaseDate { get; private set; }
+    public string? Keywords { get; private set; }
+    public string? Awards { get; private set; }
+    public string? Writers { get; private set; }
+    public string? Language { get; private set; }
+    public string? Country { get; private set; }
+    public string? BoxOffice { get; private set; }
+    public string? Certification { get; private set; }
+    public string? StreamingProviders { get; private set; }
+    public string? Overview { get; private set; }
 
     // Navigation properties
     public ICollection<Genre> Genres { get; private set; } = new List<Genre>();
@@ -52,7 +62,17 @@ public class Movie
         double? imdbRating = null,
         double? rottenTomatoesRating = null,
         double? metacriticRating = null,
-        double? customAverageRating = null)
+        double? customAverageRating = null,
+        DateOnly? releaseDate = null,
+        string? keywords = null,
+        string? awards = null,
+        string? writers = null,
+        string? language = null,
+        string? country = null,
+        string? boxOffice = null,
+        string? certification = null,
+        string? streamingProviders = null,
+        string? overview = null)
     {
         RuntimeMinutes = runtimeMinutes;
         PosterUrl = posterUrl;
@@ -63,6 +83,16 @@ public class Movie
         RottenTomatoesRating = rottenTomatoesRating;
         MetacriticRating = metacriticRating;
         CustomAverageRating = customAverageRating;
+        ReleaseDate = releaseDate;
+        Keywords = keywords;
+        Awards = awards;
+        Writers = writers;
+        Language = language;
+        Country = country;
+        BoxOffice = boxOffice;
+        Certification = certification;
+        StreamingProviders = streamingProviders;
+        Overview = overview;
         
         foreach (var genre in genres) Genres.Add(genre);
         foreach (var director in directors) Directors.Add(director);
@@ -79,5 +109,35 @@ public class Movie
     public void MarkAsNotFound()
     {
         EnrichmentStatus = EnrichmentStatus.NotFound;
+    }
+
+    // TEMPORARY: ResetToPending is used by the database reset script to batch enrich
+    // completed movies that lack OMDb ratings. Delete this method tomorrow (or when migration is done).
+    public void ResetToPending()
+    {
+        EnrichmentStatus = EnrichmentStatus.Pending;
+        RuntimeMinutes = null;
+        PosterUrl = null;
+        IsDocumentary = false;
+        TmdbRating = null;
+        TmdbPopularity = null;
+        ImdbRating = null;
+        RottenTomatoesRating = null;
+        MetacriticRating = null;
+        CustomAverageRating = null;
+        ReleaseDate = null;
+        Keywords = null;
+        Awards = null;
+        Writers = null;
+        Language = null;
+        Country = null;
+        BoxOffice = null;
+        Certification = null;
+        StreamingProviders = null;
+        Overview = null;
+
+        Genres.Clear();
+        Directors.Clear();
+        Actors.Clear();
     }
 }

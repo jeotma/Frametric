@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
@@ -47,10 +48,43 @@ public class OmdbService : IOmdbService
             return null;
         }
 
+        var cacheDir = Path.Combine(Directory.GetCurrentDirectory(), "omdb_cache");
+        if (!Directory.Exists(cacheDir))
+        {
+            try
+            {
+                Directory.CreateDirectory(cacheDir);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to create OMDb cache directory.");
+            }
+        }
+
+        var cacheFile = Path.Combine(cacheDir, $"{imdbId}.json");
+        if (File.Exists(cacheFile))
+        {
+            try
+            {
+                var cachedJson = await File.ReadAllTextAsync(cacheFile, cancellationToken);
+                var cachedResponse = System.Text.Json.JsonSerializer.Deserialize<OmdbResponse>(cachedJson);
+                if (cachedResponse != null && string.Equals(cachedResponse.Response, "True", StringComparison.OrdinalIgnoreCase))
+                {
+                    return MapResponse(cachedResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to read cached OMDb response for {ImdbId}", imdbId);
+            }
+        }
+
         try
         {
             var url = $"?apikey={_apiKey}&i={Uri.EscapeDataString(imdbId)}";
-            var response = await _httpClient.GetFromJsonAsync<OmdbResponse>(url, cancellationToken);
+            var responseString = await _httpClient.GetStringAsync(url, cancellationToken);
+
+            var response = System.Text.Json.JsonSerializer.Deserialize<OmdbResponse>(responseString);
 
             if (response == null || !string.Equals(response.Response, "True", StringComparison.OrdinalIgnoreCase))
             {
@@ -58,37 +92,62 @@ public class OmdbService : IOmdbService
                 return null;
             }
 
-            double? imdbRating = ParseImdbRating(response.ImdbRating);
-            double? rottenTomatoesRating = null;
-            double? metacriticRating = null;
-
-            if (response.Ratings != null)
+            // Save raw response to cache file
+            try
             {
-                foreach (var ratingItem in response.Ratings)
-                {
-                    if (string.Equals(ratingItem.Source, "Internet Movie Database", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var parsed = ParseImdbRating(ratingItem.Value);
-                        if (parsed.HasValue) imdbRating = parsed;
-                    }
-                    else if (string.Equals(ratingItem.Source, "Rotten Tomatoes", StringComparison.OrdinalIgnoreCase))
-                    {
-                        rottenTomatoesRating = ParseRottenTomatoesRating(ratingItem.Value);
-                    }
-                    else if (string.Equals(ratingItem.Source, "Metacritic", StringComparison.OrdinalIgnoreCase))
-                    {
-                        metacriticRating = ParseMetacriticRating(ratingItem.Value);
-                    }
-                }
+                await File.WriteAllTextAsync(cacheFile, responseString, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to save OMDb response to cache for {ImdbId}", imdbId);
             }
 
-            return new OmdbRatingsDto(imdbRating, rottenTomatoesRating, metacriticRating);
+            return MapResponse(response);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching ratings from OMDb for IMDb ID: {ImdbId}", imdbId);
             return null;
         }
+    }
+
+    private OmdbRatingsDto MapResponse(OmdbResponse response)
+    {
+        double? imdbRating = ParseImdbRating(response.ImdbRating);
+        double? rottenTomatoesRating = null;
+        double? metacriticRating = null;
+
+        if (response.Ratings != null)
+        {
+            foreach (var ratingItem in response.Ratings)
+            {
+                if (string.Equals(ratingItem.Source, "Internet Movie Database", StringComparison.OrdinalIgnoreCase))
+                {
+                    var parsed = ParseImdbRating(ratingItem.Value);
+                    if (parsed.HasValue) imdbRating = parsed;
+                }
+                else if (string.Equals(ratingItem.Source, "Rotten Tomatoes", StringComparison.OrdinalIgnoreCase))
+                {
+                    rottenTomatoesRating = ParseRottenTomatoesRating(ratingItem.Value);
+                }
+                else if (string.Equals(ratingItem.Source, "Metacritic", StringComparison.OrdinalIgnoreCase))
+                {
+                    metacriticRating = ParseMetacriticRating(ratingItem.Value);
+                }
+            }
+        }
+
+        return new OmdbRatingsDto(
+            imdbRating, 
+            rottenTomatoesRating, 
+            metacriticRating,
+            Writers: response.Writer,
+            Awards: response.Awards,
+            BoxOffice: response.BoxOffice,
+            Language: response.Language,
+            Country: response.Country,
+            Rated: response.Rated
+        );
     }
 
     private static double? ParseImdbRating(string? value)
@@ -141,6 +200,24 @@ public class OmdbResponse
 
     [JsonPropertyName("Response")]
     public string? Response { get; set; }
+
+    [JsonPropertyName("Writer")]
+    public string? Writer { get; set; }
+
+    [JsonPropertyName("Awards")]
+    public string? Awards { get; set; }
+
+    [JsonPropertyName("BoxOffice")]
+    public string? BoxOffice { get; set; }
+
+    [JsonPropertyName("Language")]
+    public string? Language { get; set; }
+
+    [JsonPropertyName("Country")]
+    public string? Country { get; set; }
+
+    [JsonPropertyName("Rated")]
+    public string? Rated { get; set; }
 }
 
 public class OmdbRatingItem

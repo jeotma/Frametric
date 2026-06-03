@@ -109,9 +109,10 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
             double? metacriticRating = null;
             double? customAverageRating = null;
 
+            OmdbRatingsDto? omdbRatings = null;
             if (!string.IsNullOrEmpty(tmdbData.ImdbId))
             {
-                var omdbRatings = await _omdbService.GetMovieRatingsAsync(tmdbData.ImdbId, cancellationToken);
+                omdbRatings = await _omdbService.GetMovieRatingsAsync(tmdbData.ImdbId, cancellationToken);
                 if (omdbRatings != null)
                 {
                     imdbRating = omdbRatings.ImdbRating;
@@ -131,6 +132,49 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
                 customAverageRating = ratingsList.Average();
             }
 
+            DateOnly? parsedReleaseDate = null;
+            if (!string.IsNullOrEmpty(tmdbData.ReleaseDate) && DateOnly.TryParse(tmdbData.ReleaseDate, out var rDate))
+            {
+                parsedReleaseDate = rDate;
+            }
+
+            string? writers = null;
+            string? awards = null;
+            string? boxOffice = null;
+            string? language = null;
+            string? country = null;
+            string? rated = null;
+
+            if (omdbRatings != null)
+            {
+                writers = omdbRatings.Writers;
+                if (writers != null && writers.Length > 1000) writers = writers.Substring(0, 1000);
+
+                awards = omdbRatings.Awards;
+                if (awards != null && awards.Length > 1000) awards = awards.Substring(0, 1000);
+
+                boxOffice = omdbRatings.BoxOffice;
+                if (boxOffice != null && boxOffice.Length > 100) boxOffice = boxOffice.Substring(0, 100);
+
+                language = omdbRatings.Language;
+                if (language != null && language.Length > 100) language = language.Substring(0, 100);
+
+                country = omdbRatings.Country;
+                if (country != null && country.Length > 200) country = country.Substring(0, 200);
+
+                rated = omdbRatings.Rated;
+                if (rated != null && rated.Length > 50) rated = rated.Substring(0, 50);
+            }
+
+            var keywords = tmdbData.Keywords;
+            if (keywords != null && keywords.Length > 4000) keywords = keywords.Substring(0, 4000);
+
+            var providers = tmdbData.StreamingProviders;
+            if (providers != null && providers.Length > 1000) providers = providers.Substring(0, 1000);
+
+            var overview = tmdbData.Overview;
+            if (overview != null && overview.Length > 4000) overview = overview.Substring(0, 4000);
+
             movie.EnrichMetadata(
                 tmdbData.RuntimeMinutes ?? 0, 
                 tmdbData.PosterUrl ?? string.Empty, 
@@ -143,7 +187,17 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
                 imdbRating,
                 rottenTomatoesRating,
                 metacriticRating,
-                customAverageRating);
+                customAverageRating,
+                parsedReleaseDate,
+                keywords: keywords,
+                awards: awards,
+                writers: writers,
+                language: language,
+                country: country,
+                boxOffice: boxOffice,
+                certification: rated,
+                streamingProviders: providers,
+                overview: overview);
             enrichedCount++;
         }
 

@@ -19,7 +19,76 @@
               [class.active]="selectedStrategy() === strat.id"
               (click)="selectStrategy(strat.id)"
             >
-              <span class="strategy-icon">{{ strat.icon }}</span>
+              <span class="strategy-icon">
+                @switch (strat.id) {
+                  @case (0) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>
+                      <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/>
+                      <path d="M12 5v14"/>
+                      <path d="M12 12h5"/>
+                      <path d="M12 12H7"/>
+                    </svg>
+                  }
+                  @case (1) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m3 16 4 4 4-4"/>
+                      <path d="M7 20V4"/>
+                      <path d="m21 8-4-4-4 4"/>
+                      <path d="M17 4v16"/>
+                    </svg>
+                  }
+                  @case (2) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4.5 16.5c-1.5 1.26-2 3.43-2 3.43s2.17-.5 3.43-2"/>
+                      <path d="M22 2c-3 0-8.5 1.5-11.5 4.5S8 15 8 15s4 0 7-3 5.5-8.5 5.5-11.5z"/>
+                      <path d="M9 15l-1.5 3.5L5 20l2.5-2.5L9 15z"/>
+                      <path d="M15 9l3.5-1.5L20 5l-2.5 2.5L15 9z"/>
+                      <circle cx="15" cy="9" r="1"/>
+                    </svg>
+                  }
+                  @case (3) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                      <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5 5 3Z"/>
+                    </svg>
+                  }
+                  @case (4) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="8" r="7"/>
+                      <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                    </svg>
+                  }
+                  @case (5) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="18" height="18" x="3" y="3" rx="2"/>
+                      <path d="M7 3v18"/>
+                      <path d="M17 3v18"/>
+                      <path d="M3 12h18"/>
+                      <path d="M3 7h4"/>
+                      <path d="M17 7h4"/>
+                      <path d="M3 17h4"/>
+                      <path d="M17 17h4"/>
+                    </svg>
+                  }
+                  @case (6) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                  }
+                  @case (7) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <circle cx="15.5" cy="15.5" r="1.5"/>
+                      <circle cx="15.5" cy="8.5" r="1.5"/>
+                      <circle cx="8.5" cy="15.5" r="1.5"/>
+                      <circle cx="12" cy="12" r="1.5"/>
+                    </svg>
+                  }
+                }
+              </span>
               <div class="strategy-info">
                 <h3>{{ strat.name }}</h3>
                 <p>{{ strat.description }}</p>
@@ -37,7 +106,7 @@
             class="scope-btn" 
             [class.active]="selectedScope() === 0"
             (click)="selectScope(0)"
-            title="Watchlist: Recommendations will be strictly selected from items in your personal Watchlist."
+            data-tooltip="Recommend movies strictly from your personal Watchlist."
           >
             Watchlist
           </button>
@@ -46,7 +115,7 @@
             class="scope-btn" 
             [class.active]="selectedScope() === 1"
             (click)="selectScope(1)"
-            title="Discover Pool: Recommendations will search across the global cinematic database for unwatched matches."
+            data-tooltip="Search the global cinematic database for unwatched matches."
           >
             Discover Pool
           </button>
@@ -55,7 +124,7 @@
             class="scope-btn" 
             [class.active]="selectedScope() === 2"
             (click)="selectScope(2)"
-            title="Hybrid: Recommendations will pull from both your Watchlist and the global database pool."
+            data-tooltip="Blend recommendations from both your Watchlist and the Discover Pool."
           >
             Hybrid
           </button>
@@ -154,10 +223,16 @@
                     <span>{{ movie.title }}</span>
                   </div>
                 }
-                <div class="match-badge">
-                  {{ movie.matchPercentage }}% Match
-                </div>
               </div>
+
+              <div class="match-badge">
+                {{ movie.matchPercentage }}% Match
+              </div>
+              @if (movie.customAverageRating) {
+                <div class="rating-badge" [attr.data-tooltip]="'Custom Rating: ' + (movie.customAverageRating | number:'1.1-1') + '/10. This is the arithmetic mean calculated from TMDB, and OMDb sources (including IMDb, Rotten Tomatoes, and Metacritic).'">
+                  ⭐ {{ movie.customAverageRating | number:'1.1-1' }}
+                </div>
+              }
 
               <div class="movie-details">
                 <h3 class="movie-title" [title]="movie.title">{{ movie.title }}</h3>
