@@ -6,12 +6,12 @@ namespace Frametric.Domain.Entities;
 public class Movie
 {
     public Guid Id { get; private set; }
-    public string Title { get; private set; }
+    public string Title { get; private set; } = null!;
     public int? ReleaseYear { get; private set; }
     public int? RuntimeMinutes { get; private set; }
     public string? PosterUrl { get; private set; }
     public EnrichmentStatus EnrichmentStatus { get; private set; }
-    public ExternalReference ExternalReference { get; private set; }
+    public ExternalReference ExternalReference { get; private set; } = null!;
     public bool IsDocumentary { get; private set; }
     public double? TmdbRating { get; private set; }
     public double? TmdbPopularity { get; private set; }
