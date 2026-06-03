@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Frametric.Application.DTOs;
 using Frametric.Application.Interfaces.Analytics;
 using Frametric.Application.Queries.Recommendations;
+using Frametric.Application.Queries.Recommendations.Strategies;
 using Frametric.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Frametric.Infrastructure.Persistence;
@@ -44,10 +45,23 @@ public class GetCinematicRecommendationsQueryHandlerTests
         _cacheMock = new Mock<IDistributedCache>();
         _loggerMock = new Mock<ILogger<GetCinematicRecommendationsQueryHandler>>();
 
+        var strategies = new List<IRecommendationStrategy>
+        {
+            new RecentMoodStrategy(),
+            new OppositeMoodStrategy(),
+            new ComfortZoneDisruptorStrategy(),
+            new GuiltyPleasureStrategy(),
+            new CinephileEliteStrategy(),
+            new DirectorsTrajectoryStrategy(),
+            new RuntimeContextStrategy(),
+            new PureRandomStrategy()
+        };
+
         _handler = new GetCinematicRecommendationsQueryHandler(
             _queriesMock.Object,
             _cacheMock.Object,
-            _loggerMock.Object
+            _loggerMock.Object,
+            strategies
         );
     }
 
@@ -135,6 +149,36 @@ public class GetCinematicRecommendationsQueryHandlerTests
         Assert.Single(result);
         Assert.Equal(normalMovieId, result[0].MovieId);
         Assert.Equal("Normal Movie", result[0].Title);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldHaveUniqueMatchPercentages_EvenForSimilarCandidates()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var candidates = new List<CandidateMovieDto>
+        {
+            new CandidateMovieDto(Guid.NewGuid(), "Identical Film A", 2020, 100, null, 7.5, 50, 7.5, "Drama", "Director A", "Actor A"),
+            new CandidateMovieDto(Guid.NewGuid(), "Identical Film B", 2020, 100, null, 7.5, 50, 7.5, "Drama", "Director A", "Actor A")
+        };
+
+        _queriesMock.Setup(q => q.GetWatchedMovieDetailsAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<WatchedMovieDetailDto>
+            {
+                new WatchedMovieDetailDto(Guid.NewGuid(), 2020, 100, "Drama", "Director A", "Actor A", 8.0, DateTime.UtcNow)
+            });
+
+        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(candidates);
+
+        var query = new GetCinematicRecommendationsQuery(userId, RecommendationStrategy.RecentMood, RecommendationScope.Hybrid, 2);
+
+        // Act
+        var result = (await _handler.Handle(query, CancellationToken.None)).ToList();
+
+        // Assert
+        Assert.Equal(2, result.Count);
+        Assert.NotEqual(result[0].MatchPercentage, result[1].MatchPercentage);
     }
 
     // TEMPORARY: ResetRemainingMoviesToPending is a migration test script to reset completed movies lacking OMDb fields.

@@ -6,6 +6,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [1.1.0] — 2026-06-03
+
+Refactored and upgraded the cinematic recommendation engine.
+
+### Added
+
+- **Mathematical Foundations**: Integrated Cosine Similarity, Jaccard Index, and Exponential Temporal Decay ($e^{-\lambda \cdot t}$) for advanced content-based filtering.
+- **Prestige & Discovery Metrics**: Leveraged global popularity indices, award counts (including Oscars), release country diversity, and pacing metrics to evaluate recommendation candidates.
+- **Compartmentalized Strategy Pattern**: Refactored recommendation algorithms from a monolithic query handler into separate strategy classes implementing a unified interface.
+- **Unique Scoring System**: Added micro-fractional tie-breakers based on movie metadata and ID hashing to guarantee unique match percentages and prevent ordering ties.
+
+---
+
+## [1.0.2] — 2026-06-03
+
+Aesthetic polish and UI improvements to the discovery interface.
+
+### Added
+
+- **Visual Interface Refinement**: Enhanced the recommendations page view with premium glassmorphism layouts, responsive movie poster grids, and alignment indicators.
+- **Micro-animations**: Added interactive hover animations on recommended candidate cards with dynamic match badge highlights.
+
+---
+
+## [1.0.1] — 2026-06-02
+
+Early version of the cinematic discovery and recommendations module.
+
+### Added
+
+- **Discovery Page**: Implemented the initial frontend view for user recommendations (`recommendations.html`) connecting to the API client.
+- **Monolithic Query Handler**: Configured `GetCinematicRecommendationsQueryHandler` with initial heuristic-based strategy branches (RecentMood, ComfortZoneDisruptor, RuntimeContext, etc.).
+- **Basic Skip Cache**: Integrated distributed caching to allow users to temporarily dismiss/skip recommendation entries.
+
+---
+
 ## [1.0.0] — 2026-06-02
 
 First official stable release of Frametric, featuring robust automated testing, dynamic filtering, and refined UX layouts.
