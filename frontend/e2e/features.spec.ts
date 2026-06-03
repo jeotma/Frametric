@@ -1,5 +1,7 @@
 import { test, expect, Page } from '@playwright/test';
 
+declare const Buffer: any;
+
 // Helper to simulate authentication client-side
 async function loginAndSetToken(page: Page) {
   const b64 = (obj: any) => Buffer.from(JSON.stringify(obj)).toString('base64url');
