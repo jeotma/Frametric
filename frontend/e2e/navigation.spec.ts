@@ -76,11 +76,13 @@ test.describe('Global Navigation and Shell Layout', () => {
     const importsLink = page.locator('nav.nav-menu a[routerLink="/imports"]');
     const finalCutLink = page.locator('nav.nav-menu a[routerLink="/final-cut-teaser"]');
     const statsLink = page.locator('nav.nav-menu a[routerLink="/stats"]');
+    const recommendationsLink = page.locator('nav.nav-menu a[routerLink="/recommendations"]');
 
     await expect(dashboardLink).toBeVisible();
     await expect(importsLink).toBeVisible();
     await expect(finalCutLink).toBeVisible();
     await expect(statsLink).toBeVisible();
+    await expect(recommendationsLink).toBeVisible();
 
     // Verify Active State transitions
     await expect(dashboardLink).toHaveClass(/active/);
@@ -92,6 +94,10 @@ test.describe('Global Navigation and Shell Layout', () => {
     await statsLink.click();
     await expect(page).toHaveURL(/\/stats/);
     await expect(statsLink).toHaveClass(/active/);
+
+    await recommendationsLink.click();
+    await expect(page).toHaveURL(/\/recommendations/);
+    await expect(recommendationsLink).toHaveClass(/active/);
 
     await finalCutLink.click();
     await expect(page).toHaveURL(/\/final-cut-teaser/);
