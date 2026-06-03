@@ -30,6 +30,15 @@ public class TmdbMovieDetails
 
     [JsonPropertyName("credits")]
     public TmdbCredits? Credits { get; set; }
+
+    [JsonPropertyName("imdb_id")]
+    public string? ImdbId { get; set; }
+
+    [JsonPropertyName("vote_average")]
+    public double? VoteAverage { get; set; }
+
+    [JsonPropertyName("popularity")]
+    public double? Popularity { get; set; }
 }
 
 public class TmdbGenreItem

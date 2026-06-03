@@ -10,11 +10,13 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
 {
     private readonly IApplicationDbContext _context;
     private readonly ITmdbService _tmdbService;
+    private readonly IOmdbService _omdbService;
 
-    public EnrichPendingMoviesCommandHandler(IApplicationDbContext context, ITmdbService tmdbService)
+    public EnrichPendingMoviesCommandHandler(IApplicationDbContext context, ITmdbService tmdbService, IOmdbService omdbService)
     {
         _context = context;
         _tmdbService = tmdbService;
+        _omdbService = omdbService;
     }
 
     public async Task<int> Handle(EnrichPendingMoviesCommand request, CancellationToken cancellationToken)
@@ -100,7 +102,48 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
                 actors.Add(actor);
             }
 
-            movie.EnrichMetadata(tmdbData.RuntimeMinutes ?? 0, tmdbData.PosterUrl ?? string.Empty, genres, directors, actors, tmdbData.IsDocumentary);
+            double? tmdbRating = tmdbData.TmdbRating;
+            double? tmdbPopularity = tmdbData.TmdbPopularity;
+            double? imdbRating = null;
+            double? rottenTomatoesRating = null;
+            double? metacriticRating = null;
+            double? customAverageRating = null;
+
+            if (!string.IsNullOrEmpty(tmdbData.ImdbId))
+            {
+                var omdbRatings = await _omdbService.GetMovieRatingsAsync(tmdbData.ImdbId, cancellationToken);
+                if (omdbRatings != null)
+                {
+                    imdbRating = omdbRatings.ImdbRating;
+                    rottenTomatoesRating = omdbRatings.RottenTomatoesRating;
+                    metacriticRating = omdbRatings.MetacriticRating;
+                }
+            }
+
+            var ratingsList = new List<double>();
+            if (tmdbRating.HasValue) ratingsList.Add(tmdbRating.Value);
+            if (imdbRating.HasValue) ratingsList.Add(imdbRating.Value);
+            if (rottenTomatoesRating.HasValue) ratingsList.Add(rottenTomatoesRating.Value);
+            if (metacriticRating.HasValue) ratingsList.Add(metacriticRating.Value);
+
+            if (ratingsList.Any())
+            {
+                customAverageRating = ratingsList.Average();
+            }
+
+            movie.EnrichMetadata(
+                tmdbData.RuntimeMinutes ?? 0, 
+                tmdbData.PosterUrl ?? string.Empty, 
+                genres, 
+                directors, 
+                actors, 
+                tmdbData.IsDocumentary,
+                tmdbRating,
+                tmdbPopularity,
+                imdbRating,
+                rottenTomatoesRating,
+                metacriticRating,
+                customAverageRating);
             enrichedCount++;
         }
 

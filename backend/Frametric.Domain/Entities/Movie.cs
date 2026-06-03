@@ -13,6 +13,12 @@ public class Movie
     public EnrichmentStatus EnrichmentStatus { get; private set; }
     public ExternalReference ExternalReference { get; private set; }
     public bool IsDocumentary { get; private set; }
+    public double? TmdbRating { get; private set; }
+    public double? TmdbPopularity { get; private set; }
+    public double? ImdbRating { get; private set; }
+    public double? RottenTomatoesRating { get; private set; }
+    public double? MetacriticRating { get; private set; }
+    public double? CustomAverageRating { get; private set; }
 
     // Navigation properties
     public ICollection<Genre> Genres { get; private set; } = new List<Genre>();
@@ -34,11 +40,29 @@ public class Movie
         EnrichmentStatus = EnrichmentStatus.Pending;
     }
 
-    public void EnrichMetadata(int runtimeMinutes, string posterUrl, List<Genre> genres, List<Director> directors, List<Actor> actors, bool isDocumentary)
+    public void EnrichMetadata(
+        int runtimeMinutes, 
+        string posterUrl, 
+        List<Genre> genres, 
+        List<Director> directors, 
+        List<Actor> actors, 
+        bool isDocumentary,
+        double? tmdbRating = null,
+        double? tmdbPopularity = null,
+        double? imdbRating = null,
+        double? rottenTomatoesRating = null,
+        double? metacriticRating = null,
+        double? customAverageRating = null)
     {
         RuntimeMinutes = runtimeMinutes;
         PosterUrl = posterUrl;
         IsDocumentary = isDocumentary;
+        TmdbRating = tmdbRating;
+        TmdbPopularity = tmdbPopularity;
+        ImdbRating = imdbRating;
+        RottenTomatoesRating = rottenTomatoesRating;
+        MetacriticRating = metacriticRating;
+        CustomAverageRating = customAverageRating;
         
         foreach (var genre in genres) Genres.Add(genre);
         foreach (var director in directors) Directors.Add(director);

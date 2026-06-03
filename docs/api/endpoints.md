@@ -223,3 +223,49 @@ All routes require authentication. Filters are passed via query parameters mappi
 - **GET** `/final-cut/genre-landscape` - Mapping of genres by average rating.
 - **GET** `/final-cut/shortest-movie` - Shortest watched movie.
 - **GET** `/final-cut/director-actor-pairs` - Director-Actor pairings that appear frequently in user's library.
+
+---
+
+## 5. Recommendations (`/api/v1/recommendations`)
+
+Requires authentication.
+
+### **POST** `/api/v1/recommendations/generate`
+
+- **Description**: Generates custom movie recommendations for the authenticated user using the specified strategy and scope.
+- **Request Body**:
+
+  ```json
+  {
+    "strategy": "RecentMood",
+    "scope": "WatchlistOnly",
+    "quantity": 3,
+    "maxRuntimeMinutes": 120
+  }
+  ```
+
+- **Responses**:
+  - `200 OK`: Returns an array of recommended movie items:
+
+    ```json
+    [
+      {
+        "movieId": "Guid",
+        "title": "string",
+        "directorName": "string",
+        "releaseYear": 0,
+        "matchPercentage": 92.5,
+        "recommendationReason": "string",
+        "posterUrl": "string",
+        "runtimeMinutes": 0
+      }
+    ]
+    ```
+
+### **POST** `/api/v1/recommendations/skip/{movieId}`
+
+- **Description**: Excludes a movie from future recommendation generation cycles for 24 hours.
+- **Parameters**:
+  - `movieId` (`Guid` in route)
+- **Responses**:
+  - `204 NoContent`: Successfully skipped and cached.

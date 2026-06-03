@@ -147,7 +147,17 @@ public class TmdbService : ITmdbService
             .Select(c => new TmdbPersonDto(c.Id, c.Name))
             .ToList() ?? new List<TmdbPersonDto>();
 
-        return new TmdbMovieResultDto(details.Id, details.Runtime, posterUrl, genres, directors, actors, IsTvShow: false);
+        return new TmdbMovieResultDto(
+            details.Id, 
+            details.Runtime, 
+            posterUrl, 
+            genres, 
+            directors, 
+            actors, 
+            IsTvShow: false,
+            TmdbRating: details.VoteAverage,
+            TmdbPopularity: details.Popularity,
+            ImdbId: details.ImdbId);
     }
 
     private static TmdbMovieResultDto MapTvDetails(TmdbTvDetails details)

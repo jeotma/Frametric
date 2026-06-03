@@ -7,6 +7,7 @@ api/analytics.service.ts
 api/api.ts
 api/auth.service.ts
 api/import.service.ts
+api/recommendations.service.ts
 configuration.ts
 encoder.ts
 git_push.sh
@@ -43,6 +44,8 @@ model/preferred-day-dto.ts
 model/prime-time-stats-dto.ts
 model/problem-details.ts
 model/rating-evolution-dto.ts
+model/recommendation-request.ts
+model/recommended-movie-dto.ts
 model/refresh-token-request.ts
 model/register-user-request.ts
 model/rookie-dto.ts

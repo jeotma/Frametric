@@ -23,6 +23,13 @@ public class MovieConfiguration : IEntityTypeConfiguration<Movie>
             er.HasIndex(e => new { e.Source, e.ExternalId }).IsUnique();
         });
 
+        builder.Property(m => m.TmdbRating);
+        builder.Property(m => m.TmdbPopularity);
+        builder.Property(m => m.ImdbRating);
+        builder.Property(m => m.RottenTomatoesRating);
+        builder.Property(m => m.MetacriticRating);
+        builder.Property(m => m.CustomAverageRating);
+
         // Many-to-Many relationships
         builder.HasMany(m => m.Genres)
                .WithMany(g => g.Movies)
