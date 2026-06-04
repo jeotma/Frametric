@@ -191,8 +191,26 @@ public class ComfortZoneDisruptorStrategy : RecommendationStrategyBase
                 ? "offers a rich international perspective" 
                 : "brings a unique cultural viewpoint");
         }
-        return reasons.Any() 
-            ? $"Disrupts your comfort zone: it {FormatReasons(reasons)}." 
-            : (Random.Shared.Next(2) == 0 ? "Pushes your boundaries with a solid critical consensus." : "An unfamiliar style backed by outstanding reviews.");
+        if (reasons.Any())
+        {
+            var prefixes = new[]
+            {
+                "Disrupts your comfort zone because it",
+                "Shakes up your usual viewing habits since it",
+                "Breaks your typical pattern because it",
+                "Offers a fresh perspective as it",
+                "Steps away from your routine since it"
+            };
+            var chosenPrefix = prefixes[Random.Shared.Next(prefixes.Length)];
+            return $"{chosenPrefix} {FormatReasons(reasons)}.";
+        }
+        
+        var defaultMessages = new[]
+        {
+            "Pushes your boundaries with a solid critical consensus.",
+            "An unfamiliar style backed by outstanding reviews.",
+            "Step out of your comfort zone with this highly acclaimed title."
+        };
+        return defaultMessages[Random.Shared.Next(defaultMessages.Length)];
     }
 }

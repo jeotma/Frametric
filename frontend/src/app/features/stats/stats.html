@@ -115,6 +115,27 @@
 
     <div class="results-content" *ngIf="!loading() && resultData()">
       
+      <!-- Pretentiometer Easter Egg Alert -->
+      <div *ngIf="isPretentious()" class="pretentious-alert-banner glass-panel animate-fade-in" style="margin-bottom: 24px;">
+        <span class="alert-icon">🎩</span>
+        <div class="alert-content">
+          <h4>Pretentiometer Warning</h4>
+          <p class="tooltip-container" style="cursor: help; margin: 0;">
+            High levels of slow-cinema superiority detected.
+            <span class="tooltip-text">Have you actually watched Satantango three times, or do you just like the aesthetic of suffering? We get it, you hate fun. Here's your virtual turtleneck. Just kidding, we love you and your exquisite taste anyway! ❤️</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Bacon Distance Overlay Modal -->
+      <div *ngIf="baconMessage()" class="bacon-modal-overlay animate-fade-in" (click)="closeBaconModal()">
+        <div class="bacon-modal glass-panel" (click)="$event.stopPropagation()">
+          <h3>Six Degrees of Kevin Bacon 🥓</h3>
+          <p>{{ baconMessage() }}</p>
+          <button type="button" class="btn btn-primary" (click)="closeBaconModal()">Acknowledge</button>
+        </div>
+      </div>
+
       <!-- LIST VIEW (TABULAR) -->
       <ng-container *ngIf="currentQuery().type === 'list' && isArray(resultData())">
         <div class="table-container animate-fade-in">
@@ -137,16 +158,42 @@
                     <span class="elegant-unrated">No ratings</span>
                   </ng-container>
                   <ng-container *ngIf="col.toLowerCase().includes('rating') && item[col] > 0">
-                    @let ratingEE = (item[col] | number:'1.1-1') | easterEgg:'table-rating';
-                    <span class="rating-badge" [class]="ratingEE ? ratingEE.className : ''" [attr.data-tooltip]="ratingEE ? ratingEE.tooltip : null">
-                      {{ item[col] | number:'1.1-2' }} {{ ratingEE ? ' ' + ratingEE.text : '' }}
-                    </span>
+                    <!-- The Mid-Curve Curse (2.5 hover easter egg) -->
+                    @let ratingStr = (item[col] | number:'1.1-1');
+                    @if (ratingStr === '2.5' || item[col] === 2.5 || item[col] === 5.0) {
+                      <span class="rating-badge mid-curve-warn tooltip-container" style="color: #fbbf24; cursor: help;">
+                        ⭐ {{ item[col] | number:'1.1-2' }}
+                        <span class="tooltip-text">Ah, the ultimate centrist. Not good enough to love, not bad enough to hate. Indifference is the real killer here.</span>
+                      </span>
+                    } @else {
+                      @let ratingEE = ratingStr | easterEgg:'table-rating';
+                      <span class="rating-badge" [class]="ratingEE ? ratingEE.className : ''" [attr.data-tooltip]="ratingEE ? ratingEE.tooltip : null">
+                        {{ item[col] | number:'1.1-2' }} {{ ratingEE ? ' ' + ratingEE.text : '' }}
+                      </span>
+                    }
                   </ng-container>
                   <ng-container *ngIf="!col.toLowerCase().includes('rating') && col.toLowerCase() !== 'liked'">
                     @let valEE = item[col] | easterEgg:'table-val';
-                    <span [class]="valEE ? valEE.className : ''" [attr.data-tooltip]="valEE ? valEE.tooltip : null">
-                      {{ item[col] }} {{ valEE ? ' ' + valEE.text : '' }}
-                    </span>
+                    
+                    <!-- If this is a director name, check if they are toxic -->
+                    @if (col.toLowerCase().includes('director') && toxicDirectors().has(item[col])) {
+                      <span class="toxic-director-tag tooltip-container" style="color: #ef4444; font-weight: 700; cursor: help;">
+                        ☠️ {{ item[col] }}
+                        <span class="tooltip-text">You have watched multiple films by this director and rated them extremely low. This is no longer viewing, this is self-harm. Blink twice if you need help.</span>
+                      </span>
+                    }
+                    <!-- If this is an actor name, add the Kevin Bacon trigger -->
+                    @else if (col.toLowerCase().includes('actor')) {
+                      <span [class]="valEE ? valEE.className : ''" [attr.data-tooltip]="valEE ? valEE.tooltip : null">
+                        {{ item[col] }}
+                        <button type="button" class="bacon-calc-btn" (click)="calculateBaconDistance(item[col])" title="Calculate Kevin Bacon Distance">🥓</button>
+                      </span>
+                    }
+                    @else {
+                      <span [class]="valEE ? valEE.className : ''" [attr.data-tooltip]="valEE ? valEE.tooltip : null">
+                        {{ item[col] }} {{ valEE ? ' ' + valEE.text : '' }}
+                      </span>
+                    }
                   </ng-container>
                   <ng-container *ngIf="col.toLowerCase() === 'liked'">
                     <span *ngIf="item[col]" style="color: #e25c5c; font-size: 1.2rem;">❤️</span>

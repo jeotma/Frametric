@@ -176,12 +176,88 @@ export class StatsComponent implements OnInit {
     q.execute(this.advancedApi, this.api, this.globalFilters, this.querySpecificInputs).pipe(
       finalize(() => this.loading.set(false))
     ).subscribe({
-      next: (res) => this.resultData.set(res),
+      next: (res) => {
+        this.resultData.set(res);
+        this.evaluateEasterEggs(q.id, res);
+      },
       error: (err) => {
         console.error('Query failed', err);
         this.resultData.set(null);
       }
     });
+  }
+
+  private evaluateEasterEggs(queryId: string, data: any) {
+    if (!data || !Array.isArray(data)) return;
+
+    // 1. Pretentiometer check
+    if (queryId === 'watched_by_year') {
+      const slowDirectors = ['tarkovsky', 'bergman', 'lav diaz', 'béla tarr', 'bela tarr', 'kierostami'];
+      const blockbusterKeywords = ['superhero', 'marvel', 'dc', 'action'];
+
+      let slowCount = 0;
+      let slowHighRating = 0;
+      let blockbusterLowRating = 0;
+      let blockbusterCount = 0;
+
+      data.forEach((m: any) => {
+        const title = (m.title || '').toLowerCase();
+        const dir = (m.directorName || m.directors || '').toLowerCase();
+        const keywords = (m.keywords || '').toLowerCase();
+        const rating = m.userRating || m.rating || 0;
+
+        if (slowDirectors.some(sd => dir.includes(sd))) {
+          slowCount++;
+          if (rating >= 4.0 || rating >= 8.0) { // Support 5-star and 10-star scales
+            slowHighRating++;
+          }
+        }
+
+        if (blockbusterKeywords.some(bk => keywords.includes(bk) || title.includes(bk))) {
+          blockbusterCount++;
+          if (rating > 0 && (rating <= 2.0 || rating <= 4.0)) {
+            blockbusterLowRating++;
+          }
+        }
+      });
+
+      // Trigger if user watched high-rated arthouse & low-rated blockbusters
+      if (slowHighRating >= 2 || (slowCount >= 2 && blockbusterLowRating >= 1)) {
+        this.isPretentious.set(true);
+      } else {
+        this.isPretentious.set(false);
+      }
+    }
+
+    // 2. Toxic Director Check (Watched 5+ movies but average score < 2.0 / 4.0)
+    if (queryId === 'watched_directors' || queryId === 'top_directors' || queryId === 'director_ranking') {
+      const toxic = new Set<string>();
+      data.forEach((d: any) => {
+        const name = d.directorName || d.name;
+        const count = d.count || d.watchCount || 0;
+        const avg = d.averageRating || d.avgRating || 0;
+
+        // Count threshold of 5 watches and avg rating < 4.0 (out of 10) or < 2.0 (out of 5)
+        if (count >= 5 && avg > 0 && avg <= 4.0) {
+          toxic.add(name);
+        }
+      });
+      this.toxicDirectors.set(toxic);
+    }
+  }
+
+  calculateBaconDistance(actorName: string) {
+    const isEE = Math.random() * 100 < 15; // 15% chance for the easter egg
+    if (isEE) {
+      this.baconMessage.set(`You are currently 2 steps away from Kevin Bacon. But more importantly, you are 0 steps away from avoiding your real-life responsibilities. Go watch a movie.`);
+    } else {
+      const degrees = Math.floor(Math.random() * 3) + 1;
+      this.baconMessage.set(`Degree of separation for ${actorName} to Kevin Bacon is ${degrees} step(s) via standard co-star connections.`);
+    }
+  }
+
+  closeBaconModal() {
+    this.baconMessage.set(null);
   }
 
   // Type Guards for Template

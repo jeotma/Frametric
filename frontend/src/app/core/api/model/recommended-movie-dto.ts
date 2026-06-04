@@ -20,4 +20,5 @@ export interface RecommendedMovieDto {
     runtimeMinutes?: number | null;
     customAverageRating?: number | null;
     easterEggTooltip?: string | null;
+    wellnessCheckMessage?: string | null;
 }

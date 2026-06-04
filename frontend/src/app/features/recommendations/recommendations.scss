@@ -853,6 +853,155 @@ input:checked + .slider:before {
   }
 }
 
+/* HAUNTING EASTER EGG STYLES */
+.haunting-optout-banner {
+  background: rgba(30, 20, 40, 0.7) !important;
+  border: 1px solid rgba(139, 92, 246, 0.3) !important;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  animation: haunting-glow 4s infinite ease-in-out;
+
+  .warning-icon {
+    font-size: 2.2rem;
+    animation: bounce-slow 3s infinite ease-in-out;
+  }
+
+  .optout-content {
+    h4 {
+      color: #c084fc;
+      margin: 0 0 6px 0;
+      font-weight: 700;
+    }
+    p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin: 0 0 12px 0;
+    }
+  }
+}
+
+.haunted-card {
+  border: 1.5px solid rgba(236, 72, 153, 0.4) !important;
+  box-shadow: 0 0 25px rgba(236, 72, 153, 0.15) !important;
+  animation: pulse-border 5s infinite ease-in-out;
+
+  .match-badge {
+    background: rgba(236, 72, 153, 0.2) !important;
+    color: #f472b6 !important;
+    border-color: rgba(236, 72, 153, 0.4) !important;
+  }
+}
+
+@keyframes haunting-glow {
+  0%, 100% { box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+  50% { box-shadow: 0 0 20px 2px rgba(139, 92, 246, 0.25); }
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: rgba(236, 72, 153, 0.4); }
+  50% { border-color: rgba(139, 92, 246, 0.5); }
+}
+
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* WELLNESS CHECK & SILENT FILM STYLES */
+.wellness-banner {
+  background: rgba(16, 28, 20, 0.75) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  animation: wellness-glow 5s infinite ease-in-out;
+
+  .wellness-icon {
+    font-size: 2.2rem;
+    animation: bounce-slow 4s infinite ease-in-out;
+  }
+
+  .wellness-content {
+    h4 {
+      color: #34d399;
+      margin: 0 0 6px 0;
+      font-weight: 700;
+    }
+    p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.4;
+      margin: 0 0 12px 0;
+    }
+  }
+}
+
+.silent-film-warn {
+  color: #fbbf24 !important;
+  font-weight: 700;
+  cursor: help;
+  position: relative;
+  
+  &:hover {
+    &::after, &::before {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -6px);
+    }
+  }
+
+  &::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translate(-50%, 8px);
+    width: 250px;
+    background: rgba(15, 23, 42, 0.96);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    line-height: 1.4;
+    font-weight: 500;
+    text-align: center;
+    white-space: normal;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translate(-50%, 8px);
+    border-width: 6px;
+    border-style: solid;
+    border-color: rgba(15, 23, 42, 0.96) transparent transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+  }
+}
+
+@keyframes wellness-glow {
+  0%, 100% { box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+  50% { box-shadow: 0 0 20px 2px rgba(16, 185, 129, 0.2); }
+}
+
 /* RESPONSIVE */
 @media (max-width: 1024px) {
   .reco-layout {

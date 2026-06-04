@@ -50,6 +50,7 @@ export class RecommendationsComponent implements OnInit {
 
   // Result State
   public recommendations = signal<RecommendedMovieDto[]>([]);
+  public wellnessMessage = signal<string | null>(null);
   public loading = signal<boolean>(false);
   public actionLoading = signal<string | null>(null); // Movie ID of card performing action
   public error = signal<string | null>(null);
@@ -142,6 +143,12 @@ export class RecommendationsComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.recommendations.set(res || []);
+          // Extract wellness message if present on the first recommendation
+          if (res && res.length > 0 && res[0].wellnessCheckMessage) {
+            this.wellnessMessage.set(res[0].wellnessCheckMessage);
+          } else {
+            this.wellnessMessage.set(null);
+          }
         },
         error: (err) => {
           console.error('Failed to generate recommendations', err);
@@ -175,5 +182,30 @@ export class RecommendationsComponent implements OnInit {
     // In a full implementation this would open a log modal or send a watched entry.
     // For this client interaction, we skip the movie to cache it and show a success indicator.
     this.skipMovie(movie.movieId);
+  }
+
+  disableHaunting() {
+    this.recoService.apiV1RecommendationsSkipHauntingPost()
+      .subscribe({
+        next: () => {
+          // Instantly refresh recommendations to remove the haunting card
+          this.generateRecommendations();
+        },
+        error: (err) => {
+          console.error('Failed to disable watchlist haunting', err);
+        }
+      });
+  }
+
+  dismissWellness() {
+    this.recoService.apiV1RecommendationsDismissWellnessPost()
+      .subscribe({
+        next: () => {
+          this.wellnessMessage.set(null);
+        },
+        error: (err) => {
+          console.error('Failed to dismiss wellness check', err);
+        }
+      });
   }
 }

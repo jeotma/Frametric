@@ -217,9 +217,29 @@
           }
         </div>
       } @else {
+        @if (wellnessMessage()) {
+          <div class="wellness-banner glass-panel animate-fade-in">
+            <span class="wellness-icon">🌱</span>
+            <div class="wellness-content">
+              <h4>Wellness Check</h4>
+              <p>{{ wellnessMessage() }}</p>
+              <button type="button" class="btn btn-secondary btn-sm" (click)="dismissWellness()">I'm fine, thanks</button>
+            </div>
+          </div>
+        }
+        @if (recommendations().length === 1 && recommendations()[0].easterEggTooltip?.startsWith('Watchlist Haunting')) {
+          <div class="haunting-optout-banner glass-panel">
+            <span class="warning-icon">👻</span>
+            <div class="optout-content">
+              <h4>Watchlist Haunting Triggered</h4>
+              <p>One of your oldest watchlist movies has completely haunted your dashboard recommendations. Would you like to keep ignoring your watchlist forever?</p>
+              <button type="button" class="btn btn-secondary btn-sm" (click)="disableHaunting()">Yes, stop haunting me</button>
+            </div>
+          </div>
+        }
         <div class="recommendations-grid" [class.grid-10]="selectedQuantity() === 10">
           @for (movie of recommendations(); track movie.movieId) {
-            <article class="movie-card glass-panel" [class.loading]="actionLoading() === movie.movieId">
+            <article class="movie-card glass-panel" [class.loading]="actionLoading() === movie.movieId" [class.haunted-card]="recommendations().length === 1 && recommendations()[0].easterEggTooltip?.startsWith('Watchlist Haunting')">
               <div class="poster-container">
                 @if (movie.posterUrl) {
                   <img [src]="movie.posterUrl" [alt]="movie.title" loading="lazy" class="movie-poster">
@@ -249,7 +269,12 @@
                     {{ movie.directorName }} {{ dirEE ? dirEE.text : '' }}
                   </span>
                   <span class="divider">•</span>
-                  <span class="year">{{ movie.releaseYear }}</span>
+                  <span class="year" [class.silent-film-warn]="movie.releaseYear <= 1920" [attr.data-tooltip]="movie.releaseYear <= 1920 ? 'Logged a silent film! Make sure to put on your monocle and complain about how \'talkies\' ruined the purity of the medium.' : null">
+                    {{ movie.releaseYear }}
+                    @if (movie.releaseYear <= 1920) {
+                      🎥
+                    }
+                  </span>
                   @if (movie.runtimeMinutes) {
                     @let runtimeEE = movie.runtimeMinutes | easterEgg:'runtime';
                     <span class="divider">•</span>

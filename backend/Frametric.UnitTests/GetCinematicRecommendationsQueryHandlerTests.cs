@@ -211,4 +211,74 @@ public class GetCinematicRecommendationsQueryHandlerTests
         Assert.Equal("Duplicate Theme Film", result[0].Title);
     }
 
+    [Fact]
+    public async Task Handle_ShouldTriggerWellnessCheck_WhenUserHasHeavyStreaks()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var candidates = new List<CandidateMovieDto>
+        {
+            new CandidateMovieDto(Guid.NewGuid(), "Acclaimed Film A", 2020, 120, null, 8.5, 100, 8.5, "Drama", "Director A", "Actor A")
+        };
+
+        var now = DateTime.UtcNow;
+        var watched = new List<WatchedMovieDetailDto>
+        {
+            new WatchedMovieDetailDto(Guid.NewGuid(), 2010, 100, "Drama", "Director B", "Actor B", 8.0, now.AddHours(-5), "existential dread"),
+            new WatchedMovieDetailDto(Guid.NewGuid(), 2011, 100, "Horror", "Director C", "Actor C", 8.0, now.AddHours(-3), "psychological insanity"),
+            new WatchedMovieDetailDto(Guid.NewGuid(), 2012, 100, "Thriller", "Director D", "Actor D", 8.0, now.AddHours(-1), "disturbing dread")
+        };
+
+        _queriesMock.Setup(q => q.GetWatchedMovieDetailsAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(watched);
+        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(candidates);
+        _cacheMock.Setup(c => c.GetAsync($"skip_wellness_check:{userId}", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((byte[]?)null);
+
+        var query = new GetCinematicRecommendationsQuery(userId, RecommendationStrategy.RecentMood, RecommendationScope.Hybrid, 1);
+
+        // Act
+        var result = (await _handler.Handle(query, CancellationToken.None)).ToList();
+
+        // Assert
+        Assert.NotEmpty(result);
+        Assert.NotNull(result[0].WellnessCheckMessage);
+        Assert.Contains("psychological or existential", result[0].WellnessCheckMessage);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldNotTriggerWellnessCheck_WhenDismissed()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var candidates = new List<CandidateMovieDto>
+        {
+            new CandidateMovieDto(Guid.NewGuid(), "Acclaimed Film A", 2020, 120, null, 8.5, 100, 8.5, "Drama", "Director A", "Actor A")
+        };
+
+        var now = DateTime.UtcNow;
+        var watched = new List<WatchedMovieDetailDto>
+        {
+            new WatchedMovieDetailDto(Guid.NewGuid(), 2010, 100, "Drama", "Director B", "Actor B", 8.0, now.AddHours(-5), "existential dread"),
+            new WatchedMovieDetailDto(Guid.NewGuid(), 2011, 100, "Horror", "Director C", "Actor C", 8.0, now.AddHours(-3), "psychological insanity"),
+            new WatchedMovieDetailDto(Guid.NewGuid(), 2012, 100, "Thriller", "Director D", "Actor D", 8.0, now.AddHours(-1), "disturbing dread")
+        };
+
+        _queriesMock.Setup(q => q.GetWatchedMovieDetailsAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(watched);
+        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(candidates);
+        _cacheMock.Setup(c => c.GetAsync($"skip_wellness_check:{userId}", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(System.Text.Encoding.UTF8.GetBytes("dismissed"));
+
+        var query = new GetCinematicRecommendationsQuery(userId, RecommendationStrategy.RecentMood, RecommendationScope.Hybrid, 1);
+
+        // Act
+        var result = (await _handler.Handle(query, CancellationToken.None)).ToList();
+
+        // Assert
+        Assert.NotEmpty(result);
+        Assert.Null(result[0].WellnessCheckMessage);
+    }
 }

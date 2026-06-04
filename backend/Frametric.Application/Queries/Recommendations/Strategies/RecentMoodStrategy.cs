@@ -278,8 +278,26 @@ public class RecentMoodStrategy : RecommendationStrategyBase
                 : "features performance artists you recently saw on screen");
         }
 
-        return reasons.Any() 
-            ? $"Aligns with your recent mood because it {FormatReasons(reasons)}." 
-            : (Random.Shared.Next(2) == 0 ? "Complements your recent viewing pattern." : "Matches your library's general cinematic momentum.");
+        if (reasons.Any())
+        {
+            var prefixes = new[]
+            {
+                "Aligns with your recent mood because it",
+                "Matches your current vibe since it",
+                "Fits right into your latest viewing streak as it",
+                "Shares similar energy with your recent activity because it",
+                "Feels like a natural next step because it"
+            };
+            var chosenPrefix = prefixes[Random.Shared.Next(prefixes.Length)];
+            return $"{chosenPrefix} {FormatReasons(reasons)}.";
+        }
+        
+        var defaultMessages = new[]
+        {
+            "Complements your recent viewing pattern.",
+            "Matches your library's general cinematic momentum.",
+            "Feels like a solid companion to your recent history."
+        };
+        return defaultMessages[Random.Shared.Next(defaultMessages.Length)];
     }
 }

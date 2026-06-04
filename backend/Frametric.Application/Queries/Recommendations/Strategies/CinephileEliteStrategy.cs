@@ -264,9 +264,27 @@ public class CinephileEliteStrategy : RecommendationStrategyBase
                 : "offers a sweeping, patient narrative length");
         }
 
-        return reasons.Any() 
-            ? $"Cinephile Elite choice: it {FormatReasons(reasons)}." 
-            : (Random.Shared.Next(2) == 0 ? "Highly-acclaimed, award-winning cinematic classic." : "A curated masterpiece for the refined viewer.");
+        if (reasons.Any())
+        {
+            var prefixes = new[]
+            {
+                "Cinephile Elite choice because it",
+                "A highly curated pick as it",
+                "Prestige recommendation since it",
+                "A true film buff choice because it",
+                "Prestige cinematic selection as it"
+            };
+            var chosenPrefix = prefixes[Random.Shared.Next(prefixes.Length)];
+            return $"{chosenPrefix} {FormatReasons(reasons)}.";
+        }
+        
+        var defaultMessages = new[]
+        {
+            "Highly-acclaimed, award-winning cinematic classic.",
+            "A curated masterpiece for the refined viewer.",
+            "Prestige cinema selection with near-universal critical praise."
+        };
+        return defaultMessages[Random.Shared.Next(defaultMessages.Length)];
     }
 
     private static double? ParseBoxOffice(string? boxOfficeStr)

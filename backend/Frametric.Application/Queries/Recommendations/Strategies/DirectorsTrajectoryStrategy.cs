@@ -97,15 +97,25 @@ public class DirectorsTrajectoryStrategy : RecommendationStrategyBase
     {
         if (lastWatchedYear.HasValue && candidateYear.HasValue && candidateYear.Value > lastWatchedYear.Value)
         {
-            return Random.Shared.Next(2) == 0
-                ? $"Continues your exploration of {director}'s filmography chronologically (moving forward to {candidateYear})."
-                : $"Advances your journey through {director}'s work by moving forward to their {candidateYear} release.";
+            var options = new[]
+            {
+                $"Continues your exploration of {director}'s filmography chronologically (moving forward to {candidateYear}).",
+                $"Advances your journey through {director}'s work by moving forward to their {candidateYear} release.",
+                $"Builds on your {director} watches by advancing to their {candidateYear} period.",
+                $"Keeps the director run going, stepping forward to their {candidateYear} movie."
+            };
+            return options[Random.Shared.Next(options.Length)];
         }
         else
         {
-            return Random.Shared.Next(2) == 0
-                ? $"Fills a gap in your journey through the filmography of {director}."
-                : $"Uncovers an essential missing chapter in your experience of {director}'s cinematic history.";
+            var options = new[]
+            {
+                $"Fills a gap in your journey through the filmography of {director}.",
+                $"Uncovers an essential missing chapter in your experience of {director}'s cinematic history.",
+                $"Fleshes out your understanding of {director} by filling in this catalog gap.",
+                $"Helps you explore a less seen period of {director}'s career."
+            };
+            return options[Random.Shared.Next(options.Length)];
         }
     }
 }

@@ -110,8 +110,152 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
             throw new ArgumentOutOfRangeException(nameof(request.Strategy), "Unsupported recommendation strategy.");
         }
 
+        // Global 7% Easter Egg: override EVERYTHING with a single one of the 10 oldest watchlist items
+        bool triggerWatchlistOldieEE = Random.Shared.Next(100) < 7;
+        CandidateMovieDto? oldestWatchlistItem = null;
+
+        if (triggerWatchlistOldieEE)
+        {
+            // Check cache if user opted out of the Watchlist Haunting easter egg
+            var optOutCacheKey = $"skip_watchlist_haunting:{request.UserId}";
+            var hasOptedOut = await _cache.GetStringAsync(optOutCacheKey, cancellationToken);
+
+            if (hasOptedOut == null)
+            {
+                // We need to fetch candidates with WatchlistOnly scope to extract the oldest watchlist items
+                var watchlistCandidates = (await _recommendationQueries.GetCandidateMoviesAsync(request.UserId, RecommendationScope.WatchlistOnly, null, cancellationToken))
+                    .Where(c => c.WatchlistAddedDate.HasValue)
+                    .OrderBy(c => c.WatchlistAddedDate!.Value)
+                    .Take(10)
+                    .ToList();
+
+                if (watchlistCandidates.Any())
+                {
+                    oldestWatchlistItem = watchlistCandidates[Random.Shared.Next(watchlistCandidates.Count)];
+                }
+            }
+        }
+
+        if (oldestWatchlistItem != null)
+        {
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var addedDate = oldestWatchlistItem.WatchlistAddedDate!.Value;
+            var daysInWatchlist = today.DayNumber - addedDate.DayNumber;
+
+            string formattedTime;
+            if (daysInWatchlist > 365)
+            {
+                double years = daysInWatchlist / 365.25;
+                formattedTime = $"{years:F1} years";
+            }
+            else if (daysInWatchlist > 30)
+            {
+                double months = daysInWatchlist / 30.44;
+                formattedTime = $", {months:F1} months";
+            }
+            else
+            {
+                formattedTime = $"and {daysInWatchlist} days";
+            }
+
+            // Create a custom version with "FREAKING" only for the specific option
+            string formattedTimeFreaking;
+            if (daysInWatchlist > 365)
+            {
+                double years = daysInWatchlist / 365.25;
+                formattedTimeFreaking = $"{years:F1} FREAKING YEARS";
+            }
+            else if (daysInWatchlist > 30)
+            {
+                double months = daysInWatchlist / 30.44;
+                formattedTimeFreaking = $", {months:F1} FREAKING MONTHS";
+            }
+            else
+            {
+                formattedTimeFreaking = $"AND {daysInWatchlist} FREAKING DAYS";
+            }
+
+            var eeReasons = new[]
+            {
+                $"Hey, it's me, {oldestWatchlistItem.Title}. Remember me? I've been gathering dust in your watchlist for {formattedTime}. Just watch me already, dammit.",
+                $"For the love of God, just put me on. I've been sitting in your watchlist for {formattedTime}!",
+                $"Are you serious right now? {formattedTimeFreaking} on your watchlist and you're still ignoring me? Unbelievable.",
+                $"I'm not asking for much, just a chance. {formattedTime} is a looong time, please watch me.",
+                $"Hey haha, how you've been? Oh me? Nah don't worry about good ol' {oldestWatchlistItem.Title}. I've just been chilling here FOR {formattedTimeFreaking}.",
+                $"Just give me a chance, please. I'm begging you. {formattedTime} waiting on your watchlist is enough.",
+                $"Is my poster that ugly? Or is it my plot? You've left me sitting in your watchlist for {formattedTime}. Watch me today!"
+            };
+
+            var selectedReason = eeReasons[Random.Shared.Next(eeReasons.Length)];
+
+            var hauntingResult = new List<RecommendedMovieDto>
+            {
+                new RecommendedMovieDto(
+                    oldestWatchlistItem.MovieId,
+                    oldestWatchlistItem.Title,
+                    oldestWatchlistItem.Directors?.Split(',').FirstOrDefault() ?? "Unknown",
+                    oldestWatchlistItem.ReleaseYear ?? 0,
+                    100.0, // High score to attract attention
+                    selectedReason,
+                    oldestWatchlistItem.PosterUrl,
+                    oldestWatchlistItem.RuntimeMinutes,
+                    oldestWatchlistItem.CustomAverageRating,
+                    EasterEggTooltip: $"Watchlist Haunting: This movie has been on your watchlist since {addedDate.ToString("yyyy-MM-dd")} ({formattedTime}). Frametric is demanding action."
+                )
+            };
+
+            return hauntingResult;
+        }
+
         var results = strategyEvaluator.Recommend(filteredCandidates, watched, request.Quantity, request.MaxRuntimeMinutes);
-        return ApplyEasterEgg(results, filteredCandidates, request.Scope, request.Strategy);
+        var finalResults = ApplyEasterEgg(results, filteredCandidates, request.Scope, request.Strategy).ToList();
+
+        // 4. Wellness Check Evaluation (Last 7 Days)
+        var wellnessCheckKey = $"skip_wellness_check:{request.UserId}";
+        var isWellnessDismissed = await _cache.GetStringAsync(wellnessCheckKey, cancellationToken);
+        if (isWellnessDismissed == null && finalResults.Any())
+        {
+            var sevenDaysAgo = DateTime.UtcNow.AddDays(-7);
+            var recentHeavyWatches = watched
+                .Where(w => w.WatchDate >= sevenDaysAgo)
+                .OrderBy(w => w.WatchDate)
+                .ToList();
+
+            if (recentHeavyWatches.Count >= 3)
+            {
+                bool CheckIfHeavy(WatchedMovieDetailDto m)
+                {
+                    var genres = m.Genres?.ToLowerInvariant() ?? "";
+                    var keywords = m.Keywords?.ToLowerInvariant() ?? "";
+                    var isExistentialDrama = genres.Contains("drama") && 
+                        (keywords.Contains("existential") || keywords.Contains("nihilism") || keywords.Contains("isolation") || keywords.Contains("depression") || keywords.Contains("existencial") || keywords.Contains("loneli"));
+                    var isPsychologicalHorror = (genres.Contains("horror") || genres.Contains("thriller")) && 
+                        (keywords.Contains("psychological") || keywords.Contains("dread") || keywords.Contains("disturbing") || keywords.Contains("insanity") || keywords.Contains("madness"));
+                    return isExistentialDrama || isPsychologicalHorror;
+                }
+
+                // Check sliding window of 3 consecutive watches within 24 hours of each other
+                for (int i = 0; i <= recentHeavyWatches.Count - 3; i++)
+                {
+                    var w1 = recentHeavyWatches[i];
+                    var w2 = recentHeavyWatches[i + 1];
+                    var w3 = recentHeavyWatches[i + 2];
+
+                    if (CheckIfHeavy(w1) && CheckIfHeavy(w2) && CheckIfHeavy(w3))
+                    {
+                        var timespan = w3.WatchDate - w1.WatchDate;
+                        if (timespan.TotalHours <= 24)
+                        {
+                            var msg = $"Hey, we noticed you watched some heavy psychological or existential films recently in a single day. Are you doing okay? Do you need us to recommend a Pixar movie or some grass to touch?";
+                            finalResults[0] = finalResults[0] with { WellnessCheckMessage = msg };
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return finalResults;
     }
 
     private IEnumerable<RecommendedMovieDto> ApplyEasterEgg(

@@ -20,5 +20,6 @@ public record RecommendedMovieDto(
     string? PosterUrl = null,
     int? RuntimeMinutes = null,
     double? CustomAverageRating = null,
-    string? EasterEggTooltip = null
+    string? EasterEggTooltip = null,
+    string? WellnessCheckMessage = null
 );

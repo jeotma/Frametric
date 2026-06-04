@@ -75,4 +75,36 @@ public class RecommendationsController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPost("skip-haunting")]
+    public async Task<IActionResult> SkipHaunting(CancellationToken cancellationToken)
+    {
+        var userId = GetUserIdOrThrow();
+        var cacheKey = $"skip_watchlist_haunting:{userId}";
+
+        // Permanently cache the preference (using a very long expiration, e.g. 10 years)
+        var options = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(365 * 10)
+        };
+
+        await _cache.SetStringAsync(cacheKey, "disabled", options, cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("dismiss-wellness")]
+    public async Task<IActionResult> DismissWellness(CancellationToken cancellationToken)
+    {
+        var userId = GetUserIdOrThrow();
+        var cacheKey = $"skip_wellness_check:{userId}";
+
+        // Temporarily cache the skip choice for 7 days
+        var options = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(7)
+        };
+
+        await _cache.SetStringAsync(cacheKey, "dismissed", options, cancellationToken);
+        return NoContent();
+    }
 }

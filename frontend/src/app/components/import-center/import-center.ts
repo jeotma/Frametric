@@ -22,6 +22,10 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
   public isDragging = signal(false);
   public errorMessage = signal<string | null>(null);
 
+  // Rotating gatekeeper comments
+  public gatekeeperStatus = signal<string>('Uploading & Validating...');
+  private gatekeeperInterval: any;
+
   private pollingInterval: any;
 
   ngOnInit() {
@@ -31,10 +35,10 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.stopPolling();
+    this.clearGatekeeperInterval();
   }
 
   private startPolling() {
-    // Poll every 5 seconds
     this.pollingInterval = setInterval(() => {
       this.fetchHistory();
     }, 5000);
@@ -89,8 +93,33 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
     if (input.files && input.files.length > 0) {
       this.handleFile(input.files[0]);
     }
-    // Reset input so the same file can be selected again if needed
     input.value = '';
+  }
+
+  private clearGatekeeperInterval() {
+    if (this.gatekeeperInterval) {
+      clearInterval(this.gatekeeperInterval);
+    }
+  }
+
+  private startGatekeeperInterval() {
+    const comments = [
+      'Normalizing ratings...',
+      'Evaluating if your 5-star rating for \'Gigli\' was ironic...',
+      'Hiding your guilty pleasures from your friends...',
+      'Acknowledging that you rated \'Paddington 2\' higher than \'Citizen Kane\' (rightfully so)...',
+      'Ensuring your taste remains pretentious enough for Frametric\'s standards...',
+      'Analyzing if you actually enjoyed Tenet or just pretended to...',
+      'Validating that you have touched grass in the last 48 hours...',
+      'Checking if your favorite film has a rating above 6.0...'
+    ];
+    let index = 0;
+    this.gatekeeperStatus.set(comments[0]);
+    
+    this.gatekeeperInterval = setInterval(() => {
+      index = (index + 1) % comments.length;
+      this.gatekeeperStatus.set(comments[index]);
+    }, 2500);
   }
 
   private handleFile(file: File) {
@@ -100,15 +129,18 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
     }
 
     this.isUploading.set(true);
+    this.startGatekeeperInterval();
     
     // apiImportLetterboxdPost takes a Blob (File extends Blob)
     this.importService.apiImportLetterboxdPost(file).subscribe({
       next: () => {
         this.isUploading.set(false);
+        this.clearGatekeeperInterval();
         this.fetchHistory();
       },
       error: (err: HttpErrorResponse) => {
         this.isUploading.set(false);
+        this.clearGatekeeperInterval();
         if (err.status === 400 || err.status === 500) {
           // If the backend returned a specific message, use it, else generic
           const msg = err.error?.message || err.error || 'Invalid zip archive or missing Letterboxd files.';

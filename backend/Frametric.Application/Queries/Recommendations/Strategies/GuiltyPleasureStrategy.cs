@@ -294,8 +294,26 @@ public class GuiltyPleasureStrategy : RecommendationStrategyBase
                 : "remains completely free from prestigious award bias");
         }
 
-        return reasons.Any() 
-            ? $"A guilty pleasure pick: it {FormatReasons(reasons)}." 
-            : (Random.Shared.Next(2) == 0 ? "Fun, crowd-pleasing option matching your historical preferences." : "An easy, entertaining watch to enjoy without pressure.");
+        if (reasons.Any())
+        {
+            var prefixes = new[]
+            {
+                "A guilty pleasure pick because it",
+                "A fun, comfort choice since it",
+                "A crowd-pleasing option as it",
+                "A pure entertainment pick because it",
+                "An easy-watch candidate since it"
+            };
+            var chosenPrefix = prefixes[Random.Shared.Next(prefixes.Length)];
+            return $"{chosenPrefix} {FormatReasons(reasons)}.";
+        }
+        
+        var defaultMessages = new[]
+        {
+            "Fun, crowd-pleasing option matching your historical preferences.",
+            "An easy, entertaining watch to enjoy without pressure.",
+            "A pure entertainment choice to relax with."
+        };
+        return defaultMessages[Random.Shared.Next(defaultMessages.Length)];
     }
 }

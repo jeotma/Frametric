@@ -132,8 +132,26 @@ public class RuntimeContextStrategy : RecommendationStrategyBase
             }
         }
 
-        return reasons.Any() 
-            ? $"Optimized runtime selection: it {FormatReasons(reasons)}." 
-            : (Random.Shared.Next(2) == 0 ? "Great runtime match for your availability." : "Comes in at a suitable length for your session.");
+        if (reasons.Any())
+        {
+            var prefixes = new[]
+            {
+                "Optimized runtime selection as it",
+                "Matches your scheduling window since it",
+                "Perfectly sized for your session because it",
+                "Tailored to your current availability as it",
+                "Adjusted for your screen time since it"
+            };
+            var chosenPrefix = prefixes[Random.Shared.Next(prefixes.Length)];
+            return $"{chosenPrefix} {FormatReasons(reasons)}.";
+        }
+        
+        var defaultMessages = new[]
+        {
+            "Great runtime match for your availability.",
+            "Comes in at a suitable length for your session.",
+            "Fits snugly into your target watch window."
+        };
+        return defaultMessages[Random.Shared.Next(defaultMessages.Length)];
     }
 }

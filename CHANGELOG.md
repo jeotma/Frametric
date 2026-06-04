@@ -12,6 +12,12 @@ Integrated probability-based pop culture & cinephile easter eggs across the plat
 
 - **Dynamic Easter Egg Service**: Introduced `EasterEggService` and `EasterEggPipe` in the frontend client to dynamically inject pop culture references, cinephile jokes, and meme badges based on statistics and movie criteria.
 - **Loading Screen Memes**: Added randomized pop-culture/cinephile loading phrases to auth flows and analytics loading states.
+- **Wellness Check Banner**: Scans user diary history for 3+ consecutive heavy movies (Existential Drama / Psychological Horror) watched within 24 hours inside the last 7 days. Adds a custom layout alert and skip options.
+- **Pretentiometer Warning**: Computes whether the user watches slow arthouse films and dislikes blockbusters, displaying a custom warning banner on stats screen.
+- **Mid-Curve Curse**: Triggers a tooltip alert when hovering over columns with exactly a `2.5` rating score.
+- **Kevin Bacon Distance**: Mock degree of separation calculator modal for actor leaderboard listings.
+- **Silent Film Monocle Projection**: Displays a custom retro icon and warning for movies released in 1920 or earlier.
+- **Cult Search Box Commands**: Added keyboard listener triggers for matrix rain, reversed layout flip (Memento/Tenet), Jurasssic raptor peek-a-boo, Rosebud sleds, and bent inputs. Includes a dynamic pulsing easter egg description indicator badge next to the search input.
 
 ### Fixed
 

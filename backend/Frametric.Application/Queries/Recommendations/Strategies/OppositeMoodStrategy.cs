@@ -236,8 +236,26 @@ public class OppositeMoodStrategy : RecommendationStrategyBase
                 : "gives you space to breathe with a patient, cinematic experience");
         }
 
-        return reasons.Any() 
-            ? $"A great palette cleanser: it {FormatReasons(reasons)}." 
-            : (Random.Shared.Next(2) == 0 ? "A refreshing change of pace from your recent watches." : "A delightful departure from your regular viewing routine.");
+        if (reasons.Any())
+        {
+            var prefixes = new[]
+            {
+                "A great palette cleanser because it",
+                "A refreshing change of pace as it",
+                "Breaks your current pattern since it",
+                "Cleanses your cinematic palate because it",
+                "Acts as a solid reset button as it"
+            };
+            var chosenPrefix = prefixes[Random.Shared.Next(prefixes.Length)];
+            return $"{chosenPrefix} {FormatReasons(reasons)}.";
+        }
+        
+        var defaultMessages = new[]
+        {
+            "A refreshing change of pace from your recent watches.",
+            "A delightful departure from your regular viewing routine.",
+            "A perfect detour to shake up your dashboard pattern."
+        };
+        return defaultMessages[Random.Shared.Next(defaultMessages.Length)];
     }
 }

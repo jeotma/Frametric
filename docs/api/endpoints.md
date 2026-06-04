@@ -270,3 +270,16 @@ Requires authentication.
   - `movieId` (`Guid` in route)
 - **Responses**:
   - `204 NoContent`: Successfully skipped and cached.
+
+### **POST** `/api/v1/recommendations/skip-haunting`
+
+- **Description**: Permanently opts the user out of the Watchlist Haunting easter egg recommendations override.
+- **Responses**:
+  - `204 NoContent`: Opt-out preference saved in distributed cache permanently.
+
+### **POST** `/api/v1/recommendations/dismiss-wellness`
+
+- **Description**: Temporarily dismisses the consecutive heavy watch "Wellness Check" easter egg banner alert for 7 days.
+- **Responses**:
+  - `204 NoContent`: Dismissal cached for 7 days.
+
