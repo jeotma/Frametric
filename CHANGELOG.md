@@ -6,13 +6,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [1.2.0] — 2026-06-04
 
-Enhanced recommendation strategies logic and integrated probability-based pop culture & cinephile easter eggs.
+Integrated probability-based pop culture & cinephile easter eggs across the platform features.
 
 ### Added
 - **Dynamic Easter Egg Service**: Introduced `EasterEggService` and `EasterEggPipe` in the frontend client to dynamically inject pop culture references, cinephile jokes, and meme badges based on statistics and movie criteria.
 - **Loading Screen Memes**: Added randomized pop-culture/cinephile loading phrases to auth flows and analytics loading states.
-- **Algorithmic Reason Generation**: Refactored recommendation strategies (`CinephileEliteStrategy`, `ComfortZoneDisruptorStrategy`, `DirectorsTrajectoryStrategy`, `GuiltyPleasureStrategy`, `OppositeMoodStrategy`, `RecentMoodStrategy`, `RuntimeContextStrategy`, and `PureRandomStrategy`) to dynamically construct more varied and randomized user-facing descriptions.
+
+## [1.1.3] — 2026-06-04
+
+Mathematical fine-tuning and logic enhancements to recommendation strategies.
+
+### Added
+- **Cinephile Elite Refinements**: Redesigned scoring system to calculate low box office rewards, popularity ratio bounds, and dynamic foreign art-house multipliers.
+- **Improved Temporal Decay**: Calibrated exponential decay weighting ($\lambda$) to balance older cinephile titles and recent view history context.
+- **Pacing Filters**: Fine-tuned runtime context algorithms for shorter movies and endurance-length commitments.
+
+---
+
+## [1.1.2] — 2026-06-04
+
+Refactored recommendation strategies logic to support dynamic metadata overlays and easter egg tooltips.
+
+### Added
 - **Easter Egg Tooltips**: Integrated randomized strategy, runtime, and obscurities easter egg triggers directly into recommendation cards via the new `EasterEggTooltip` DTO property.
+- **Algorithmic Reason Generation**: Refactored recommendation strategies (`CinephileEliteStrategy`, `ComfortZoneDisruptorStrategy`, `DirectorsTrajectoryStrategy`, `GuiltyPleasureStrategy`, `OppositeMoodStrategy`, `RecentMoodStrategy`, `RuntimeContextStrategy`, and `PureRandomStrategy`) to dynamically construct more varied and randomized user-facing descriptions.
+
+---
+
+## [1.1.1] — 2026-06-03
+
+Database schema migration and complete movies metadata re-enrichment.
+
+### Added
+- **Movies Re-enrichment**: Executed a system-wide metadata re-enrichment via the `TmdbEnrichmentBackgroundService` to populate the newly added database columns (awards, box office, streaming providers, country, overview, etc.) for all existing movies.
+- **Cleanup**: Cleaned up the temporary database reset scripts, removed migration helper logic, and verified test suite coverage.
 
 ---
 
