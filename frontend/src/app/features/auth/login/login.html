@@ -31,12 +31,7 @@
 
     <div class="auth-header">
       <h2>Welcome back</h2>
-      @let taglineEE = 'auth-tagline' | easterEgg:'ui';
-      @if (taglineEE) {
-        <p [class]="taglineEE.className" [attr.data-tooltip]="taglineEE.tooltip">{{ taglineEE.text }}</p>
-      } @else {
-        <p>Sign in to explore your cinematic universe</p>
-      }
+      <p>Sign in to explore your cinematic universe</p>
     </div>
 
     <!-- Error Message -->

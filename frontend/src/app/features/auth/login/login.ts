@@ -4,13 +4,10 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { EasterEggService } from '../../../core/services/easter-egg.service';
-
-import { EasterEggPipe } from '../../../core/services/easter-egg.pipe';
-
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, EasterEggPipe],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -39,8 +36,7 @@ export class LoginComponent {
     if (this.form.invalid || this.isLoading()) return;
     this.errorMessage.set(null);
     this.isLoading.set(true);
-    const customMsg = this._easterEgg.getLoadingMessage();
-    this.loadingMessage.set(customMsg || 'Signing in...');
+    this.loadingMessage.set('Signing in...');
 
     const { email, password } = this.form.value;
 

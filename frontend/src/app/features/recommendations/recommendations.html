@@ -269,11 +269,9 @@
                     {{ movie.directorName }} {{ dirEE ? dirEE.text : '' }}
                   </span>
                   <span class="divider">•</span>
-                  <span class="year" [class.silent-film-warn]="movie.releaseYear <= 1920" [attr.data-tooltip]="movie.releaseYear <= 1920 ? 'Logged a silent film! Make sure to put on your monocle and complain about how \'talkies\' ruined the purity of the medium.' : null">
-                    {{ movie.releaseYear }}
-                    @if (movie.releaseYear <= 1920) {
-                      🎥
-                    }
+                  @let yearEE = movie.releaseYear | easterEgg:'rec-year';
+                  <span class="year" [class]="yearEE ? yearEE.className : ''" [attr.data-tooltip]="yearEE ? yearEE.tooltip : null">
+                    {{ movie.releaseYear }} {{ yearEE ? ' ' + yearEE.text : '' }}
                   </span>
                   @if (movie.runtimeMinutes) {
                     @let runtimeEE = movie.runtimeMinutes | easterEgg:'runtime';

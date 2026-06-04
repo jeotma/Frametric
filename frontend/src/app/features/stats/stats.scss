@@ -296,6 +296,7 @@
 
   td {
     padding: 16px 24px;
+    vertical-align: middle;
     font-size: 1rem;
     color: var(--text-primary);
     border-bottom: 1px solid rgba(255, 255, 255, 0.03);
@@ -631,4 +632,124 @@
 @keyframes pretentious-border-glow {
   0%, 100% { border-color: rgba(139, 92, 246, 0.25); }
   50% { border-color: rgba(236, 72, 153, 0.4); }
+}
+
+/* PAGINATION & POSTER TOGGLE */
+.table-controls-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 16px;
+  background: rgba(10, 10, 12, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px 16px 0 0;
+}
+
+.toggle-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    display: none;
+  }
+
+  .toggle-slider {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    transition: background 0.3s;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+  }
+
+  input[type="checkbox"]:checked + .toggle-slider {
+    background: var(--accent-purple);
+    &::after {
+      transform: translateX(20px);
+    }
+  }
+}
+
+.poster-title-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+  min-width: 100px;
+}
+
+.row-poster-stacked {
+  width: 120px;
+  height: 180px;
+  border-radius: 6px;
+  object-fit: cover;
+  display: block;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.row-poster-placeholder-stacked {
+  width: 120px;
+  height: 180px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.movie-title-text {
+  font-weight: 600;
+  color: var(--text-primary);
+  max-width: 140px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  background: rgba(10, 10, 12, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0 0 16px 16px;
+
+  .page-info {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .page-size-select {
+    margin-left: auto;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    width: auto;
+    border-radius: 8px;
+  }
+}
+
+.text-center {
+  text-align: center !important;
 }

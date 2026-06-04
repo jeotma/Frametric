@@ -10,6 +10,8 @@ interface GlobalFilters {
   releaseYear?: number;
   minRating?: number;
   maxRating?: number;
+  minCustomRating?: number;
+  maxCustomRating?: number;
   actor?: string;
   director?: string;
   genre?: string;
@@ -55,59 +57,59 @@ export class StatsComponent implements OnInit {
     // --- WATCHED BASIC ---
     {
       id: 'watched_by_year', category: 'Watched History', name: 'Movies Watched', description: 'List of all movies you have watched. You can filter them freely.', type: 'list',
-      allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'genre', 'director', 'actor'],
-      execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor)
+      allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'],
+      execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor)
     },
-    { id: 'watched_directors', category: 'Watched History', name: 'Watched Directors', description: 'List of all directors you have watched.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedDirectorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'watched_actors', category: 'Watched History', name: 'Watched Actors', description: 'List of all actors you have watched.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedActorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'watched_genres', category: 'Watched History', name: 'Watched Genres', description: 'Count of movies watched by genre.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedGenresGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'watched_decades', category: 'Watched History', name: 'Watched Decades', description: 'Count of movies watched grouped by release decade.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedDecadesGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
+    { id: 'watched_directors', category: 'Watched History', name: 'Watched Directors', description: 'List of all directors you have watched.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedDirectorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'watched_actors', category: 'Watched History', name: 'Watched Actors', description: 'List of all actors you have watched.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedActorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'watched_genres', category: 'Watched History', name: 'Watched Genres', description: 'Count of movies watched by genre.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedGenresGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'watched_decades', category: 'Watched History', name: 'Watched Decades', description: 'Count of movies watched grouped by release decade.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedDecadesGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
     
     // --- WATCHED ADVANCED ---
-    { id: 'top_actors', category: 'Watched Insights', name: 'Top Actors', description: 'Your most watched actors.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedActorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'top_directors', category: 'Watched Insights', name: 'Top Directors', description: 'Your most watched directors.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedDirectorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'predominant_era', category: 'Watched Insights', name: 'Predominant Era', description: 'Your preference between classic and modern cinema.', type: 'single', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedPredominantEraGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'director_ranking', category: 'Watched Insights', name: 'Director Ranking by Rating', description: 'Directors ranked by your average rating.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedDirectorRankingGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
+    { id: 'top_actors', category: 'Watched Insights', name: 'Top Actors', description: 'Your most watched actors.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedActorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'top_directors', category: 'Watched Insights', name: 'Top Directors', description: 'Your most watched directors.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedDirectorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'predominant_era', category: 'Watched Insights', name: 'Predominant Era', description: 'Your preference between classic and modern cinema.', type: 'single', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedPredominantEraGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'director_ranking', category: 'Watched Insights', name: 'Director Ranking by Rating', description: 'Directors ranked by your average rating.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedDirectorRankingGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
     {
       id: 'total_time', category: 'Watched Insights', name: 'Total Time Invested', description: 'Calculate total time spent watching a specific director or genre.', type: 'single',
-      allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'actor'],
+      allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'actor'],
       inputs: [
         { name: 'filterType', label: 'Filter Type', type: 'select', defaultValue: 'Director', options: [{label: 'Director', value: 'Director'}, {label: 'Genre', value: 'Genre'}] },
         { name: 'filterName', label: 'Name', type: 'text', defaultValue: 'Christopher Nolan' }
       ],
-      execute: (adv, _, gf, qs) => adv.apiAnalyticsAdvancedWatchedTotalTimeGet(qs.filterType, qs.filterName, gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor)
+      execute: (adv, _, gf, qs) => adv.apiAnalyticsAdvancedWatchedTotalTimeGet(qs.filterType, qs.filterName, gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor)
     },
 
     // --- WATCHED CORRELATIONS ---
-    { id: 'preferred_day', category: 'Habits & Correlations', name: 'Preferred Watch Day', description: 'Days of the week you watch the most movies.', type: 'chart', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedPreferredDayGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
+    { id: 'preferred_day', category: 'Habits & Correlations', name: 'Preferred Watch Day', description: 'Days of the week you watch the most movies.', type: 'chart', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedPreferredDayGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
     {
-      id: 'rating_evolution', category: 'Habits & Correlations', name: 'Rating Evolution', description: 'How your ratings evolve throughout the year.', type: 'chart', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'genre', 'director', 'actor'],
-      execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedRatingEvolutionGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor)
+      id: 'rating_evolution', category: 'Habits & Correlations', name: 'Rating Evolution', description: 'How your ratings evolve throughout the year.', type: 'chart', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'],
+      execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedRatingEvolutionGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor)
     },
-    { id: 'genre_streaks', category: 'Habits & Correlations', name: 'Genre Streaks', description: 'Longest streaks watching the same genre consecutively.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedGenreStreaksGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'longest_movie', category: 'Habits & Correlations', name: 'Longest Movie', description: 'The longest movie you have ever watched.', type: 'single', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedLongestMovieGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'casting_reps', category: 'Habits & Correlations', name: 'Casting Repetitions', description: 'Pairs of actors you have seen together the most.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedCastingRepetitionsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
+    { id: 'genre_streaks', category: 'Habits & Correlations', name: 'Genre Streaks', description: 'Longest streaks watching the same genre consecutively.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedGenreStreaksGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'longest_movie', category: 'Habits & Correlations', name: 'Longest Movie', description: 'The longest movie you have ever watched.', type: 'single', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedLongestMovieGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'casting_reps', category: 'Habits & Correlations', name: 'Casting Repetitions', description: 'Pairs of actors you have seen together the most.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedCastingRepetitionsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
 
     // --- WATCHLIST BASIC ---
     {
       id: 'watchlist_movies', category: 'Watchlist', name: 'Watchlist Movies', description: 'Pending movies in your watchlist.', type: 'list', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'],
-      execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor)
+      execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor)
     },
-    { id: 'watchlist_directors', category: 'Watchlist', name: 'Watchlist Directors', description: 'Directors in your watchlist.', type: 'list', allowedFilters: ['releaseYear', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistDirectorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'watchlist_actors', category: 'Watchlist', name: 'Watchlist Actors', description: 'Actors in your watchlist.', type: 'list', allowedFilters: ['releaseYear', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistActorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'watchlist_genres', category: 'Watchlist', name: 'Watchlist Genres', description: 'Genres in your watchlist.', type: 'list', allowedFilters: ['releaseYear', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistGenresGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'watchlist_decades', category: 'Watchlist', name: 'Watchlist Decades', description: 'Decades in your watchlist.', type: 'chart', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistDecadesGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
+    { id: 'watchlist_directors', category: 'Watchlist', name: 'Watchlist Directors', description: 'Directors in your watchlist.', type: 'list', allowedFilters: ['releaseYear', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistDirectorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'watchlist_actors', category: 'Watchlist', name: 'Watchlist Actors', description: 'Actors in your watchlist.', type: 'list', allowedFilters: ['releaseYear', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistActorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'watchlist_genres', category: 'Watchlist', name: 'Watchlist Genres', description: 'Genres in your watchlist.', type: 'list', allowedFilters: ['releaseYear', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistGenresGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'watchlist_decades', category: 'Watchlist', name: 'Watchlist Decades', description: 'Decades in your watchlist.', type: 'chart', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistDecadesGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
 
     // --- WATCHLIST ADVANCED ---
-    { id: 'most_anticipated_director', category: 'Watchlist Insights', name: 'Most Anticipated Director', description: 'Director with the most pending movies.', type: 'single', allowedFilters: ['releaseYear', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistMostAnticipatedDirectorGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'most_anticipated_actor', category: 'Watchlist Insights', name: 'Most Anticipated Actor', description: 'Actor with the most pending movies.', type: 'single', allowedFilters: ['releaseYear', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistMostAnticipatedActorGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'total_pending_watchtime', category: 'Watchlist Insights', name: 'Total Pending Watchtime', description: 'Total time required to clear your watchlist.', type: 'single', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistTotalWatchtimeGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'oldest_pending', category: 'Watchlist Insights', name: 'Oldest Pending Movie', description: 'The movie waiting the longest in your watchlist.', type: 'single', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistOldestPendingGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
+    { id: 'most_anticipated_director', category: 'Watchlist Insights', name: 'Most Anticipated Director', description: 'Director with the most pending movies.', type: 'single', allowedFilters: ['releaseYear', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistMostAnticipatedDirectorGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'most_anticipated_actor', category: 'Watchlist Insights', name: 'Most Anticipated Actor', description: 'Actor with the most pending movies.', type: 'single', allowedFilters: ['releaseYear', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistMostAnticipatedActorGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'total_pending_watchtime', category: 'Watchlist Insights', name: 'Total Pending Watchtime', description: 'Total time required to clear your watchlist.', type: 'single', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistTotalWatchtimeGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'oldest_pending', category: 'Watchlist Insights', name: 'Oldest Pending Movie', description: 'The movie waiting the longest in your watchlist.', type: 'single', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistOldestPendingGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
 
     // --- WATCHLIST CORRELATIONS ---
-    { id: 'watchlist_by_era', category: 'Watchlist Insights', name: 'Watchlist by Era', description: 'Pending classic vs modern movies.', type: 'list', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistByEraGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'duration_balance', category: 'Watchlist Insights', name: 'Duration Balance', description: 'Balance between short, medium, and long pending movies.', type: 'chart', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistDurationBalanceGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
-    { id: 'genre_proportion', category: 'Watchlist Insights', name: 'Genre Proportion', description: 'Watchlist vs Watched genres.', type: 'list', allowedFilters: ['releaseYear', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistGenreProportionGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.genre, gf.director, gf.actor) },
+    { id: 'watchlist_by_era', category: 'Watchlist Insights', name: 'Watchlist by Era', description: 'Pending classic vs modern movies.', type: 'list', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistByEraGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'duration_balance', category: 'Watchlist Insights', name: 'Duration Balance', description: 'Balance between short, medium, and long pending movies.', type: 'chart', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistDurationBalanceGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+    { id: 'genre_proportion', category: 'Watchlist Insights', name: 'Genre Proportion', description: 'Watchlist vs Watched genres.', type: 'list', allowedFilters: ['releaseYear', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistGenreProportionGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
   ];
 
   public categoriesList = computed(() => {
@@ -133,6 +135,41 @@ export class StatsComponent implements OnInit {
   public resultData = signal<any>(null);
   public loading = signal<boolean>(false);
 
+  // Layout & Pagination State
+  public showPosters = signal<boolean>(false);
+  public currentPage = signal<number>(1);
+  public pageSize = signal<number>(25);
+  public readonly pageSizeOptions = [10, 25, 50, 100];
+
+  public totalPages = computed(() => {
+    const data = this.resultData();
+    if (!this.isArray(data)) return 0;
+    return Math.ceil(data.length / this.pageSize());
+  });
+
+  public paginatedResultData = computed(() => {
+    const data = this.sortedResultData();
+    if (!this.isArray(data)) return data;
+    const startIndex = (this.currentPage() - 1) * this.pageSize();
+    return data.slice(startIndex, startIndex + this.pageSize());
+  });
+
+  hasPosterField(): boolean {
+    const data = this.resultData();
+    return this.isArray(data) && data.length > 0 && 'posterUrl' in data[0] && data[0].posterUrl !== undefined;
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  changePageSize(size: number) {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+  }
+
   ngOnInit() {
     this.initInputs();
   }
@@ -144,12 +181,14 @@ export class StatsComponent implements OnInit {
       this.selectedQueryId.set(firstQuery.id);
       this.initInputs();
       this.resultData.set(null); // Clear previous
+      this.currentPage.set(1);
     }
   }
 
   onQueryChange() {
     this.initInputs();
     this.resultData.set(null);
+    this.currentPage.set(1);
   }
 
   private initInputs() {
@@ -171,6 +210,8 @@ export class StatsComponent implements OnInit {
       if (!q.allowedFilters.includes('releaseYear')) this.globalFilters.releaseYear = undefined;
       if (!q.allowedFilters.includes('minRating')) this.globalFilters.minRating = undefined;
       if (!q.allowedFilters.includes('maxRating')) this.globalFilters.maxRating = undefined;
+      if (!q.allowedFilters.includes('minCustomRating')) this.globalFilters.minCustomRating = undefined;
+      if (!q.allowedFilters.includes('maxCustomRating')) this.globalFilters.maxCustomRating = undefined;
       if (!q.allowedFilters.includes('actor')) this.globalFilters.actor = undefined;
       if (!q.allowedFilters.includes('director')) this.globalFilters.director = undefined;
       if (!q.allowedFilters.includes('genre')) this.globalFilters.genre = undefined;
@@ -227,7 +268,7 @@ export class StatsComponent implements OnInit {
 
       // Trigger if user watched high-rated arthouse & low-rated blockbusters
       if (slowHighRating >= 2 || (slowCount >= 2 && blockbusterLowRating >= 1)) {
-        this.isPretentious.set(true);
+        this.isPretentious.set(Math.random() * 100 < 30); // 30% probability
       } else {
         this.isPretentious.set(false);
       }
@@ -241,9 +282,11 @@ export class StatsComponent implements OnInit {
         const count = d.count || d.watchCount || 0;
         const avg = d.averageRating || d.avgRating || 0;
 
-        // Count threshold of 5 watches and avg rating < 4.0 (out of 10) or < 2.0 (out of 5)
-        if (count >= 5 && avg > 0 && avg <= 4.0) {
-          toxic.add(name);
+        // Count threshold of 5 watches and avg rating <= 2.0
+        if (count >= 5 && avg > 0 && avg <= 2.0) {
+          if (Math.random() * 100 < 30) { // 30% probability
+            toxic.add(name);
+          }
         }
       });
       this.toxicDirectors.set(toxic);
@@ -336,6 +379,9 @@ export class StatsComponent implements OnInit {
 
     // Filter out keys that are always 0 or null/undefined across ALL rows
     return allKeys.filter(key => {
+      if (key === 'posterUrl') return false; // Prevent showing poster URL directly as text
+      if (key.toLowerCase() === 'id' || key.toLowerCase().endsWith('id')) return false; // Hide all ID columns globally
+      
       return data.some((item: any) => {
         const val = item[key];
         return val !== 0 && val !== null && val !== undefined && val !== '';
