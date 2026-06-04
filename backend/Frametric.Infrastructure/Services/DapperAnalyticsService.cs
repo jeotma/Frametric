@@ -273,10 +273,11 @@ public class DapperAnalyticsService : IAnalyticsService
         var parameters = new { userId, limit };
 
         const string sql = @"
-            SELECT dr.""Id"" AS DirectorId, dr.""Name"" AS Name, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS WatchCount, CAST(COALESCE(AVG((SELECT ""Score"" FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating
+            SELECT dr.""Id"" AS DirectorId, dr.""Name"" AS Name, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS WatchCount, CAST(COALESCE(AVG((SELECT ""Score"" FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(AVG(m.""CustomAverageRating""), 0) AS DOUBLE PRECISION) AS CustomAverageRating
             FROM ""WatchedMovies"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+            JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             WHERE w.""UserId"" = @userId
             GROUP BY dr.""Id"", dr.""Name""
             ORDER BY WatchCount DESC, AverageRating DESC

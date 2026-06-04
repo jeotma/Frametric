@@ -246,9 +246,12 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                         var timespan = w3.WatchDate - w1.WatchDate;
                         if (timespan.TotalHours <= 24)
                         {
-                            var msg = $"Hey, we noticed you watched some heavy psychological or existential films recently in a single day. Are you doing okay? Do you need us to recommend a Pixar movie or some grass to touch?";
-                            finalResults[0] = finalResults[0] with { WellnessCheckMessage = msg };
-                            break;
+                            if (Random.Shared.Next(100) < 35) // 35% probability
+                            {
+                                var msg = $"Hey, we noticed you watched some heavy psychological or existential films recently in a single day. Are you doing okay? Do you need us to recommend a Pixar movie or some grass to touch?";
+                                finalResults[0] = finalResults[0] with { WellnessCheckMessage = msg };
+                                break;
+                            }
                         }
                     }
                 }
