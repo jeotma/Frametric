@@ -14,5 +14,7 @@ export interface WatchlistMovieStatsDto {
     releaseYear: number | null;
     director: string;
     dateAdded: string;
+    customAverageRating?: number | null;
+    posterUrl?: string | null;
 }
 

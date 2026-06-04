@@ -15,5 +15,6 @@ export interface DirectorLeaderboardDto {
     watchCount: number;
     averageRating: number;
     highestRatedMovieTitle: string;
+    customAverageRating?: number | null;
 }
 

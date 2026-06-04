@@ -22,3 +22,4 @@ export interface RecommendedMovieDto {
     easterEggTooltip?: string | null;
     wellnessCheckMessage?: string | null;
 }
+
