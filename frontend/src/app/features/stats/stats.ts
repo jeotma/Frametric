@@ -1,8 +1,10 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { AdvancedAnalyticsService } from '../../core/api/api/advanced-analytics.service';
 import { AnalyticsService } from '../../core/api/api/analytics.service';
+import { SearchService } from '../../core/api/api/search.service';
 import { Observable, finalize } from 'rxjs';
 
 interface GlobalFilters {
@@ -39,13 +41,15 @@ import { EasterEggPipe } from '../../core/services/easter-egg.pipe';
 @Component({
   selector: 'app-stats',
   standalone: true,
-  imports: [CommonModule, FormsModule, EasterEggPipe],
+  imports: [CommonModule, FormsModule, EasterEggPipe, RouterLink],
   templateUrl: './stats.html',
   styleUrl: './stats.scss'
 })
 export class StatsComponent implements OnInit {
   private advancedApi = inject(AdvancedAnalyticsService);
   private api = inject(AnalyticsService);
+  private searchService = inject(SearchService);
+  private router = inject(Router);
 
   public isPretentious = signal<boolean>(false);
   public baconMessage = signal<string | null>(null);
@@ -268,7 +272,7 @@ export class StatsComponent implements OnInit {
 
       // Trigger if user watched high-rated arthouse & low-rated blockbusters
       if (slowHighRating >= 2 || (slowCount >= 2 && blockbusterLowRating >= 1)) {
-        this.isPretentious.set(Math.random() * 100 < 30); // 30% probability
+        this.isPretentious.set(Math.random() * 100 < 3); // 3% probability
       } else {
         this.isPretentious.set(false);
       }
@@ -284,7 +288,7 @@ export class StatsComponent implements OnInit {
 
         // Count threshold of 5 watches and avg rating <= 2.0
         if (count >= 5 && avg > 0 && avg <= 2.0) {
-          if (Math.random() * 100 < 30) { // 30% probability
+          if (Math.random() * 100 < 3) { // 3% probability
             toxic.add(name);
           }
         }
@@ -294,7 +298,13 @@ export class StatsComponent implements OnInit {
   }
 
   calculateBaconDistance(actorName: string) {
-    const isEE = Math.random() * 100 < 15; // 15% chance for the easter egg
+    const normalized = (actorName || '').trim().toLowerCase();
+    if (normalized === 'kevin bacon') {
+      this.baconMessage.set(`Degree of separation for Kevin Bacon to Kevin Bacon is 0 step(s). You are looking at the legend himself! 🥓`);
+      return;
+    }
+
+    const isEE = Math.random() * 100 < 2; // 2% chance for the easter egg
     if (isEE) {
       this.baconMessage.set(`You are currently 2 steps away from Kevin Bacon. But more importantly, you are 0 steps away from avoiding your real-life responsibilities. Go watch a movie.`);
     } else {
@@ -403,5 +413,26 @@ export class StatsComponent implements OnInit {
     const q = this.currentQuery();
     if (!q || !q.allowedFilters) return true;
     return q.allowedFilters.includes(filterName);
+  }
+
+  navigateToEntityByName(name: string, type: 'Movie' | 'Actor' | 'Director') {
+    if (!name) return;
+    this.searchService.apiSearchGet(name).subscribe({
+      next: (results) => {
+        const match = results.find(r => r.entityType === type);
+        if (match) {
+          const id = match.localId || match.tmdbId;
+          if (id) {
+            if (type === 'Movie') {
+              this.router.navigate(['/movies', id]);
+            } else if (type === 'Actor') {
+              this.router.navigate(['/actors', id]);
+            } else if (type === 'Director') {
+              this.router.navigate(['/directors', id]);
+            }
+          }
+        }
+      }
+    });
   }
 }

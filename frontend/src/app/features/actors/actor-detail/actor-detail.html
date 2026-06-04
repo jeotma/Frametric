@@ -1,0 +1,38 @@
+<div class="person-detail-container" *ngIf="!isLoading(); else loader">
+  <ng-container *ngIf="actor() as a">
+    <div class="header">
+      <h1>{{ a.name }}</h1>
+      <div class="stats">
+        <div class="stat-box">
+          <span class="label">Watched</span>
+          <span class="value">{{ a.watchCount }}</span>
+        </div>
+        <div class="stat-box">
+          <span class="label">Avg. rating</span>
+          <span class="value">⭐ {{ a.averageRating | number:'1.1-1' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="movies-grid">
+      <h2>Watched Movies</h2>
+      <div class="grid">
+        <a *ngFor="let m of a.movies" [routerLink]="['/movies', m.id]" class="movie-card">
+          <div class="poster">
+            <img [src]="m.posterPath || 'assets/placeholder-poster.png'" [alt]="m.title" />
+          </div>
+          <div class="info">
+            <span class="title">{{ m.title }}</span>
+            <span class="year" *ngIf="m.releaseYear">{{ m.releaseYear }}</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<ng-template #loader>
+  <div class="loading-state">
+    <div class="spinner"></div>
+  </div>
+</ng-template>

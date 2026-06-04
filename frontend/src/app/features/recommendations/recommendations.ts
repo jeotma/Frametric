@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { RecommendationsService } from '../../core/api/api/recommendations.service';
 import { RecommendationRequest, RecommendedMovieDto } from '../../core/api';
 import { finalize } from 'rxjs';
@@ -34,7 +35,7 @@ import { EasterEggPipe } from '../../core/services/easter-egg.pipe';
 @Component({
   selector: 'app-recommendations',
   standalone: true,
-  imports: [CommonModule, FormsModule, EasterEggPipe],
+  imports: [CommonModule, FormsModule, EasterEggPipe, RouterLink],
   templateUrl: './recommendations.html',
   styleUrl: './recommendations.scss'
 })

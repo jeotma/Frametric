@@ -241,13 +241,15 @@
           @for (movie of recommendations(); track movie.movieId) {
             <article class="movie-card glass-panel" [class.loading]="actionLoading() === movie.movieId" [class.haunted-card]="recommendations().length === 1 && recommendations()[0].easterEggTooltip?.startsWith('Watchlist Haunting')">
               <div class="poster-container">
-                @if (movie.posterUrl) {
-                  <img [src]="movie.posterUrl" [alt]="movie.title" loading="lazy" class="movie-poster">
-                } @else {
-                  <div class="fallback-poster">
-                    <span>{{ movie.title }}</span>
-                  </div>
-                }
+                <a [routerLink]="['/movies', movie.movieId]" style="display: block; width: 100%; height: 100%;">
+                  @if (movie.posterUrl) {
+                    <img [src]="movie.posterUrl" [alt]="movie.title" loading="lazy" class="movie-poster">
+                  } @else {
+                    <div class="fallback-poster">
+                      <span>{{ movie.title }}</span>
+                    </div>
+                  }
+                </a>
               </div>
 
               @let matchEE = movie.matchPercentage | easterEgg:'match';
@@ -262,7 +264,9 @@
               }
 
               <div class="movie-details">
-                <h3 class="movie-title" [title]="movie.title">{{ movie.title }}</h3>
+                <h3 class="movie-title" [title]="movie.title">
+                  <a [routerLink]="['/movies', movie.movieId]" style="color: inherit; text-decoration: none;">{{ movie.title }}</a>
+                </h3>
                 <div class="meta-row">
                   @let dirEE = movie.directorName | easterEgg:'director';
                   <span class="director" [class]="dirEE ? dirEE.className : ''" [attr.data-tooltip]="dirEE ? dirEE.tooltip : null" [title]="movie.directorName">

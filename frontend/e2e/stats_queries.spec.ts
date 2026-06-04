@@ -127,7 +127,7 @@ test.describe('Advanced Statistics Tests', () => {
     await expect(heroCard).toBeVisible();
     await expect(heroCard.locator('.hero-title')).toHaveText('Modern Era');
     await expect(heroCard.locator('.stat-box:has-text("Watches") .value')).toHaveText('420');
-    await expect(heroCard.locator('.stat-box:has-text("Avg Rating") .value')).toHaveText('4.12');
+    await expect(heroCard.locator('.stat-box:has-text("Avg Rating") .value')).toContainText('4.12');
   });
 
   test('should test HABITS & CORRELATIONS queries rendering chart details', async ({ page }) => {

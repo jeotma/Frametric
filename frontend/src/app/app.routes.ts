@@ -42,6 +42,18 @@ export const routes: Routes = [
       {
         path: 'recommendations',
         loadComponent: () => import('./features/recommendations/recommendations').then(m => m.RecommendationsComponent)
+      },
+      {
+        path: 'movies/:id',
+        loadComponent: () => import('./features/movies/movie-detail/movie-detail').then(m => m.MovieDetailComponent)
+      },
+      {
+        path: 'actors/:id',
+        loadComponent: () => import('./features/actors/actor-detail/actor-detail').then(m => m.ActorDetailComponent)
+      },
+      {
+        path: 'directors/:id',
+        loadComponent: () => import('./features/directors/director-detail/director-detail').then(m => m.DirectorDetailComponent)
       }
     ]
   },

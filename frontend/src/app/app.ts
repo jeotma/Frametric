@@ -1,10 +1,11 @@
 import { Component, signal, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 // Standalone Child Components Import
 import { SidebarComponent } from './components/sidebar/sidebar';
 import { AuthService } from './core/services/auth.service';
+import { SearchService, GlobalSearchResultDto } from './core/api';
 
 @Component({
   selector: 'app-root',
@@ -32,14 +33,65 @@ export class App {
 
   // UI States
   public isUploading = signal(false);
+  public isSearching = signal(false);
+  public searchResults = signal<GlobalSearchResultDto[]>([]);
+  public showSearchDropdown = signal(false);
   public currentSearchEasterEgg = signal<{ name: string; desc: string } | null>(null);
 
-  // Search box listener for cult queries
-  onSearchKeyup(event: Event) {
-    if (event instanceof KeyboardEvent && event.key !== 'Enter') return;
+  private searchTimeout: any;
+  private searchService = inject(SearchService);
+  private router = inject(Router);
 
+  // Search box listener for cult queries and global search
+  onSearchKeyup(event: Event) {
     const input = event.target as HTMLInputElement;
     const value = (input.value || '').trim().toLowerCase();
+
+    // 1. Handle Easter Eggs
+    this.handleEasterEggs(value, input);
+
+    // 2. Handle Global Search
+    if (value.length < 2) {
+      this.searchResults.set([]);
+      this.showSearchDropdown.set(false);
+      return;
+    }
+
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+    
+    this.searchTimeout = setTimeout(() => {
+      this.isSearching.set(true);
+      this.showSearchDropdown.set(true);
+      
+      this.searchService.apiSearchGet(value).subscribe({
+        next: (results) => {
+          this.searchResults.set(results);
+          this.isSearching.set(false);
+        },
+        error: () => {
+          this.isSearching.set(false);
+          this.searchResults.set([]);
+        }
+      });
+    }, 400); // 400ms debounce
+  }
+
+  closeSearch() {
+    this.showSearchDropdown.set(false);
+  }
+
+  navigateToResult(result: GlobalSearchResultDto) {
+    this.showSearchDropdown.set(false);
+    if (result.entityType === 'Movie') {
+      this.router.navigate(['/movies', result.localId || result.tmdbId]);
+    } else if (result.entityType === 'Actor') {
+      this.router.navigate(['/actors', result.localId || result.tmdbId]);
+    } else if (result.entityType === 'Director') {
+      this.router.navigate(['/directors', result.localId || result.tmdbId]);
+    }
+  }
+
+  private handleEasterEggs(value: string, input: HTMLInputElement) {
 
     // Helper to set current easter egg indicator
     const setEasterEggIndicator = (name: string, desc: string, durationMs: number) => {
@@ -51,8 +103,8 @@ export class App {
       }, durationMs);
     };
 
-    // 1. "rosebud" — 75% trigger rate
-    if (value === 'rosebud' && Math.random() < 0.75) {
+    // 1. "rosebud" — 5% trigger rate
+    if (value === 'rosebud' && Math.random() < 0.05) {
       setEasterEggIndicator('Rosebud Sled', 'You unlocked the legendary Citizen Kane sepia sled easter egg! How cool is that?', 15000);
       const body = document.body;
       body.style.transition = 'filter 1s ease';
@@ -71,8 +123,8 @@ export class App {
       }, 2000);
     }
 
-    // 2. "malkovich malkovich" — 75% trigger rate
-    if (value === 'malkovich malkovich' && Math.random() < 0.75) {
+    // 2. "malkovich malkovich" — 5% trigger rate
+    if (value === 'malkovich malkovich' && Math.random() < 0.05) {
       setEasterEggIndicator('Malkovich Mode', 'Malkovich Malkovich Malkovich. Everything is Malkovich!', 15000);
       const titles = document.querySelectorAll('.movie-title, .meta-row span, .bar-label, h3');
       const originalTexts: { el: Element; text: string }[] = [];
@@ -89,8 +141,8 @@ export class App {
       }, 2500);
     }
 
-    // 3. "memento" or "tenet" — 75% trigger rate
-    if ((value === 'memento' || value === 'tenet') && Math.random() < 0.75) {
+    // 3. "memento" or "tenet" — 5% trigger rate
+    if ((value === 'memento' || value === 'tenet') && Math.random() < 0.05) {
       setEasterEggIndicator('Temporal Inversion', 'You flipped the layout! A nod to Christopher Nolan\'s backwards timeline paradoxes.', 15000);
       const body = document.body;
       body.style.transition = 'transform 1.5s ease';
@@ -102,8 +154,8 @@ export class App {
       }, 2500);
     }
 
-    // 4. "matrix" — 75% trigger rate
-    if (value === 'matrix' && Math.random() < 0.75) {
+    // 4. "matrix" — 5% trigger rate
+    if (value === 'matrix' && Math.random() < 0.05) {
       setEasterEggIndicator('Matrix Code Rain', 'Down the rabbit hole you go! Unlocked falling digital rain animation.', 15000);
       const matrixRain = document.createElement('div');
       matrixRain.className = 'matrix-rain';
@@ -123,9 +175,9 @@ export class App {
       }, 4000);
     }
 
-    // 5. "clever girl" — 75% trigger rate
-    if (value === 'clever girl' && Math.random() < 0.75) {
-      setEasterEggIndicator('Jurassic Surprise', 'Clever Girl! Unlocked Jurassic Park raptor peek-a-boo.', 15000);
+    // 5. "clever girl" — 5% trigger rate
+    if ((value === 'jurassic park' || value === 'jurassic world') && Math.random() < 0.05) {
+      setEasterEggIndicator('Jurassic Surprise', 'Clever Girl! Unlocked the raptor peek-a-boo.', 15000);
       const dino = document.createElement('div');
       dino.className = 'raptor-peek';
       dino.innerText = '🦖 Clever girl...';
@@ -137,8 +189,8 @@ export class App {
       }, 2000);
     }
 
-    // 6. "there is no spoon" — 75% trigger rate
-    if (value === 'there is no spoon' && Math.random() < 0.75) {
+    // 6. "there is no spoon" — 5% trigger rate
+    if (value === 'there is no spoon' && Math.random() < 0.05) {
       setEasterEggIndicator('Bending Search Box', 'You bent the search input box! Indeed, there is no spoon.', 15000);
       const searchBox = document.querySelector('.search-box') as HTMLElement;
       if (searchBox) {

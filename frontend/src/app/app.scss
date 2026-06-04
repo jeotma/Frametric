@@ -55,14 +55,123 @@
   input {
     background: transparent;
     border: none;
-    outline: none;
-    color: var(--text-primary);
-    font-family: var(--font-body);
-    font-size: 0.85rem;
-    width: 100%;
+    color: white;
+    width: 250px;
+    font-size: 0.95rem;
+    transition: width 0.3s ease;
+
+    &:focus {
+      outline: none;
+      width: 350px;
+    }
 
     &::placeholder {
-      color: var(--text-muted);
+      color: rgba(255, 255, 255, 0.4);
+    }
+  }
+}
+
+.search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  min-width: 350px;
+  background: rgba(15, 15, 20, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.8rem;
+  margin-top: 0.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+
+  .search-loading, .search-empty {
+    padding: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+    font-size: 0.9rem;
+  }
+
+  .spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #a855f7;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  .search-results {
+    max-height: 400px;
+    overflow-y: auto;
+
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.8rem 1rem;
+      text-decoration: none;
+      color: white;
+      transition: background 0.2s;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .result-image {
+        width: 40px;
+        height: 60px;
+        flex-shrink: 0;
+        border-radius: 0.3rem;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.05);
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+
+      .result-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+
+        .result-title {
+          font-weight: 600;
+          font-size: 0.95rem;
+        }
+
+        .result-meta {
+          font-size: 0.8rem;
+          color: rgba(255, 255, 255, 0.5);
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+
+          .entity-type {
+            color: #a855f7;
+          }
+
+          .badge {
+            background: rgba(168, 85, 247, 0.2);
+            padding: 0.1rem 0.4rem;
+            border-radius: 0.3rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #d8b4fe;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+          }
+        }
+      }
     }
   }
 }

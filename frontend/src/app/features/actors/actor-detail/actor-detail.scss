@@ -1,0 +1,131 @@
+.person-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  color: white;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 4rem;
+
+  h1 {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1.5rem 2.5rem;
+      border-radius: 1rem;
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .label {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #a855f7;
+      }
+    }
+  }
+}
+
+.movies-grid {
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 2rem;
+
+    .movie-card {
+      text-decoration: none;
+      color: white;
+      transition: transform 0.2s ease;
+
+      &:hover {
+        transform: translateY(-5px);
+
+        .poster img {
+          box-shadow: 0 10px 20px rgba(168, 85, 247, 0.2);
+          border-color: rgba(168, 85, 247, 0.5);
+        }
+      }
+
+      .poster {
+        border-radius: 0.5rem;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        aspect-ratio: 2/3;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          transition: all 0.2s;
+        }
+      }
+
+      .info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+
+        .title {
+          font-weight: 600;
+          font-size: 0.9rem;
+          line-height: 1.2;
+        }
+
+        .year {
+          font-size: 0.8rem;
+          color: rgba(255, 255, 255, 0.5);
+        }
+      }
+    }
+  }
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #a855f7;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
