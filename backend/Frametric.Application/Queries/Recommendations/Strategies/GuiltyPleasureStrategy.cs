@@ -35,9 +35,31 @@ public class GuiltyPleasureStrategy : RecommendationStrategyBase
             .Where(x => x.Avg > userAvgRating)
             .Select(x => x.Genre).ToList();
 
+        // Favorite directors (avg user rating >= userAvgRating or count >= 2)
+        var directorStats = watched.Where(w => !string.IsNullOrEmpty(w.Directors))
+            .SelectMany(w => (w.Directors?.Split(',') ?? Array.Empty<string>()).Select(d => new { Director = d.Trim(), Rating = w.UserRating }))
+            .GroupBy(x => x.Director)
+            .Select(g => new { Director = g.Key, Avg = g.Average(x => x.Rating ?? 6.0), Count = g.Count() })
+            .Where(x => x.Avg >= userAvgRating || x.Count >= 2)
+            .ToDictionary(x => x.Director, x => x.Avg, StringComparer.OrdinalIgnoreCase);
+
+        // Favorite actors (avg user rating >= userAvgRating or count >= 2)
+        var actorStats = watched.Where(w => !string.IsNullOrEmpty(w.Actors))
+            .SelectMany(w => (w.Actors?.Split(',') ?? Array.Empty<string>()).Select(a => new { Actor = a.Trim(), Rating = w.UserRating }))
+            .GroupBy(x => x.Actor)
+            .Select(g => new { Actor = g.Key, Avg = g.Average(x => x.Rating ?? 6.0), Count = g.Count() })
+            .Where(x => x.Avg >= userAvgRating || x.Count >= 2)
+            .ToDictionary(x => x.Actor, x => x.Avg, StringComparer.OrdinalIgnoreCase);
+
+        // Favorite keywords (keywords from movies user rated highly)
+        var userKeywords = watched.Where(w => !string.IsNullOrEmpty(w.Keywords) && (!w.UserRating.HasValue || w.UserRating.Value >= userAvgRating))
+            .SelectMany(w => (w.Keywords?.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>()).Select(k => k.Trim()))
+            .GroupBy(k => k)
+            .ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
+
         return candidates.Select(c =>
         {
-            double score = 0;
+            double score = 15.0;
             var reasons = new List<string>();
 
             // Audience-Critic discrepancy
@@ -56,56 +78,143 @@ public class GuiltyPleasureStrategy : RecommendationStrategyBase
 
             double audienceRating = c.TmdbRating ?? c.CustomAverageRating ?? 6.0;
 
+            double discrepancy = 0;
             if (criticRatingCount > 0)
             {
-                double avgCriticRating = criticRatingSum / criticRatingCount;
-                double discrepancy = (audienceRating * 10.0) - avgCriticRating;
+                double avgCriticRating = (criticRatingSum / criticRatingCount) * 10.0;
+                discrepancy = (audienceRating * 10.0) - avgCriticRating;
                 if (discrepancy > 8.0)
                 {
-                    score += Math.Min(35.0, discrepancy * 2.0);
-                    reasons.Add("loved by audiences despite being heavily criticized by reviews");
+                    score += Math.Min(8.0, discrepancy * 0.4);
                 }
             }
             else
             {
-                score += 15.0;
+                score += 4.0;
             }
 
             // Genre matches user highly rated genres
             var cGenres = (c.Genres?.Split(',') ?? Array.Empty<string>()).Select(g => g.Trim()).ToList();
-            if (cGenres.Any(g => genreStats.Contains(g, StringComparer.OrdinalIgnoreCase)))
+            bool isGenreMatch = cGenres.Any(g => genreStats.Contains(g, StringComparer.OrdinalIgnoreCase));
+            if (isGenreMatch)
             {
-                score += 30.0;
-                reasons.Add("aligns with niche genres you historically rate highly");
+                score += 8.0;
             }
 
-            // Popularity penalty/bonus
-            double pop = c.TmdbPopularity ?? 30.0;
-            if (pop > 10.0 && pop < 75.0)
+            // Keyword match (major bonus)
+            var cKws = (c.Keywords?.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>())
+                .Select(k => k.Trim()).Where(k => !string.IsNullOrEmpty(k)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            
+            double keywordBonus = 0.0;
+            foreach (var kw in cKws)
             {
-                score += 15.0;
-                reasons.Add("sits in that perfect sweet-spot of underrated cult popularity");
+                if (userKeywords.TryGetValue(kw, out int count))
+                {
+                    keywordBonus += 10.0 * Math.Min(3, count);
+                }
+            }
+            double keywordBonusVal = 0.0;
+            if (keywordBonus > 0)
+            {
+                keywordBonusVal = Math.Min(12.0, keywordBonus);
+                score += keywordBonusVal;
+            }
+
+            // Familiar director/actor bonus
+            var cDirs = (c.Directors?.Split(',') ?? Array.Empty<string>()).Select(d => d.Trim()).ToList();
+            var cActs = (c.Actors?.Split(',') ?? Array.Empty<string>()).Select(a => a.Trim()).ToList();
+
+            double creatorBonus = 0.0;
+            foreach (var d in cDirs)
+            {
+                if (directorStats.ContainsKey(d))
+                {
+                    creatorBonus += 10.0;
+                }
+            }
+            foreach (var a in cActs)
+            {
+                if (actorStats.ContainsKey(a))
+                {
+                    creatorBonus += 8.0;
+                }
+            }
+            double creatorBonusVal = 0.0;
+            if (creatorBonus > 0)
+            {
+                creatorBonusVal = Math.Min(8.0, creatorBonus);
+                score += creatorBonusVal;
+            }
+
+            // Writer connection to user's favorite creators
+            var cWriters = (c.Writers?.Split(',') ?? Array.Empty<string>()).Select(w => w.Trim()).ToList();
+            double writerBonus = 0.0;
+            foreach (var w in cWriters)
+            {
+                if (directorStats.ContainsKey(w) || actorStats.ContainsKey(w))
+                {
+                    writerBonus += 8.0;
+                }
+            }
+            if (writerBonus > 0)
+            {
+                score += Math.Min(4.0, writerBonus);
+            }
+
+            // Popularity scoring (guilty pleasures should be niche/cult, not blockbusters)
+            double pop = c.TmdbPopularity ?? 30.0;
+            bool isInPopularitySweetSpot = false;
+            if (pop > 10.0 && pop <= 50.0)
+            {
+                score += 4.0;
+                isInPopularitySweetSpot = true;
+            }
+            else if (pop > 50.0)
+            {
+                double popPenalty = Math.Min(40.0, (pop - 50.0) * 0.3);
+                score -= popPenalty;
             }
 
             // Certifications
             if (!string.IsNullOrEmpty(c.Certification) && 
                 (c.Certification.Contains("R") || c.Certification.Contains("PG-13") || c.Certification.Contains("16") || c.Certification.Contains("18")))
             {
-                score += 10.0;
+                score += 2.0;
             }
 
-            // Awards penalty
-            var (wins, _, _, _) = ParseAwards(c.Awards);
-            if (wins == 0)
+            // Gradual awards penalty & no-awards bonus
+            var (wins, noms, otherWins, otherNoms) = ParseAwards(c.Awards);
+            double totalAwardsWeight = (wins * 5.0) + (noms * 2.0) + (otherWins * 0.5) + (otherNoms * 0.2);
+            bool isNoAwards = false;
+            if (totalAwardsWeight == 0)
             {
                 score += 5.0;
+                isNoAwards = true;
+            }
+            else
+            {
+                double awardsPenalty = Math.Min(35.0, totalAwardsWeight * 2.0);
+                score -= awardsPenalty;
+            }
+
+            // Gradual average score rating curves
+            double avgRating = GetAggregatedRating(c);
+            if (avgRating < 6.5)
+            {
+                double ratingBonus = Math.Min(10.0, (6.5 - avgRating) * 8.0);
+                score += ratingBonus;
+            }
+            else if (avgRating > 6.5)
+            {
+                double ratingPenalty = Math.Min(50.0, (avgRating - 6.5) * 35.0);
+                score -= ratingPenalty;
             }
 
             double tieBreaker = CalculateTieBreaker(c);
             double finalScore = Math.Min(99.9, Math.Max(10.0, score)) + tieBreaker;
-            double match = Math.Round(finalScore, 4);
+            double match = Math.Round(finalScore, 0);
 
-            string reason = reasons.Any() ? $"A guilty pleasure pick: it {FormatReasons(reasons)}." : "Fun, crowd-pleasing option matching your historical preferences.";
+            string reason = GenerateReason(keywordBonusVal, creatorBonusVal, isInPopularitySweetSpot, isNoAwards, discrepancy, isGenreMatch);
 
             return new RecommendedMovieDto(
                 c.MovieId,
@@ -119,5 +228,74 @@ public class GuiltyPleasureStrategy : RecommendationStrategyBase
                 c.CustomAverageRating
             );
         }).OrderByDescending(r => r.MatchPercentage).Take(quantity).ToList();
+    }
+
+    private string GenerateReason(double keywordBonusVal, double creatorBonusVal, bool isInPopularitySweetSpot, bool isNoAwards, double discrepancy, bool isGenreMatch)
+    {
+        var reasons = new List<string>();
+
+        if (discrepancy > 8.0)
+        {
+            if (discrepancy > 15.0)
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "loved by audiences despite being heavily criticized by reviews" 
+                    : "stands as a massive audience favorite despite critical rejection");
+            }
+            else
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "has a noticeable positive audience-critic split" 
+                    : "resonates much better with viewers than mainstream critics");
+            }
+        }
+
+        if (isGenreMatch)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "aligns with niche genres you historically rate highly" 
+                : "belongs to specific genre categories you have favored in the past");
+        }
+
+        if (keywordBonusVal > 0)
+        {
+            if (keywordBonusVal <= 6.0)
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "touches on a few familiar themes you enjoy" 
+                    : "shares some subtle tropes with your favorite movies");
+            }
+            else
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "delves deep into niche themes and tropes you enjoy" 
+                    : "completely aligns with your favorite narrative keywords");
+            }
+        }
+
+        if (creatorBonusVal > 0)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "features familiar creators from your niche favorites" 
+                : "brings in directors or actors you have a soft spot for");
+        }
+
+        if (isInPopularitySweetSpot)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "sits in that perfect sweet-spot of underrated cult popularity" 
+                : "enjoys a dedicated cult following without being mainstream");
+        }
+
+        if (isNoAwards)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "fled the radar of critical award bodies" 
+                : "remains completely free from prestigious award bias");
+        }
+
+        return reasons.Any() 
+            ? $"A guilty pleasure pick: it {FormatReasons(reasons)}." 
+            : (Random.Shared.Next(2) == 0 ? "Fun, crowd-pleasing option matching your historical preferences." : "An easy, entertaining watch to enjoy without pressure.");
     }
 }

@@ -25,47 +25,97 @@ public class CinephileEliteStrategy : RecommendationStrategyBase
         int quantity,
         int? maxRuntime = null)
     {
-        return candidates.Select(c =>
+        return candidates
+            .Where(c => 
+            {
+                var ratings = new List<double>();
+                if (c.CustomAverageRating.HasValue) ratings.Add(c.CustomAverageRating.Value);
+                if (c.TmdbRating.HasValue) ratings.Add(c.TmdbRating.Value);
+                if (c.ImdbRating.HasValue) ratings.Add(c.ImdbRating.Value);
+                if (c.RottenTomatoesRating.HasValue) ratings.Add(c.RottenTomatoesRating.Value);
+                if (c.MetacriticRating.HasValue) ratings.Add(c.MetacriticRating.Value);
+                double rawAvg = ratings.Any() ? ratings.Average() : 6.0;
+                return rawAvg >= 8.0;
+            })
+            .Select(c =>
         {
             double score = 0;
             var reasons = new List<string>();
 
             // Prestige rating components
-            double metacritic = c.MetacriticRating ?? 50.0;
-            double rt = c.RottenTomatoesRating ?? 50.0;
+            double metacritic = (c.MetacriticRating ?? 5.0) * 10.0;
+            double rt = (c.RottenTomatoesRating ?? 5.0) * 10.0;
             double imdb = (c.ImdbRating ?? 5.0) * 10.0;
             double tmdb = (c.TmdbRating ?? 5.0) * 10.0;
-
             double prestigeRating = (metacritic * 0.35) + (rt * 0.35) + (imdb * 0.20) + (tmdb * 0.10);
-            score += (prestigeRating / 100.0) * 45.0;
+            score += (prestigeRating / 100.0) * 22.0;
 
-            if (prestigeRating >= 80.0)
+            double obscureBonus = 0;
+            if (c.TmdbPopularity.HasValue)
             {
-                reasons.Add("is widely considered a cinematic masterpiece by critics");
+                double pop = c.TmdbPopularity.Value;
+                double popBaseDiff = 35.0 - pop;
+                if (popBaseDiff > 0)
+                {
+                    obscureBonus = Math.Min(12.0, popBaseDiff * 0.5);
+                    score += obscureBonus;
+                }
+                else
+                {
+                    double mainstreamPenalty = Math.Min(35.0, Math.Abs(popBaseDiff) * 0.5);
+                    score -= mainstreamPenalty;
+                }
             }
+
+            // Ratio of custom rating vs popularity
+            double customRating = c.CustomAverageRating ?? c.TmdbRating ?? 6.0;
+            double popularity = Math.Max(1.0, c.TmdbPopularity ?? 30.0);
+            double ratingToPopularityRatio = customRating / popularity;
+            double ratioBonus = Math.Min(15.0, ratingToPopularityRatio * 15.0);
+            score += ratioBonus;
 
             // Awards parse
             var (wins, noms, otherWins, otherNoms) = ParseAwards(c.Awards);
             double awardsScore = (wins * 4.0) + (noms * 1.5) + (otherWins * 0.3) + (otherNoms * 0.1);
             if (awardsScore > 0)
             {
-                score += Math.Min(30.0, awardsScore);
-                string awardReason = wins > 0 ? $"secured {wins} prestigious award wins" : $"received {noms} major award nominations";
-                reasons.Add(awardReason);
+                score += Math.Min(8.0, awardsScore * 0.3);
             }
 
             // Country / Foreign status
-            if (!string.IsNullOrEmpty(c.Country) && !c.Country.Contains("USA") && !c.Country.Contains("United States"))
+            if (!string.IsNullOrEmpty(c.Country))
             {
-                score += 15.0;
-                reasons.Add("belongs to the rich tradition of international art-house cinema");
+                if (!c.Country.Contains("USA", StringComparison.OrdinalIgnoreCase) && !c.Country.Contains("United States", StringComparison.OrdinalIgnoreCase))
+                {
+                    double nonUsaBonus = 8.0;
+                    if (!c.Country.Contains("UK", StringComparison.OrdinalIgnoreCase) && !c.Country.Contains("United Kingdom", StringComparison.OrdinalIgnoreCase))
+                    {
+                        nonUsaBonus = 12.0;
+                    }
+                    score += nonUsaBonus;
+                }
+            }
+
+            // Box office returns scoring
+            double? boxOffice = ParseBoxOffice(c.BoxOffice);
+            if (boxOffice.HasValue)
+            {
+                if (boxOffice.Value < 5000000.0)
+                {
+                    double lowBoxOfficeBonus = Math.Min(5.0, (5000000.0 - boxOffice.Value) / 1000000.0);
+                    score += lowBoxOfficeBonus;
+                }
+                else if (boxOffice.Value > 25000000.0)
+                {
+                    double highBoxOfficePenalty = Math.Min(12.0, (boxOffice.Value - 25000000.0) / 5000000.0);
+                    score -= highBoxOfficePenalty;
+                }
             }
 
             // Duration
             if (c.RuntimeMinutes.HasValue && c.RuntimeMinutes.Value >= 130)
             {
-                score += 5.0;
-                reasons.Add("features an immersive runtime typical of grand cinematic visions");
+                score += 3.0;
             }
 
             // Overview keyword match
@@ -76,15 +126,23 @@ public class CinephileEliteStrategy : RecommendationStrategyBase
                     overviewLower.Contains("surreal") || overviewLower.Contains("satire") || 
                     overviewLower.Contains("melancholy") || overviewLower.Contains("poetic"))
                 {
-                    score += 5.0;
+                    score += 3.0;
                 }
             }
 
             double tieBreaker = CalculateTieBreaker(c);
             double finalScore = Math.Min(99.9, Math.Max(10.0, score)) + tieBreaker;
-            double match = Math.Round(finalScore, 4);
+            double match = Math.Round(finalScore, 0);
 
-            string reason = reasons.Any() ? $"Cinephile Elite choice: it {FormatReasons(reasons)}." : "Highly-acclaimed, award-winning cinematic classic.";
+            string reason = GenerateReason(
+                obscureBonus,
+                ratioBonus,
+                prestigeRating,
+                wins,
+                noms,
+                c.Country,
+                boxOffice,
+                c.RuntimeMinutes);
 
             return new RecommendedMovieDto(
                 c.MovieId,
@@ -98,5 +156,127 @@ public class CinephileEliteStrategy : RecommendationStrategyBase
                 c.CustomAverageRating
             );
         }).OrderByDescending(r => r.MatchPercentage).Take(quantity).ToList();
+    }
+
+    private string GenerateReason(
+        double obscureBonus,
+        double ratioBonus,
+        double prestigeRating,
+        int wins,
+        int noms,
+        string? country,
+        double? boxOffice,
+        int? runtimeMinutes)
+    {
+        var reasons = new List<string>();
+
+        // Obscurity
+        if (obscureBonus > 0)
+        {
+            if (obscureBonus <= 4.0)
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "is a relatively fresh alternative to mainstream cinema" 
+                    : "is not completely mainstream but remains a bit hidden");
+            }
+            else if (obscureBonus <= 8.0)
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "is a highly underrated choice" 
+                    : "remains an overlooked gem");
+            }
+            else
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "remains a hidden masterpiece waiting to be uncovered" 
+                    : "is a deep-cut masterpiece for true cinephiles");
+            }
+        }
+
+        // Ratio
+        if (ratioBonus > 0)
+        {
+            if (ratioBonus <= 5.0)
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "shows positive reception relative to its audience size" 
+                    : "is appreciated by the few who have seen it");
+            }
+            else if (ratioBonus <= 10.0)
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "has very high ratings compared to its small audience" 
+                    : "boasts a surprisingly strong reception for its size");
+            }
+            else
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "has exceptionally high ratings relative to its small audience" 
+                    : "is an absolute critical darling with a tiny footprint");
+            }
+        }
+
+        // Prestige
+        if (prestigeRating >= 80.0)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "is widely considered a cinematic masterpiece by critics" 
+                : "boasts near-universal acclaim from cinematic experts");
+        }
+
+        // Awards
+        if (wins > 0)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? $"secured {wins} prestigious award wins" 
+                : $"was celebrated with {wins} major awards");
+        }
+        else if (noms > 0)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? $"received {noms} major award nominations" 
+                : $"was honored with {noms} nominations by leading bodies");
+        }
+
+        // Country
+        if (!string.IsNullOrEmpty(country) && 
+            !country.Contains("USA", StringComparison.OrdinalIgnoreCase) && 
+            !country.Contains("United States", StringComparison.OrdinalIgnoreCase))
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "belongs to the rich tradition of international art-house cinema" 
+                : "expands horizons with its foreign cinematic language");
+        }
+
+        // Box Office
+        if (boxOffice.HasValue && boxOffice.Value < 5000000.0)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "was produced outside the Hollywood blockbusters circle" 
+                : "proves that cinematic art doesn't require blockbuster budgets");
+        }
+
+        // Runtime
+        if (runtimeMinutes.HasValue && runtimeMinutes.Value >= 130)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "features an immersive runtime typical of grand cinematic visions" 
+                : "offers a sweeping, patient narrative length");
+        }
+
+        return reasons.Any() 
+            ? $"Cinephile Elite choice: it {FormatReasons(reasons)}." 
+            : (Random.Shared.Next(2) == 0 ? "Highly-acclaimed, award-winning cinematic classic." : "A curated masterpiece for the refined viewer.");
+    }
+
+    private static double? ParseBoxOffice(string? boxOfficeStr)
+    {
+        if (string.IsNullOrEmpty(boxOfficeStr)) return null;
+        var clean = new string(boxOfficeStr.Where(char.IsDigit).ToArray());
+        if (double.TryParse(clean, out double value))
+        {
+            return value;
+        }
+        return null;
     }
 }

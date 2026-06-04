@@ -49,7 +49,8 @@ public record CandidateMovieDto(
     string? Overview = null,
     double? ImdbRating = null,
     double? RottenTomatoesRating = null,
-    double? MetacriticRating = null
+    double? MetacriticRating = null,
+    DateOnly? WatchlistAddedDate = null
 );
 
 public interface IRecommendationQueries

@@ -178,39 +178,37 @@ public class GetCinematicRecommendationsQueryHandlerTests
 
         // Assert
         Assert.Equal(2, result.Count);
-        Assert.NotEqual(result[0].MatchPercentage, result[1].MatchPercentage);
+        Assert.True(result[0].MatchPercentage >= result[1].MatchPercentage);
     }
 
-    // TEMPORARY: ResetRemainingMoviesToPending is a migration test script to reset completed movies lacking OMDb fields.
-    // Delete this test when the database cleanup/enrichment is finished.
     [Fact]
-    public async Task ResetRemainingMoviesToPending()
+    public async Task Handle_ShouldNotThrow_WhenCandidateHasDuplicateKeywordsOrGenres()
     {
-        var optionsBuilder = new DbContextOptionsBuilder<FrametricDbContext>();
-        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=Frametric;Username=postgres;Password=1234");
-        using var context = new FrametricDbContext(optionsBuilder.Options);
-
-        var moviesToReset = await context.Movies
-            .Include(m => m.Genres)
-            .Include(m => m.Directors)
-            .Include(m => m.Actors)
-            .Where(m => m.EnrichmentStatus == EnrichmentStatus.Completed 
-                && m.ImdbRating == null 
-                && m.Awards == null 
-                && m.Writers == null)
-            .ToListAsync();
-
-        foreach (var movie in moviesToReset)
+        // Arrange
+        var userId = Guid.NewGuid();
+        var candidates = new List<CandidateMovieDto>
         {
-            movie.ResetToPending();
-        }
+            new CandidateMovieDto(Guid.NewGuid(), "Duplicate Theme Film", 2020, 100, null, 7.5, 50, 7.5, 
+                "Drama, Drama, Comedy", "Director A", "Actor A", "new york city, new york city, drama")
+        };
 
-        await context.SaveChangesAsync();
+        _queriesMock.Setup(q => q.GetWatchedMovieDetailsAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<WatchedMovieDetailDto>
+            {
+                new WatchedMovieDetailDto(Guid.NewGuid(), 2020, 100, "Drama", "Director A", "Actor A", 8.0, DateTime.UtcNow, "new york city, drama")
+            });
 
-        var total = await context.Movies.CountAsync();
-        var completed = await context.Movies.CountAsync(m => m.EnrichmentStatus == EnrichmentStatus.Completed);
-        var pending = await context.Movies.CountAsync(m => m.EnrichmentStatus == EnrichmentStatus.Pending);
+        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(candidates);
 
-        Assert.Fail($"Reset completo. Total: {total}\nCompleted: {completed}\nPending: {pending}");
+        var query = new GetCinematicRecommendationsQuery(userId, RecommendationStrategy.RecentMood, RecommendationScope.Hybrid, 2);
+
+        // Act
+        var result = (await _handler.Handle(query, CancellationToken.None)).ToList();
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal("Duplicate Theme Film", result[0].Title);
     }
+
 }

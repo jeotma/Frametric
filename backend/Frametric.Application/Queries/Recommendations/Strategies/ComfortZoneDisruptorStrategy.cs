@@ -69,7 +69,6 @@ public class ComfortZoneDisruptorStrategy : RecommendationStrategyBase
         return candidates.Select(c =>
         {
             double score = 0;
-            var reasons = new List<string>();
 
             // Comfort zone novelty (genres + eras)
             var cGenres = (c.Genres?.Split(',') ?? Array.Empty<string>()).Select(g => g.Trim()).ToList();
@@ -81,12 +80,10 @@ public class ComfortZoneDisruptorStrategy : RecommendationStrategyBase
             if (!isGenreComfort)
             {
                 score += 35.0;
-                reasons.Add("ventures into genres you rarely watch");
             }
             if (!isEraComfort)
             {
                 score += 15.0;
-                reasons.Add($"introduces an era outside your typical focus ({cDecade}s)");
             }
 
             // Familiarity anchors (highly rated creator connection)
@@ -98,20 +95,21 @@ public class ComfortZoneDisruptorStrategy : RecommendationStrategyBase
             bool hasFamiliarActor = cActs.Any(a => highlyRatedActors.Contains(a));
             bool hasFamiliarWriter = cWriters.Any(w => highlyRatedDirectors.Contains(w) || highlyRatedActors.Contains(w));
 
+            int anchorType = 0; // 0 = none, 1 = director, 2 = actor, 3 = writer
             if (hasFamiliarDirector)
             {
                 score += 30.0;
-                reasons.Add("anchored by a director you have rated highly in the past");
+                anchorType = 1;
             }
             else if (hasFamiliarActor)
             {
                 score += 25.0;
-                reasons.Add("features leading cast members you highly enjoy");
+                anchorType = 2;
             }
             else if (hasFamiliarWriter)
             {
                 score += 15.0;
-                reasons.Add("written by a creator whose previous work you rated highly");
+                anchorType = 3;
             }
 
             // Global prestige and review density
@@ -124,17 +122,17 @@ public class ComfortZoneDisruptorStrategy : RecommendationStrategyBase
             }
 
             // Language/Country diversity bonus
-            if (!string.IsNullOrEmpty(c.Language) && !c.Language.Contains("English", StringComparison.OrdinalIgnoreCase))
+            bool isForeign = !string.IsNullOrEmpty(c.Language) && !c.Language.Contains("English", StringComparison.OrdinalIgnoreCase);
+            if (isForeign)
             {
                 score += 5.0;
-                reasons.Add("offers a rich international perspective");
             }
 
             double tieBreaker = CalculateTieBreaker(c);
             double finalScore = Math.Min(99.9, Math.Max(10.0, score)) + tieBreaker;
-            double match = Math.Round(finalScore, 4);
+            double match = Math.Round(finalScore, 0);
 
-            string reason = reasons.Any() ? $"Disrupts your comfort zone: it {FormatReasons(reasons)}." : "Pushes your boundaries with a solid critical consensus.";
+            string reason = GenerateReason(isGenreComfort, isEraComfort, cDecade, anchorType, isForeign);
 
             return new RecommendedMovieDto(
                 c.MovieId,
@@ -148,5 +146,53 @@ public class ComfortZoneDisruptorStrategy : RecommendationStrategyBase
                 c.CustomAverageRating
             );
         }).OrderByDescending(r => r.MatchPercentage).Take(quantity).ToList();
+    }
+
+    private string GenerateReason(bool isGenreComfort, bool isEraComfort, int decade, int anchorType, bool isForeign)
+    {
+        var reasons = new List<string>();
+
+        if (!isGenreComfort)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "ventures into genres you rarely watch" 
+                : "takes you outside of your typical genre bubble");
+        }
+        
+        if (!isEraComfort)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? $"introduces an era outside your typical focus ({decade}s)" 
+                : $"explores a time period you infrequently select ({decade}s)");
+        }
+
+        if (anchorType == 1)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "anchored by a director you have rated highly in the past" 
+                : "guided by a filmmaker whose work you consistently appreciate");
+        }
+        else if (anchorType == 2)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "features leading cast members you highly enjoy" 
+                : "stars familiar actors you have given high marks to");
+        }
+        else if (anchorType == 3)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "written by a creator whose previous work you rated highly" 
+                : "penned by a writer you have favored in other projects");
+        }
+
+        if (isForeign)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "offers a rich international perspective" 
+                : "brings a unique cultural viewpoint");
+        }
+        return reasons.Any() 
+            ? $"Disrupts your comfort zone: it {FormatReasons(reasons)}." 
+            : (Random.Shared.Next(2) == 0 ? "Pushes your boundaries with a solid critical consensus." : "An unfamiliar style backed by outstanding reviews.");
     }
 }

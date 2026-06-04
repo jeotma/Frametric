@@ -72,11 +72,9 @@ public class DirectorsTrajectoryStrategy : RecommendationStrategyBase
 
                 double tieBreaker = CalculateTieBreaker(c);
                 double finalScore = Math.Min(99.9, Math.Max(10.0, score)) + tieBreaker;
-                double match = Math.Round(finalScore, 4);
+                double match = Math.Round(finalScore, 0);
 
-                string reason = lastWatchedYear.HasValue && c.ReleaseYear.HasValue && c.ReleaseYear.Value > lastWatchedYear.Value
-                    ? $"Continues your exploration of {dir}'s filmography chronologically (moving forward to {c.ReleaseYear})."
-                    : $"Fills a gap in your journey through the filmography of {dir}.";
+                string reason = GenerateReason(dir, lastWatchedYear, c.ReleaseYear);
 
                 return new RecommendedMovieDto(
                     c.MovieId,
@@ -93,5 +91,21 @@ public class DirectorsTrajectoryStrategy : RecommendationStrategyBase
             .OrderByDescending(r => r.MatchPercentage)
             .Take(quantity)
             .ToList();
+    }
+
+    private string GenerateReason(string director, int? lastWatchedYear, int? candidateYear)
+    {
+        if (lastWatchedYear.HasValue && candidateYear.HasValue && candidateYear.Value > lastWatchedYear.Value)
+        {
+            return Random.Shared.Next(2) == 0
+                ? $"Continues your exploration of {director}'s filmography chronologically (moving forward to {candidateYear})."
+                : $"Advances your journey through {director}'s work by moving forward to their {candidateYear} release.";
+        }
+        else
+        {
+            return Random.Shared.Next(2) == 0
+                ? $"Fills a gap in your journey through the filmography of {director}."
+                : $"Uncovers an essential missing chapter in your experience of {director}'s cinematic history.";
+        }
     }
 }

@@ -115,30 +115,28 @@ public class RecentMoodStrategy : RecommendationStrategyBase
         return candidates.Select(c =>
         {
             double score = 0;
-            var reasons = new List<string>();
 
             // Genre Cosine Similarity
             var cGenres = (c.Genres?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>())
                 .Select(g => g.Trim()).Where(g => !string.IsNullOrEmpty(g)).ToList();
-            var cGenreVector = cGenres.ToDictionary(g => g, g => 1.0, StringComparer.OrdinalIgnoreCase);
+            var cGenreVector = cGenres.Distinct(StringComparer.OrdinalIgnoreCase).ToDictionary(g => g, g => 1.0, StringComparer.OrdinalIgnoreCase);
             double genreSim = ComputeCosineSimilarity(recentGenres, cGenreVector);
             if (genreSim > 0)
             {
                 score += genreSim * 35.0;
-                reasons.Add("perfectly matches your recent genre trends");
             }
 
             // Keyword Cosine Similarity
             var cKws = (c.Keywords?.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>())
                 .Select(k => k.Trim()).Where(k => !string.IsNullOrEmpty(k)).ToList();
-            var cKwVector = cKws.ToDictionary(k => k, k => 1.0, StringComparer.OrdinalIgnoreCase);
+            var cKwVector = cKws.Distinct(StringComparer.OrdinalIgnoreCase).ToDictionary(k => k, k => 1.0, StringComparer.OrdinalIgnoreCase);
             double kwSim = ComputeCosineSimilarity(recentKeywords, cKwVector);
             if (kwSim > 0)
             {
                 score += kwSim * 25.0;
-                reasons.Add("shares strong thematic elements with your recent favorites");
             }
 
+            bool hasRuntimeAlignment = false;
             // Runtime alignment
             if (c.RuntimeMinutes.HasValue)
             {
@@ -146,7 +144,7 @@ public class RecentMoodStrategy : RecommendationStrategyBase
                 if (runtimeDiff <= 15)
                 {
                     score += 15.0;
-                    reasons.Add("fits your recent pacing preference");
+                    hasRuntimeAlignment = true;
                 }
                 else if (runtimeDiff <= 30)
                 {
@@ -154,6 +152,7 @@ public class RecentMoodStrategy : RecommendationStrategyBase
                 }
             }
 
+            int alignedDecade = 0;
             // Decade alignment
             if (c.ReleaseYear.HasValue)
             {
@@ -161,7 +160,7 @@ public class RecentMoodStrategy : RecommendationStrategyBase
                 if (recentDecades.TryGetValue(cDecade, out double weight))
                 {
                     score += Math.Min(10.0, weight * 3.0);
-                    reasons.Add($"aligns with your interest in {cDecade}s cinema");
+                    alignedDecade = cDecade;
                 }
             }
 
@@ -171,7 +170,6 @@ public class RecentMoodStrategy : RecommendationStrategyBase
             if (dirOverlap > 0)
             {
                 score += Math.Min(10.0, dirOverlap * 4.0);
-                reasons.Add("directed by a creator you've watched recently");
             }
 
             var cActs = (c.Actors?.Split(',') ?? Array.Empty<string>()).Select(a => a.Trim()).ToList();
@@ -179,7 +177,6 @@ public class RecentMoodStrategy : RecommendationStrategyBase
             if (actOverlap > 0)
             {
                 score += Math.Min(8.0, actOverlap * 2.0);
-                reasons.Add("stars actors from your recent viewing history");
             }
 
             // Awards bonus
@@ -199,9 +196,9 @@ public class RecentMoodStrategy : RecommendationStrategyBase
 
             double tieBreaker = CalculateTieBreaker(c);
             double finalScore = Math.Min(99.9, Math.Max(10.0, score)) + tieBreaker;
-            double match = Math.Round(finalScore, 4);
+            double match = Math.Round(finalScore, 0);
             
-            string reason = reasons.Any() ? $"Aligns with your recent mood because it {FormatReasons(reasons)}." : "Complements your recent viewing pattern.";
+            string reason = GenerateReason(genreSim, kwSim, hasRuntimeAlignment, alignedDecade, dirOverlap, actOverlap);
 
             return new RecommendedMovieDto(
                 c.MovieId,
@@ -215,5 +212,74 @@ public class RecentMoodStrategy : RecommendationStrategyBase
                 c.CustomAverageRating
             );
         }).OrderByDescending(r => r.MatchPercentage).Take(quantity).ToList();
+    }
+
+    private string GenerateReason(double genreSim, double kwSim, bool hasRuntimeAlignment, int alignedDecade, double dirOverlap, double actOverlap)
+    {
+        var reasons = new List<string>();
+
+        if (genreSim > 0)
+        {
+            if (genreSim > 0.4)
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "perfectly matches your recent genre trends" 
+                    : "strongly aligns with the specific genres you've been watching");
+            }
+            else
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "shares some genre elements you've recently favored" 
+                    : "complements your recent genre preferences");
+            }
+        }
+
+        if (kwSim > 0)
+        {
+            if (kwSim > 0.3)
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "shares strong thematic elements with your recent favorites" 
+                    : "delves into identical motifs and plot themes from your recent history");
+            }
+            else
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "carries similar vibes and concepts to your latest watches" 
+                    : "touches on a few key topics you have recently explored");
+            }
+        }
+
+        if (hasRuntimeAlignment)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "fits your recent pacing preference" 
+                : "matches the ideal runtime duration you've been comfortable with");
+        }
+
+        if (alignedDecade > 0)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? $"aligns with your interest in {alignedDecade}s cinema" 
+                : $"lets you continue diving into the aesthetic of the {alignedDecade}s");
+        }
+
+        if (dirOverlap > 0)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "directed by a creator you've watched recently" 
+                : "crafted by a familiar filmmaker in your recent history");
+        }
+
+        if (actOverlap > 0)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "stars actors from your recent viewing history" 
+                : "features performance artists you recently saw on screen");
+        }
+
+        return reasons.Any() 
+            ? $"Aligns with your recent mood because it {FormatReasons(reasons)}." 
+            : (Random.Shared.Next(2) == 0 ? "Complements your recent viewing pattern." : "Matches your library's general cinematic momentum.");
     }
 }

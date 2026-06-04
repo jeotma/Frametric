@@ -74,28 +74,27 @@ public class OppositeMoodStrategy : RecommendationStrategyBase
         return candidates.Select(c =>
         {
             double score = 0;
-            var reasons = new List<string>();
 
             // 1. Genre Inversion
             var cGenres = (c.Genres?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>())
                 .Select(g => g.Trim()).Where(g => !string.IsNullOrEmpty(g)).ToList();
-            var cGenreVector = cGenres.ToDictionary(g => g, g => 1.0, StringComparer.OrdinalIgnoreCase);
+            var cGenreVector = cGenres.Distinct(StringComparer.OrdinalIgnoreCase).ToDictionary(g => g, g => 1.0, StringComparer.OrdinalIgnoreCase);
             double genreSim = ComputeCosineSimilarity(recentGenres, cGenreVector);
             
             score += (1.0 - genreSim) * 35.0;
-            if (genreSim < 0.15) reasons.Add("offers an absolute genre shift");
 
             // Polar mood shift
             double cIntensity = cGenres.Count(g => g == "Action" || g == "Thriller" || g == "Horror" || g == "Sci-Fi" || g == "Adventure");
             double cLighthearted = cGenres.Count(g => g == "Comedy" || g == "Family" || g == "Animation" || g == "Fantasy");
             double cReflective = cGenres.Count(g => g == "Drama" || g == "Romance" || g == "Documentary" || g == "History" || g == "Mystery");
 
+            int moodShiftType = 0; // 0 = none, 1 = high intensity to reflective/light, 2 = comedy to thrill/drama, 3 = drama to action/comedy
             if (intensityScore > lightheartedScore && intensityScore > reflectiveScore)
             {
                 if (cReflective > 0 || cLighthearted > 0)
                 {
                     score += 15.0;
-                    reasons.Add("switches from high-intensity action to a lighter or more reflective tone");
+                    moodShiftType = 1;
                 }
             }
             else if (lightheartedScore > intensityScore && lightheartedScore > reflectiveScore)
@@ -103,7 +102,7 @@ public class OppositeMoodStrategy : RecommendationStrategyBase
                 if (cIntensity > 0 || cReflective > 0)
                 {
                     score += 15.0;
-                    reasons.Add("moves away from comedy to something more thrilling or dramatic");
+                    moodShiftType = 2;
                 }
             }
             else if (reflectiveScore > intensityScore && reflectiveScore > lightheartedScore)
@@ -111,30 +110,30 @@ public class OppositeMoodStrategy : RecommendationStrategyBase
                 if (cIntensity > 0 || cLighthearted > 0)
                 {
                     score += 15.0;
-                    reasons.Add("balances deep drama with a high-tempo or lighthearted alternative");
+                    moodShiftType = 3;
                 }
             }
 
             // 2. Keyword/Theme Inversion
             var cKws = (c.Keywords?.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>())
                 .Select(k => k.Trim()).Where(k => !string.IsNullOrEmpty(k)).ToList();
-            var cKwVector = cKws.ToDictionary(k => k, k => 1.0, StringComparer.OrdinalIgnoreCase);
+            var cKwVector = cKws.Distinct(StringComparer.OrdinalIgnoreCase).ToDictionary(k => k, k => 1.0, StringComparer.OrdinalIgnoreCase);
             double kwSim = ComputeCosineSimilarity(recentKeywords, cKwVector);
             score += (1.0 - kwSim) * 20.0;
-            if (kwSim < 0.05) reasons.Add("explores fresh, unfamiliar plot themes");
 
             // 3. Pacing Inversion
+            int pacingShift = 0; // 0 = none, 1 = fast, 2 = slow
             if (c.RuntimeMinutes.HasValue)
             {
                 if (avgRuntime > 115 && c.RuntimeMinutes < 95)
                 {
                     score += 15.0;
-                    reasons.Add("provides a fast-paced, shorter story");
+                    pacingShift = 1;
                 }
                 else if (avgRuntime < 95 && c.RuntimeMinutes > 120)
                 {
                     score += 15.0;
-                    reasons.Add("invites you to settle in for an epic, slow-burn narrative");
+                    pacingShift = 2;
                 }
             }
 
@@ -147,9 +146,9 @@ public class OppositeMoodStrategy : RecommendationStrategyBase
 
             double tieBreaker = CalculateTieBreaker(c);
             double finalScore = Math.Min(99.9, Math.Max(10.0, score)) + tieBreaker;
-            double match = Math.Round(finalScore, 4);
+            double match = Math.Round(finalScore, 0);
 
-            string reason = reasons.Any() ? $"A great palette cleanser: it {FormatReasons(reasons)}." : "A refreshing change of pace from your recent watches.";
+            string reason = GenerateReason(genreSim, kwSim, moodShiftType, pacingShift);
 
             return new RecommendedMovieDto(
                 c.MovieId,
@@ -163,5 +162,82 @@ public class OppositeMoodStrategy : RecommendationStrategyBase
                 c.CustomAverageRating
             );
         }).OrderByDescending(r => r.MatchPercentage).Take(quantity).ToList();
+    }
+
+    private string GenerateReason(double genreSim, double kwSim, int moodShiftType, int pacingShift)
+    {
+        var reasons = new List<string>();
+
+        // Genre Sim
+        if (genreSim < 0.15)
+        {
+            if (genreSim < 0.05)
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "offers an absolute genre shift" 
+                    : "completely breaks from your recent genre patterns");
+            }
+            else
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "provides a refreshing divergence in genre" 
+                    : "leads you into less familiar genre territories");
+            }
+        }
+
+        // Mood Shift
+        if (moodShiftType == 1)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "switches from high-intensity action to a lighter or more reflective tone" 
+                : "cools down the adrenaline with a calm or lighthearted atmosphere");
+        }
+        else if (moodShiftType == 2)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "moves away from comedy to something more thrilling or dramatic" 
+                : "pivots from easy laughs to suspenseful or dramatic storytelling");
+        }
+        else if (moodShiftType == 3)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "balances deep drama with a high-tempo or lighthearted alternative" 
+                : "breaks up heavy drama with a faster pace or comedic energy");
+        }
+
+        // Keyword Similarity
+        if (kwSim < 0.05)
+        {
+            if (kwSim < 0.01)
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "explores completely fresh, unfamiliar plot themes" 
+                    : "ventures into entirely unique thematic grounds");
+            }
+            else
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "introduces different narrative concepts" 
+                    : "dives into novel story threads");
+            }
+        }
+
+        // Pacing Shift
+        if (pacingShift == 1)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "provides a fast-paced, shorter story" 
+                : "keeps things brief and energetic");
+        }
+        else if (pacingShift == 2)
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "invites you to settle in for an epic, slow-burn narrative" 
+                : "gives you space to breathe with a patient, cinematic experience");
+        }
+
+        return reasons.Any() 
+            ? $"A great palette cleanser: it {FormatReasons(reasons)}." 
+            : (Random.Shared.Next(2) == 0 ? "A refreshing change of pace from your recent watches." : "A delightful departure from your regular viewing routine.");
     }
 }

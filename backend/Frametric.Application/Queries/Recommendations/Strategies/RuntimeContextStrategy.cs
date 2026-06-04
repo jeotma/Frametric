@@ -30,27 +30,27 @@ public class RuntimeContextStrategy : RecommendationStrategyBase
         return candidates.Select(c =>
         {
             double score = 0;
-            var reasons = new List<string>();
+            double diff = 0;
+            bool hasRuntime = false;
 
             if (c.RuntimeMinutes.HasValue)
             {
-                double diff = Math.Abs(c.RuntimeMinutes.Value - targetRuntime);
+                hasRuntime = true;
+                diff = Math.Abs(c.RuntimeMinutes.Value - targetRuntime);
                 double runtimeMatchScore = Math.Max(0.0, 1.0 - (diff / targetRuntime));
                 score += runtimeMatchScore * 40.0;
-
-                if (diff <= 10) reasons.Add("matches your timing availability perfectly");
-                else if (diff <= 20) reasons.Add("fits comfortably in your slot");
             }
 
             var cGenres = (c.Genres?.Split(',') ?? Array.Empty<string>()).Select(g => g.Trim()).ToList();
             bool isShort = targetRuntime <= 95.0;
+            bool hasPacingMatch = false;
 
             if (isShort)
             {
                 if (cGenres.Any(g => g == "Comedy" || g == "Action" || g == "Thriller" || g == "Horror"))
                 {
                     score += 25.0;
-                    reasons.Add("offers a high-intensity, quick-moving narrative");
+                    hasPacingMatch = true;
                 }
             }
             else
@@ -58,7 +58,7 @@ public class RuntimeContextStrategy : RecommendationStrategyBase
                 if (cGenres.Any(g => g == "Drama" || g == "Sci-Fi" || g == "History" || g == "Biography"))
                 {
                     score += 25.0;
-                    reasons.Add("leverages a larger duration for a deep story experience");
+                    hasPacingMatch = true;
                 }
             }
 
@@ -72,9 +72,9 @@ public class RuntimeContextStrategy : RecommendationStrategyBase
 
             double tieBreaker = CalculateTieBreaker(c);
             double finalScore = Math.Min(99.9, Math.Max(10.0, score)) + tieBreaker;
-            double match = Math.Round(finalScore, 4);
+            double match = Math.Round(finalScore, 0);
 
-            string reason = reasons.Any() ? $"Optimized runtime selection: it {FormatReasons(reasons)}." : "Great runtime match for your availability.";
+            string reason = GenerateReason(hasRuntime, diff, isShort, hasPacingMatch);
 
             return new RecommendedMovieDto(
                 c.MovieId,
@@ -88,5 +88,52 @@ public class RuntimeContextStrategy : RecommendationStrategyBase
                 c.CustomAverageRating
             );
         }).OrderByDescending(r => r.MatchPercentage).Take(quantity).ToList();
+    }
+
+    private string GenerateReason(bool hasRuntime, double diff, bool isShort, bool hasPacingMatch)
+    {
+        var reasons = new List<string>();
+
+        if (hasRuntime)
+        {
+            if (diff <= 10)
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "matches your timing availability perfectly" 
+                    : "fits your schedule without a minute to spare");
+            }
+            else if (diff <= 20)
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "fits comfortably in your slot" 
+                    : "aligns well with your available screen time");
+            }
+            else
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "is slightly off but still manageable for your slot" 
+                    : "approximates your target watch window decently");
+            }
+        }
+
+        if (hasPacingMatch)
+        {
+            if (isShort)
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "offers a high-intensity, quick-moving narrative" 
+                    : "delivers quick entertainment suited for shorter viewings");
+            }
+            else
+            {
+                reasons.Add(Random.Shared.Next(2) == 0 
+                    ? "leverages a larger duration for a deep story experience" 
+                    : "utilizes its epic length to craft a rich, fleshed-out plot");
+            }
+        }
+
+        return reasons.Any() 
+            ? $"Optimized runtime selection: it {FormatReasons(reasons)}." 
+            : (Random.Shared.Next(2) == 0 ? "Great runtime match for your availability." : "Comes in at a suitable length for your session.");
     }
 }

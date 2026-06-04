@@ -106,8 +106,10 @@ public class RecommendationQueriesImpl : IRecommendationQueries
                    c.""Overview"",
                    CAST(c.""ImdbRating"" AS DOUBLE PRECISION) AS ImdbRating,
                    CAST(c.""RottenTomatoesRating"" AS DOUBLE PRECISION) AS RottenTomatoesRating,
-                   CAST(c.""MetacriticRating"" AS DOUBLE PRECISION) AS MetacriticRating
+                   CAST(c.""MetacriticRating"" AS DOUBLE PRECISION) AS MetacriticRating,
+                   wl.""DateAdded"" AS WatchlistAddedDate
             FROM Candidates c
+            LEFT JOIN ""WatchlistItems"" wl ON c.""Id"" = wl.""MovieId"" AND wl.""UserId"" = @userId
             WHERE NOT EXISTS (
                 SELECT 1 FROM ""WatchedMovies"" wm WHERE wm.""MovieId"" = c.""Id"" AND wm.""UserId"" = @userId
             )

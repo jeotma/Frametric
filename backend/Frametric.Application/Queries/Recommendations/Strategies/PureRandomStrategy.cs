@@ -32,19 +32,32 @@ public class PureRandomStrategy : RecommendationStrategyBase
             {
                 double tieBreaker = CalculateTieBreaker(c);
                 double finalScore = 50.0 + tieBreaker;
-                double match = Math.Round(finalScore, 4);
+                double match = Math.Round(finalScore, 0);
+                string reason = GenerateReason();
                 return new RecommendedMovieDto(
                     c.MovieId,
                     c.Title,
                     c.Directors?.Split(',').FirstOrDefault() ?? "Unknown",
                     c.ReleaseYear ?? 0,
                     match,
-                    "A completely random pick to let chance guide your night.",
+                    reason,
                     c.PosterUrl,
                     c.RuntimeMinutes,
                     c.CustomAverageRating
                 );
             })
             .ToList();
+    }
+
+    private string GenerateReason()
+    {
+        var choices = new[]
+        {
+            "A completely random pick to let chance guide your night.",
+            "A wild card selection to shake up your viewing routine.",
+            "Rolled the dice and landed on this surprise choice.",
+            "A spontaneous recommendation powered by pure chaos."
+        };
+        return choices[Random.Shared.Next(choices.Length)];
     }
 }

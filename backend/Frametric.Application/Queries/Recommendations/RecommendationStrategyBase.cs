@@ -79,8 +79,8 @@ public abstract class RecommendationStrategyBase : IRecommendationStrategy
         if (c.CustomAverageRating.HasValue) ratings.Add(c.CustomAverageRating.Value);
         if (c.TmdbRating.HasValue) ratings.Add(c.TmdbRating.Value);
         if (c.ImdbRating.HasValue) ratings.Add(c.ImdbRating.Value);
-        if (c.RottenTomatoesRating.HasValue) ratings.Add(c.RottenTomatoesRating.Value / 10.0);
-        if (c.MetacriticRating.HasValue) ratings.Add(c.MetacriticRating.Value / 10.0);
+        if (c.RottenTomatoesRating.HasValue) ratings.Add(c.RottenTomatoesRating.Value);
+        if (c.MetacriticRating.HasValue) ratings.Add(c.MetacriticRating.Value);
 
         if (!ratings.Any()) return 6.0;
 
