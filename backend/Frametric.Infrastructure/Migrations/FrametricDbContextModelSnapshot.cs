@@ -159,27 +159,84 @@ namespace Frametric.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Awards")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("BoxOffice")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Certification")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Country")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<double?>("CustomAverageRating")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("EnrichmentStatus")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<double?>("ImdbRating")
+                        .HasColumnType("double precision");
+
                     b.Property<bool>("IsDocumentary")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Keywords")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<double?>("MetacriticRating")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Overview")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
 
                     b.Property<string>("PosterUrl")
                         .HasColumnType("text");
 
+                    b.Property<DateOnly?>("ReleaseDate")
+                        .HasColumnType("date");
+
                     b.Property<int?>("ReleaseYear")
                         .HasColumnType("integer");
 
+                    b.Property<double?>("RottenTomatoesRating")
+                        .HasColumnType("double precision");
+
                     b.Property<int?>("RuntimeMinutes")
                         .HasColumnType("integer");
+
+                    b.Property<string>("StreamingProviders")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<double?>("TmdbPopularity")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("TmdbRating")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Writers")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.HasKey("Id");
 

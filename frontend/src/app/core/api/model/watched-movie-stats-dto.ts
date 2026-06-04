@@ -15,5 +15,7 @@ export interface WatchedMovieStatsDto {
     director: string;
     rating: number;
     liked: boolean;
+    customAverageRating?: number | null;
+    posterUrl?: string | null;
 }
 

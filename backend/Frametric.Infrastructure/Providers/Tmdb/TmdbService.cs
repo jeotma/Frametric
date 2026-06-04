@@ -18,15 +18,22 @@ public class TmdbService : ITmdbService
         var (mainTitle, subtitle) = ParseTitleAndSubtitle(title);
         var simplifiedTitle = mainTitle;
 
-        // Progressive fallback chain: most specific → least specific
-        // Each step relaxes one constraint to maximise the chance of finding the entry.
-        var movieResult = await TrySearchMovieAsync(title, year, cancellationToken)
-                       ?? await TrySearchTvAsync(title, year, cancellationToken)
-                       ?? await TrySearchMovieAsync(title, year: null, cancellationToken)
-                       ?? await TrySearchTvAsync(title, year: null, cancellationToken)
-                       // Try searching TV show first with subtitle matching if a subtitle was detected
+        // Progressive fallback chain prioritizing exact matches first:
+        var movieResult = await TrySearchMovieAsync(title, year, cancellationToken, requireExactMatch: true)
+                       ?? await TrySearchTvAsync(title, year, cancellationToken, requireExactMatch: true)
+                       ?? await TrySearchMovieAsync(title, year: null, cancellationToken, requireExactMatch: true)
+                       ?? await TrySearchTvAsync(title, year: null, cancellationToken, requireExactMatch: true)
+                       
+                       // If no exact match is found, fallback to loose matches (first search result):
+                       ?? await TrySearchMovieAsync(title, year, cancellationToken, requireExactMatch: false)
+                       ?? await TrySearchTvAsync(title, year, cancellationToken, requireExactMatch: false)
+                       ?? await TrySearchMovieAsync(title, year: null, cancellationToken, requireExactMatch: false)
+                       ?? await TrySearchTvAsync(title, year: null, cancellationToken, requireExactMatch: false)
+                       
+                       // Try searching TV show first with subtitle matching if a subtitle was detected:
                        ?? (!string.IsNullOrEmpty(subtitle) ? await TrySearchTvAsync(simplifiedTitle, year: null, cancellationToken, subtitle) : null)
-                       // Standard simplified title fallbacks
+                       
+                       // Standard simplified title fallbacks:
                        ?? (simplifiedTitle != title ? await TrySearchMovieAsync(simplifiedTitle, year: null, cancellationToken) : null)
                        ?? (simplifiedTitle != title ? await TrySearchTvAsync(simplifiedTitle, year: null, cancellationToken) : null);
 
@@ -35,28 +42,103 @@ public class TmdbService : ITmdbService
 
     // ── Search helpers ──────────────────────────────────────────────────────────
 
-    private async Task<TmdbMovieResultDto?> TrySearchMovieAsync(string title, int? year, CancellationToken cancellationToken)
+    private async Task<TmdbMovieResultDto?> TrySearchMovieAsync(string title, int? year, CancellationToken cancellationToken, bool requireExactMatch = false)
     {
         var url = $"search/movie?query={Uri.EscapeDataString(title)}&language=en-US";
         if (year.HasValue) url += $"&year={year.Value}";
 
         var response = await _httpClient.GetFromJsonAsync<TmdbSearchResponse>(url, cancellationToken);
-        var result = response?.Results?.FirstOrDefault();
+        if (response?.Results == null || !response.Results.Any()) return null;
+
+        var result = requireExactMatch
+            ? response.Results
+                .Where(r => string.Equals(r.Title, title, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(r => r.Popularity ?? 0.0)
+                .FirstOrDefault()
+            : response.Results
+                .OrderByDescending(r => r.Popularity ?? 0.0)
+                .FirstOrDefault();
+
         if (result == null) return null;
 
-        var details = await _httpClient.GetFromJsonAsync<TmdbMovieDetails>(
+        var detailsTask = _httpClient.GetFromJsonAsync<TmdbMovieDetails>(
             $"movie/{result.Id}?append_to_response=credits&language=en-US", cancellationToken);
 
-        return details == null ? null : MapMovieDetails(details);
+        var keywordsTask = _httpClient.GetFromJsonAsync<TmdbKeywordsResponse>(
+            $"movie/{result.Id}/keywords", cancellationToken);
+
+        var providersTask = _httpClient.GetFromJsonAsync<TmdbWatchProvidersResponse>(
+            $"movie/{result.Id}/watch/providers", cancellationToken);
+
+        try
+        {
+            await Task.WhenAll(detailsTask, keywordsTask, providersTask);
+        }
+        catch
+        {
+            // Fallback: if keywords or providers fail, ensure detailsTask is still awaited or let it bubble up
+        }
+
+        var details = await detailsTask;
+        if (details == null) return null;
+
+        // Parse keywords
+        string? keywords = null;
+        try
+        {
+            var keywordsResp = await keywordsTask;
+            if (keywordsResp?.Keywords != null && keywordsResp.Keywords.Any())
+            {
+                keywords = string.Join(";", keywordsResp.Keywords.Select(k => k.Name));
+            }
+        }
+        catch { /* ignore keywords failure */ }
+
+        // Parse providers
+        string? providers = null;
+        try
+        {
+            var providersResp = await providersTask;
+            if (providersResp?.Results != null)
+            {
+                List<TmdbWatchProviderItem>? providersList = null;
+                if (providersResp.Results.TryGetValue("ES", out var esProviders))
+                {
+                    providersList = esProviders.Flatrate;
+                }
+                if ((providersList == null || !providersList.Any()) && providersResp.Results.TryGetValue("US", out var usProviders))
+                {
+                    providersList = usProviders.Flatrate;
+                }
+
+                if (providersList != null && providersList.Any())
+                {
+                    providers = string.Join(";", providersList.Select(p => p.ProviderName));
+                }
+            }
+        }
+        catch { /* ignore providers failure */ }
+
+        return MapMovieDetails(details, keywords, providers);
     }
 
-    private async Task<TmdbMovieResultDto?> TrySearchTvAsync(string title, int? year, CancellationToken cancellationToken, string? subtitle = null)
+    private async Task<TmdbMovieResultDto?> TrySearchTvAsync(string title, int? year, CancellationToken cancellationToken, string? subtitle = null, bool requireExactMatch = false)
     {
         var url = $"search/tv?query={Uri.EscapeDataString(title)}&language=en-US";
         if (year.HasValue) url += $"&first_air_date_year={year.Value}";
 
         var response = await _httpClient.GetFromJsonAsync<TmdbSearchResponse>(url, cancellationToken);
-        var result = response?.Results?.FirstOrDefault();
+        if (response?.Results == null || !response.Results.Any()) return null;
+
+        var result = requireExactMatch
+            ? response.Results
+                .Where(r => string.Equals(r.Name, title, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(r => r.Popularity ?? 0.0)
+                .FirstOrDefault()
+            : response.Results
+                .OrderByDescending(r => r.Popularity ?? 0.0)
+                .FirstOrDefault();
+
         if (result == null) return null;
 
         var details = await _httpClient.GetFromJsonAsync<TmdbTvDetails>(
@@ -128,7 +210,7 @@ public class TmdbService : ITmdbService
 
     // ── Mapping helpers ─────────────────────────────────────────────────────────
 
-    private static TmdbMovieResultDto MapMovieDetails(TmdbMovieDetails details)
+    private static TmdbMovieResultDto MapMovieDetails(TmdbMovieDetails details, string? keywords = null, string? providers = null)
     {
         var posterUrl = !string.IsNullOrEmpty(details.PosterPath)
             ? $"https://image.tmdb.org/t/p/w500{details.PosterPath}"
@@ -147,7 +229,21 @@ public class TmdbService : ITmdbService
             .Select(c => new TmdbPersonDto(c.Id, c.Name))
             .ToList() ?? new List<TmdbPersonDto>();
 
-        return new TmdbMovieResultDto(details.Id, details.Runtime, posterUrl, genres, directors, actors, IsTvShow: false);
+        return new TmdbMovieResultDto(
+            details.Id, 
+            details.Runtime, 
+            posterUrl, 
+            genres, 
+            directors, 
+            actors, 
+            IsTvShow: false,
+            TmdbRating: details.VoteAverage,
+            TmdbPopularity: details.Popularity,
+            ImdbId: details.ImdbId,
+            ReleaseDate: details.ReleaseDate,
+            Keywords: keywords,
+            StreamingProviders: providers,
+            Overview: details.Overview);
     }
 
     private static TmdbMovieResultDto MapTvDetails(TmdbTvDetails details)

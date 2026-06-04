@@ -72,7 +72,7 @@
 
         <div class="upload-progress-state" *ngIf="isUploading()">
           <div class="spinner"></div>
-          <span>Uploading & Validating...</span>
+          <span>{{ gatekeeperStatus() }}</span>
           <div class="progress-bar-container large">
             <div class="progress-bar infinite-progress"></div>
           </div>

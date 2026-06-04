@@ -22,6 +22,7 @@ public static class DependencyInjection
                 npgsql => npgsql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<FrametricDbContext>());
+        services.AddDistributedMemoryCache();
         
         services.AddScoped<ILetterboxdImporter, LetterboxdZipImporter>();
 
@@ -39,6 +40,7 @@ public static class DependencyInjection
         services.AddScoped<IWatchlistAdvancedStatsQueries, WatchlistQueriesImpl>();
         services.AddScoped<IWatchlistComplexCorrelationsQueries, WatchlistQueriesImpl>();
         services.AddScoped<IBonusQueries, BonusQueriesImpl>();
+        services.AddScoped<IRecommendationQueries, RecommendationQueriesImpl>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         // Register JWT Security and Current User services
@@ -57,6 +59,12 @@ public static class DependencyInjection
             {
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             }
+        });
+
+        services.AddHttpClient<IOmdbService, Frametric.Infrastructure.Providers.Omdb.OmdbService>(client =>
+        {
+            client.BaseAddress = new Uri("http://www.omdbapi.com/");
+            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         });
 
         services.AddSingleton<Frametric.Infrastructure.BackgroundJobs.TmdbEnrichmentTrigger>();

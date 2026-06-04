@@ -1,0 +1,320 @@
+<div class="reco-container animate-fade-in">
+  <header class="reco-header">
+    <div class="header-titles">
+      <h1>Cinematic Recommendations</h1>
+      <p class="subtitle">Frametric cinematic intelligence engine — custom suggestions powered by your library</p>
+    </div>
+  </header>
+
+  <div class="reco-layout">
+    <!-- Left panel: Control Center -->
+    <aside class="control-panel glass-panel">
+      <div class="panel-section">
+        <h2>1. Choose Strategy</h2>
+        <div class="strategy-list">
+          @for (strat of strategies; track strat.id) {
+            <button 
+              type="button" 
+              class="strategy-card" 
+              [class.active]="selectedStrategy() === strat.id"
+              (click)="selectStrategy(strat.id)"
+            >
+              <span class="strategy-icon">
+                @switch (strat.id) {
+                  @case (0) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>
+                      <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/>
+                      <path d="M12 5v14"/>
+                      <path d="M12 12h5"/>
+                      <path d="M12 12H7"/>
+                    </svg>
+                  }
+                  @case (1) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m3 16 4 4 4-4"/>
+                      <path d="M7 20V4"/>
+                      <path d="m21 8-4-4-4 4"/>
+                      <path d="M17 4v16"/>
+                    </svg>
+                  }
+                  @case (2) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4.5 16.5c-1.5 1.26-2 3.43-2 3.43s2.17-.5 3.43-2"/>
+                      <path d="M22 2c-3 0-8.5 1.5-11.5 4.5S8 15 8 15s4 0 7-3 5.5-8.5 5.5-11.5z"/>
+                      <path d="M9 15l-1.5 3.5L5 20l2.5-2.5L9 15z"/>
+                      <path d="M15 9l3.5-1.5L20 5l-2.5 2.5L15 9z"/>
+                      <circle cx="15" cy="9" r="1"/>
+                    </svg>
+                  }
+                  @case (3) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                      <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5 5 3Z"/>
+                    </svg>
+                  }
+                  @case (4) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="8" r="7"/>
+                      <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                    </svg>
+                  }
+                  @case (5) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="18" height="18" x="3" y="3" rx="2"/>
+                      <path d="M7 3v18"/>
+                      <path d="M17 3v18"/>
+                      <path d="M3 12h18"/>
+                      <path d="M3 7h4"/>
+                      <path d="M17 7h4"/>
+                      <path d="M3 17h4"/>
+                      <path d="M17 17h4"/>
+                    </svg>
+                  }
+                  @case (6) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                  }
+                  @case (7) {
+                    <svg class="strat-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <circle cx="15.5" cy="15.5" r="1.5"/>
+                      <circle cx="15.5" cy="8.5" r="1.5"/>
+                      <circle cx="8.5" cy="15.5" r="1.5"/>
+                      <circle cx="12" cy="12" r="1.5"/>
+                    </svg>
+                  }
+                }
+              </span>
+              <div class="strategy-info">
+                <h3>{{ strat.name }}</h3>
+                <p>{{ strat.description }}</p>
+              </div>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h2>2. Data Scope</h2>
+        <div class="scope-toggle-group">
+          <button 
+            type="button" 
+            class="scope-btn" 
+            [class.active]="selectedScope() === 0"
+            (click)="selectScope(0)"
+            data-tooltip="Recommend movies strictly from your personal Watchlist."
+          >
+            Watchlist
+          </button>
+          <button 
+            type="button" 
+            class="scope-btn" 
+            [class.active]="selectedScope() === 1"
+            (click)="selectScope(1)"
+            data-tooltip="Search the global cinematic database for unwatched matches."
+          >
+            Discover Pool
+          </button>
+          <button 
+            type="button" 
+            class="scope-btn" 
+            [class.active]="selectedScope() === 2"
+            (click)="selectScope(2)"
+            data-tooltip="Blend recommendations from both your Watchlist and the Discover Pool."
+          >
+            Hybrid
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h2>3. Slots Count</h2>
+        <div class="chip-matrix">
+          @for (qty of [1, 2, 3, 5, 10]; track qty) {
+            <button 
+              type="button"
+              class="chip-btn"
+              [class.active]="selectedQuantity() === qty"
+              (click)="selectQuantity(qty)"
+            >
+              {{ qty }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="runtime-header">
+          <h2>4. Max Duration</h2>
+          <label class="switch-container">
+            <input type="checkbox" [checked]="filterByRuntime()" (change)="filterByRuntime.set(!filterByRuntime())">
+            <span class="slider round"></span>
+          </label>
+        </div>
+        
+        @if (filterByRuntime()) {
+          <div class="runtime-slider-wrapper animate-fade-in">
+            <input 
+              type="range" 
+              min="60" 
+              max="240" 
+              step="5"
+              [value]="maxRuntime()" 
+              (input)="maxRuntime.set(+$any($event.target).value)"
+              class="range-slider"
+            >
+            <span class="runtime-value">{{ maxRuntime() }} minutes</span>
+          </div>
+        }
+      </div>
+
+      <button 
+        type="button"
+        class="btn btn-primary generate-btn" 
+        [disabled]="loading()"
+        (click)="generateRecommendations()"
+      >
+        @if (loading()) {
+          <span class="spinner"></span> Analyzing Library...
+        } @else {
+          Generate Suggestions
+        }
+      </button>
+    </aside>
+
+    <!-- Right panel: Recommendations Results Grid -->
+    <main class="results-area">
+      @if (loading()) {
+        <div class="loading-state glass-panel">
+          <div class="loading-animation">
+            <div class="orbit"></div>
+            <div class="orbit"></div>
+            <div class="orbit"></div>
+          </div>
+          <h3>Running vector alignments...</h3>
+          <p>Scanning candidate movie pool against your cinema preferences.</p>
+        </div>
+      } @else if (error()) {
+        <div class="error-state glass-panel">
+          <span class="error-icon">⚠️</span>
+          <h3>No historical data found</h3>
+          <p>{{ error() }}</p>
+          <a href="/imports" class="btn btn-secondary mt-3">Go to Import Center</a>
+        </div>
+      } @else if (recommendations().length === 0) {
+        <div class="empty-state glass-panel">
+          <span class="empty-icon">🎬</span>
+          @let emptyEE = 'reco-empty' | easterEgg:'ui';
+          @if (emptyEE) {
+            <h3 [class]="emptyEE.className" [attr.data-tooltip]="emptyEE.tooltip" style="font-size: 1.15rem; font-weight: 500; margin: 10px 0;">{{ emptyEE.text }}</h3>
+          } @else {
+            <h3>No recommendations match your criteria</h3>
+            <p>Try widening the data scope, disabling the duration limit, or skipping less movies.</p>
+          }
+        </div>
+      } @else {
+        @if (wellnessMessage()) {
+          <div class="wellness-banner glass-panel animate-fade-in">
+            <span class="wellness-icon">🌱</span>
+            <div class="wellness-content">
+              <h4>Wellness Check</h4>
+              <p>{{ wellnessMessage() }}</p>
+              <button type="button" class="btn btn-secondary btn-sm" (click)="dismissWellness()">I'm fine, thanks</button>
+            </div>
+          </div>
+        }
+        @if (recommendations().length === 1 && recommendations()[0].easterEggTooltip?.startsWith('Watchlist Haunting')) {
+          <div class="haunting-optout-banner glass-panel">
+            <span class="warning-icon">👻</span>
+            <div class="optout-content">
+              <h4>Watchlist Haunting Triggered</h4>
+              <p>One of your oldest watchlist movies has completely haunted your dashboard recommendations. Would you like to keep ignoring your watchlist forever?</p>
+              <button type="button" class="btn btn-secondary btn-sm" (click)="disableHaunting()">Yes, stop haunting me</button>
+            </div>
+          </div>
+        }
+        <div class="recommendations-grid" [class.grid-10]="selectedQuantity() === 10">
+          @for (movie of recommendations(); track movie.movieId) {
+            <article class="movie-card glass-panel" [class.loading]="actionLoading() === movie.movieId" [class.haunted-card]="recommendations().length === 1 && recommendations()[0].easterEggTooltip?.startsWith('Watchlist Haunting')">
+              <div class="poster-container">
+                @if (movie.posterUrl) {
+                  <img [src]="movie.posterUrl" [alt]="movie.title" loading="lazy" class="movie-poster">
+                } @else {
+                  <div class="fallback-poster">
+                    <span>{{ movie.title }}</span>
+                  </div>
+                }
+              </div>
+
+              @let matchEE = movie.matchPercentage | easterEgg:'match';
+              <div class="match-badge" [class]="matchEE ? matchEE.className : ''" [attr.data-tooltip]="matchEE ? matchEE.tooltip : null">
+                {{ movie.matchPercentage }}% Match {{ matchEE ? ' ' + matchEE.text : '' }}
+              </div>
+              @if (movie.customAverageRating) {
+                @let ratingEE = (movie.customAverageRating | number:'1.1-1') | easterEgg:'rating';
+                <div class="rating-badge" [class]="ratingEE ? ratingEE.className : ''" [attr.data-tooltip]="ratingEE ? ratingEE.tooltip : ('Custom Rating: ' + (movie.customAverageRating | number:'1.1-1') + '/10. This is the arithmetic mean calculated from TMDB, and OMDb sources (including IMDb, Rotten Tomatoes, and Metacritic).')">
+                  ⭐ {{ movie.customAverageRating | number:'1.1-1' }} {{ ratingEE ? ' ' + ratingEE.text : '' }}
+                </div>
+              }
+
+              <div class="movie-details">
+                <h3 class="movie-title" [title]="movie.title">{{ movie.title }}</h3>
+                <div class="meta-row">
+                  @let dirEE = movie.directorName | easterEgg:'director';
+                  <span class="director" [class]="dirEE ? dirEE.className : ''" [attr.data-tooltip]="dirEE ? dirEE.tooltip : null" [title]="movie.directorName">
+                    {{ movie.directorName }} {{ dirEE ? dirEE.text : '' }}
+                  </span>
+                  <span class="divider">•</span>
+                  @let yearEE = movie.releaseYear | easterEgg:'rec-year';
+                  <span class="year" [class]="yearEE ? yearEE.className : ''" [attr.data-tooltip]="yearEE ? yearEE.tooltip : null">
+                    {{ movie.releaseYear }} {{ yearEE ? ' ' + yearEE.text : '' }}
+                  </span>
+                  @if (movie.runtimeMinutes) {
+                    @let runtimeEE = movie.runtimeMinutes | easterEgg:'runtime';
+                    <span class="divider">•</span>
+                    <span class="runtime" [class]="runtimeEE ? runtimeEE.className : ''" [attr.data-tooltip]="runtimeEE ? runtimeEE.tooltip : null">{{ movie.runtimeMinutes }}m {{ runtimeEE ? ' ' + runtimeEE.text : '' }}</span>
+                  }
+                </div>
+
+                <div class="reason-box" [class.has-easter-egg]="movie.easterEggTooltip" [attr.data-tooltip]="movie.easterEggTooltip">
+                  <p class="reason-text">
+                    <span class="quote-mark">“</span>
+                    {{ movie.recommendationReason }}
+                    @if (movie.easterEggTooltip) {
+                      <span class="easter-egg-indicator" title="Easter Egg">🥚</span>
+                    }
+                  </p>
+                </div>
+
+                <div class="action-footer">
+                  <button 
+                    type="button" 
+                    class="card-action-btn skip-btn" 
+                    [disabled]="actionLoading() !== null"
+                    (click)="skipMovie(movie.movieId)"
+                    title="Dismiss recommendation and show another"
+                  >
+                    Skip
+                  </button>
+                  <button 
+                    type="button" 
+                    class="card-action-btn watch-btn" 
+                    [disabled]="actionLoading() !== null"
+                    (click)="markAsWatched(movie)"
+                    title="Mark movie as watched"
+                  >
+                    Logged
+                  </button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </main>
+  </div>
+</div>

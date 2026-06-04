@@ -55,6 +55,15 @@
         </div>
       </div>
 
+      <div class="filter-group rating-group" [class.disabled-group]="!isFilterAllowed('minCustomRating')">
+        <label>Custom Rating</label>
+        <div class="rating-inputs">
+          <input type="number" [(ngModel)]="globalFilters.minCustomRating" step="0.1" min="0" max="10" placeholder="Min" class="form-input mini-input" [disabled]="!isFilterAllowed('minCustomRating')">
+          <span>-</span>
+          <input type="number" [(ngModel)]="globalFilters.maxCustomRating" step="0.1" min="0" max="10" placeholder="Max" class="form-input mini-input" [disabled]="!isFilterAllowed('maxCustomRating')">
+        </div>
+      </div>
+
       <div class="filter-group" [class.disabled-group]="!isFilterAllowed('actor')">
         <label>Actor</label>
         <input type="text" [(ngModel)]="globalFilters.actor" placeholder="Name" class="form-input mini-input" [disabled]="!isFilterAllowed('actor')">
@@ -105,18 +114,54 @@
     </div>
 
     <div class="empty-state" *ngIf="!loading() && !resultData()">
-      Configure your filters above and click Analyze.
+      @let idleEE = 'stats-idle' | easterEgg:'ui';
+      @if (idleEE) {
+        <span [class]="idleEE.className" [attr.data-tooltip]="idleEE.tooltip">{{ idleEE.text }}</span>
+      } @else {
+        Configure your filters above and click Analyze.
+      }
     </div>
 
     <div class="results-content" *ngIf="!loading() && resultData()">
       
+      <!-- Pretentiometer Easter Egg Alert -->
+      <div *ngIf="isPretentious()" class="pretentious-alert-banner glass-panel animate-fade-in" style="margin-bottom: 24px;">
+        <span class="alert-icon">🎩</span>
+        <div class="alert-content">
+          <h4>Pretentiometer Warning</h4>
+          <p class="tooltip-container" style="cursor: help; margin: 0;">
+            High levels of slow-cinema superiority detected.
+            <span class="tooltip-text">Have you actually watched Satantango three times, or do you just like the aesthetic of suffering? We get it, you hate fun. Here's your virtual turtleneck. Just kidding, we love you and your exquisite taste anyway! ❤️</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Bacon Distance Overlay Modal -->
+      <div *ngIf="baconMessage()" class="bacon-modal-overlay animate-fade-in" (click)="closeBaconModal()">
+        <div class="bacon-modal glass-panel" (click)="$event.stopPropagation()">
+          <h3>Six Degrees of Kevin Bacon 🥓</h3>
+          <p>{{ baconMessage() }}</p>
+          <button type="button" class="btn btn-primary" (click)="closeBaconModal()">Acknowledge</button>
+        </div>
+      </div>
+
       <!-- LIST VIEW (TABULAR) -->
       <ng-container *ngIf="currentQuery().type === 'list' && isArray(resultData())">
         <div class="table-container animate-fade-in">
+          
+          <!-- Controls Toolbar -->
+          <div class="table-controls-toolbar" *ngIf="hasPosterField()">
+            <label class="toggle-control">
+              <input type="checkbox" [ngModel]="showPosters()" (ngModelChange)="showPosters.set($event)">
+              <span class="toggle-slider"></span>
+              Show Posters
+            </label>
+          </div>
+
           <table class="glass-table">
             <thead>
               <tr>
-                <th *ngFor="let col of getColNames()" (click)="sortBy(col)" [class.sortable]="true">
+                <th *ngFor="let col of getColNames()" (click)="sortBy(col)" [class.sortable]="true" [class.text-center]="col.toLowerCase() === 'customaveragerating'">
                   {{ formatColName(col) }}
                   <span class="sort-icon" *ngIf="sortColumn() === col">
                     {{ sortDirection() === 'asc' ? '▲' : '▼' }}
@@ -125,17 +170,54 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let item of sortedResultData(); let i = index" class="animate-slide-up" [style.animation-delay]="(i % 10) * 0.02 + 's'">
-                <td *ngFor="let col of getColNames()">
+              <tr *ngFor="let item of paginatedResultData(); let i = index" class="animate-slide-up" [style.animation-delay]="(i % 10) * 0.02 + 's'">
+                
+                <td *ngFor="let col of getColNames()" [class.text-center]="col.toLowerCase() === 'customaveragerating'">
+                  <!-- Title Layout -->
+                  <ng-container *ngIf="col.toLowerCase() === 'title'">
+                    <div *ngIf="showPosters() && hasPosterField()" class="poster-title-layout">
+                      <img *ngIf="item.posterUrl" [src]="item.posterUrl" alt="Poster" class="row-poster-stacked" />
+                      <div *ngIf="!item.posterUrl" class="row-poster-placeholder-stacked">No Poster</div>
+                      <span class="movie-title-text">{{ item[col] }}</span>
+                    </div>
+                    <span *ngIf="!(showPosters() && hasPosterField())">{{ item[col] }}</span>
+                  </ng-container>
+
                   <!-- Generic formatting based on key -->
                   <ng-container *ngIf="col.toLowerCase().includes('rating') && item[col] === 0">
                     <span class="elegant-unrated">No ratings</span>
                   </ng-container>
                   <ng-container *ngIf="col.toLowerCase().includes('rating') && item[col] > 0">
-                    <span class="rating-badge">{{ item[col] | number:'1.1-2' }}</span>
+                    <span class="rating-badge tooltip-container" *ngIf="col.toLowerCase() === 'customaveragerating'" style="cursor: help;">
+                      ⭐ {{ item[col] | number:'1.1-2' }}
+                      <span class="tooltip-text" style="width: 250px;">This custom rating is a weighted aggregation blending global critic consensus across platforms.</span>
+                    </span>
+                    <span class="rating-badge" *ngIf="col.toLowerCase() !== 'customaveragerating'">
+                      ⭐ {{ item[col] | number:'1.1-2' }}
+                    </span>
                   </ng-container>
-                  <ng-container *ngIf="!col.toLowerCase().includes('rating') && col.toLowerCase() !== 'liked'">
-                    {{ item[col] }}
+                  <ng-container *ngIf="col.toLowerCase() !== 'title' && !col.toLowerCase().includes('rating') && col.toLowerCase() !== 'liked'">
+                    @let valEE = item[col] | easterEgg:'actor-name';
+
+                    <!-- If this is a director name, check if they are toxic -->
+                    @if (col.toLowerCase().includes('director') && toxicDirectors().has(item[col])) {
+                      <span class="toxic-director-tag tooltip-container" style="color: #ef4444; font-weight: 700; cursor: help;">
+                        ☠️ {{ item[col] }}
+                        <span class="tooltip-text">You have watched multiple films by this director and rated them extremely low. This is no longer viewing, this is self-harm. Blink twice if you need help.</span>
+                      </span>
+                    }
+                    <!-- If this is an actor name, add the Kevin Bacon trigger -->
+                    @else if (col.toLowerCase().includes('actor')) {
+                      <span [class]="valEE ? valEE.className : ''" [attr.data-tooltip]="valEE ? valEE.tooltip : null">
+                        {{ item[col] }}
+                        <button type="button" class="bacon-calc-btn" (click)="calculateBaconDistance(item[col])" title="Calculate Kevin Bacon Distance">🥓</button>
+                      </span>
+                    }
+                    @else {
+                      <span>
+                        {{ item[col] }}
+                      </span>
+                    }
                   </ng-container>
                   <ng-container *ngIf="col.toLowerCase() === 'liked'">
                     <span *ngIf="item[col]" style="color: #e25c5c; font-size: 1.2rem;">❤️</span>
@@ -147,6 +229,17 @@
           </table>
           <div class="no-data-msg" *ngIf="resultData().length === 0">
             No results found for these filters.
+          </div>
+
+          <!-- Pagination Controls -->
+          <div class="pagination-controls animate-fade-in" *ngIf="totalPages() > 1">
+            <button class="btn btn-outline" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">Previous</button>
+            <span class="page-info">Page {{ currentPage() }} of {{ totalPages() }}</span>
+            <button class="btn btn-outline" [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)">Next</button>
+            
+            <select class="input-field page-size-select" [ngModel]="pageSize()" (ngModelChange)="changePageSize($event)">
+              <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }} items</option>
+            </select>
           </div>
         </div>
       </ng-container>
@@ -168,11 +261,15 @@
                 <span class="label">Watched</span>
               </div>
               <div class="stat-box" *ngIf="resultData().totalMinutes !== undefined">
-                <span class="value">{{ resultData().totalHours }}<span class="unit">h</span> {{ resultData().totalMinutes % 60 }}<span class="unit">m</span></span>
+                <span class="value">
+                  {{ resultData().totalHours }}<span class="unit">h</span> {{ resultData().totalMinutes % 60 }}<span class="unit">m</span>
+                </span>
                 <span class="label">Time Invested</span>
               </div>
               <div class="stat-box" *ngIf="resultData().averageRating !== undefined">
-                <span class="value" *ngIf="resultData().averageRating > 0">{{ resultData().averageRating | number:'1.1-2' }}</span>
+                <span class="value" *ngIf="resultData().averageRating > 0">
+                  ⭐ {{ resultData().averageRating | number:'1.1-2' }}
+                </span>
                 <span class="value unrated-text" *ngIf="resultData().averageRating === 0">N/A</span>
                 <span class="label">Avg Rating</span>
               </div>

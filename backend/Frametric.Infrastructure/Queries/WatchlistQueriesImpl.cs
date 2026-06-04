@@ -23,7 +23,9 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
             SELECT m.""Title"", 
                    m.""ReleaseYear"", 
                    (SELECT STRING_AGG(dr.""Name"", ', ') FROM ""MovieDirector"" md JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id"" WHERE md.""MoviesId"" = m.""Id"") AS Director, 
-                   TO_CHAR(w.""DateAdded"", 'FMMonth YYYY') AS DateAdded 
+                   TO_CHAR(w.""DateAdded"", 'FMMonth YYYY') AS DateAdded,
+                   m.""CustomAverageRating"",
+                   m.""PosterUrl""
             FROM ""WatchlistItems"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             

@@ -50,6 +50,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -136,6 +152,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -236,6 +268,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -322,6 +370,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -422,6 +486,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -515,6 +595,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -592,6 +688,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -683,6 +795,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -760,6 +888,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -874,6 +1018,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -951,6 +1111,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -1051,6 +1227,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -1137,6 +1329,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -1237,6 +1445,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -1314,6 +1538,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -1414,6 +1654,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -1500,6 +1756,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -1600,6 +1872,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -1686,6 +1974,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -1786,6 +2090,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -1879,6 +2199,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -1956,6 +2292,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -2047,6 +2399,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -2131,6 +2499,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -2208,6 +2592,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -2308,6 +2708,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -2392,6 +2808,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -2469,6 +2901,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -2569,6 +3017,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -2662,6 +3126,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -2739,6 +3219,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -2839,6 +3335,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -2932,6 +3444,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -3016,6 +3544,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -3093,6 +3637,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -3201,6 +3761,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -3278,6 +3854,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -3369,6 +3961,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -3453,6 +4061,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -3530,6 +4154,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -3630,6 +4270,22 @@
             }
           },
           {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
             "name": "Genre",
             "in": "query",
             "schema": {
@@ -3707,6 +4363,22 @@
           },
           {
             "name": "MaxRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinCustomRating",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxCustomRating",
             "in": "query",
             "schema": {
               "type": "number",
@@ -4403,6 +5075,111 @@
           }
         }
       }
+    },
+    "/api/v1/recommendations/generate": {
+      "post": {
+        "tags": [
+          "Recommendations"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecommendationRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecommendationRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecommendationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RecommendedMovieDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RecommendedMovieDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RecommendedMovieDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recommendations/skip/{movieId}": {
+      "post": {
+        "tags": [
+          "Recommendations"
+        ],
+        "parameters": [
+          {
+            "name": "movieId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/recommendations/skip-haunting": {
+      "post": {
+        "tags": [
+          "Recommendations"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/recommendations/dismiss-wellness": {
+      "post": {
+        "tags": [
+          "Recommendations"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -4673,6 +5450,12 @@
           },
           "highestRatedMovieTitle": {
             "type": "string"
+          },
+          "customAverageRating": {
+            "type": "number",
+            "format": "double",
+            "default": null,
+            "nullable": true
           }
         }
       },
@@ -5118,6 +5901,99 @@
           }
         }
       },
+      "RecommendationRequest": {
+        "required": [
+          "strategy",
+          "scope",
+          "quantity"
+        ],
+        "type": "object",
+        "properties": {
+          "strategy": {
+            "$ref": "#/components/schemas/RecommendationStrategy"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/RecommendationScope"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxRuntimeMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "default": null,
+            "nullable": true
+          }
+        }
+      },
+      "RecommendationScope": {
+        "type": "integer"
+      },
+      "RecommendationStrategy": {
+        "type": "integer"
+      },
+      "RecommendedMovieDto": {
+        "required": [
+          "movieId",
+          "title",
+          "directorName",
+          "releaseYear",
+          "matchPercentage",
+          "recommendationReason"
+        ],
+        "type": "object",
+        "properties": {
+          "movieId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "directorName": {
+            "type": "string"
+          },
+          "releaseYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "matchPercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "recommendationReason": {
+            "type": "string"
+          },
+          "posterUrl": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          },
+          "runtimeMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "default": null,
+            "nullable": true
+          },
+          "customAverageRating": {
+            "type": "number",
+            "format": "double",
+            "default": null,
+            "nullable": true
+          },
+          "easterEggTooltip": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          },
+          "wellnessCheckMessage": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          }
+        }
+      },
       "RefreshTokenRequest": {
         "required": [
           "refreshToken"
@@ -5232,6 +6108,17 @@
           },
           "liked": {
             "type": "boolean"
+          },
+          "customAverageRating": {
+            "type": "number",
+            "format": "double",
+            "default": null,
+            "nullable": true
+          },
+          "posterUrl": {
+            "type": "string",
+            "default": null,
+            "nullable": true
           }
         }
       },
@@ -5257,6 +6144,17 @@
           },
           "dateAdded": {
             "type": "string"
+          },
+          "customAverageRating": {
+            "type": "number",
+            "format": "double",
+            "default": null,
+            "nullable": true
+          },
+          "posterUrl": {
+            "type": "string",
+            "default": null,
+            "nullable": true
           }
         }
       },
@@ -5468,6 +6366,9 @@
     },
     {
       "name": "Import"
+    },
+    {
+      "name": "Recommendations"
     }
   ]
 }

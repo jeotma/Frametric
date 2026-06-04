@@ -29,6 +29,8 @@ export * from './preferred-day-dto';
 export * from './prime-time-stats-dto';
 export * from './problem-details';
 export * from './rating-evolution-dto';
+export * from './recommendation-request';
+export * from './recommended-movie-dto';
 export * from './refresh-token-request';
 export * from './register-user-request';
 export * from './rookie-dto';

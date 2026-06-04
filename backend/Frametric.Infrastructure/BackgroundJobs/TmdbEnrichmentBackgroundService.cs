@@ -56,10 +56,22 @@ public class TmdbEnrichmentBackgroundService : BackgroundService
                         break;
                     }
                 }
+                catch (OperationCanceledException)
+                {
+                    // Expected during shutdown, exit loop
+                    break;
+                }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "An error occurred executing TmdbEnrichmentBackgroundService.");
-                    await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); // Wait before retrying on error
+                    if (!stoppingToken.IsCancellationRequested)
+                    {
+                        _logger.LogError(ex, "An error occurred executing TmdbEnrichmentBackgroundService.");
+                        try 
+                        {
+                            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); // Wait before retrying on error
+                        }
+                        catch (OperationCanceledException) { break; }
+                    }
                 }
             }
         }
