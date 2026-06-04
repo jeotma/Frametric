@@ -111,33 +111,4 @@ public class Movie
         EnrichmentStatus = EnrichmentStatus.NotFound;
     }
 
-    // TEMPORARY: ResetToPending is used by the database reset script to batch enrich
-    // completed movies that lack OMDb ratings. Delete this method tomorrow (or when migration is done).
-    public void ResetToPending()
-    {
-        EnrichmentStatus = EnrichmentStatus.Pending;
-        RuntimeMinutes = null;
-        PosterUrl = null;
-        IsDocumentary = false;
-        TmdbRating = null;
-        TmdbPopularity = null;
-        ImdbRating = null;
-        RottenTomatoesRating = null;
-        MetacriticRating = null;
-        CustomAverageRating = null;
-        ReleaseDate = null;
-        Keywords = null;
-        Awards = null;
-        Writers = null;
-        Language = null;
-        Country = null;
-        BoxOffice = null;
-        Certification = null;
-        StreamingProviders = null;
-        Overview = null;
-
-        Genres.Clear();
-        Directors.Clear();
-        Actors.Clear();
-    }
 }
