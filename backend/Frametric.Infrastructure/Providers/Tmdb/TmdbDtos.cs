@@ -179,3 +179,33 @@ public class TmdbWatchProviderItem
     public string ProviderName { get; set; } = string.Empty;
 }
 
+public class TmdbMultiSearchResponse
+{
+    [JsonPropertyName("results")]
+    public List<TmdbMultiSearchResult> Results { get; set; } = new();
+}
+
+public class TmdbMultiSearchResult
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("media_type")]
+    public string? MediaType { get; set; }
+
+    [JsonPropertyName("title")]
+    public string? Title { get; set; }
+
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    [JsonPropertyName("release_date")]
+    public string? ReleaseDate { get; set; }
+
+    [JsonPropertyName("poster_path")]
+    public string? PosterPath { get; set; }
+
+    [JsonPropertyName("profile_path")]
+    public string? ProfilePath { get; set; }
+}
+
