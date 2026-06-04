@@ -26,6 +26,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
     private readonly IDistributedCache _cache;
     private readonly ILogger<GetCinematicRecommendationsQueryHandler> _logger;
     private readonly Dictionary<RecommendationStrategy, IRecommendationStrategy> _strategies;
+    public int WellnessCheckProbability { get; set; } = 3;
 
     public GetCinematicRecommendationsQueryHandler(
         IRecommendationQueries recommendationQueries,
@@ -246,7 +247,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                         var timespan = w3.WatchDate - w1.WatchDate;
                         if (timespan.TotalHours <= 24)
                         {
-                            if (Random.Shared.Next(100) < 35) // 35% probability
+                            if (Random.Shared.Next(100) < WellnessCheckProbability) // 3% probability
                             {
                                 var msg = $"Hey, we noticed you watched some heavy psychological or existential films recently in a single day. Are you doing okay? Do you need us to recommend a Pixar movie or some grass to touch?";
                                 finalResults[0] = finalResults[0] with { WellnessCheckMessage = msg };
@@ -283,7 +284,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                     var daysInWatchlist = today.DayNumber - addedDate.DayNumber;
                     if (daysInWatchlist > 365.25 * 2.5) // > 2.5 years
                     {
-                        if (Random.Shared.Next(100) < 15) // 15% chance
+                        if (Random.Shared.Next(100) < 1) // 1% chance
                         {
                             var funnyMessages = new[]
                             {
@@ -309,7 +310,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                     // Easter Egg 2: Truly terrible rating guilty pleasure
                     if (rating <= 4.5)
                     {
-                        if (Random.Shared.Next(100) < 10) // 10% chance
+                        if (Random.Shared.Next(100) < 1) // 1% chance
                         {
                             var trashMessages = new[]
                             {
@@ -327,7 +328,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                     // Easter Egg 3: Short attention span check
                     else if (candidate.RuntimeMinutes.HasValue && candidate.RuntimeMinutes.Value <= 80 && candidate.RuntimeMinutes.Value > 0)
                     {
-                        if (Random.Shared.Next(100) < 10) // 10% chance
+                        if (Random.Shared.Next(100) < 1) // 1% chance
                         {
                             var shortMessages = new[]
                             {
@@ -345,7 +346,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                     // Easter Egg 4: Cinephile Endurance check
                     else if (candidate.RuntimeMinutes.HasValue && candidate.RuntimeMinutes.Value >= 180)
                     {
-                        if (Random.Shared.Next(100) < 10) // 10% chance
+                        if (Random.Shared.Next(100) < 1) // 1% chance
                         {
                             var epicMessages = new[]
                             {
@@ -363,7 +364,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                     // Easter Egg 5: Strategy specific checks
                     else
                     {
-                        if (Random.Shared.Next(100) < 10) // 10% chance for strategy-specific easter eggs
+                        if (Random.Shared.Next(100) < 1) // 1% chance for strategy-specific easter eggs
                         {
                             switch (strategy)
                             {
