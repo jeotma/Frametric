@@ -1,180 +1,368 @@
-# Roadmap: Phase 6 (PaaS Cloud Deployment & CI/CD)
+# Roadmap: Phase 5 (Heuristic Decision & Interactive Selection Systems)
 
-This phase details the architecture and step-by-step roadmap to deploy the Frametric platform (Neon PostgreSQL database, .NET 9 Web API on Render, and Angular 19+ frontend on Cloudflare Pages) using completely **free tiers** with git-based automatic deployments.
+This phase expands the cinematic platform by implementing a gamified interactive selection engine and a decision-fatigue mitigation suite. All subsystems operate under a clean architecture approach, utilizing strong typing and granular control over data scopes.
+
+Each system answers a distinct question within the user's decision process:
+
+* What movie comes out? → **Roulette**
+* What kind of experience am I risking? → **Dice**
+* How is the search combination built? → **Slot Machine**
+* Which option do I choose among unknowns? → **Mystery Box**
+* What long-term progress do I have as a cinephile? → **Bingo**
 
 ---
 
-## 1. Deployment Architecture Overview
+## Step 1: Data Context & Discovery Scopes Definition
 
-```mermaid
-graph TD
-    User([Cinephile User]) -->|HTTPS| CF[Cloudflare Pages: Angular Frontend]
-    CF -->|Secure HTTPS Requests| Render[Render: .NET 9 Web API Container]
-    Render -->|Encrypted TLS| Neon[Neon: Serverless PostgreSQL]
+To ensure system extensibility, all discovery services process a context object that defines the candidate source, incorporating native support for custom movie collections uploaded dynamically by the user.
+
+```csharp
+// Frametric — Cinematic Analytics Platform
+// Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+namespace Frametric.Domain.Discovery;
+
+public enum DiscoveryDataSourceScope
+{
+    WatchlistOnly,     // Restricted to the user's local watchlist
+    DatabaseOnly,      // Queries the global enriched catalog (TMDB)
+    CustomCollection,  // Based on a list of IDs (Custom List) provided on-demand
+    Hybrid             // Weighted combination of local and global sources
+}
+
 ```
 
-### The PaaS Free Tier Stack
-
-| Component | Provider | Reason for Choice & Limits |
-| :--- | :--- | :--- |
-| **Relational Database** | **Neon** | Serverless Postgres database with 0.5 GB storage. Automatically scales to zero (sleeps) after 5-10 minutes of inactivity. Wakes up in ~1-2 seconds on the next query. |
-| **Backend API** | **Render** | Free containerized Web Service (using Docker). Auto-sleeps after 15 minutes of inactivity (causing a 50+ second cold start on wake). |
-| **Frontend Client** | **Cloudflare Pages** | Static Web App hosting. Truly unlimited bandwidth on the free tier, global CDN edge, and zero cold starts. |
-| **CI/CD Automation** | **GitHub Actions** | Built-in free build runs (2,000 minutes/month) to automate testing and build validations. |
-
 ---
 
-## 2. Step 1: Database Setup (Neon)
+## Step 2: Selection Roulette — Absolute Randomness
 
-Set up a production-ready serverless PostgreSQL instance.
+The roulette is the purest and most direct selection system on the platform. There is no advanced configuration or user influence beyond an optional initial filter.
 
-### Action Plan
+### Functionality
 
-1. Register a free account on **Neon**.
-2. Provision a new PostgreSQL 16/17 database instance in a region close to your target users.
-3. Retrieve the connection string. For .NET EF Core, format the connection string:
+1. A pool of valid movies is generated based on general availability or minimal filters if they exist.
+2. The roulette spins through a visual set of real movie posters.
+3. The system selects a single winner in a completely random fashion.
 
-   ```text
-   Host=ep-cool-shadow-123456.us-east-2.aws.neon.tech;Database=neondb;Username=jeotma;Password=MySecurePassword;SSL Mode=Require;Trust Server Certificate=true;
-   ```
+### Key Property: Non-Manipulable Randomness
 
-4. Configure EF Core to run migrations against this connection string securely using environment variables.
+* No weighting based on user taste.
+* No "hidden preference" systems.
+* No probability adjustments.
+* All movies in the pool have the same real probability of being picked.
 
----
-
-## 3. Step 2: Backend Containerization & Render Deployment
-
-To host the .NET 9 Web API on Render's free tier, we build a multi-stage Docker image.
-
-### Dockerfile Setup
-
-Create a production-grade `Dockerfile` in the repository root:
-
-```dockerfile
-# Frametric — Cinematic Analytics Platform
-# Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
-
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
-WORKDIR /app
-
-# Copy csproj files and restore dependencies
-COPY backend/*.sln ./backend/
-COPY backend/Frametric.Domain/*.csproj ./backend/Frametric.Domain/
-COPY backend/Frametric.Application/*.csproj ./backend/Frametric.Application/
-COPY backend/Frametric.Infrastructure/*.csproj ./backend/Frametric.Infrastructure/
-COPY backend/Frametric.Api/*.csproj ./backend/Frametric.Api/
-RUN dotnet restore ./backend/Frametric.Api/Frametric.Api.csproj
-
-# Copy everything else and build release
-COPY backend/ ./backend/
-RUN dotnet publish ./backend/Frametric.Api/Frametric.Api.csproj -c Release -o out
-
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
-WORKDIR /app
-COPY --from=build-env /app/out .
-
-# Expose Render default port
-EXPOSE 8080
-ENV ASPNETCORE_URLS=http://+:8080
-
-ENTRYPOINT ["dotnet", "Frametric.Api.dll"]
-```
-
-### Action Plan
-
-1. Link your GitHub repository to **Render**.
-2. Create a new **Web Service** and select **Docker** as the environment runtime.
-3. Configure the following Environment Variables in Render's dashboard:
-   - `ASPNETCORE_ENVIRONMENT`: `Production`
-   - `ConnectionStrings__DefaultConnection`: *[Your Neon PostgreSQL Connection String]*
-   - `Omdb__ApiKey`: *[Your OMDB API Key]*
-   - `Tmdb__BearerToken`: *[Your TMDB token]*
-4. Deploy the service. Render will automatically build the image and expose a public HTTPS URL (e.g. `https://frametric-api.onrender.com`).
-
----
-
-## 4. Step 3: Frontend Build & Cloudflare Pages Deployment
-
-Deploy the Angular 19+ client as a lightning-fast Static Single Page Application (SPA).
-
-### Configuration Adjustments
-
-To prevent 404 errors when reloading subpages in a client-side routed Angular SPA, output a `_redirects` file to the static build directory (`dist/frametric/browser`):
-
-```text
-/* /index.html 200
-```
-
-### Action Plan
-
-1. Configure `src/environments/environment.prod.ts` with the production URL of the API on Render:
-
-   ```typescript
-   export const environment = {
-     production: true,
-     apiUrl: 'https://frametric-api.onrender.com/api/v1'
-   };
-   ```
-
-2. Connect your GitHub repository to **Cloudflare Pages**.
-3. Set the build settings:
-   - **Framework Preset**: `Angular`
-   - **Build Command**: `npm run build -- --configuration production`
-   - **Output Directory**: `dist/frametric/browser`
-4. Trigger the build. Cloudflare Pages will serve the app under a secure domain (e.g., `https://frametric.pages.dev`).
-
----
-
-## 5. Step 4: CORS Configuration & Security Settings
-
-To allow the Cloudflare Pages frontend to communicate with the Render API, configure the CORS policy in the C# backend.
-
-Go to `backend/Frametric.Api/Program.cs` and configure:
+### Application Layer Contract
 
 ```csharp
 // Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("ProductionCorsPolicy", policy =>
-    {
-        policy.WithOrigins("https://frametric.pages.dev") // Cloudflare Pages Domain
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
+using MediatR;
 
-// Inside HTTP Pipeline configuration:
-app.UseCors("ProductionCorsPolicy");
+namespace Frametric.Application.Discovery.Queries;
+
+public record RouletteSelectionQuery(
+    Guid UserId,
+    DiscoveryDataSourceScope Scope,
+    IEnumerable<Guid>? CustomSourceIds
+) : IRequest<SelectionResultDto>;
+
+public record SelectionResultDto(
+    Guid MovieId,
+    string Title,
+    string DirectorName,
+    int ReleaseYear,
+    string SelectionMechanismMetadata
+);
 ```
 
----
+### Advanced Mode: Persistence Threshold
 
-## 6. Step 5: Database Migrations Automation
+The user may enable an optional rule that no movie becomes the winner until it has appeared a configurable number of times within the session.
 
-To automatically apply migrations on startup, configure the application entrypoint to run migrations at launch:
+#### Execution Cycle
+
+1. Spin → result A (counter A++)
+2. Brief pause
+3. Spin → result B (counter B++)
+4. Repeat…
+
+When a movie reaches the defined threshold (e.g., 3 appearances):
+
+* It becomes the winner.
+* The system automatically stops the roulette.
+
+This transforms the result into a **statistical consensus of randomness** rather than a single draw, mitigating single-draw bias. Each appearance is registered per movie ID through an internal session counter.
 
 ```csharp
 // Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 
-using (var scope = app.Services.CreateScope())
+public record IterativeSelectionQuery(
+    Guid UserId,
+    DiscoveryDataSourceScope Scope,
+    int? PersistenceThreshold,            // Threshold for hit validation
+    IEnumerable<Guid>? CustomSourceIds    // Support for Custom Lists
+) : IRequest<SelectionResultDto>;
+```
+
+### Universal Exclusion Logic (SQL Dapper Layer)
+
+Every discovery query must apply an exclusion filter against the `DiaryEntries` table to omit previously consumed content. Explicit PostgreSQL type casting is enforced to match the DTO primary constructors.
+
+```sql
+-- Dapper-executed query for the discovery pool
+WITH ValidDiscoveryPool AS (
+    SELECT m."Id" AS MovieId, m."Title", m."Director", m."ReleaseYear"
+    FROM "Movies" m
+    WHERE m."Id" NOT IN (
+        SELECT CAST(d."MovieId" AS UUID) 
+        FROM "DiaryEntries" d 
+        WHERE d."UserId" = @UserId
+    ) -- Strict exclusion of watched films
+)
+SELECT 
+    vdp.MovieId,
+    vdp."Title",
+    vdp."Director" AS DirectorName,
+    CAST(vdp."ReleaseYear" AS INTEGER) AS ReleaseYear,
+    'Iterative_Consensus' AS SelectionMechanismMetadata
+FROM ValidDiscoveryPool vdp
+ORDER BY RANDOM()
+LIMIT 1;
+```
+
+---
+
+## Step 3: Cinematic Dice — Risk & Reward (D&D-Style System)
+
+The dice do not select movies directly. They determine the **quality, rarity, and abstract characteristics** of the final recommendation.
+
+Each die represents a dimension of the outcome. The user decides which dice to use before rolling, and modifiers accumulate through streaks, bingo achievements, and user activity — introducing cinephile character progression.
+
+### Die Types (Attributes)
+
+* **Quality:** Defines the overall quality of the recommendation (Low → entertaining, Medium → good film, High → very good, Critical → potential masterpiece).
+* **Rarity:** Defines how well-known the film is (Popular, Known, Lesser-known, Hidden gem, Extreme discovery).
+* **Risk:** Defines how far it strays from the user's usual taste (Safe, Slight shift, Moderate, Risky, Total chaos).
+* **Complexity (optional):** Narrative or thematic demandingness (Easy, Conventional, Deep, Complex, Challenging).
+* **Exploration (optional):** Cultural or geographical openness (Habitual, International, Uncommon, Global cinema, Extreme discovery).
+
+### Roll Mechanics
+
+The user selects dice and rolls. Instead of immediately generating a movie, the system defines a **search zone**:
+
+> "Very good film, little-known, and fairly outside the user's usual taste."
+
+From there:
+
+* The catalog is filtered.
+* A movie matching the profile is selected.
+* A single final recommendation is returned.
+
+### Heuristic Attribute Matrix
+
+Weighted coefficients or numeric inputs map to specific analytical constraints over the catalog:
+
+* **Minimum (Critical Fail):** Maps to `m."GlobalRating" <= 4.0` and triggers an active user affinity inversion (Chaos Mode).
+* **Intermediate:** Maps to `m."GlobalRating" BETWEEN 6.5 AND 7.8` alongside mid-range popularity index constraints.
+* **Maximum (Critical Success):** Maps to `m."GlobalRating" >= 8.2` and targets specific "Hidden Gems" (< 15th percentile in global visibility index).
+
+### Criticals & Fumbles
+
+* **Critical (maximum values):** Activate special events — legendary film, exceptional hidden gem, special rewards in other modes (bingo, mystery boxes, etc.).
+* **Fumble (minimum values):** Activate unexpected results — intentionally amusing absurd/bad film, "Chaos Mode," completely out-of-context recommendation.
+
+---
+
+## Step 4: Cinematic Slot Machine — Visual Filter Combination
+
+The slot machine is the system for randomly constructing search criteria. Unlike dice, it does not measure quality or risk — it builds a **search equation** from independent reels configured by the user.
+
+### Pre-Configuration
+
+The user defines what each reel represents:
+
+* Reel 1 → Genre
+* Reel 2 → Decade
+* Reel 3 → Director
+* Reel 4 → Duration
+* Reel 5 → Country
+
+### Activation
+
+* The machine does not spin until the user pulls the lever.
+* Each reel spins independently and stops sequentially, building tension.
+
+### Result
+
+The final combination defines the exact search filters:
+
+🎰 Horror
+🎰 2000s
+🎰 James Wan
+🎰 <120 min
+
+→ A film matching those criteria is retrieved.
+
+### Dimensional Search Contract
+
+If a criterion is defined as null, the engine assumes heuristic resolution, filling the dimension through randomness based on user trends.
+
+```csharp
+// Frametric — Cinematic Analytics Platform
+// Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
+
+namespace Frametric.Application.Discovery.Queries;
+
+public record DimensionalSearchRequest(
+    string? Genre,
+    int? Decade,
+    string? Director,
+    DiscoveryDataSourceScope Scope
+);
+```
+
+### Key Distinction
+
+* Slot Machine = "what movie am I looking for"
+* Dice = "how good / rare / risky will it be"
+
+### Jackpot
+
+Special combinations may activate cult films, premium recommendations, unusual experiences, or bonuses for other modes.
+
+---
+
+## Step 5: Mystery Box — Choosing Among Hidden Options
+
+The mystery box is a controlled decision system within randomness. Before being displayed:
+
+1. Five random movies are selected.
+2. They are assigned to five boxes.
+3. The assignment is locked and hidden.
+
+### Interaction
+
+The user chooses a box without knowing its contents:
+
+* Opening animation.
+* Poster reveal.
+* Basic information display.
+
+### Variants
+
+* 🎭 **Thematic:** All options share a common theme.
+* 💎 **Premium:** Higher probability of a standout film.
+* 🔍 **Full Reveal:** All boxes are shown at the end.
+* ⚖️ **Strategy:** Some clues are provided before choosing.
+
+```csharp
+// Frametric — Cinematic Analytics Platform
+// Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
+
+namespace Frametric.Application.Discovery.Queries;
+
+public record MysteryBoxGenerationQuery(
+    Guid UserId,
+    DiscoveryDataSourceScope Scope,
+    MysteryBoxVariant Variant,    // Thematic, Premium, FullReveal, Strategy
+    int BoxCount                  // Number of boxes (default: 5)
+) : IRequest<MysteryBoxDto>;
+
+public record MysteryBoxDto(
+    IReadOnlyList<Guid> BoxIds,
+    MysteryBoxVariant Variant,
+    DateTime GeneratedAt
+);
+```
+
+---
+
+## Step 6: Cinematic Bingo — Long-Term Progression & Retention
+
+Bingo is the long-term system that does not select movies directly but defines **cinephile consumption objectives**. It establishes a persistence infrastructure to asynchronously evaluate user consumption behavior, validating logs against predefined requirement expressions.
+
+### Configuration
+
+* Duration: 7 / 30 / 90 days
+* Grid: 3x3 / 4x4 / 5x5
+
+### Squares
+
+Each square is a challenge:
+
+* Watch an animated film
+* Watch a foreign film
+* Watch a film under 90 minutes
+* Watch a classic
+* Watch an award-winning film
+* Watch a horror film
+
+### Automatic Progress
+
+* The system detects watched films.
+* Squares are completed automatically.
+* A single film may fulfill multiple squares.
+
+### Rewards
+
+* Completed line → bonus
+* Full bingo → major rewards
+* Unlock special modes in roulette / dice / mystery box
+
+```csharp
+// Frametric — Cinematic Analytics Platform
+// Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
+
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Frametric.Domain.Discovery.Entities;
+
+[Table("DiscoveryObjectives")]
+public class DiscoveryObjective
 {
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<FrametricDbContext>();
-        if (context.Database.IsRelational())
-        {
-            await context.Database.MigrateAsync();
-        }
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating the database.");
-    }
+    [Key]
+    public Guid Id { get; set; }
+
+    [Required]
+    public Guid UserId { get; set; }
+
+    [Required]
+    public string RequirementExpression { get; set; } // e.g., "ReleaseYear < 1980 && Genre == 'Sci-Fi'"
+
+    public bool IsAchieved { get; set; }
+
+    public DateTime? CompletionDate { get; set; }
+
+    public Guid? FulfillingDiaryEntryId { get; set; }
 }
 ```
+
+---
+
+## Step 7: Integration Architecture (Angular 19+ Client)
+
+The frontend completely decouples the logical state from the interactive visual animations, ensuring an architecture based on highly cohesive standalone components.
+
+* **Scope Isolation Provider:** A service that injects and distributes the selected scope state (`WatchlistOnly`, `DatabaseOnly`, `CustomCollection`, or `Hybrid`) to the auto-generated OpenAPI strongly-typed clients.
+* **Dynamic Collection Preprocessor:** Client-side logic to intercept ad-hoc collections (processed local custom files), extracting relational maps to transfer them as a structured array of identifiers (`CustomSourceIds`) to the API.
+* **State Splicing:** Angular UI components consume asynchronous data streams and execute synchronized transitions with the backend response, shielding the system from local data manipulation.
+
+---
+
+## System Relationship Matrix
+
+| System          | Role                                          |
+| --------------- | --------------------------------------------- |
+| 🎡 Roulette     | Absolute random final selection               |
+| 🎲 Dice         | Quality, rarity, and risk of the result       |
+| 🎰 Slot Machine | Search filter construction                    |
+| 📦 Mystery Box  | Choice among hidden options                   |
+| 🎯 Bingo        | Long-term progression and objectives          |
