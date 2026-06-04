@@ -257,7 +257,8 @@ Requires authentication.
         "matchPercentage": 92.5,
         "recommendationReason": "string",
         "posterUrl": "string",
-        "runtimeMinutes": 0
+        "runtimeMinutes": 0,
+        "easterEggTooltip": "string"
       }
     ]
     ```

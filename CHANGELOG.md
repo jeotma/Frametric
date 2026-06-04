@@ -4,6 +4,16 @@ All notable changes to **Frametric** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] — 2026-06-04
+
+Enhanced recommendation strategies logic and integrated probability-based pop culture & cinephile easter eggs.
+
+### Added
+- **Dynamic Easter Egg Service**: Introduced `EasterEggService` and `EasterEggPipe` in the frontend client to dynamically inject pop culture references, cinephile jokes, and meme badges based on statistics and movie criteria.
+- **Loading Screen Memes**: Added randomized pop-culture/cinephile loading phrases to auth flows and analytics loading states.
+- **Algorithmic Reason Generation**: Refactored recommendation strategies (`CinephileEliteStrategy`, `ComfortZoneDisruptorStrategy`, `DirectorsTrajectoryStrategy`, `GuiltyPleasureStrategy`, `OppositeMoodStrategy`, `RecentMoodStrategy`, `RuntimeContextStrategy`, and `PureRandomStrategy`) to dynamically construct more varied and randomized user-facing descriptions.
+- **Easter Egg Tooltips**: Integrated randomized strategy, runtime, and obscurities easter egg triggers directly into recommendation cards via the new `EasterEggTooltip` DTO property.
+
 ---
 
 ## [1.1.0] — 2026-06-03
