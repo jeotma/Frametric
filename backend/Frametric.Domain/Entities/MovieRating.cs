@@ -25,4 +25,9 @@ public class MovieRating
         Score = score;
         ImportHistoryId = importHistoryId;
     }
+
+    public void UpdateScore(decimal newScore)
+    {
+        Score = newScore;
+    }
 }
