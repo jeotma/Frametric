@@ -5,6 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Frametric.Application.Commands.Auth;
 using Frametric.Application.Commands.Imports;
+using Frametric.Application.Commands.EntityDetails;
+using Frametric.Application.Queries.Imports;
+using Frametric.Domain.Enums;
 using Frametric.Application.DTOs;
 using Frametric.Application.Interfaces;
 using Frametric.Domain.Entities;
@@ -29,6 +32,12 @@ public class CommandHandlerTests : IDisposable
         // Open connection for Sqlite in-memory database
         _connection = new SqliteConnection("DataSource=:memory:");
         _connection.Open();
+
+        using (var cmd = _connection.CreateCommand())
+        {
+            cmd.CommandText = "PRAGMA foreign_keys = OFF;";
+            cmd.ExecuteNonQuery();
+        }
 
         _options = new DbContextOptionsBuilder<FrametricDbContext>()
             .UseSqlite(_connection)
@@ -270,5 +279,111 @@ public class CommandHandlerTests : IDisposable
             var watchlistExists = await assertContext.WatchlistItems.AnyAsync(wi => wi.ImportHistoryId == importId);
             Assert.False(watchlistExists);
         }
+    }
+
+    [Fact]
+    public async Task LogMovieWatchCommandHandler_ShouldLogWatchSuccessfully()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var movieId = Guid.NewGuid();
+
+        using (var context = CreateContext())
+        {
+            var user = new User(userId, "alex", "alex@example.com", "hash");
+            var movie = new Movie(movieId, "Goodfellas", 1990, new ExternalReference("tmdb", "111"));
+            var systemImport = new ImportHistory(Guid.Empty, userId, 0, "System", "System");
+            context.Users.Add(user);
+            context.Movies.Add(movie);
+            context.ImportHistories.Add(systemImport);
+            await context.SaveChangesAsync();
+        }
+
+        using var actContext = CreateContext();
+        var handler = new LogMovieWatchCommandHandler(actContext);
+        var command = new LogMovieWatchCommand(userId, movieId, DateOnly.FromDateTime(DateTime.UtcNow), 4.5, false);
+
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+
+        using var assertContext = CreateContext();
+        var rating = await assertContext.MovieRatings.FirstOrDefaultAsync(r => r.UserId == userId && r.MovieId == movieId);
+        Assert.NotNull(rating);
+        Assert.Equal(4.5m, rating.Score);
+
+        var diary = await assertContext.DiaryEntries.FirstOrDefaultAsync(d => d.UserId == userId && d.MovieId == movieId);
+        Assert.NotNull(diary);
+        Assert.False(diary.IsRewatch);
+
+        var watched = await assertContext.WatchedMovies.FirstOrDefaultAsync(w => w.UserId == userId && w.MovieId == movieId);
+        Assert.NotNull(watched);
+    }
+
+    [Fact]
+    public async Task MarkImportsCompletedCommandHandler_ShouldMarkEnrichingAsCompleted_WhenNoPendingMovies()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        using (var context = CreateContext())
+        {
+            var user = new User(userId, "danielle", "danielle@example.com", "hash");
+            context.Users.Add(user);
+
+            var movie = new Movie(Guid.NewGuid(), "Inception", 2010, new ExternalReference("tmdb", "123"));
+            movie.EnrichMetadata(120, "poster.jpg", new List<Genre>(), new List<Director>(), new List<Actor>(), false);
+            context.Movies.Add(movie);
+
+            var enrichingImport = new ImportHistory(Guid.NewGuid(), userId, 5, "Enriching", "Letterboxd");
+            context.ImportHistories.Add(enrichingImport);
+
+            await context.SaveChangesAsync();
+        }
+
+        using var actContext = CreateContext();
+        var handler = new MarkImportsCompletedCommandHandler(actContext);
+        var command = new MarkImportsCompletedCommand();
+
+        // Act
+        var count = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(1, count);
+
+        using var assertContext = CreateContext();
+        var import = await assertContext.ImportHistories.FirstAsync();
+        Assert.Equal("Completed", import.Status);
+    }
+
+    [Fact]
+    public async Task GetImportHistoryQueryHandler_ShouldReturnHistory()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        using (var context = CreateContext())
+        {
+            var user = new User(userId, "felix", "felix@example.com", "hash");
+            context.Users.Add(user);
+
+            var import = new ImportHistory(Guid.NewGuid(), userId, 10, "Success", "Letterboxd");
+            import.UpdateStatus("Success", "None");
+            context.ImportHistories.Add(import);
+
+            await context.SaveChangesAsync();
+        }
+
+        using var actContext = CreateContext();
+        var handler = new GetImportHistoryQueryHandler(actContext);
+        var query = new GetImportHistoryQuery(userId);
+
+        // Act
+        var result = await handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal("Letterboxd", result[0].ProviderSource);
     }
 }
