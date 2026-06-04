@@ -9,7 +9,14 @@ public record TmdbMovieResultDto(
     List<TmdbPersonDto> Actors,
     bool IsTvShow = false,
     string? Title = null,
-    int? FirstAirYear = null
+    int? FirstAirYear = null,
+    double? TmdbRating = null,
+    double? TmdbPopularity = null,
+    string? ImdbId = null,
+    string? ReleaseDate = null,
+    string? Keywords = null,
+    string? StreamingProviders = null,
+    string? Overview = null
 )
 {
     public const int DocumentaryGenreId = 99;

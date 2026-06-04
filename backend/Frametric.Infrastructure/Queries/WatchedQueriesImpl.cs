@@ -24,7 +24,9 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                    m.""ReleaseYear"", 
                    (SELECT STRING_AGG(dr.""Name"", ', ') FROM ""MovieDirector"" md JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id"" WHERE md.""MoviesId"" = m.""Id"") AS Director, 
                    CAST(COALESCE(MAX(mr2.""Score""), 0) AS DOUBLE PRECISION) AS Rating, 
-                   CAST(CASE WHEN COUNT(ml.""Id"") > 0 THEN 1 ELSE 0 END AS BOOLEAN) AS Liked
+                   CAST(CASE WHEN COUNT(ml.""Id"") > 0 THEN 1 ELSE 0 END AS BOOLEAN) AS Liked,
+                   m.""CustomAverageRating"",
+                   m.""PosterUrl""
             FROM ""WatchedMovies"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             LEFT JOIN ""MovieRatings"" mr2 ON m.""Id"" = mr2.""MovieId"" AND mr2.""UserId"" = @userId
@@ -201,34 +203,35 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "mr", "DateRated", isMoviesJoined: false);
         string sql = $@"
             WITH DirectorStats AS (
-                SELECT dr.""Id"" AS DirectorId, dr.""Name"" AS Name, CAST(COUNT(mr.""Id"") AS INTEGER) AS WatchCount, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
-                FROM ""MovieRatings"" mr
-                JOIN ""MovieDirector"" md ON mr.""MovieId"" = md.""MoviesId""
+                SELECT dr.""Id"" AS DirectorId, dr.""Name"" AS Name, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS WatchCount, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(AVG(m.""CustomAverageRating""), 0) AS DOUBLE PRECISION) AS CustomAverageRating
+                FROM ""WatchedMovies"" w
+                JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
                 JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
+                JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
+                LEFT JOIN ""MovieRatings"" mr ON w.""MovieId"" = mr.""MovieId"" AND mr.""UserId"" = w.""UserId""
                 
             {filterBuilder.BuildJoins()}
-            WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
+            WHERE w.""UserId"" = @userId
                 
             {filterBuilder.BuildWhereClause()}
             GROUP BY dr.""Id"", dr.""Name""
-                HAVING COUNT(mr.""Id"") >= 2
             ),
             HighestRated AS (
                 SELECT DISTINCT ON (dr.""Id"")
                     dr.""Id"" AS DirectorId,
                     m.""Title"" AS HighestRatedMovieTitle
-                FROM ""MovieRatings"" mr
-                JOIN ""MovieDirector"" md ON mr.""MovieId"" = md.""MoviesId""
+                FROM ""WatchedMovies"" w
+                JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
                 JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
-                JOIN ""Movies"" m ON mr.""MovieId"" = m.""Id""
-                WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
-                ORDER BY dr.""Id"", mr.""Score"" DESC, mr.""DateRated"" DESC
+                JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
+                LEFT JOIN ""MovieRatings"" mr ON w.""MovieId"" = mr.""MovieId"" AND mr.""UserId"" = w.""UserId""
+                WHERE w.""UserId"" = @userId
+                ORDER BY dr.""Id"", mr.""Score"" DESC NULLS LAST, mr.""DateRated"" DESC NULLS LAST
             )
-            SELECT ds.DirectorId, ds.Name, ds.WatchCount, ds.AverageRating, hr.HighestRatedMovieTitle
+            SELECT ds.DirectorId, ds.Name, ds.WatchCount, ds.AverageRating, hr.HighestRatedMovieTitle, ds.CustomAverageRating
             FROM DirectorStats ds
             JOIN HighestRated hr ON ds.DirectorId = hr.DirectorId
-            ORDER BY ds.AverageRating DESC, ds.WatchCount DESC
-            LIMIT 20";
+            ORDER BY ds.AverageRating DESC, ds.WatchCount DESC";
         return await connection.QueryAsync<DirectorLeaderboardDto>(sql, parameters);
     }
 

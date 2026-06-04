@@ -118,6 +118,7 @@ Core entities:
 - GetMonthlyActivityQuery
 - GetTopDirectorsQuery
 - GetImportHistoryQuery
+- GetCinematicRecommendationsQuery
 - Advanced Analytics Queries (e.g., Watched & Watchlist stats, Bonus, and Final Cut stats)
 
 ---
@@ -140,19 +141,31 @@ Core entities:
 
 ---
 
+## Proprietary Recommendation Engine
+
+Frametric features a modular, high-precision cinematic recommendation engine powered by decoupled heuristic strategies (Open-Closed architecture):
+
+- **Vector-Based Profiling**: Evaluates the user's genre, keyword, and decadal preferences relative to their watch history.
+- **Exponential Temporal Decay**: Applies mathematical time-decay factors so recent viewing habits carry higher weight.
+- **Bayesian Ratings Integration**: Calculates stabilized weighted ratings from TMDb, IMDb, Metacritic, Rotten Tomatoes, and custom ratings.
+- **Score Uniqueness (Tie-Breaker)**: Introduces micro-fractional tie-breakers to ensure ranking lists have deterministic, non-clashing scores.
+
+---
+
 ## MVP Success Criteria
 
 - ZIP upload works correctly
 - Data parses and normalizes without errors
 - Analytics queries perform efficiently
-- Frontend renders metrics correctly
+- Recommendation engine yields high-precision, non-clashing suggestions
+- Frontend renders metrics and Wrapped decks correctly
 
 ---
 
 ## Future Vision
 
 - OAuth integrations
-- AI recommendations
+- Advanced collaborative filtering models
 - Social analytics graph
 - Mobile apps
 - Multi-source ingestion expansion
@@ -164,5 +177,5 @@ Core entities:
 - Data-first design
 - Domain isolation
 - Scalability over premature optimization
-- Strict separation of concerns
+- Strict separation of concerns (e.g. CQRS & Strategy Pattern)
 - Analytics-first performance mindset

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { EasterEggService } from '../../../core/services/easter-egg.service';
 
 function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
   const pw = control.get('password')?.value;
@@ -10,10 +11,12 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
   return pw && confirm && pw !== confirm ? { passwordMismatch: true } : null;
 }
 
+import { EasterEggPipe } from '../../../core/services/easter-egg.pipe';
+
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, EasterEggPipe],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
@@ -21,11 +24,13 @@ export class RegisterComponent {
   private readonly _fb = inject(FormBuilder);
   private readonly _auth = inject(AuthService);
   private readonly _router = inject(Router);
+  private readonly _easterEgg = inject(EasterEggService);
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly showPassword = signal(false);
   readonly registrationSuccess = signal(false);
+  readonly loadingMessage = signal<string>('Creating account...');
 
   readonly form = this._fb.group({
     username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30), Validators.pattern(/^[a-zA-Z0-9_]+$/)]],
@@ -63,6 +68,8 @@ export class RegisterComponent {
     if (this.form.invalid || this.isLoading()) return;
     this.errorMessage.set(null);
     this.isLoading.set(true);
+    const customMsg = this._easterEgg.getLoadingMessage();
+    this.loadingMessage.set(customMsg || 'Creating account...');
 
     const { username, email, password } = this.form.value;
 

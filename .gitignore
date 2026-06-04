@@ -60,3 +60,6 @@ RewriteTool/
 # === Portfolio ===
 portfolio/
 
+# === OMDb API Cache ===
+**/omdb_cache/
+

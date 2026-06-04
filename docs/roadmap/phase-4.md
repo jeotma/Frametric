@@ -4,38 +4,39 @@ This phase introduces the Frametric cinematic intelligence engine. The objective
 
 ## Step 1: Recommendation Domain & Data Contracts
 
-- [ ] Implement `RecommendationProfile` in the Domain layer to track real-time preference vectors (Favorite Genres, Recurring Directors, Comfort Decade).
-- [ ] Create Enums for recommendation strategies and source boundaries:
-  - `RecommendationStrategy`: `RecentMood`, `OppositeMood`, `ComfortZoneDisruptor`, `GuiltyPleasure`, `CinephileElite`, `DirectorsTrajectory`, `RuntimeContext`.
+- [x] Implement `RecommendationProfile` in the Domain layer to track preference vectors (Favorite Genres, Recurring Directors, Comfort Decade in-memory).
+- [x] Create Enums for recommendation strategies and source boundaries:
+  - `RecommendationStrategy`: `RecentMood`, `OppositeMood`, `ComfortZoneDisruptor`, `GuiltyPleasure`, `CinephileElite`, `DirectorsTrajectory`, `RuntimeContext`, `PureRandom`.
   - `RecommendationScope`: `WatchlistOnly`, `DatabaseOnly`, `Hybrid`.
-- [ ] Define the strict request contract DTO: `RecommendationRequest`.
+- [x] Define the strict request contract DTO: `RecommendationRequest`.
   - **Validation Constraints:** Quantity must be explicitly bounded to a localized array: `[1, 2, 3, 5, 10]`.
 
 ## Step 2: Granular Scope & Source Filtering (SQL Dapper Layer)
 
 To respect the request-scoped boundaries without destroying performance, the query engine dynamically builds the target media pool using optimized indexing on `WatchlistItems` and `Movies`.
 
-- [ ] Implement a unified Dapper data repository that dynamically alters the source CTE (*Common Table Expression*) based on the `RecommendationScope` parameter.
-- [ ] **Strict Exclusion Logic:** Every query must cross-reference `DiaryEntries` to completely omit films the user has already watched.
-- [ ] Enforce PostgreSQL explicit type casting within the aggregation engine to match primary record constructors:
+- [x] Implement a unified Dapper data repository that dynamically alters the source CTE (*Common Table Expression*) based on the `RecommendationScope` parameter.
+- [x] **Strict Exclusion Logic:** Every query must cross-reference `DiaryEntries` to completely omit films the user has already watched.
+- [x] Enforce PostgreSQL explicit type casting within the aggregation engine to match primary record constructors:
   - `CAST(COUNT(...) AS INTEGER)` and `CAST(COALESCE(AVG(...), 0) AS DOUBLE PRECISION)`.
 
 ## Step 3: Core Algorithmic Matrix
 
 Every strategy calculates a matching percentage (`MatchPercentage`) using in-memory vector calculations over the designated scope pool:
 
-- **Recent Mood (Vector Alignment):** Pulls the last 10 logged films from `DiaryEntries` sorted by logging date. Analyzes Genre, Duration ($\pm$ 20 min), Release Decade, Director, and Key Actors to find the closest statistical neighbor.
-- **Opposite Mood (Vector Inversion):** Finds the mathematical inverse of the Recent Mood vector. Ideal for breaking sudden viewing cycles (e.g., suggesting fast-paced indie horror after a streak of slow-burn historical dramas).
-- **The Comfort Zone Disruptor:** Evaluates the historical "comfort baseline" (genres/eras representing $>35\%$ of total watch history) and purposefully forces a vector shift toward a completely unmapped genre, anchored by a director or actor the user has previously rated highly ($\ge 4.0$ stars).
-- **The "Guilty Pleasure" vs "Cinephile Elite" Index:** * *Guilty Pleasure:* Prioritizes low TMDB popularity/global score movies that precisely match sub-genres the user historically rates higher than the global average.
-  - *Cinephile Elite:* Filters for critically acclaimed Masterpieces (TMDB Rating $\ge 8.2$) that have low mainstream popularity traits.
-- **The Director's Trajectory:** Cross-checks if a filmmaker has $\ge 2$ entries in the user's history but still has unseen works remaining inside the requested scope, organizing the remaining works chronologically.
-- **Runtime & Context Matcher:** Restricts candidate runtimes based on explicit user availability input (e.g., "Exactly 90 minutes") and shifts structural pacing expectations (e.g., higher weight to high-tempo genres for shorter limits).
+- **Recent Mood (Vector Alignment):** Pulls the last 15 logged films from `DiaryEntries` sorted by logging date. Analyzes Genre, Duration, Release Decade, Director, and Key Actors using Cosine Similarity and Jaccard overlaps with exponential time-decay.
+- **Opposite Mood (Vector Inversion):** Finds the mathematical inverse of the Recent Mood vector using Cosine distance. Ideal for breaking sudden viewing cycles.
+- **The Comfort Zone Disruptor:** Evaluates the historical comfort baseline (genres/eras representing $>25\%$ of total watch history) and purposefully forces a vector shift toward a completely unmapped genre, anchored by a director or actor the user has previously rated highly.
+- **The "Guilty Pleasure" vs "Cinephile Elite" Index:**
+  - *Guilty Pleasure:* Prioritizes low TMDB popularity/global score movies that precisely match sub-genres the user historically rates higher than the global average, with audience-critic divergence.
+  - *Cinephile Elite:* Filters for critically acclaimed Masterpieces using a weighted prestige index over Metacritic, Rotten Tomatoes, IMDb, and TMDb.
+- **The Director's Trajectory:** Cross-checks if a filmmaker has $\ge 2$ entries in the user's history, organizing the remaining works chronologically.
+- **Runtime & Context Matcher:** Restricts candidate runtimes based on explicit user availability input and pacing expectations.
 
 ## Step 4: CQRS Queries & Dynamic Endpoints
 
-- [ ] Implement `GetCinematicRecommendationsQuery` and its corresponding MediatR Handler within `Frametric.Application`.
-- [ ] Expose the pipeline via `RecommendationsController` under `POST /api/v1/recommendations/generate`.
+- [x] Implement `GetCinematicRecommendationsQuery` and its corresponding MediatR Handler within `Frametric.Application`.
+- [x] Expose the pipeline via `RecommendationsController` under `POST /api/v1/recommendations/generate`.
 
   ```json
   {
@@ -46,16 +47,16 @@ Every strategy calculates a matching percentage (`MatchPercentage`) using in-mem
   }
   ```
 
-- [ ] Implement Exclusion Rule Middleware to temporarily cache generated recommendations in Redis, preventing the exact same unwatched film from exhausting the user's feed if skipped multiple times.
+- [x] Implement Exclusion Rule Middleware to temporarily cache generated recommendations in Redis, preventing the exact same unwatched film from exhausting the user's feed if skipped multiple times.
 
 ## Step 5: Angular 19+ Command & Control Center
 
-- [ ] Design an interactive, high-fidelity control dashboard in the frontend application.
-- [ ] UI Component Architecture:
+- [x] Design an interactive, high-fidelity control dashboard in the frontend application.
+- [x] UI Component Architecture:
   - **Scope Toggle:** A premium three-way glassmorphic selector switcher (Watchlist, Discover Pool, or All Combined).
   - **Quantity Chip Matrix:** Micro-animated selectable chips specifically constrained to 1, 2, 3, 5, or 10 slots.
   - **Strategy Wheel:** A modern radial carousel or card deck showcasing the interactive modes (Mood, Disruptor, Elite, etc.) accompanied by clear micro-copy explaining the mathematical reasoning.
-  - [ ] Integrate generated results directly into the Phase 1 persistence actions, enabling instant "Mark as Watched" or "Drop from Watchlist" interactions directly from the suggestion block.
+  - [x] Integrate generated results directly into the Phase 1 persistence actions, enabling instant "Mark as Watched" or "Drop from Watchlist" interactions directly from the suggestion block.
 
 ## 🛠️ Backend Architectural Proof (C# Implementation Snippet)
 

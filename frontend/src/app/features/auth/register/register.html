@@ -20,7 +20,7 @@
           </defs>
         </svg>
       </div>
-      <div class="brand-text">
+      <div class="brand-text" data-tooltip="Frametric: 99.9% accurate analytics, 0.1% popcorn butter.">
         <h1 class="brand-name">Frametric</h1>
         <p class="brand-tagline">Cinematic Analytics</p>
       </div>
@@ -28,7 +28,12 @@
 
     <div class="auth-header">
       <h2>Create your account</h2>
-      <p>Start tracking your cinematic journey today</p>
+      @let taglineEE = 'auth-tagline' | easterEgg:'ui';
+      @if (taglineEE) {
+        <p [class]="taglineEE.className" [attr.data-tooltip]="taglineEE.tooltip">{{ taglineEE.text }}</p>
+      } @else {
+        <p>Start tracking your cinematic journey today</p>
+      }
     </div>
 
     @if (errorMessage()) {
@@ -119,7 +124,7 @@
       <button type="submit" class="btn-primary" id="register-submit" [disabled]="isLoading()" [class.loading]="isLoading()">
         @if (isLoading()) {
           <span class="spinner"></span>
-          Creating account...
+          {{ loadingMessage() }}
         } @else {
           Create Account
         }

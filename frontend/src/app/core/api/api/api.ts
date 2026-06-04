@@ -6,4 +6,6 @@ export * from './auth.service';
 import { AuthService } from './auth.service';
 export * from './import.service';
 import { ImportService } from './import.service';
-export const APIS = [AdvancedAnalyticsService, AnalyticsService, AuthService, ImportService];
+export * from './recommendations.service';
+import { RecommendationsService } from './recommendations.service';
+export const APIS = [AdvancedAnalyticsService, AnalyticsService, AuthService, ImportService, RecommendationsService];

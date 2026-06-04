@@ -13,7 +13,11 @@ using Frametric.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 
 // Configure Web/API specific services using Extensions
 builder.Services.AddApiAuthentication(builder.Configuration, builder.Environment);

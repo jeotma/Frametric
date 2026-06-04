@@ -1,5 +1,7 @@
 import { test, expect, Page } from '@playwright/test';
 
+declare const Buffer: any;
+
 // Helper to simulate authentication client-side
 async function loginAndSetToken(page: Page) {
   const b64 = (obj: any) => Buffer.from(JSON.stringify(obj)).toString('base64url');
@@ -234,6 +236,104 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
       // Pressing Escape should navigate back to dashboard
       await page.keyboard.press('Escape');
       await expect(page).toHaveURL(/\/dashboard/);
+    });
+  });
+
+  // --- RECOMMENDATIONS TESTS ---
+  test.describe('Recommendations Feature', () => {
+    test.beforeEach(async ({ page }) => {
+      // Mock generating recommendations
+      await page.route(/\/api\/v1\/recommendations\/generate/i, async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              movieId: 'rec-movie-1',
+              title: 'Inception',
+              directorName: 'Christopher Nolan',
+              releaseYear: 2010,
+              matchPercentage: 95.5,
+              recommendationReason: 'Shares your favorite sci-fi style and pacing.',
+              posterUrl: 'https://image.tmdb.org/t/p/w500/fake-inception.jpg',
+              runtimeMinutes: 148
+            },
+            {
+              movieId: 'rec-movie-2',
+              title: 'The Matrix',
+              directorName: 'Lana Wachowski',
+              releaseYear: 1999,
+              matchPercentage: 88.0,
+              recommendationReason: 'Acclaimed sci-fi classic from your favorite era.',
+              posterUrl: '',
+              runtimeMinutes: 136
+            }
+          ])
+        });
+      });
+
+      // Mock skipping a recommendation
+      await page.route(/\/api\/v1\/recommendations\/skip\/rec-movie-1/i, async (route) => {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+      });
+
+      await page.route(/\/api\/analytics\/dashboard/i, async (route) => {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+      });
+      await page.route(/\/api\/import\/history/i, async (route) => {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+      });
+    });
+
+    test('should load recommendations, toggle settings, and handle skip action', async ({ page }) => {
+      await loginAndSetToken(page);
+      await page.goto('/recommendations');
+
+      // Check header title is visible
+      await expect(page.locator('.reco-header h1')).toHaveText('Cinematic Recommendations');
+
+      // Check default recommendations are rendered
+      const movieCards = page.locator('.movie-card');
+      await expect(movieCards).toHaveCount(2);
+
+      // Verify details of first card
+      const firstCard = movieCards.nth(0);
+      await expect(firstCard.locator('.movie-title')).toHaveText('Inception');
+      await expect(firstCard.locator('.director')).toHaveText('Christopher Nolan');
+      await expect(firstCard.locator('.match-badge')).toHaveText('95.5% Match');
+      await expect(firstCard.locator('.reason-text')).toContainText('Shares your favorite sci-fi style and pacing');
+
+      // Change strategy to "Opposite Mood" (index 1 / card 2)
+      const oppositeMoodBtn = page.locator('.strategy-card').nth(1);
+      await expect(oppositeMoodBtn.locator('h3')).toHaveText('Opposite Mood');
+      await oppositeMoodBtn.click();
+      await expect(oppositeMoodBtn).toHaveClass(/active/);
+
+      // Toggle duration limit switch
+      const switchSlider = page.locator('.runtime-header .slider');
+      await expect(switchSlider).toBeVisible();
+      await switchSlider.click();
+
+      // Verify the range input appears
+      const rangeInput = page.locator('.range-slider');
+      await expect(rangeInput).toBeVisible();
+
+      // Trigger generating recommendations again with new settings
+      const requestPromise = page.waitForRequest(req => 
+        req.url().includes('/api/v1/recommendations/generate') && 
+        req.method() === 'POST'
+      );
+      await page.locator('.generate-btn').click();
+      const request = await requestPromise;
+      const postData = JSON.parse(request.postData() || '{}');
+      expect(postData.strategy).toBe(1); // Strategy.OppositeMood
+
+      // Test skip movie functionality
+      await firstCard.locator('.skip-btn').click();
+
+      // The card should disappear, leaving only The Matrix
+      await expect(movieCards).toHaveCount(1);
+      await expect(movieCards.locator('.movie-title')).toHaveText('The Matrix');
     });
   });
 });

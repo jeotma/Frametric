@@ -47,7 +47,7 @@ public class SqlFilterBuilder
     {
         var joins = new StringBuilder();
 
-        bool needsMovieJoin = !string.IsNullOrWhiteSpace(_filter.Actor) || !string.IsNullOrWhiteSpace(_filter.Director) || !string.IsNullOrWhiteSpace(_filter.Genre) || _filter.ReleaseYear.HasValue;
+        bool needsMovieJoin = !string.IsNullOrWhiteSpace(_filter.Actor) || !string.IsNullOrWhiteSpace(_filter.Director) || !string.IsNullOrWhiteSpace(_filter.Genre) || _filter.ReleaseYear.HasValue || _filter.MinCustomRating.HasValue || _filter.MaxCustomRating.HasValue;
 
         if (!_isMoviesJoined && needsMovieJoin)
         {
@@ -115,6 +115,18 @@ public class SqlFilterBuilder
         {
             where.AppendLine($"AND {rAlias}.\"Score\" <= @MaxRating");
             _parameters.Add("MaxRating", _filter.MaxRating.Value);
+        }
+
+        if (_filter.MinCustomRating.HasValue)
+        {
+            where.AppendLine($"AND {_movieAlias}.\"CustomAverageRating\" >= @MinCustomRating");
+            _parameters.Add("MinCustomRating", _filter.MinCustomRating.Value);
+        }
+
+        if (_filter.MaxCustomRating.HasValue)
+        {
+            where.AppendLine($"AND {_movieAlias}.\"CustomAverageRating\" <= @MaxCustomRating");
+            _parameters.Add("MaxCustomRating", _filter.MaxCustomRating.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(_filter.Actor))

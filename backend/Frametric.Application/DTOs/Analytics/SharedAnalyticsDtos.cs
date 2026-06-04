@@ -1,8 +1,8 @@
 namespace Frametric.Application.DTOs.Analytics;
 
 public record MovieSimpleDto(Guid Id, string Title, int? ReleaseYear, string? PosterPath);
-public record WatchedMovieStatsDto(string Title, int? ReleaseYear, string Director, double Rating, bool Liked);
-public record WatchlistMovieStatsDto(string Title, int? ReleaseYear, string Director, string DateAdded);
+public record WatchedMovieStatsDto(string Title, int? ReleaseYear, string Director, double Rating, bool Liked, double? CustomAverageRating = null, string? PosterUrl = null);
+public record WatchlistMovieStatsDto(string Title, int? ReleaseYear, string Director, string DateAdded, double? CustomAverageRating = null, string? PosterUrl = null);
 public record WrappedMovieDto(Guid Id, string Title, int? ReleaseYear, string? PosterPath, int? RuntimeMinutes, double? Rating)
 {
     public bool Liked { get; init; } = false;

@@ -3,7 +3,7 @@ namespace Frametric.Domain.Entities;
 public class TvShow
 {
     public Guid Id { get; private set; }
-    public string Title { get; private set; }
+    public string Title { get; private set; } = null!;
     public int? FirstAirYear { get; private set; }
     public int TmdbId { get; private set; }
     public string? PosterUrl { get; private set; }

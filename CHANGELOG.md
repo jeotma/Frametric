@@ -4,6 +4,95 @@ All notable changes to **Frametric** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] — 2026-06-04
+
+Integrated probability-based pop culture & cinephile easter eggs across the platform features.
+
+### Added
+
+- **Dynamic Easter Egg Service**: Introduced `EasterEggService` and `EasterEggPipe` in the frontend client to dynamically inject pop culture references, cinephile jokes, and meme badges based on statistics and movie criteria.
+- **Loading Screen Memes**: Added randomized pop-culture/cinephile loading phrases to auth flows and analytics loading states.
+- **Wellness Check Banner**: Scans user diary history for 3+ consecutive heavy movies (Existential Drama / Psychological Horror) watched within 24 hours inside the last 7 days. Adds a custom layout alert and skip options.
+- **Pretentiometer Warning**: Computes whether the user watches slow arthouse films and dislikes blockbusters, displaying a custom warning banner on stats screen.
+- **Mid-Curve Curse**: Triggers a tooltip alert when hovering over columns with exactly a `2.5` rating score.
+- **Kevin Bacon Distance**: Mock degree of separation calculator modal for actor leaderboard listings.
+- **Silent Film Monocle Projection**: Displays a custom retro icon and warning for movies released in 1920 or earlier.
+- **Cult Search Box Commands**: Added keyboard listener triggers for matrix rain, reversed layout flip (Memento/Tenet), Jurasssic raptor peek-a-boo, Rosebud sleds, and bent inputs. Includes a dynamic pulsing easter egg description indicator badge next to the search input.
+
+### Fixed
+
+- **Dapper CandidateMovieDto Mapping**: Added a secondary constructor to `CandidateMovieDto` matching the returned columns and casting from the left-joined watchlist date. Fixes an `InvalidOperationException` where Dapper could not find a default or matching parameter constructor due to ignoring default parameter values in records.
+
+---
+
+## [1.1.3] — 2026-06-04
+
+Mathematical fine-tuning and logic enhancements to recommendation strategies.
+
+### Added
+
+- **Cinephile Elite Refinements**: Redesigned scoring system to calculate low box office rewards, popularity ratio bounds, and dynamic foreign art-house multipliers.
+- **Improved Temporal Decay**: Calibrated exponential decay weighting ($\lambda$) to balance older cinephile titles and recent view history context.
+- **Pacing Filters**: Fine-tuned runtime context algorithms for shorter movies and endurance-length commitments.
+
+---
+
+## [1.1.2] — 2026-06-04
+
+Refactored recommendation strategies logic to support dynamic metadata overlays and easter egg tooltips.
+
+### Added
+
+- **Easter Egg Tooltips**: Integrated randomized strategy, runtime, and obscurities easter egg triggers directly into recommendation cards via the new `EasterEggTooltip` DTO property.
+- **Algorithmic Reason Generation**: Refactored recommendation strategies (`CinephileEliteStrategy`, `ComfortZoneDisruptorStrategy`, `DirectorsTrajectoryStrategy`, `GuiltyPleasureStrategy`, `OppositeMoodStrategy`, `RecentMoodStrategy`, `RuntimeContextStrategy`, and `PureRandomStrategy`) to dynamically construct more varied and randomized user-facing descriptions.
+
+---
+
+## [1.1.1] — 2026-06-03
+
+Database schema migration and complete movies metadata re-enrichment.
+
+### Added
+
+- **Movies Re-enrichment**: Executed a system-wide metadata re-enrichment via the `TmdbEnrichmentBackgroundService` to populate the newly added database columns (awards, box office, streaming providers, country, overview, etc.) for all existing movies.
+- **Cleanup**: Cleaned up the temporary database reset scripts, removed migration helper logic, and verified test suite coverage.
+
+---
+
+## [1.1.0] — 2026-06-03
+
+Refactored and upgraded the cinematic recommendation engine.
+
+### Added
+
+- **Mathematical Foundations**: Integrated Cosine Similarity, Jaccard Index, and Exponential Temporal Decay ($e^{-\lambda \cdot t}$) for advanced content-based filtering.
+- **Prestige & Discovery Metrics**: Leveraged global popularity indices, award counts (including Oscars), release country diversity, and pacing metrics to evaluate recommendation candidates.
+- **Compartmentalized Strategy Pattern**: Refactored recommendation algorithms from a monolithic query handler into separate strategy classes implementing a unified interface.
+- **Unique Scoring System**: Added micro-fractional tie-breakers based on movie metadata and ID hashing to guarantee unique match percentages and prevent ordering ties.
+
+---
+
+## [1.0.2] — 2026-06-03
+
+Aesthetic polish and UI improvements to the discovery interface.
+
+### Added
+
+- **Visual Interface Refinement**: Enhanced the recommendations page view with premium glassmorphism layouts, responsive movie poster grids, and alignment indicators.
+- **Micro-animations**: Added interactive hover animations on recommended candidate cards with dynamic match badge highlights.
+
+---
+
+## [1.0.1] — 2026-06-02
+
+Early version of the cinematic discovery and recommendations module.
+
+### Added
+
+- **Discovery Page**: Implemented the initial frontend view for user recommendations (`recommendations.html`) connecting to the API client.
+- **Monolithic Query Handler**: Configured `GetCinematicRecommendationsQueryHandler` with initial heuristic-based strategy branches (RecentMood, ComfortZoneDisruptor, RuntimeContext, etc.).
+- **Basic Skip Cache**: Integrated distributed caching to allow users to temporarily dismiss/skip recommendation entries.
+
 ---
 
 ## [1.0.0] — 2026-06-02

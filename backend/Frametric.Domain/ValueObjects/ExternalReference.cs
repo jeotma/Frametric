@@ -2,8 +2,8 @@ namespace Frametric.Domain.ValueObjects;
 
 public class ExternalReference : IEquatable<ExternalReference>
 {
-    public string Source { get; }
-    public string ExternalId { get; }
+    public string Source { get; } = null!;
+    public string ExternalId { get; } = null!;
 
     private ExternalReference() { } // For EF Core
 

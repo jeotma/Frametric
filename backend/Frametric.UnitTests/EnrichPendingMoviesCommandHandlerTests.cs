@@ -22,6 +22,7 @@ public class EnrichPendingMoviesCommandHandlerTests : IDisposable
     private readonly SqliteConnection _connection;
     private readonly DbContextOptions<FrametricDbContext> _options;
     private readonly Mock<ITmdbService> _tmdbServiceMock;
+    private readonly Mock<IOmdbService> _omdbServiceMock;
 
     public EnrichPendingMoviesCommandHandlerTests()
     {
@@ -38,6 +39,7 @@ public class EnrichPendingMoviesCommandHandlerTests : IDisposable
         }
 
         _tmdbServiceMock = new Mock<ITmdbService>();
+        _omdbServiceMock = new Mock<IOmdbService>();
     }
 
     private FrametricDbContext CreateContext()
@@ -66,7 +68,7 @@ public class EnrichPendingMoviesCommandHandlerTests : IDisposable
             .ReturnsAsync((TmdbMovieResultDto?)null);
 
         using var actContext = CreateContext();
-        var handler = new EnrichPendingMoviesCommandHandler(actContext, _tmdbServiceMock.Object);
+        var handler = new EnrichPendingMoviesCommandHandler(actContext, _tmdbServiceMock.Object, _omdbServiceMock.Object);
         var command = new EnrichPendingMoviesCommand(10);
 
         // Act
@@ -108,7 +110,7 @@ public class EnrichPendingMoviesCommandHandlerTests : IDisposable
             .ReturnsAsync(tmdbDto);
 
         using var actContext = CreateContext();
-        var handler = new EnrichPendingMoviesCommandHandler(actContext, _tmdbServiceMock.Object);
+        var handler = new EnrichPendingMoviesCommandHandler(actContext, _tmdbServiceMock.Object, _omdbServiceMock.Object);
         var command = new EnrichPendingMoviesCommand(10);
 
         // Act
@@ -156,7 +158,7 @@ public class EnrichPendingMoviesCommandHandlerTests : IDisposable
             .ReturnsAsync(tmdbDto);
 
         using var actContext = CreateContext();
-        var handler = new EnrichPendingMoviesCommandHandler(actContext, _tmdbServiceMock.Object);
+        var handler = new EnrichPendingMoviesCommandHandler(actContext, _tmdbServiceMock.Object, _omdbServiceMock.Object);
         var command = new EnrichPendingMoviesCommand(10);
 
         // Act
