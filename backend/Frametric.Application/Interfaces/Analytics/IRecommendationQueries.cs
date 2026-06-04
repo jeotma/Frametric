@@ -51,7 +51,64 @@ public record CandidateMovieDto(
     double? RottenTomatoesRating = null,
     double? MetacriticRating = null,
     DateOnly? WatchlistAddedDate = null
-);
+)
+{
+    // Secondary constructor to match Dapper's SQL query deserialization.
+    // Dapper ignores default parameters in primary constructors and requires an exact match.
+    // WatchlistAddedDate is read from a LEFT JOIN as a DateTime? in PostgreSQL/Dapper,
+    // so we map it to DateOnly? using a helper constructor.
+    public CandidateMovieDto(
+        Guid movieId,
+        string title,
+        int? releaseYear,
+        int? runtimeMinutes,
+        string? posterUrl,
+        double? tmdbRating,
+        double? tmdbPopularity,
+        double? customAverageRating,
+        string? genres,
+        string? directors,
+        string? actors,
+        string? keywords,
+        string? awards,
+        string? writers,
+        string? language,
+        string? country,
+        string? boxOffice,
+        string? certification,
+        string? streamingProviders,
+        string? overview,
+        double? imdbRating,
+        double? rottenTomatoesRating,
+        double? metacriticRating,
+        DateTime? watchlistAddedDate
+    ) : this(
+        movieId,
+        title,
+        releaseYear,
+        runtimeMinutes,
+        posterUrl,
+        tmdbRating,
+        tmdbPopularity,
+        customAverageRating,
+        genres,
+        directors,
+        actors,
+        keywords,
+        awards,
+        writers,
+        language,
+        country,
+        boxOffice,
+        certification,
+        streamingProviders,
+        overview,
+        imdbRating,
+        rottenTomatoesRating,
+        metacriticRating,
+        watchlistAddedDate.HasValue ? DateOnly.FromDateTime(watchlistAddedDate.Value) : null
+    ) {}
+}
 
 public interface IRecommendationQueries
 {
