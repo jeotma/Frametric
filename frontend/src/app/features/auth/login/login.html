@@ -23,7 +23,7 @@
           </defs>
         </svg>
       </div>
-      <div class="brand-text">
+      <div class="brand-text" data-tooltip="Frametric: 99.9% accurate analytics, 0.1% popcorn butter.">
         <h1 class="brand-name">Frametric</h1>
         <p class="brand-tagline">Cinematic Analytics</p>
       </div>
@@ -31,7 +31,12 @@
 
     <div class="auth-header">
       <h2>Welcome back</h2>
-      <p>Sign in to explore your cinematic universe</p>
+      @let taglineEE = 'auth-tagline' | easterEgg:'ui';
+      @if (taglineEE) {
+        <p [class]="taglineEE.className" [attr.data-tooltip]="taglineEE.tooltip">{{ taglineEE.text }}</p>
+      } @else {
+        <p>Sign in to explore your cinematic universe</p>
+      }
     </div>
 
     <!-- Error Message -->
@@ -106,7 +111,7 @@
       >
         @if (isLoading()) {
           <span class="spinner"></span>
-          Signing in...
+          {{ loadingMessage() }}
         } @else {
           Sign In
         }

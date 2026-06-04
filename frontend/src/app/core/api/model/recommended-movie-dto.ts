@@ -19,5 +19,5 @@ export interface RecommendedMovieDto {
     posterUrl?: string | null;
     runtimeMinutes?: number | null;
     customAverageRating?: number | null;
+    easterEggTooltip?: string | null;
 }
-

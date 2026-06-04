@@ -105,7 +105,12 @@
     </div>
 
     <div class="empty-state" *ngIf="!loading() && !resultData()">
-      Configure your filters above and click Analyze.
+      @let idleEE = 'stats-idle' | easterEgg:'ui';
+      @if (idleEE) {
+        <span [class]="idleEE.className" [attr.data-tooltip]="idleEE.tooltip">{{ idleEE.text }}</span>
+      } @else {
+        Configure your filters above and click Analyze.
+      }
     </div>
 
     <div class="results-content" *ngIf="!loading() && resultData()">
@@ -132,10 +137,16 @@
                     <span class="elegant-unrated">No ratings</span>
                   </ng-container>
                   <ng-container *ngIf="col.toLowerCase().includes('rating') && item[col] > 0">
-                    <span class="rating-badge">{{ item[col] | number:'1.1-2' }}</span>
+                    @let ratingEE = (item[col] | number:'1.1-1') | easterEgg:'table-rating';
+                    <span class="rating-badge" [class]="ratingEE ? ratingEE.className : ''" [attr.data-tooltip]="ratingEE ? ratingEE.tooltip : null">
+                      {{ item[col] | number:'1.1-2' }} {{ ratingEE ? ' ' + ratingEE.text : '' }}
+                    </span>
                   </ng-container>
                   <ng-container *ngIf="!col.toLowerCase().includes('rating') && col.toLowerCase() !== 'liked'">
-                    {{ item[col] }}
+                    @let valEE = item[col] | easterEgg:'table-val';
+                    <span [class]="valEE ? valEE.className : ''" [attr.data-tooltip]="valEE ? valEE.tooltip : null">
+                      {{ item[col] }} {{ valEE ? ' ' + valEE.text : '' }}
+                    </span>
                   </ng-container>
                   <ng-container *ngIf="col.toLowerCase() === 'liked'">
                     <span *ngIf="item[col]" style="color: #e25c5c; font-size: 1.2rem;">❤️</span>
@@ -160,19 +171,33 @@
             </h2>
             <div class="hero-stats-grid">
               <div class="stat-box" *ngIf="resultData().count !== undefined">
-                <span class="value">{{ resultData().count }}</span>
+                @let countEE = resultData().count | easterEgg:'count';
+                <span class="value" [class]="countEE ? countEE.className : ''" [attr.data-tooltip]="countEE ? countEE.tooltip : null">
+                  {{ resultData().count }} {{ countEE ? countEE.text : '' }}
+                </span>
                 <span class="label">{{ selectedCategory().toLowerCase().includes('watchlist') ? 'Pending' : 'Watches' }}</span>
               </div>
               <div class="stat-box" *ngIf="resultData().watchedCount && selectedCategory().toLowerCase().includes('watchlist')">
-                <span class="value">{{ resultData().watchedCount }}</span>
+                @let wCountEE = resultData().watchedCount | easterEgg:'watched-count';
+                <span class="value" [class]="wCountEE ? wCountEE.className : ''" [attr.data-tooltip]="wCountEE ? wCountEE.tooltip : null">
+                  {{ resultData().watchedCount }} {{ wCountEE ? wCountEE.text : '' }}
+                </span>
                 <span class="label">Watched</span>
               </div>
               <div class="stat-box" *ngIf="resultData().totalMinutes !== undefined">
-                <span class="value">{{ resultData().totalHours }}<span class="unit">h</span> {{ resultData().totalMinutes % 60 }}<span class="unit">m</span></span>
+                @let hoursEE = resultData().totalHours | easterEgg:'hours';
+                <span class="value" [class]="hoursEE ? hoursEE.className : ''" [attr.data-tooltip]="hoursEE ? hoursEE.tooltip : null">
+                  {{ resultData().totalHours }}<span class="unit">h</span> {{ resultData().totalMinutes % 60 }}<span class="unit">m</span> {{ hoursEE ? ' ' + hoursEE.text : '' }}
+                </span>
                 <span class="label">Time Invested</span>
               </div>
               <div class="stat-box" *ngIf="resultData().averageRating !== undefined">
-                <span class="value" *ngIf="resultData().averageRating > 0">{{ resultData().averageRating | number:'1.1-2' }}</span>
+                <span class="value" *ngIf="resultData().averageRating > 0">
+                  @let ratingEE = (resultData().averageRating | number:'1.1-1') | easterEgg:'rating';
+                  <span [class]="ratingEE ? ratingEE.className : ''" [attr.data-tooltip]="ratingEE ? ratingEE.tooltip : null">
+                    {{ resultData().averageRating | number:'1.1-2' }} {{ ratingEE ? ' ' + ratingEE.text : '' }}
+                  </span>
+                </span>
                 <span class="value unrated-text" *ngIf="resultData().averageRating === 0">N/A</span>
                 <span class="label">Avg Rating</span>
               </div>

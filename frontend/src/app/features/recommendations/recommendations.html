@@ -208,11 +208,16 @@
       } @else if (recommendations().length === 0) {
         <div class="empty-state glass-panel">
           <span class="empty-icon">🎬</span>
-          <h3>No recommendations match your criteria</h3>
-          <p>Try widening the data scope, disabling the duration limit, or skipping less movies.</p>
+          @let emptyEE = 'reco-empty' | easterEgg:'ui';
+          @if (emptyEE) {
+            <h3 [class]="emptyEE.className" [attr.data-tooltip]="emptyEE.tooltip" style="font-size: 1.15rem; font-weight: 500; margin: 10px 0;">{{ emptyEE.text }}</h3>
+          } @else {
+            <h3>No recommendations match your criteria</h3>
+            <p>Try widening the data scope, disabling the duration limit, or skipping less movies.</p>
+          }
         </div>
       } @else {
-        <div class="recommendations-grid">
+        <div class="recommendations-grid" [class.grid-10]="selectedQuantity() === 10">
           @for (movie of recommendations(); track movie.movieId) {
             <article class="movie-card glass-panel" [class.loading]="actionLoading() === movie.movieId">
               <div class="poster-container">
@@ -225,31 +230,40 @@
                 }
               </div>
 
-              <div class="match-badge">
-                {{ movie.matchPercentage }}% Match
+              @let matchEE = movie.matchPercentage | easterEgg:'match';
+              <div class="match-badge" [class]="matchEE ? matchEE.className : ''" [attr.data-tooltip]="matchEE ? matchEE.tooltip : null">
+                {{ movie.matchPercentage }}% Match {{ matchEE ? ' ' + matchEE.text : '' }}
               </div>
               @if (movie.customAverageRating) {
-                <div class="rating-badge" [attr.data-tooltip]="'Custom Rating: ' + (movie.customAverageRating | number:'1.1-1') + '/10. This is the arithmetic mean calculated from TMDB, and OMDb sources (including IMDb, Rotten Tomatoes, and Metacritic).'">
-                  ⭐ {{ movie.customAverageRating | number:'1.1-1' }}
+                @let ratingEE = (movie.customAverageRating | number:'1.1-1') | easterEgg:'rating';
+                <div class="rating-badge" [class]="ratingEE ? ratingEE.className : ''" [attr.data-tooltip]="ratingEE ? ratingEE.tooltip : ('Custom Rating: ' + (movie.customAverageRating | number:'1.1-1') + '/10. This is the arithmetic mean calculated from TMDB, and OMDb sources (including IMDb, Rotten Tomatoes, and Metacritic).')">
+                  ⭐ {{ movie.customAverageRating | number:'1.1-1' }} {{ ratingEE ? ' ' + ratingEE.text : '' }}
                 </div>
               }
 
               <div class="movie-details">
                 <h3 class="movie-title" [title]="movie.title">{{ movie.title }}</h3>
                 <div class="meta-row">
-                  <span class="director" [title]="movie.directorName">{{ movie.directorName }}</span>
+                  @let dirEE = movie.directorName | easterEgg:'director';
+                  <span class="director" [class]="dirEE ? dirEE.className : ''" [attr.data-tooltip]="dirEE ? dirEE.tooltip : null" [title]="movie.directorName">
+                    {{ movie.directorName }} {{ dirEE ? dirEE.text : '' }}
+                  </span>
                   <span class="divider">•</span>
                   <span class="year">{{ movie.releaseYear }}</span>
                   @if (movie.runtimeMinutes) {
+                    @let runtimeEE = movie.runtimeMinutes | easterEgg:'runtime';
                     <span class="divider">•</span>
-                    <span class="runtime">{{ movie.runtimeMinutes }}m</span>
+                    <span class="runtime" [class]="runtimeEE ? runtimeEE.className : ''" [attr.data-tooltip]="runtimeEE ? runtimeEE.tooltip : null">{{ movie.runtimeMinutes }}m {{ runtimeEE ? ' ' + runtimeEE.text : '' }}</span>
                   }
                 </div>
 
-                <div class="reason-box">
+                <div class="reason-box" [class.has-easter-egg]="movie.easterEggTooltip" [attr.data-tooltip]="movie.easterEggTooltip">
                   <p class="reason-text">
                     <span class="quote-mark">“</span>
                     {{ movie.recommendationReason }}
+                    @if (movie.easterEggTooltip) {
+                      <span class="easter-egg-indicator" title="Easter Egg">🥚</span>
+                    }
                   </p>
                 </div>
 

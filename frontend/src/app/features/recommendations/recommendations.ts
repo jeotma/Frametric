@@ -29,10 +29,12 @@ interface StrategyInfo {
   description: string;
 }
 
+import { EasterEggPipe } from '../../core/services/easter-egg.pipe';
+
 @Component({
   selector: 'app-recommendations',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, EasterEggPipe],
   templateUrl: './recommendations.html',
   styleUrl: './recommendations.scss'
 })
@@ -76,7 +78,7 @@ export class RecommendationsComponent implements OnInit {
       id: Strategy.CinephileElite,
       name: 'Cinephile Elite',
       icon: '🏆',
-      description: 'Filters for critically acclaimed masterpieces (average score ≥ 8.2) that have low mainstream popularity.'
+      description: 'Filters for critically acclaimed masterpieces (average score ≥ 8) that have low mainstream popularity.'
     },
     {
       id: Strategy.GuiltyPleasure,

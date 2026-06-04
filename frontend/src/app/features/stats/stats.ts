@@ -32,10 +32,12 @@ interface QueryDef {
   execute?: (advancedApi: AdvancedAnalyticsService, api: AnalyticsService, globalFilters: GlobalFilters, querySpecificInputs: any) => Observable<any>;
 }
 
+import { EasterEggPipe } from '../../core/services/easter-egg.pipe';
+
 @Component({
   selector: 'app-stats',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, EasterEggPipe],
   templateUrl: './stats.html',
   styleUrl: './stats.scss'
 })

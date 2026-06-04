@@ -1,11 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dto';
+import { EasterEggPipe } from '../../../../core/services/easter-egg.pipe';
 
 @Component({
   selector: 'app-big-numbers-slide',
   standalone: true,
-  imports: [CommonModule, DecimalPipe],
+  imports: [CommonModule, DecimalPipe, EasterEggPipe],
   template: `
     <div class="slide-content big-numbers-bg">
       <div class="act-label">Act I · The Establishing Shot</div>
@@ -15,19 +16,31 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
 
       <div class="numbers-grid">
         <div class="number-card accent-purple">
-          <span class="n-value">{{ summary.totalWatches | number }}</span>
+          @let watchesEE = summary.totalWatches | easterEgg:'watches';
+          <span class="n-value" [class]="watchesEE ? watchesEE.className : ''" [attr.data-tooltip]="watchesEE ? watchesEE.tooltip : null">
+            {{ summary.totalWatches | number }} {{ watchesEE ? watchesEE.text : '' }}
+          </span>
           <span class="n-label">Total Screenings</span>
         </div>
         <div class="number-card accent-gold">
-          <span class="n-value">{{ summary.uniqueMoviesCount | number }}</span>
+          @let uniqueEE = summary.uniqueMoviesCount | easterEgg:'unique';
+          <span class="n-value" [class]="uniqueEE ? uniqueEE.className : ''" [attr.data-tooltip]="uniqueEE ? uniqueEE.tooltip : null">
+            {{ summary.uniqueMoviesCount | number }} {{ uniqueEE ? uniqueEE.text : '' }}
+          </span>
           <span class="n-label">Unique Titles</span>
         </div>
         <div class="number-card accent-teal">
-          <span class="n-value">{{ totalHours | number:'1.0-0' }}</span>
+          @let hoursEE = totalHours | easterEgg:'hours';
+          <span class="n-value" [class]="hoursEE ? hoursEE.className : ''" [attr.data-tooltip]="hoursEE ? hoursEE.tooltip : null">
+            {{ totalHours | number:'1.0-0' }} {{ hoursEE ? hoursEE.text : '' }}
+          </span>
           <span class="n-label">Hours Watched</span>
         </div>
         <div class="number-card accent-rose">
-          <span class="n-value">{{ totalDays | number:'1.1-1' }}</span>
+          @let daysEE = (totalDays | number:'1.1-1') | easterEgg:'days';
+          <span class="n-value" [class]="daysEE ? daysEE.className : ''" [attr.data-tooltip]="daysEE ? daysEE.tooltip : null">
+            {{ totalDays | number:'1.1-1' }} {{ daysEE ? daysEE.text : '' }}
+          </span>
           <span class="n-label">Days of Your Life</span>
         </div>
         <div class="number-card accent-blue" *ngIf="summary.topGenres.length">

@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { EasterEggService } from '../../../core/services/easter-egg.service';
+
+import { EasterEggPipe } from '../../../core/services/easter-egg.pipe';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, EasterEggPipe],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -15,10 +18,12 @@ export class LoginComponent {
   private readonly _fb = inject(FormBuilder);
   private readonly _auth = inject(AuthService);
   private readonly _router = inject(Router);
+  private readonly _easterEgg = inject(EasterEggService);
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly showPassword = signal(false);
+  readonly loadingMessage = signal<string>('Signing in...');
 
   readonly form = this._fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -34,6 +39,8 @@ export class LoginComponent {
     if (this.form.invalid || this.isLoading()) return;
     this.errorMessage.set(null);
     this.isLoading.set(true);
+    const customMsg = this._easterEgg.getLoadingMessage();
+    this.loadingMessage.set(customMsg || 'Signing in...');
 
     const { email, password } = this.form.value;
 
