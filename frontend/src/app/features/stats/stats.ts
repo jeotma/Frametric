@@ -45,6 +45,10 @@ export class StatsComponent implements OnInit {
   private advancedApi = inject(AdvancedAnalyticsService);
   private api = inject(AnalyticsService);
 
+  public isPretentious = signal<boolean>(false);
+  public baconMessage = signal<string | null>(null);
+  public toxicDirectors = signal<Set<string>>(new Set<string>());
+
   public globalFilters: GlobalFilters = {};
 
   public queries: QueryDef[] = [
