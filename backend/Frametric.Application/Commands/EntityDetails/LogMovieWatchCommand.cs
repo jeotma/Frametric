@@ -86,8 +86,8 @@ public class LogMovieWatchCommandHandler : IRequestHandler<LogMovieWatchCommand,
                 Guid.NewGuid(),
                 request.UserId,
                 request.MovieId,
-                request.DateWatched,
-                Guid.Empty
+                request.DateWatched
+                // ImportHistoryId is null — this is a manually logged watch, not from an import
             ));
         }
 
