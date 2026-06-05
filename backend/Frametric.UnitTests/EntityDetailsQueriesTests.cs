@@ -67,8 +67,8 @@ public class EntityDetailsQueriesTests
     {
         // Arrange
         var actorId = Guid.NewGuid();
-        var actorBase = new[] { new { Id = actorId, Name = "Actor Name", AverageRating = 8.0, WatchCount = 5 } };
-        var movies = new[] { new { Id = Guid.NewGuid(), Title = "Movie Star", ReleaseYear = 2018, PosterPath = "path" } };
+        var actorBase = new[] { new { Id = actorId, Name = "Actor Name", AverageRating = 8.0, WatchCount = 5, ProfilePath = "profile" } };
+        var movies = new[] { new { Id = Guid.NewGuid(), Title = "Movie Star", ReleaseYear = 2018, PosterPath = "path", IsWatched = true } };
 
         var reader = new MultiResultSetDbDataReader(new IEnumerable<object>[] { actorBase, movies });
         var dbCommand = new TestDbCommand(reader, 0);
@@ -85,8 +85,10 @@ public class EntityDetailsQueriesTests
         Assert.Equal("Actor Name", result.Name);
         Assert.Equal(8.0, result.AverageRating);
         Assert.Equal(5, result.WatchCount);
+        Assert.Equal("profile", result.ProfilePath);
         Assert.Single(result.Movies);
         Assert.Equal("Movie Star", result.Movies.First().Title);
+        Assert.True(result.Movies.First().IsWatched);
     }
 
     [Fact]
@@ -94,8 +96,8 @@ public class EntityDetailsQueriesTests
     {
         // Arrange
         var directorId = Guid.NewGuid();
-        var directorBase = new[] { new { Id = directorId, Name = "Director Name", AverageRating = 9.2, WatchCount = 3 } };
-        var movies = new[] { new { Id = Guid.NewGuid(), Title = "Directorial Masterpiece", ReleaseYear = 2019, PosterPath = "path" } };
+        var directorBase = new[] { new { Id = directorId, Name = "Director Name", AverageRating = 9.2, WatchCount = 3, ProfilePath = "profile" } };
+        var movies = new[] { new { Id = Guid.NewGuid(), Title = "Directorial Masterpiece", ReleaseYear = 2019, PosterPath = "path", IsWatched = true } };
 
         var reader = new MultiResultSetDbDataReader(new IEnumerable<object>[] { directorBase, movies });
         var dbCommand = new TestDbCommand(reader, 0);
@@ -112,8 +114,10 @@ public class EntityDetailsQueriesTests
         Assert.Equal("Director Name", result.Name);
         Assert.Equal(9.2, result.AverageRating);
         Assert.Equal(3, result.WatchCount);
+        Assert.Equal("profile", result.ProfilePath);
         Assert.Single(result.Movies);
         Assert.Equal("Directorial Masterpiece", result.Movies.First().Title);
+        Assert.True(result.Movies.First().IsWatched);
     }
 
     [Fact]
