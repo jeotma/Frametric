@@ -57,6 +57,20 @@ public class MoviesController : ControllerBase
         if (!success) return NotFound();
         return Ok();
     }
+
+    [HttpDelete("{id}/log/{entryId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UnlogMovieWatch(Guid id, Guid entryId, CancellationToken cancellationToken)
+    {
+        var userId = _currentUserService.UserId;
+        if (userId == null) return Unauthorized("User is not authenticated.");
+
+        var success = await _mediator.Send(new UnlogMovieWatchCommand(userId.Value, id, entryId), cancellationToken);
+
+        if (!success) return NotFound();
+        return NoContent();
+    }
 }
 
 public class LogMovieWatchRequest
