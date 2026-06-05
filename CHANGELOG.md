@@ -4,7 +4,72 @@ All notable changes to **Frametric** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.0] — 2026-06-04
+## [1.3.1] — 2026-06-05
+
+Manual watch management improvements and infrastructure bugfix.
+
+### Added
+
+- **Unlog Watch**: Users can now remove individual diary entries from the movie detail view. Deleting a non-rewatch entry purges all user associations with that film (`WatchedMovie`, `MovieRating`, `MovieLike`). Rewatches are treated as bonus entries and only the diary entry itself is removed.
+- **DELETE `/api/Movies/{id}/log/{entryId}`**: New endpoint dispatching `UnlogMovieWatchCommand`.
+
+### Fixed
+
+- **FK Violation on Manual Log**: `LogMovieWatchCommand` was passing `Guid.Empty` as `ImportHistoryId` on `WatchedMovie`, causing a PostgreSQL 23503 FK constraint error. Fixed by making `ImportHistoryId` nullable (`Guid?`) in the domain entity, adding `WatchedMovieConfiguration` with `SetNull` delete behavior, and running the corresponding migration.
+
+---
+
+## [1.3.0] — 2026-06-05
+
+Completed Phase 5: frontend entity detail pages wired and fully navigable across the app.
+
+### Added
+
+- **Movie Detail View**: Cinematic detail page with backdrop blur, poster, metadata, genres, directors, actors, user diary history, and manual log controls.
+- **Actor Detail View**: Profile photo, filmography list, average rating, and watch count.
+- **Director Detail View**: Profile photo, filmography list, average rating, and watch count.
+- **Entity Routing**: Angular routes `/movies/:id`, `/actors/:id/:slug`, `/directors/:id/:slug` with lazy-loaded standalone components.
+- **Cross-App Interlinking**: Movie titles, actor names, and director names in Stats and Recommendations are now clickable links routing to entity detail views.
+
+---
+
+## [1.2.3] — 2026-06-05
+
+Recommendation strategy refinements following entity detail integration.
+
+### Changed
+
+- **DirectorsTrajectory Strategy**: Reworked scoring to factor in director filmography depth within the user's library.
+- **Strategy Base**: Improved candidate filtering and scoring normalization shared across all strategies.
+- **Minor Tuning**: `CinephileElite`, `ComfortZoneDisruptor`, `OppositeMood`, `RecentMood`, and `RuntimeContext` strategies received small logic adjustments for improved candidate diversity.
+
+---
+
+## [1.2.2] — 2026-06-05
+
+Backend entity detail queries and API endpoints for Phase 5.
+
+### Added
+
+- **`GET /api/Movies/{id}`**: Returns movie details, genres, directors, actors, user diary entries, and average rating.
+- **`GET /api/Actors/{id}`**: Returns actor details with filmography, watch count, and average rating from user library.
+- **`GET /api/Directors/{id}`**: Returns director details with filmography, watch count, and average rating.
+- **`POST /api/Movies/{id}/log`**: Manually log a watch entry with date, rating, and rewatch status.
+- **`EntityDetailsQueriesImpl`**: Dapper-backed implementation for all three entity detail queries.
+
+---
+
+## [1.2.1] — 2026-06-05
+
+TMDB profile photo enrichment for actors and directors.
+
+### Added
+
+- **ProfilePath on Actor/Director**: Domain entities `Actor` and `Director` now expose a `ProfilePath` property populated from TMDB `profile_path` during enrichment.
+- **Migration `AddProfilePathToPeople`**: Adds the `ProfilePath` column to both `Actors` and `Directors` tables.
+- **TmdbService update**: Credits response now maps `profile_path` for cast and crew members.
+
+---
 
 Integrated probability-based pop culture & cinephile easter eggs across the platform features.
 

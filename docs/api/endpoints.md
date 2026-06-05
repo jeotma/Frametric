@@ -283,3 +283,46 @@ Requires authentication.
 - **Responses**:
   - `204 NoContent`: Dismissal cached for 7 days.
 
+---
+
+## 6. Movies (`/api/Movies`)
+
+Requires authentication.
+
+### **GET** `/api/Movies/{id}`
+
+- **Description**: Returns full details for a specific movie including directors, actors, genres, and the authenticated user's diary entries and average rating.
+- **Parameters**:
+  - `id` (`Guid` in route)
+- **Responses**:
+  - `200 OK`: Returns `MovieDetailsDto`.
+  - `404 NotFound`: Movie not found.
+
+### **POST** `/api/Movies/{id}/log`
+
+- **Description**: Manually logs a watch for the authenticated user. Creates a `DiaryEntry` and a `WatchedMovie` record if it does not already exist. Optionally updates the user's rating.
+- **Parameters**:
+  - `id` (`Guid` in route)
+- **Request Body**:
+
+  ```json
+  {
+    "dateWatched": "2025-12-01",
+    "rating": 8.5,
+    "isRewatch": false
+  }
+  ```
+
+- **Responses**:
+  - `200 OK`: Watch logged successfully.
+  - `404 NotFound`: Movie not found.
+
+### **DELETE** `/api/Movies/{id}/log/{entryId}`
+
+- **Description**: Removes a specific diary entry belonging to the authenticated user. If it was the last diary entry for that movie, **all** user associations with the film are purged: the `WatchedMovie` library record, the `MovieRating`, and any `MovieLike`.
+- **Parameters**:
+  - `id` (`Guid` in route) — Movie ID
+  - `entryId` (`Guid` in route) — Diary entry ID to remove
+- **Responses**:
+  - `204 NoContent`: Entry deleted successfully.
+  - `404 NotFound`: Entry not found or does not belong to the authenticated user.
