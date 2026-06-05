@@ -3,6 +3,7 @@ using System;
 using Frametric.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Frametric.Infrastructure.Migrations
 {
     [DbContext(typeof(FrametricDbContext))]
-    partial class FrametricDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260605001437_AddProfilePathToPeople")]
+    partial class AddProfilePathToPeople
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -416,7 +419,7 @@ namespace Frametric.Infrastructure.Migrations
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
 
-                    b.Property<Guid?>("ImportHistoryId")
+                    b.Property<Guid>("ImportHistoryId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("MovieId")
@@ -647,9 +650,10 @@ namespace Frametric.Infrastructure.Migrations
             modelBuilder.Entity("Frametric.Domain.Entities.WatchedMovie", b =>
                 {
                     b.HasOne("Frametric.Domain.Entities.ImportHistory", "ImportHistory")
-                        .WithMany("WatchedMovies")
+                        .WithMany()
                         .HasForeignKey("ImportHistoryId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Frametric.Domain.Entities.Movie", "Movie")
                         .WithMany()
@@ -748,8 +752,6 @@ namespace Frametric.Infrastructure.Migrations
                     b.Navigation("MovieLikes");
 
                     b.Navigation("MovieRatings");
-
-                    b.Navigation("WatchedMovies");
 
                     b.Navigation("WatchlistItems");
                 });
