@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ActorsService, ActorDetailsDto } from '../../../core/api';
+import { slugify } from '../../../core/utils/slugify';
 
 @Component({
   selector: 'app-actor-detail',
@@ -11,11 +12,22 @@ import { ActorsService, ActorDetailsDto } from '../../../core/api';
   styleUrl: './actor-detail.scss'
 })
 export class ActorDetailComponent implements OnInit {
+  protected readonly slugify = slugify;
   private route = inject(ActivatedRoute);
   private actorsService = inject(ActorsService);
 
   actor = signal<ActorDetailsDto | null>(null);
   isLoading = signal(true);
+
+  get watchedMovies() {
+    const act = this.actor();
+    return act ? act.movies.filter(m => m.isWatched) : [];
+  }
+
+  get unwatchedMovies() {
+    const act = this.actor();
+    return act ? act.movies.filter(m => !m.isWatched) : [];
+  }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');

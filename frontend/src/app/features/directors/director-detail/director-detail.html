@@ -1,23 +1,34 @@
 <div class="person-detail-container" *ngIf="!isLoading(); else loader">
   <ng-container *ngIf="director() as d">
-    <div class="header">
-      <h1>{{ d.name }}</h1>
-      <div class="stats">
-        <div class="stat-box">
-          <span class="label">Watched</span>
-          <span class="value">{{ d.watchCount }}</span>
-        </div>
-        <div class="stat-box">
-          <span class="label">Avg. rating</span>
-          <span class="value">⭐ {{ d.averageRating | number:'1.1-1' }}</span>
+    <div class="header glass-panel">
+      <div class="profile-avatar">
+        <img *ngIf="d.profilePath; else placeholderAvatar" [src]="d.profilePath" [alt]="d.name" />
+        <ng-template #placeholderAvatar>
+          <div class="avatar-placeholder">
+            <span>{{ d.name.charAt(0) }}</span>
+          </div>
+        </ng-template>
+      </div>
+      
+      <div class="header-info">
+        <h1>{{ d.name }}</h1>
+        <div class="stats">
+          <div class="stat-box">
+            <span class="label">Watched</span>
+            <span class="value">{{ d.watchCount }}</span>
+          </div>
+          <div class="stat-box">
+            <span class="label">Avg. rating</span>
+            <span class="value">⭐ {{ d.averageRating | number:'1.1-1' }}</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="movies-grid">
+    <div class="movies-grid" *ngIf="watchedMovies.length > 0">
       <h2>Watched Movies</h2>
       <div class="grid">
-        <a *ngFor="let m of d.movies" [routerLink]="['/movies', m.id]" class="movie-card">
+        <a *ngFor="let m of watchedMovies" [routerLink]="['/movies', m.id, slugify(m.title)]" class="movie-card">
           <div class="poster">
             <img [src]="m.posterPath || 'assets/placeholder-poster.png'" [alt]="m.title" />
           </div>
@@ -27,6 +38,27 @@
           </div>
         </a>
       </div>
+    </div>
+
+    <div class="movies-grid unwatched-section" *ngIf="unwatchedMovies.length > 0">
+      <h2>Unwatched Movies</h2>
+      <div class="grid">
+        <a *ngFor="let m of unwatchedMovies" [routerLink]="['/movies', m.id, slugify(m.title)]" class="movie-card unwatched-card">
+          <div class="poster">
+            <img [src]="m.posterPath || 'assets/placeholder-poster.png'" [alt]="m.title" />
+            <div class="unwatched-badge">Discover</div>
+          </div>
+          <div class="info">
+            <span class="title">{{ m.title }}</span>
+            <span class="year" *ngIf="m.releaseYear">{{ m.releaseYear }}</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="empty-state glass-panel" *ngIf="watchedMovies.length === 0 && unwatchedMovies.length === 0">
+      <span class="empty-icon">🎬</span>
+      <h3>No movies found in database for {{ d.name }}</h3>
     </div>
   </ng-container>
 </div>
