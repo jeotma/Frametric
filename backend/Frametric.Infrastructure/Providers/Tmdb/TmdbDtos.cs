@@ -84,6 +84,9 @@ public class TmdbCastItem
 
     [JsonPropertyName("order")]
     public int Order { get; set; }
+
+    [JsonPropertyName("profile_path")]
+    public string? ProfilePath { get; set; }
 }
 
 public class TmdbCrewItem
@@ -96,6 +99,9 @@ public class TmdbCrewItem
 
     [JsonPropertyName("job")]
     public string Job { get; set; } = string.Empty;
+
+    [JsonPropertyName("profile_path")]
+    public string? ProfilePath { get; set; }
 }
 
 public class TmdbTvDetails

@@ -244,13 +244,13 @@ public class TmdbService : ITmdbService
 
         var directors = details.Credits?.Crew?
             .Where(c => c.Job == "Director")
-            .Select(c => new TmdbPersonDto(c.Id, c.Name))
+            .Select(c => new TmdbPersonDto(c.Id, c.Name, !string.IsNullOrEmpty(c.ProfilePath) ? $"https://image.tmdb.org/t/p/w500{c.ProfilePath}" : null))
             .ToList() ?? new List<TmdbPersonDto>();
 
         var actors = details.Credits?.Cast?
             .OrderBy(c => c.Order)
             .Take(10)
-            .Select(c => new TmdbPersonDto(c.Id, c.Name))
+            .Select(c => new TmdbPersonDto(c.Id, c.Name, !string.IsNullOrEmpty(c.ProfilePath) ? $"https://image.tmdb.org/t/p/w500{c.ProfilePath}" : null))
             .ToList() ?? new List<TmdbPersonDto>();
 
         return new TmdbMovieResultDto(
@@ -281,13 +281,13 @@ public class TmdbService : ITmdbService
         var genres = details.Genres.Select(g => new TmdbGenreDto(g.Id, g.Name)).ToList();
 
         var directors = details.CreatedBy
-            .Select(c => new TmdbPersonDto(c.Id, c.Name))
+            .Select(c => new TmdbPersonDto(c.Id, c.Name, !string.IsNullOrEmpty(c.ProfilePath) ? $"https://image.tmdb.org/t/p/w500{c.ProfilePath}" : null))
             .ToList();
 
         var actors = details.Credits?.Cast?
             .OrderBy(c => c.Order)
             .Take(10)
-            .Select(c => new TmdbPersonDto(c.Id, c.Name))
+            .Select(c => new TmdbPersonDto(c.Id, c.Name, !string.IsNullOrEmpty(c.ProfilePath) ? $"https://image.tmdb.org/t/p/w500{c.ProfilePath}" : null))
             .ToList() ?? new List<TmdbPersonDto>();
 
         int? firstAirYear = null;
