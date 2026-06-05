@@ -241,7 +241,7 @@
           @for (movie of recommendations(); track movie.movieId) {
             <article class="movie-card glass-panel" [class.loading]="actionLoading() === movie.movieId" [class.haunted-card]="recommendations().length === 1 && recommendations()[0].easterEggTooltip?.startsWith('Watchlist Haunting')">
               <div class="poster-container">
-                <a [routerLink]="['/movies', movie.movieId]" style="display: block; width: 100%; height: 100%;">
+                <a [routerLink]="['/movies', movie.movieId, slugify(movie.title)]" style="display: block; width: 100%; height: 100%;">
                   @if (movie.posterUrl) {
                     <img [src]="movie.posterUrl" [alt]="movie.title" loading="lazy" class="movie-poster">
                   } @else {
@@ -265,7 +265,7 @@
 
               <div class="movie-details">
                 <h3 class="movie-title" [title]="movie.title">
-                  <a [routerLink]="['/movies', movie.movieId]" style="color: inherit; text-decoration: none;">{{ movie.title }}</a>
+                  <a [routerLink]="['/movies', movie.movieId, slugify(movie.title)]" style="color: inherit; text-decoration: none;">{{ movie.title }}</a>
                 </h3>
                 <div class="meta-row">
                   @let dirEE = movie.directorName | easterEgg:'director';
@@ -284,14 +284,13 @@
                   }
                 </div>
 
-                <div class="reason-box" [class.has-easter-egg]="movie.easterEggTooltip" [attr.data-tooltip]="movie.easterEggTooltip">
-                  <p class="reason-text">
-                    <span class="quote-mark">“</span>
-                    {{ movie.recommendationReason }}
+                <div class="why-this-movie-container">
+                  <span class="why-this-movie-trigger" [attr.data-tooltip]="movie.recommendationReason">
+                    Why this movie? 💡
                     @if (movie.easterEggTooltip) {
-                      <span class="easter-egg-indicator" title="Easter Egg">🥚</span>
+                      <span class="easter-egg-indicator" [attr.data-tooltip]="movie.easterEggTooltip">🥚</span>
                     }
-                  </p>
+                  </span>
                 </div>
 
                 <div class="action-footer">

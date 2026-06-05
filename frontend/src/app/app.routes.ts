@@ -48,11 +48,23 @@ export const routes: Routes = [
         loadComponent: () => import('./features/movies/movie-detail/movie-detail').then(m => m.MovieDetailComponent)
       },
       {
+        path: 'movies/:id/:slug',
+        loadComponent: () => import('./features/movies/movie-detail/movie-detail').then(m => m.MovieDetailComponent)
+      },
+      {
         path: 'actors/:id',
         loadComponent: () => import('./features/actors/actor-detail/actor-detail').then(m => m.ActorDetailComponent)
       },
       {
+        path: 'actors/:id/:slug',
+        loadComponent: () => import('./features/actors/actor-detail/actor-detail').then(m => m.ActorDetailComponent)
+      },
+      {
         path: 'directors/:id',
+        loadComponent: () => import('./features/directors/director-detail/director-detail').then(m => m.DirectorDetailComponent)
+      },
+      {
+        path: 'directors/:id/:slug',
         loadComponent: () => import('./features/directors/director-detail/director-detail').then(m => m.DirectorDetailComponent)
       }
     ]

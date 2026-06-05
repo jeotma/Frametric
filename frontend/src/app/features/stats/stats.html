@@ -200,9 +200,9 @@
                     @let valEE = item[col] | easterEgg:'actor-name';
 
                     <!-- If this is a director name, check if they are toxic -->
-                    @if (col.toLowerCase().includes('director')) {
+                    @if (col.toLowerCase().includes('director') || (col.toLowerCase() === 'name' && selectedQueryId().toLowerCase().includes('director'))) {
                       <span *ngIf="item.directorId; else nameLookupDir">
-                        <a [routerLink]="['/directors', item.directorId]" style="color: inherit; text-decoration: underline;">
+                        <a [routerLink]="['/directors', item.directorId, slugify(item[col])]" style="color: inherit; text-decoration: underline;">
                           <span *ngIf="toxicDirectors().has(item[col])" style="color: #ef4444; font-weight: 700;">☠️ </span>
                           {{ item[col] }}
                         </a>
@@ -215,10 +215,10 @@
                       </ng-template>
                     }
                     <!-- If this is an actor name, add the Kevin Bacon trigger -->
-                    @else if (col.toLowerCase().includes('actor')) {
+                    @else if (col.toLowerCase().includes('actor') || (col.toLowerCase() === 'name' && selectedQueryId().toLowerCase().includes('actor'))) {
                       <span [class]="valEE ? valEE.className : ''" [attr.data-tooltip]="valEE ? valEE.tooltip : null">
                         <span *ngIf="item.actorId; else nameLookupAct">
-                          <a [routerLink]="['/actors', item.actorId]" style="color: inherit; text-decoration: underline;">{{ item[col] }}</a>
+                          <a [routerLink]="['/actors', item.actorId, slugify(item[col])]" style="color: inherit; text-decoration: underline;">{{ item[col] }}</a>
                         </span>
                         <ng-template #nameLookupAct>
                           <span (click)="navigateToEntityByName(item[col], 'Actor')" style="cursor: pointer; text-decoration: underline;">{{ item[col] }}</span>

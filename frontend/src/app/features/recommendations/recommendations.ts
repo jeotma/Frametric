@@ -31,6 +31,7 @@ interface StrategyInfo {
 }
 
 import { EasterEggPipe } from '../../core/services/easter-egg.pipe';
+import { slugify } from '../../core/utils/slugify';
 
 @Component({
   selector: 'app-recommendations',
@@ -40,6 +41,7 @@ import { EasterEggPipe } from '../../core/services/easter-egg.pipe';
   styleUrl: './recommendations.scss'
 })
 export class RecommendationsComponent implements OnInit {
+  protected readonly slugify = slugify;
   private recoService = inject(RecommendationsService);
 
   // Form State

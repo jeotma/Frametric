@@ -37,6 +37,7 @@ interface QueryDef {
 }
 
 import { EasterEggPipe } from '../../core/services/easter-egg.pipe';
+import { slugify } from '../../core/utils/slugify';
 
 @Component({
   selector: 'app-stats',
@@ -46,6 +47,7 @@ import { EasterEggPipe } from '../../core/services/easter-egg.pipe';
   styleUrl: './stats.scss'
 })
 export class StatsComponent implements OnInit {
+  protected readonly slugify = slugify;
   private advancedApi = inject(AdvancedAnalyticsService);
   private api = inject(AnalyticsService);
   private searchService = inject(SearchService);
@@ -423,12 +425,13 @@ export class StatsComponent implements OnInit {
         if (match) {
           const id = match.localId || match.tmdbId;
           if (id) {
+            const slug = slugify(name);
             if (type === 'Movie') {
-              this.router.navigate(['/movies', id]);
+              this.router.navigate(['/movies', id, slug]);
             } else if (type === 'Actor') {
-              this.router.navigate(['/actors', id]);
+              this.router.navigate(['/actors', id, slug]);
             } else if (type === 'Director') {
-              this.router.navigate(['/directors', id]);
+              this.router.navigate(['/directors', id, slug]);
             }
           }
         }

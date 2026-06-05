@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { SidebarComponent } from './components/sidebar/sidebar';
 import { AuthService } from './core/services/auth.service';
 import { SearchService, GlobalSearchResultDto } from './core/api';
+import { slugify } from './core/utils/slugify';
 
 @Component({
   selector: 'app-root',
@@ -77,17 +78,29 @@ export class App {
   }
 
   closeSearch() {
-    this.showSearchDropdown.set(false);
+    setTimeout(() => {
+      this.showSearchDropdown.set(false);
+    }, 200);
   }
 
-  navigateToResult(result: GlobalSearchResultDto) {
+  navigateToResult(event: MouseEvent, result: GlobalSearchResultDto) {
+    event.preventDefault();
+    event.stopPropagation();
     this.showSearchDropdown.set(false);
+    
+    // Clear input
+    const inputEl = document.querySelector('.search-box input') as HTMLInputElement;
+    if (inputEl) {
+      inputEl.value = '';
+    }
+
+    const slug = slugify(result.titleOrName || '');
     if (result.entityType === 'Movie') {
-      this.router.navigate(['/movies', result.localId || result.tmdbId]);
+      this.router.navigate(['/movies', result.localId || result.tmdbId, slug]);
     } else if (result.entityType === 'Actor') {
-      this.router.navigate(['/actors', result.localId || result.tmdbId]);
+      this.router.navigate(['/actors', result.localId || result.tmdbId, slug]);
     } else if (result.entityType === 'Director') {
-      this.router.navigate(['/directors', result.localId || result.tmdbId]);
+      this.router.navigate(['/directors', result.localId || result.tmdbId, slug]);
     }
   }
 

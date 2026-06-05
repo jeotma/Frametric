@@ -22,7 +22,7 @@
             </div>
             
             <div class="search-results" *ngIf="!isSearching() && searchResults().length > 0">
-              <a class="search-result-item" *ngFor="let res of searchResults()" (mousedown)="navigateToResult(res)">
+              <a class="search-result-item" *ngFor="let res of searchResults()" (mousedown)="navigateToResult($event, res)">
                 <div class="result-image">
                   <img [src]="res.imageUrl || 'assets/placeholder-avatar.png'" alt="Poster" />
                 </div>

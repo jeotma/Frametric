@@ -26,6 +26,8 @@
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
+  position: relative;
+  z-index: 11000;
 }
 
 .search-box {
@@ -84,18 +86,19 @@
   margin-top: 0.5rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   overflow: hidden;
-  z-index: 100;
+  z-index: 10000;
   display: flex;
   flex-direction: column;
+  color: #ffffff;
 
   .search-loading, .search-empty {
     padding: 1rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: #ffffff;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     justify-content: center;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .spinner-small {
