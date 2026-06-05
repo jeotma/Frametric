@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MoviesService, MovieDetailsDto } from '../../../core/api';
+import { slugify } from '../../../core/utils/slugify';
 
 @Component({
   selector: 'app-movie-detail',
@@ -12,6 +13,7 @@ import { MoviesService, MovieDetailsDto } from '../../../core/api';
   styleUrl: './movie-detail.scss'
 })
 export class MovieDetailComponent implements OnInit {
+  protected readonly slugify = slugify;
   private route = inject(ActivatedRoute);
   private moviesService = inject(MoviesService);
   private fb = inject(FormBuilder);
@@ -20,6 +22,7 @@ export class MovieDetailComponent implements OnInit {
   isLoading = signal(true);
   isLogging = signal(false);
   showLogForm = signal(false);
+  unloggingEntryId = signal<string | null>(null);
 
   logForm = this.fb.group({
     dateWatched: [new Date().toISOString().split('T')[0], Validators.required],
@@ -76,6 +79,24 @@ export class MovieDetailComponent implements OnInit {
     });
   }
 
+  unlogWatch(entryId: string) {
+    const id = this.movie()?.id;
+    if (!id) return;
+
+    if (!confirm('¿Eliminar este registro de visionado?')) return;
+
+    this.unloggingEntryId.set(entryId);
+    this.moviesService.apiMoviesIdLogEntryIdDelete(id, entryId).subscribe({
+      next: () => {
+        this.unloggingEntryId.set(null);
+        this.loadMovie(id);
+      },
+      error: () => {
+        this.unloggingEntryId.set(null);
+      }
+    });
+  }
+
   getRatingArray(score: number): number[] {
     const arr = [];
     for (let i = 1; i <= 5; i++) {
@@ -84,3 +105,4 @@ export class MovieDetailComponent implements OnInit {
     return arr;
   }
 }
+

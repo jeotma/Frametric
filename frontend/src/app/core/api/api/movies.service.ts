@@ -175,4 +175,33 @@ export class MoviesService extends BaseService {
         );
     }
 
+    /**
+     * @endpoint delete /api/Movies/{id}/log/{entryId}
+     * @param id Movie ID
+     * @param entryId Diary entry ID to remove
+     */
+    public apiMoviesIdLogEntryIdDelete(id: string, entryId: string, observe: any = 'body', reportProgress: boolean = false, options?: {context?: HttpContext}): Observable<any> {
+        if (!id) throw new Error('Required parameter id was null or undefined when calling apiMoviesIdLogEntryIdDelete.');
+        if (!entryId) throw new Error('Required parameter entryId was null or undefined when calling apiMoviesIdLogEntryIdDelete.');
+
+        let localVarHeaders = this.defaultHeaders;
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        let localVarPath = `/api/Movies/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/log/${this.configuration.encodeParam({name: "entryId", value: entryId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: 'json',
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
 }
+

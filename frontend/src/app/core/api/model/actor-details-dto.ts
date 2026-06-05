@@ -16,5 +16,6 @@ export interface ActorDetailsDto {
     averageRating: number;
     watchCount: number;
     movies: Array<MovieSimpleDto>;
+    profilePath?: string | null;
 }
 
