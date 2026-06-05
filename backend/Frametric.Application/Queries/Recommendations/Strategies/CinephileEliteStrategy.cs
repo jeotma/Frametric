@@ -170,6 +170,16 @@ public class CinephileEliteStrategy : RecommendationStrategyBase
     {
         var reasons = new List<string>();
 
+        // Country
+        if (!string.IsNullOrEmpty(country) && 
+            !country.Contains("USA", StringComparison.OrdinalIgnoreCase) && 
+            !country.Contains("United States", StringComparison.OrdinalIgnoreCase))
+        {
+            reasons.Add(Random.Shared.Next(2) == 0 
+                ? "belongs to the rich tradition of international art-house cinema" 
+                : "expands horizons with its foreign cinematic language");
+        }
+
         // Obscurity
         if (obscureBonus > 0)
         {
@@ -238,16 +248,6 @@ public class CinephileEliteStrategy : RecommendationStrategyBase
                 : $"was honored with {noms} nominations by leading bodies");
         }
 
-        // Country
-        if (!string.IsNullOrEmpty(country) && 
-            !country.Contains("USA", StringComparison.OrdinalIgnoreCase) && 
-            !country.Contains("United States", StringComparison.OrdinalIgnoreCase))
-        {
-            reasons.Add(Random.Shared.Next(2) == 0 
-                ? "belongs to the rich tradition of international art-house cinema" 
-                : "expands horizons with its foreign cinematic language");
-        }
-
         // Box Office
         if (boxOffice.HasValue && boxOffice.Value < 5000000.0)
         {
@@ -268,11 +268,11 @@ public class CinephileEliteStrategy : RecommendationStrategyBase
         {
             var prefixes = new[]
             {
-                "Cinephile Elite choice because it",
-                "A highly curated pick as it",
-                "Prestige recommendation since it",
-                "A true film buff choice because it",
-                "Prestige cinematic selection as it"
+                "This curated selection",
+                "This recommended pick",
+                "This film",
+                "This masterpiece",
+                "This choice"
             };
             var chosenPrefix = prefixes[Random.Shared.Next(prefixes.Length)];
             return $"{chosenPrefix} {FormatReasons(reasons)}.";

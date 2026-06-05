@@ -28,10 +28,12 @@ public abstract class RecommendationStrategyBase : IRecommendationStrategy
     protected static string FormatReasons(List<string> reasons)
     {
         if (reasons == null || reasons.Count == 0) return string.Empty;
-        if (reasons.Count == 1) return reasons[0];
-        if (reasons.Count == 2) return $"{reasons[0]} and {reasons[1]}";
         
-        return $"{string.Join(", ", reasons.Take(reasons.Count - 1))}, and {reasons.Last()}";
+        // Hard cap at 2 reason snippets to prevent run-on sentences
+        var capped = reasons.Take(2).ToList();
+        if (capped.Count == 1) return capped[0];
+        
+        return $"{capped[0]} and {capped[1]}";
     }
 
     protected static double ComputeJaccardSimilarity(IEnumerable<string>? setA, IEnumerable<string>? setB)

@@ -19,33 +19,82 @@ public class DirectorsTrajectoryStrategy : RecommendationStrategyBase
 {
     public override RecommendationStrategy Strategy => RecommendationStrategy.DirectorsTrajectory;
 
+    private class DirectorStat
+    {
+        public string Director { get; set; } = string.Empty;
+        public double Avg { get; set; }
+        public int Count { get; set; }
+    }
+
     public override List<RecommendedMovieDto> Recommend(
         List<CandidateMovieDto> candidates,
         List<WatchedMovieDetailDto> watched,
         int quantity,
         int? maxRuntime = null)
     {
-        var directorRatings = watched
+        if (candidates == null || !candidates.Any())
+        {
+            return new List<RecommendedMovieDto>();
+        }
+
+        if (watched == null || !watched.Any())
+        {
+            return GetGlobalFallback(candidates, quantity);
+        }
+
+        // Tier 1: Highly rated directors
+        var tier1Stats = watched
             .Where(w => !string.IsNullOrEmpty(w.Directors))
             .SelectMany(w => (w.Directors?.Split(',') ?? Array.Empty<string>()).Select(d => new { Director = d.Trim(), Rating = w.UserRating }))
             .GroupBy(x => x.Director)
-            .Select(g => new { Director = g.Key, Avg = g.Average(x => x.Rating ?? 7.0), Count = g.Count() })
-            .Where(x => x.Avg >= 7.2)
+            .Select(g => new DirectorStat { Director = g.Key, Avg = g.Average(x => x.Rating ?? 7.5), Count = g.Count() })
+            .Where(x => x.Avg >= 6.0)
             .OrderByDescending(x => x.Count)
             .ThenByDescending(x => x.Avg)
             .ToList();
 
-        var targetDirectorIds = directorRatings.Select(dr => dr.Director).ToList();
+        var recommendations = GetRecommendationsForDirectors(candidates, watched, tier1Stats, quantity);
+        if (recommendations.Any())
+        {
+            return recommendations;
+        }
+
+        // Tier 2: Any director in history (relaxed filter)
+        var tier2Stats = watched
+            .Where(w => !string.IsNullOrEmpty(w.Directors))
+            .SelectMany(w => (w.Directors?.Split(',') ?? Array.Empty<string>()).Select(d => new { Director = d.Trim(), Rating = w.UserRating }))
+            .GroupBy(x => x.Director)
+            .Select(g => new DirectorStat { Director = g.Key, Avg = g.Average(x => x.Rating ?? 7.0), Count = g.Count() })
+            .OrderByDescending(x => x.Count)
+            .ToList();
+
+        recommendations = GetRecommendationsForDirectors(candidates, watched, tier2Stats, quantity);
+        if (recommendations.Any())
+        {
+            return recommendations;
+        }
+
+        // Tier 3: Global fallback
+        return GetGlobalFallback(candidates, quantity);
+    }
+
+    private List<RecommendedMovieDto> GetRecommendationsForDirectors(
+        List<CandidateMovieDto> candidates,
+        List<WatchedMovieDetailDto> watched,
+        List<DirectorStat> stats,
+        int quantity)
+    {
+        var targetDirectorNames = stats.Select(s => s.Director).ToList();
 
         return candidates
-            .Where(c => !string.IsNullOrEmpty(c.Directors) && c.Directors.Split(',').Select(d => d.Trim()).Any(d => targetDirectorIds.Contains(d)))
+            .Where(c => !string.IsNullOrEmpty(c.Directors) && c.Directors.Split(',').Select(d => d.Trim()).Any(d => targetDirectorNames.Contains(d, StringComparer.OrdinalIgnoreCase)))
             .Select(c =>
             {
-                var dir = c.Directors?.Split(',').Select(d => d.Trim()).FirstOrDefault(d => targetDirectorIds.Contains(d)) ?? "Unknown";
-                var stats = directorRatings.First(dr => dr.Director.Equals(dir, StringComparison.OrdinalIgnoreCase));
+                var dir = c.Directors?.Split(',').Select(d => d.Trim()).FirstOrDefault(d => targetDirectorNames.Contains(d, StringComparer.OrdinalIgnoreCase)) ?? "Unknown";
+                var directorStat = stats.First(s => s.Director.Equals(dir, StringComparison.OrdinalIgnoreCase));
 
                 double score = 0;
-                score += stats.Avg * 8.0;
+                score += directorStat.Avg * 8.0;
 
                 var directorWatches = watched.Where(w => w.Directors != null && w.Directors.Contains(dir, StringComparison.OrdinalIgnoreCase) && w.ReleaseYear.HasValue).ToList();
                 int? lastWatchedYear = directorWatches.OrderByDescending(w => w.WatchDate).FirstOrDefault()?.ReleaseYear;
@@ -90,6 +139,25 @@ public class DirectorsTrajectoryStrategy : RecommendationStrategyBase
             })
             .OrderByDescending(r => r.MatchPercentage)
             .Take(quantity)
+            .ToList();
+    }
+
+    private List<RecommendedMovieDto> GetGlobalFallback(List<CandidateMovieDto> candidates, int quantity)
+    {
+        return candidates
+            .OrderByDescending(c => c.CustomAverageRating ?? c.TmdbRating ?? 0.0)
+            .Take(quantity)
+            .Select(c => new RecommendedMovieDto(
+                c.MovieId,
+                c.Title,
+                c.Directors?.Split(',').FirstOrDefault() ?? "Unknown",
+                c.ReleaseYear ?? 0,
+                70.0 + CalculateTieBreaker(c),
+                "Highly rated film to expand your cinematic catalog.",
+                c.PosterUrl,
+                c.RuntimeMinutes,
+                c.CustomAverageRating
+            ))
             .ToList();
     }
 

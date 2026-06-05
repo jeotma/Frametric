@@ -43,24 +43,24 @@ public class EntityDetailsQueriesImpl : IEntityDetailsQueries
 
             SELECT g.""Id"", g.""Name"" 
             FROM ""Genres"" g
-            INNER JOIN ""GenreMovie"" gm ON gm.""GenresId"" = g.""Id""
+            INNER JOIN ""MovieGenre"" gm ON gm.""GenresId"" = g.""Id""
             WHERE gm.""MoviesId"" = @MovieId;
 
             SELECT d.""Id"", d.""Name"" 
             FROM ""Directors"" d
-            INNER JOIN ""DirectorMovie"" dm ON dm.""DirectorsId"" = d.""Id""
+            INNER JOIN ""MovieDirector"" dm ON dm.""DirectorsId"" = d.""Id""
             WHERE dm.""MoviesId"" = @MovieId;
 
             SELECT a.""Id"", a.""Name"" 
             FROM ""Actors"" a
-            INNER JOIN ""ActorMovie"" am ON am.""ActorsId"" = a.""Id""
+            INNER JOIN ""MovieActor"" am ON am.""ActorsId"" = a.""Id""
             WHERE am.""MoviesId"" = @MovieId;
 
             SELECT 
                 d.""Id"", 
                 TO_CHAR(d.""WatchedDate"", 'YYYY-MM-DD') AS ""DateWatched"", 
                 d.""IsRewatch"", 
-                r.""Score"" AS ""Rating""
+                CAST(r.""Score"" AS DOUBLE PRECISION) AS ""Rating""
             FROM ""DiaryEntries"" d
             LEFT JOIN ""MovieRatings"" r ON r.""MovieId"" = d.""MovieId"" AND r.""UserId"" = d.""UserId""
             WHERE d.""MovieId"" = @MovieId AND d.""UserId"" = @UserId
@@ -100,26 +100,28 @@ public class EntityDetailsQueriesImpl : IEntityDetailsQueries
             SELECT 
                 a.""Id"", 
                 a.""Name"",
+                a.""ProfilePath"",
                 CAST(COALESCE((
                     SELECT AVG(r.""Score"") 
-                    FROM ""ActorMovie"" am
+                    FROM ""MovieActor"" am
                     INNER JOIN ""MovieRatings"" r ON r.""MovieId"" = am.""MoviesId""
                     WHERE am.""ActorsId"" = a.""Id"" AND r.""UserId"" = @UserId
                 ), 0) AS DOUBLE PRECISION) AS ""AverageRating"",
                 CAST((
                     SELECT COUNT(DISTINCT am.""MoviesId"")
-                    FROM ""ActorMovie"" am
+                    FROM ""MovieActor"" am
                     INNER JOIN ""WatchedMovies"" wm ON wm.""MovieId"" = am.""MoviesId""
                     WHERE am.""ActorsId"" = a.""Id"" AND wm.""UserId"" = @UserId
                 ) AS INTEGER) AS ""WatchCount""
             FROM ""Actors"" a
             WHERE a.""Id"" = @ActorId;
 
-            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath""
+            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath"",
+                   CASE WHEN wm.""MovieId"" IS NOT NULL THEN true ELSE false END AS ""IsWatched""
             FROM ""Movies"" m
-            INNER JOIN ""ActorMovie"" am ON am.""MoviesId"" = m.""Id""
-            INNER JOIN ""WatchedMovies"" wm ON wm.""MovieId"" = m.""Id""
-            WHERE am.""ActorsId"" = @ActorId AND wm.""UserId"" = @UserId
+            INNER JOIN ""MovieActor"" am ON am.""MoviesId"" = m.""Id""
+            LEFT JOIN ""WatchedMovies"" wm ON wm.""MovieId"" = m.""Id"" AND wm.""UserId"" = @UserId
+            WHERE am.""ActorsId"" = @ActorId
             ORDER BY m.""ReleaseYear"" DESC;
         ";
 
@@ -134,7 +136,8 @@ public class EntityDetailsQueriesImpl : IEntityDetailsQueries
             (string)actorBase.Name,
             (double)actorBase.AverageRating,
             (int)actorBase.WatchCount,
-            movies
+            movies,
+            (string?)actorBase.ProfilePath
         );
     }
 
@@ -145,26 +148,28 @@ public class EntityDetailsQueriesImpl : IEntityDetailsQueries
             SELECT 
                 d.""Id"", 
                 d.""Name"",
+                d.""ProfilePath"",
                 CAST(COALESCE((
                     SELECT AVG(r.""Score"") 
-                    FROM ""DirectorMovie"" dm
+                    FROM ""MovieDirector"" dm
                     INNER JOIN ""MovieRatings"" r ON r.""MovieId"" = dm.""MoviesId""
                     WHERE dm.""DirectorsId"" = d.""Id"" AND r.""UserId"" = @UserId
                 ), 0) AS DOUBLE PRECISION) AS ""AverageRating"",
                 CAST((
                     SELECT COUNT(DISTINCT dm.""MoviesId"")
-                    FROM ""DirectorMovie"" dm
+                    FROM ""MovieDirector"" dm
                     INNER JOIN ""WatchedMovies"" wm ON wm.""MovieId"" = dm.""MoviesId""
                     WHERE dm.""DirectorsId"" = d.""Id"" AND wm.""UserId"" = @UserId
                 ) AS INTEGER) AS ""WatchCount""
             FROM ""Directors"" d
             WHERE d.""Id"" = @DirectorId;
 
-            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath""
+            SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath"",
+                   CASE WHEN wm.""MovieId"" IS NOT NULL THEN true ELSE false END AS ""IsWatched""
             FROM ""Movies"" m
-            INNER JOIN ""DirectorMovie"" dm ON dm.""MoviesId"" = m.""Id""
-            INNER JOIN ""WatchedMovies"" wm ON wm.""MovieId"" = m.""Id""
-            WHERE dm.""DirectorsId"" = @DirectorId AND wm.""UserId"" = @UserId
+            INNER JOIN ""MovieDirector"" dm ON dm.""MoviesId"" = m.""Id""
+            LEFT JOIN ""WatchedMovies"" wm ON wm.""MovieId"" = m.""Id"" AND wm.""UserId"" = @UserId
+            WHERE dm.""DirectorsId"" = @DirectorId
             ORDER BY m.""ReleaseYear"" DESC;
         ";
 
@@ -179,7 +184,8 @@ public class EntityDetailsQueriesImpl : IEntityDetailsQueries
             (string)dirBase.Name,
             (double)dirBase.AverageRating,
             (int)dirBase.WatchCount,
-            movies
+            movies,
+            (string?)dirBase.ProfilePath
         );
     }
 
@@ -189,7 +195,14 @@ public class EntityDetailsQueriesImpl : IEntityDetailsQueries
         var searchPattern = $"%{query}%";
 
         var sql = @"
-            SELECT ""Id"" AS ""LocalId"", ""TmdbId"", 'Movie' AS ""EntityType"", ""Title"" AS ""TitleOrName"", ""ReleaseYear"", ""PosterUrl"" AS ""ImageUrl"", true AS ""IsLocal""
+            SELECT 
+                ""Id"" AS ""LocalId"", 
+                CASE WHEN LOWER(""ExternalSource"") = 'tmdb' AND ""ExternalId"" ~ '^[0-9]+$' THEN CAST(""ExternalId"" AS INTEGER) ELSE NULL END AS ""TmdbId"", 
+                'Movie' AS ""EntityType"", 
+                ""Title"" AS ""TitleOrName"", 
+                ""ReleaseYear"", 
+                ""PosterUrl"" AS ""ImageUrl"", 
+                true AS ""IsLocal""
             FROM ""Movies""
             WHERE ""Title"" ILIKE @SearchPattern
             UNION ALL

@@ -32,13 +32,23 @@ public record ActorDetailsDto(
     string Name,
     double AverageRating,
     int WatchCount,
-    IEnumerable<MovieSimpleDto> Movies
-);
+    IEnumerable<MovieSimpleDto> Movies,
+    string? ProfilePath = null
+)
+{
+    public ActorDetailsDto(Guid id, string name, double averageRating, int watchCount, IEnumerable<MovieSimpleDto> movies) 
+        : this(id, name, averageRating, watchCount, movies, null) {}
+}
 
 public record DirectorDetailsDto(
     Guid Id,
     string Name,
     double AverageRating,
     int WatchCount,
-    IEnumerable<MovieSimpleDto> Movies
-);
+    IEnumerable<MovieSimpleDto> Movies,
+    string? ProfilePath = null
+)
+{
+    public DirectorDetailsDto(Guid id, string name, double averageRating, int watchCount, IEnumerable<MovieSimpleDto> movies) 
+        : this(id, name, averageRating, watchCount, movies, null) {}
+}

@@ -136,11 +136,11 @@ public class RuntimeContextStrategy : RecommendationStrategyBase
         {
             var prefixes = new[]
             {
-                "Optimized runtime selection as it",
-                "Matches your scheduling window since it",
-                "Perfectly sized for your session because it",
-                "Tailored to your current availability as it",
-                "Adjusted for your screen time since it"
+                "A duration choice that",
+                "A runtime option that",
+                "This selection",
+                "A film that",
+                "A pick that"
             };
             var chosenPrefix = prefixes[Random.Shared.Next(prefixes.Length)];
             return $"{chosenPrefix} {FormatReasons(reasons)}.";
