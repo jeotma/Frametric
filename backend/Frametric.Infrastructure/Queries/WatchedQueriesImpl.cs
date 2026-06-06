@@ -49,7 +49,8 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         parameters.Add("userId", userId);
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false, isRatingsJoined: true, ratingAlias: "mr");
         string sql = $@"
-            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating,
+                   CAST(0 AS INTEGER) AS WatchedCount, dr.""Id"" AS Id, dr.""ProfilePath"" AS ProfilePath
             FROM ""WatchedMovies"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
@@ -59,7 +60,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             WHERE w.""UserId"" = @userId 
             
             {filterBuilder.BuildWhereClause()}
-            GROUP BY dr.""Name""
+            GROUP BY dr.""Id"", dr.""Name"", dr.""ProfilePath""
             ORDER BY Count DESC, dr.""Name""";
         return await connection.QueryAsync<DirectorCountDto>(sql, parameters);
     }
@@ -71,7 +72,8 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         parameters.Add("userId", userId);
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false, isRatingsJoined: true, ratingAlias: "mr");
         string sql = $@"
-            SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating,
+                   CAST(0 AS INTEGER) AS WatchedCount, a.""Id"" AS Id, a.""ProfilePath"" AS ProfilePath
             FROM ""WatchedMovies"" w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
@@ -79,7 +81,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             LEFT JOIN ""MovieRatings"" mr ON w.""MovieId"" = mr.""MovieId"" AND mr.""UserId"" = @userId
             WHERE w.""UserId"" = @userId 
             {filterBuilder.BuildWhereClause()}
-            GROUP BY a.""Name""
+            GROUP BY a.""Id"", a.""Name"", a.""ProfilePath""
             ORDER BY Count DESC, a.""Name""";
         return await connection.QueryAsync<ActorCountDto>(sql, parameters);
     }
@@ -130,7 +132,8 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         parameters.Add("userId", userId);
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
         string sql = $@"
-            SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating,
+                   CAST(0 AS INTEGER) AS WatchedCount, a.""Id"" AS Id, a.""ProfilePath"" AS ProfilePath
             FROM ""WatchedMovies"" w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
@@ -140,7 +143,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             WHERE w.""UserId"" = @userId
             
             {filterBuilder.BuildWhereClause()}
-            GROUP BY a.""Name""
+            GROUP BY a.""Id"", a.""Name"", a.""ProfilePath""
             ORDER BY Count DESC
             LIMIT 1";
         return await connection.QuerySingleOrDefaultAsync<ActorCountDto>(sql, parameters);
@@ -154,7 +157,8 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         parameters.Add("userId", userId);
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
         string sql = $@"
-            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating,
+                   CAST(0 AS INTEGER) AS WatchedCount, dr.""Id"" AS Id, dr.""ProfilePath"" AS ProfilePath
             FROM ""WatchedMovies"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
@@ -164,7 +168,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             WHERE w.""UserId"" = @userId
             
             {filterBuilder.BuildWhereClause()}
-            GROUP BY dr.""Name""
+            GROUP BY dr.""Id"", dr.""Name"", dr.""ProfilePath""
             ORDER BY Count DESC
             LIMIT 1";
         return await connection.QuerySingleOrDefaultAsync<DirectorCountDto>(sql, parameters);

@@ -74,7 +74,8 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
         foreach (var entry in exportData.DiaryEntries)
         {
             var movie = GetOrCreateMovie(entry.Name, entry.Year);
-            var diaryEntry = new DiaryEntry(Guid.NewGuid(), user.Id, movie.Id, entry.Date, entry.WatchedDate, entry.Rating, entry.Rewatch, entry.Tags, importHistory.Id);
+            var normalizedRating = entry.Rating.HasValue ? entry.Rating.Value : (decimal?)null;
+            var diaryEntry = new DiaryEntry(Guid.NewGuid(), user.Id, movie.Id, entry.Date, entry.WatchedDate, normalizedRating, entry.Rewatch, entry.Tags, importHistory.Id);
             _context.DiaryEntries.Add(diaryEntry);
         }
 
@@ -82,7 +83,8 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
         foreach (var rating in exportData.Ratings)
         {
             var movie = GetOrCreateMovie(rating.Name, rating.Year);
-            var movieRating = new MovieRating(Guid.NewGuid(), user.Id, movie.Id, rating.Date, rating.Rating, importHistory.Id);
+            var normalizedRating = rating.Rating;
+            var movieRating = new MovieRating(Guid.NewGuid(), user.Id, movie.Id, rating.Date, normalizedRating, importHistory.Id);
             _context.MovieRatings.Add(movieRating);
         }
 

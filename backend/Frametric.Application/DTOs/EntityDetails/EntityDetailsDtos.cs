@@ -6,6 +6,7 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
+using System.Text.Json.Serialization;
 using Frametric.Application.DTOs.Analytics;
 
 namespace Frametric.Application.DTOs.EntityDetails;
@@ -24,7 +25,8 @@ public record MovieDetailsDto(
     IEnumerable<GenreSimpleDto> Genres,
     IEnumerable<DirectorSimpleDto> Directors,
     IEnumerable<ActorSimpleDto> Actors,
-    IEnumerable<MovieDiaryEntryDto> DiaryEntries
+    IEnumerable<MovieDiaryEntryDto> DiaryEntries,
+    bool IsWatched = false
 );
 
 public record ActorDetailsDto(
@@ -33,11 +35,22 @@ public record ActorDetailsDto(
     double AverageRating,
     int WatchCount,
     IEnumerable<MovieSimpleDto> Movies,
-    string? ProfilePath = null
+    string? ProfilePath = null,
+    bool IsDirector = false,
+    IEnumerable<MovieSimpleDto>? DirectedMovies = null,
+    int WatchlistCount = 0,
+    int LikeCount = 0,
+    [property: JsonPropertyName("likedMovieTitles")]
+    IEnumerable<MovieSimpleDto>? LikedMovies = null,
+    [property: JsonPropertyName("watchlistMovieTitles")]
+    IEnumerable<MovieSimpleDto>? WatchlistMovies = null
 )
 {
     public ActorDetailsDto(Guid id, string name, double averageRating, int watchCount, IEnumerable<MovieSimpleDto> movies) 
-        : this(id, name, averageRating, watchCount, movies, null) {}
+        : this(id, name, averageRating, watchCount, movies, null, false, null, 0, 0, null, null) {}
+
+    public ActorDetailsDto(Guid id, string name, double averageRating, int watchCount, IEnumerable<MovieSimpleDto> movies, string? profilePath) 
+        : this(id, name, averageRating, watchCount, movies, profilePath, false, null, 0, 0, null, null) {}
 }
 
 public record DirectorDetailsDto(
@@ -46,9 +59,20 @@ public record DirectorDetailsDto(
     double AverageRating,
     int WatchCount,
     IEnumerable<MovieSimpleDto> Movies,
-    string? ProfilePath = null
+    string? ProfilePath = null,
+    bool IsActor = false,
+    IEnumerable<MovieSimpleDto>? ActorMovies = null,
+    int WatchlistCount = 0,
+    int LikeCount = 0,
+    [property: JsonPropertyName("likedMovieTitles")]
+    IEnumerable<MovieSimpleDto>? LikedMovies = null,
+    [property: JsonPropertyName("watchlistMovieTitles")]
+    IEnumerable<MovieSimpleDto>? WatchlistMovies = null
 )
 {
     public DirectorDetailsDto(Guid id, string name, double averageRating, int watchCount, IEnumerable<MovieSimpleDto> movies) 
-        : this(id, name, averageRating, watchCount, movies, null) {}
+        : this(id, name, averageRating, watchCount, movies, null, false, null, 0, 0, null, null) {}
+
+    public DirectorDetailsDto(Guid id, string name, double averageRating, int watchCount, IEnumerable<MovieSimpleDto> movies, string? profilePath) 
+        : this(id, name, averageRating, watchCount, movies, profilePath, false, null, 0, 0, null, null) {}
 }

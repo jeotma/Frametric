@@ -26,5 +26,6 @@ export interface MovieDetailsDto {
     directors: Array<DirectorSimpleDto>;
     actors: Array<ActorSimpleDto>;
     diaryEntries: Array<MovieDiaryEntryDto>;
+    isWatched: boolean;
 }
 

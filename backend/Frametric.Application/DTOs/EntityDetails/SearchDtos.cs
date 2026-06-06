@@ -15,5 +15,7 @@ public record GlobalSearchResultDto(
     string TitleOrName,
     int? ReleaseYear,
     string? ImageUrl,
-    bool IsLocal
+    bool IsLocal,
+    Guid? ActorId = null,
+    Guid? DirectorId = null
 );

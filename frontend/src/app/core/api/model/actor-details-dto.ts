@@ -17,5 +17,11 @@ export interface ActorDetailsDto {
     watchCount: number;
     movies: Array<MovieSimpleDto>;
     profilePath?: string | null;
+    isDirector?: boolean;
+    directedMovies?: Array<MovieSimpleDto> | null;
+    watchlistCount?: number;
+    likeCount?: number;
+    likedMovieTitles?: Array<MovieSimpleDto> | null;
+    watchlistMovieTitles?: Array<MovieSimpleDto> | null;
 }
 

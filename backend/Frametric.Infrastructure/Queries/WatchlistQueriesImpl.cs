@@ -67,14 +67,14 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
                 JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
                 GROUP BY dr.""Id""
             )
-            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(udr.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wd.WatchedCount, 0) AS INTEGER) AS WatchedCount
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(udr.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wd.WatchedCount, 0) AS INTEGER) AS WatchedCount, dr.""Id"" AS Id, dr.""ProfilePath"" AS ProfilePath
             FROM ""WatchlistItems"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
             LEFT JOIN UserDirectorRatings udr ON dr.""Id"" = udr.DirectorId
             LEFT JOIN WatchedDirectors wd ON dr.""Id"" = wd.DirectorId
             WHERE w.""UserId"" = @userId
-            GROUP BY dr.""Id"", dr.""Name"", udr.AverageRating, wd.WatchedCount
+            GROUP BY dr.""Id"", dr.""Name"", dr.""ProfilePath"", udr.AverageRating, wd.WatchedCount
             ORDER BY Count DESC, dr.""Name""";
         return await connection.QueryAsync<DirectorCountDto>(sql, parameters);
     }
@@ -110,14 +110,14 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
                 JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
                 GROUP BY a.""Id""
             )
-            SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(uar.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wa.WatchedCount, 0) AS INTEGER) AS WatchedCount
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(uar.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wa.WatchedCount, 0) AS INTEGER) AS WatchedCount, a.""Id"" AS Id, a.""ProfilePath"" AS ProfilePath
             FROM ""WatchlistItems"" w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
             LEFT JOIN UserActorRatings uar ON a.""Id"" = uar.ActorId
             LEFT JOIN WatchedActors wa ON a.""Id"" = wa.ActorId
             WHERE w.""UserId"" = @userId
-            GROUP BY a.""Id"", a.""Name"", uar.AverageRating, wa.WatchedCount
+            GROUP BY a.""Id"", a.""Name"", a.""ProfilePath"", uar.AverageRating, wa.WatchedCount
             ORDER BY Count DESC, a.""Name""";
         return await connection.QueryAsync<ActorCountDto>(sql, parameters);
     }
@@ -203,14 +203,14 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
                 WHERE w.""UserId"" = @userId
                 GROUP BY dr.""Id""
             )
-            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(udr.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wd.WatchedCount, 0) AS INTEGER) AS WatchedCount
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(udr.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wd.WatchedCount, 0) AS INTEGER) AS WatchedCount, dr.""Id"" AS Id, dr.""ProfilePath"" AS ProfilePath
             FROM ""WatchlistItems"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
             LEFT JOIN UserDirectorRatings udr ON dr.""Id"" = udr.DirectorId
             LEFT JOIN WatchedDirectors wd ON dr.""Id"" = wd.DirectorId
             WHERE w.""UserId"" = @userId
-            GROUP BY dr.""Id"", dr.""Name"", udr.AverageRating, wd.WatchedCount
+            GROUP BY dr.""Id"", dr.""Name"", dr.""ProfilePath"", udr.AverageRating, wd.WatchedCount
             ORDER BY Count DESC
             LIMIT 1";
         return await connection.QuerySingleOrDefaultAsync<DirectorCountDto>(sql, parameters);
@@ -244,14 +244,14 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
                 WHERE w.""UserId"" = @userId
                 GROUP BY a.""Id""
             )
-            SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(uar.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wa.WatchedCount, 0) AS INTEGER) AS WatchedCount
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(uar.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wa.WatchedCount, 0) AS INTEGER) AS WatchedCount, a.""Id"" AS Id, a.""ProfilePath"" AS ProfilePath
             FROM ""WatchlistItems"" w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
             LEFT JOIN UserActorRatings uar ON a.""Id"" = uar.ActorId
             LEFT JOIN WatchedActors wa ON a.""Id"" = wa.ActorId
             WHERE w.""UserId"" = @userId
-            GROUP BY a.""Id"", a.""Name"", uar.AverageRating, wa.WatchedCount
+            GROUP BY a.""Id"", a.""Name"", a.""ProfilePath"", uar.AverageRating, wa.WatchedCount
             ORDER BY Count DESC
             LIMIT 1";
         return await connection.QuerySingleOrDefaultAsync<ActorCountDto>(sql, parameters);

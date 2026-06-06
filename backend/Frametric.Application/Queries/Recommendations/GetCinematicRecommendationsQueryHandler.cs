@@ -284,7 +284,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                     var daysInWatchlist = today.DayNumber - addedDate.DayNumber;
                     if (daysInWatchlist > 365.25 * 2.5) // > 2.5 years
                     {
-                        if (Random.Shared.Next(100) < 1) // 1% chance
+                        if (Random.Shared.Next(100) < 10) // 10% chance
                         {
                             var funnyMessages = new[]
                             {
@@ -310,7 +310,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                     // Easter Egg 2: Truly terrible rating guilty pleasure
                     if (rating <= 4.5)
                     {
-                        if (Random.Shared.Next(100) < 1) // 1% chance
+                        if (Random.Shared.Next(100) < 10) // 10% chance
                         {
                             var trashMessages = new[]
                             {
@@ -328,7 +328,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                     // Easter Egg 3: Short attention span check
                     else if (candidate.RuntimeMinutes.HasValue && candidate.RuntimeMinutes.Value <= 80 && candidate.RuntimeMinutes.Value > 0)
                     {
-                        if (Random.Shared.Next(100) < 1) // 1% chance
+                        if (Random.Shared.Next(100) < 10) // 10% chance
                         {
                             var shortMessages = new[]
                             {
@@ -346,7 +346,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                     // Easter Egg 4: Cinephile Endurance check
                     else if (candidate.RuntimeMinutes.HasValue && candidate.RuntimeMinutes.Value >= 180)
                     {
-                        if (Random.Shared.Next(100) < 1) // 1% chance
+                        if (Random.Shared.Next(100) < 10) // 10% chance
                         {
                             var epicMessages = new[]
                             {
@@ -364,7 +364,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                     // Easter Egg 5: Strategy specific checks
                     else
                     {
-                        if (Random.Shared.Next(100) < 1) // 1% chance for strategy-specific easter eggs
+                        if (Random.Shared.Next(100) < 10) // 10% chance for strategy-specific easter eggs
                         {
                             switch (strategy)
                             {

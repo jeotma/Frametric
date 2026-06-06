@@ -17,5 +17,7 @@ export interface GlobalSearchResultDto {
     releaseYear: number | null;
     imageUrl: string | null;
     isLocal: boolean;
+    actorId?: string | null;
+    directorId?: string | null;
 }
 

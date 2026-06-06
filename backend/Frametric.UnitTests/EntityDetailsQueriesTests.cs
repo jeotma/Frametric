@@ -33,7 +33,7 @@ public class EntityDetailsQueriesTests
     {
         // Arrange
         var movieId = Guid.NewGuid();
-        var movieBase = new[] { new { Id = movieId, Title = "Movie 1", ReleaseYear = 2020, RuntimeMinutes = 120, PosterUrl = "poster", Overview = "Overview 1", TmdbRating = 8.5, UserAverageScore = 9.0 } };
+        var movieBase = new[] { new { Id = movieId, Title = "Movie 1", ReleaseYear = 2020, RuntimeMinutes = 120, PosterUrl = "poster", Overview = "Overview 1", TmdbRating = 8.5, UserAverageScore = 9.0, IsWatched = true } };
         var genres = new[] { new { Id = Guid.NewGuid(), Name = "Action" } };
         var directors = new[] { new { Id = Guid.NewGuid(), Name = "Director A" } };
         var actors = new[] { new { Id = Guid.NewGuid(), Name = "Actor A" } };
@@ -67,10 +67,15 @@ public class EntityDetailsQueriesTests
     {
         // Arrange
         var actorId = Guid.NewGuid();
-        var actorBase = new[] { new { Id = actorId, Name = "Actor Name", AverageRating = 8.0, WatchCount = 5, ProfilePath = "profile" } };
-        var movies = new[] { new { Id = Guid.NewGuid(), Title = "Movie Star", ReleaseYear = 2018, PosterPath = "path", IsWatched = true } };
+        var actorBase = new[] { new { Id = actorId, Name = "Actor Name", ProfilePath = "profile", TmdbId = 12345, DirectorId = (Guid?)null } };
+        var actingMovies = new[] { new { Id = Guid.NewGuid(), Title = "Movie Star", ReleaseYear = 2018, PosterPath = "path", IsWatched = true } };
+        var directedMovies = new[] { new { Id = Guid.NewGuid(), Title = "Dummy", ReleaseYear = 2020, PosterPath = "path", IsWatched = false } };
+        var avgRating = new[] { new { Rating = 8.0 } };
+        var watchCount = new[] { new { Count = 5 } };
+        var watchlistMovieTitles = new[] { new { Id = Guid.NewGuid(), Title = "Movie Star", ReleaseYear = 2018, PosterPath = "path", IsWatched = true } };
+        var likedMovieTitles = new[] { new { Id = Guid.NewGuid(), Title = "Movie Star", ReleaseYear = 2018, PosterPath = "path", IsWatched = true } };
 
-        var reader = new MultiResultSetDbDataReader(new IEnumerable<object>[] { actorBase, movies });
+        var reader = new MultiResultSetDbDataReader(new IEnumerable<object>[] { actorBase, actingMovies, directedMovies, avgRating, watchCount, watchlistMovieTitles, likedMovieTitles });
         var dbCommand = new TestDbCommand(reader, 0);
         var dbConnection = new TestDbConnection(dbCommand);
         _dbConnectionFactoryMock.Setup(f => f.CreateConnection()).Returns(dbConnection);
@@ -96,10 +101,15 @@ public class EntityDetailsQueriesTests
     {
         // Arrange
         var directorId = Guid.NewGuid();
-        var directorBase = new[] { new { Id = directorId, Name = "Director Name", AverageRating = 9.2, WatchCount = 3, ProfilePath = "profile" } };
-        var movies = new[] { new { Id = Guid.NewGuid(), Title = "Directorial Masterpiece", ReleaseYear = 2019, PosterPath = "path", IsWatched = true } };
+        var directorBase = new[] { new { Id = directorId, Name = "Director Name", ProfilePath = "profile", TmdbId = 12345, ActorId = (Guid?)null } };
+        var directingMovies = new[] { new { Id = Guid.NewGuid(), Title = "Directorial Masterpiece", ReleaseYear = 2019, PosterPath = "path", IsWatched = true } };
+        var actingMovies = new[] { new { Id = Guid.NewGuid(), Title = "Dummy", ReleaseYear = 2020, PosterPath = "path", IsWatched = false } };
+        var avgRating = new[] { new { Rating = 9.2 } };
+        var watchCount = new[] { new { Count = 3 } };
+        var watchlistMovieTitles = new[] { new { Id = Guid.NewGuid(), Title = "Directorial Masterpiece", ReleaseYear = 2019, PosterPath = "path", IsWatched = true } };
+        var likedMovieTitles = new[] { new { Id = Guid.NewGuid(), Title = "Directorial Masterpiece", ReleaseYear = 2019, PosterPath = "path", IsWatched = true } };
 
-        var reader = new MultiResultSetDbDataReader(new IEnumerable<object>[] { directorBase, movies });
+        var reader = new MultiResultSetDbDataReader(new IEnumerable<object>[] { directorBase, directingMovies, actingMovies, avgRating, watchCount, watchlistMovieTitles, likedMovieTitles });
         var dbCommand = new TestDbCommand(reader, 0);
         var dbConnection = new TestDbConnection(dbCommand);
         _dbConnectionFactoryMock.Setup(f => f.CreateConnection()).Returns(dbConnection);
