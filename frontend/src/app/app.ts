@@ -97,10 +97,10 @@ export class App {
     const slug = slugify(result.titleOrName || '');
     if (result.entityType === 'Movie') {
       this.router.navigate(['/movies', result.localId || result.tmdbId, slug]);
-    } else if (result.entityType === 'Actor') {
-      this.router.navigate(['/actors', result.localId || result.tmdbId, slug]);
+    } else if (result.entityType === 'Actor' || result.entityType === 'Director / Actor') {
+      this.router.navigate(['/actors', result.actorId || result.localId || result.tmdbId, slug]);
     } else if (result.entityType === 'Director') {
-      this.router.navigate(['/directors', result.localId || result.tmdbId, slug]);
+      this.router.navigate(['/directors', result.directorId || result.localId || result.tmdbId, slug]);
     }
   }
 
@@ -117,7 +117,7 @@ export class App {
     };
 
     // 1. "rosebud" — 5% trigger rate
-    if (value === 'rosebud' && Math.random() < 0.05) {
+    if (value === 'rosebud' && Math.random() < 0.35) {
       setEasterEggIndicator('Rosebud Sled', 'You unlocked the legendary Citizen Kane sepia sled easter egg! How cool is that?', 15000);
       const body = document.body;
       body.style.transition = 'filter 1s ease';
@@ -137,7 +137,7 @@ export class App {
     }
 
     // 2. "malkovich malkovich" — 5% trigger rate
-    if (value === 'malkovich malkovich' && Math.random() < 0.05) {
+    if (value === 'malkovich malkovich' && Math.random() < 0.35) {
       setEasterEggIndicator('Malkovich Mode', 'Malkovich Malkovich Malkovich. Everything is Malkovich!', 15000);
       const titles = document.querySelectorAll('.movie-title, .meta-row span, .bar-label, h3');
       const originalTexts: { el: Element; text: string }[] = [];
@@ -155,7 +155,7 @@ export class App {
     }
 
     // 3. "memento" or "tenet" — 5% trigger rate
-    if ((value === 'memento' || value === 'tenet') && Math.random() < 0.05) {
+    if ((value === 'memento' || value === 'tenet') && Math.random() < 0.35) {
       setEasterEggIndicator('Temporal Inversion', 'You flipped the layout! A nod to Christopher Nolan\'s backwards timeline paradoxes.', 15000);
       const body = document.body;
       body.style.transition = 'transform 1.5s ease';
@@ -168,7 +168,7 @@ export class App {
     }
 
     // 4. "matrix" — 5% trigger rate
-    if (value === 'matrix' && Math.random() < 0.05) {
+    if (value === 'matrix' && Math.random() < 0.35) {
       setEasterEggIndicator('Matrix Code Rain', 'Down the rabbit hole you go! Unlocked falling digital rain animation.', 15000);
       const matrixRain = document.createElement('div');
       matrixRain.className = 'matrix-rain';
@@ -189,7 +189,7 @@ export class App {
     }
 
     // 5. "clever girl" — 5% trigger rate
-    if ((value === 'jurassic park' || value === 'jurassic world') && Math.random() < 0.05) {
+    if ((value === 'jurassic park' || value === 'jurassic world') && Math.random() < 0.35) {
       setEasterEggIndicator('Jurassic Surprise', 'Clever Girl! Unlocked the raptor peek-a-boo.', 15000);
       const dino = document.createElement('div');
       dino.className = 'raptor-peek';
@@ -203,7 +203,7 @@ export class App {
     }
 
     // 6. "there is no spoon" — 5% trigger rate
-    if (value === 'there is no spoon' && Math.random() < 0.05) {
+    if (value === 'there is no spoon' && Math.random() < 0.35) {
       setEasterEggIndicator('Bending Search Box', 'You bent the search input box! Indeed, there is no spoon.', 15000);
       const searchBox = document.querySelector('.search-box') as HTMLElement;
       if (searchBox) {

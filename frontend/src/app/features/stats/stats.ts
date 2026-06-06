@@ -1,43 +1,18 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { forkJoin, Subject } from 'rxjs';
+import { finalize, first, map, switchMap, takeUntil } from 'rxjs/operators';
 import { AdvancedAnalyticsService } from '../../core/api/api/advanced-analytics.service';
 import { AnalyticsService } from '../../core/api/api/analytics.service';
 import { SearchService } from '../../core/api/api/search.service';
-import { Observable, finalize } from 'rxjs';
-
-interface GlobalFilters {
-  watchYear?: number;
-  releaseYear?: number;
-  minRating?: number;
-  maxRating?: number;
-  minCustomRating?: number;
-  maxCustomRating?: number;
-  actor?: string;
-  director?: string;
-  genre?: string;
-}
-
-interface QueryDef {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  type: 'list' | 'single' | 'chart' | 'comparison';
-  inputs?: {
-    name: string;
-    label: string;
-    type: 'number' | 'text' | 'select';
-    defaultValue?: any;
-    options?: { label: string; value: any }[];
-  }[];
-  allowedFilters: string[];
-  execute?: (advancedApi: AdvancedAnalyticsService, api: AnalyticsService, globalFilters: GlobalFilters, querySpecificInputs: any) => Observable<any>;
-}
-
+import { DirectorsService } from '../../core/api/api/directors.service';
+import { ActorsService } from '../../core/api/api/actors.service';
 import { EasterEggPipe } from '../../core/services/easter-egg.pipe';
 import { slugify } from '../../core/utils/slugify';
+import { STATS_QUERIES, GlobalFilters, QueryDef } from './stats-queries';
+import { GlobalSearchResultDto } from '../../core/api/model/global-search-result-dto';
 
 @Component({
   selector: 'app-stats',
@@ -46,11 +21,13 @@ import { slugify } from '../../core/utils/slugify';
   templateUrl: './stats.html',
   styleUrl: './stats.scss'
 })
-export class StatsComponent implements OnInit {
+export class StatsComponent implements OnInit, OnDestroy {
   protected readonly slugify = slugify;
   private advancedApi = inject(AdvancedAnalyticsService);
   private api = inject(AnalyticsService);
   private searchService = inject(SearchService);
+  private directorsService = inject(DirectorsService);
+  private actorsService = inject(ActorsService);
   private router = inject(Router);
 
   public isPretentious = signal<boolean>(false);
@@ -59,64 +36,7 @@ export class StatsComponent implements OnInit {
 
   public globalFilters: GlobalFilters = {};
 
-  public queries: QueryDef[] = [
-    // --- WATCHED BASIC ---
-    {
-      id: 'watched_by_year', category: 'Watched History', name: 'Movies Watched', description: 'List of all movies you have watched. You can filter them freely.', type: 'list',
-      allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'],
-      execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor)
-    },
-    { id: 'watched_directors', category: 'Watched History', name: 'Watched Directors', description: 'List of all directors you have watched.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedDirectorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'watched_actors', category: 'Watched History', name: 'Watched Actors', description: 'List of all actors you have watched.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedActorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'watched_genres', category: 'Watched History', name: 'Watched Genres', description: 'Count of movies watched by genre.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedGenresGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'watched_decades', category: 'Watched History', name: 'Watched Decades', description: 'Count of movies watched grouped by release decade.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedDecadesGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    
-    // --- WATCHED ADVANCED ---
-    { id: 'top_actors', category: 'Watched Insights', name: 'Top Actors', description: 'Your most watched actors.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedActorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'top_directors', category: 'Watched Insights', name: 'Top Directors', description: 'Your most watched directors.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedDirectorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'predominant_era', category: 'Watched Insights', name: 'Predominant Era', description: 'Your preference between classic and modern cinema.', type: 'single', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedPredominantEraGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'director_ranking', category: 'Watched Insights', name: 'Director Ranking by Rating', description: 'Directors ranked by your average rating.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedDirectorRankingGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    {
-      id: 'total_time', category: 'Watched Insights', name: 'Total Time Invested', description: 'Calculate total time spent watching a specific director or genre.', type: 'single',
-      allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'actor'],
-      inputs: [
-        { name: 'filterType', label: 'Filter Type', type: 'select', defaultValue: 'Director', options: [{label: 'Director', value: 'Director'}, {label: 'Genre', value: 'Genre'}] },
-        { name: 'filterName', label: 'Name', type: 'text', defaultValue: 'Christopher Nolan' }
-      ],
-      execute: (adv, _, gf, qs) => adv.apiAnalyticsAdvancedWatchedTotalTimeGet(qs.filterType, qs.filterName, gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor)
-    },
-
-    // --- WATCHED CORRELATIONS ---
-    { id: 'preferred_day', category: 'Habits & Correlations', name: 'Preferred Watch Day', description: 'Days of the week you watch the most movies.', type: 'chart', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedPreferredDayGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    {
-      id: 'rating_evolution', category: 'Habits & Correlations', name: 'Rating Evolution', description: 'How your ratings evolve throughout the year.', type: 'chart', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'],
-      execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedRatingEvolutionGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor)
-    },
-    { id: 'genre_streaks', category: 'Habits & Correlations', name: 'Genre Streaks', description: 'Longest streaks watching the same genre consecutively.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedGenreStreaksGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'longest_movie', category: 'Habits & Correlations', name: 'Longest Movie', description: 'The longest movie you have ever watched.', type: 'single', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedLongestMovieGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'casting_reps', category: 'Habits & Correlations', name: 'Casting Repetitions', description: 'Pairs of actors you have seen together the most.', type: 'list', allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchedCastingRepetitionsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-
-    // --- WATCHLIST BASIC ---
-    {
-      id: 'watchlist_movies', category: 'Watchlist', name: 'Watchlist Movies', description: 'Pending movies in your watchlist.', type: 'list', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'],
-      execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor)
-    },
-    { id: 'watchlist_directors', category: 'Watchlist', name: 'Watchlist Directors', description: 'Directors in your watchlist.', type: 'list', allowedFilters: ['releaseYear', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistDirectorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'watchlist_actors', category: 'Watchlist', name: 'Watchlist Actors', description: 'Actors in your watchlist.', type: 'list', allowedFilters: ['releaseYear', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistActorsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'watchlist_genres', category: 'Watchlist', name: 'Watchlist Genres', description: 'Genres in your watchlist.', type: 'list', allowedFilters: ['releaseYear', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistGenresGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'watchlist_decades', category: 'Watchlist', name: 'Watchlist Decades', description: 'Decades in your watchlist.', type: 'chart', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistDecadesGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-
-    // --- WATCHLIST ADVANCED ---
-    { id: 'most_anticipated_director', category: 'Watchlist Insights', name: 'Most Anticipated Director', description: 'Director with the most pending movies.', type: 'single', allowedFilters: ['releaseYear', 'genre', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistMostAnticipatedDirectorGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'most_anticipated_actor', category: 'Watchlist Insights', name: 'Most Anticipated Actor', description: 'Actor with the most pending movies.', type: 'single', allowedFilters: ['releaseYear', 'genre', 'director'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistMostAnticipatedActorGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'total_pending_watchtime', category: 'Watchlist Insights', name: 'Total Pending Watchtime', description: 'Total time required to clear your watchlist.', type: 'single', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistTotalWatchtimeGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'oldest_pending', category: 'Watchlist Insights', name: 'Oldest Pending Movie', description: 'The movie waiting the longest in your watchlist.', type: 'single', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistOldestPendingGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-
-    // --- WATCHLIST CORRELATIONS ---
-    { id: 'watchlist_by_era', category: 'Watchlist Insights', name: 'Watchlist by Era', description: 'Pending classic vs modern movies.', type: 'list', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistByEraGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'duration_balance', category: 'Watchlist Insights', name: 'Duration Balance', description: 'Balance between short, medium, and long pending movies.', type: 'chart', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistDurationBalanceGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-    { id: 'genre_proportion', category: 'Watchlist Insights', name: 'Genre Proportion', description: 'Watchlist vs Watched genres.', type: 'list', allowedFilters: ['releaseYear', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistGenreProportionGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
-  ];
+  public queries = STATS_QUERIES;
 
   public categoriesList = computed(() => {
     const cats = new Set(this.queries.map(q => q.category));
@@ -137,12 +57,16 @@ export class StatsComponent implements OnInit {
 
   // Dynamic form state
   public querySpecificInputs: any = {};
-  
+
+  private destroy$ = new Subject<void>();
+
+  private readonly STORAGE_KEY = 'frametric_stats_state';
+
   public resultData = signal<any>(null);
   public loading = signal<boolean>(false);
 
   // Layout & Pagination State
-  public showPosters = signal<boolean>(false);
+  public showPosters = signal<boolean>(true);
   public currentPage = signal<number>(1);
   public pageSize = signal<number>(25);
   public readonly pageSizeOptions = [10, 25, 50, 100];
@@ -165,6 +89,11 @@ export class StatsComponent implements OnInit {
     return this.isArray(data) && data.length > 0 && 'posterUrl' in data[0] && data[0].posterUrl !== undefined;
   }
 
+  hasProfileField(): boolean {
+    const data = this.resultData();
+    return this.isArray(data) && data.length > 0 && 'profilePath' in data[0];
+  }
+
   goToPage(page: number) {
     if (page >= 1 && page <= this.totalPages()) {
       this.currentPage.set(page);
@@ -177,7 +106,14 @@ export class StatsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.initInputs();
+    if (!this.restoreState()) {
+      this.initInputs();
+    }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onCategoryChange(cat: string) {
@@ -223,8 +159,77 @@ export class StatsComponent implements OnInit {
       if (!q.allowedFilters.includes('genre')) this.globalFilters.genre = undefined;
     }
 
+    // Special case: enrich total_time for Director/Actor with profile data
+    if (q.id === 'total_time' && (this.querySpecificInputs.filterType === 'Director' || this.querySpecificInputs.filterType === 'Actor') && this.querySpecificInputs.filterName) {
+      this.runEnrichedTotalTimeQuery(q);
+      return;
+    }
+
     this.loading.set(true);
     q.execute(this.advancedApi, this.api, this.globalFilters, this.querySpecificInputs).pipe(
+      finalize(() => this.loading.set(false))
+    ).subscribe({
+      next: (res) => {
+        this.resultData.set(res);
+        this.evaluateEasterEggs(q.id, res);
+      },
+      error: (err) => {
+        console.error('Query failed', err);
+        this.resultData.set(null);
+      }
+    });
+  }
+
+  private runEnrichedTotalTimeQuery(q: QueryDef) {
+    const name = this.querySpecificInputs.filterName;
+    const filterType = this.querySpecificInputs.filterType as 'Director' | 'Actor';
+    this.loading.set(true);
+
+    this.searchService.apiSearchGet(name).pipe(
+      switchMap(results => {
+        const entity = filterType === 'Director'
+          ? results.find(r => r.entityType === 'Director' || r.entityType === 'Director / Actor')
+          : results.find(r => r.entityType === 'Actor' || r.entityType === 'Director / Actor');
+        if (!entity?.localId) {
+          return q.execute!(this.advancedApi, this.api, this.globalFilters, this.querySpecificInputs);
+        }
+
+        const detail$ = filterType === 'Director'
+          ? this.directorsService.apiDirectorsIdGet(entity.localId)
+          : this.actorsService.apiActorsIdGet(entity.localId);
+
+        return forkJoin({
+          detail: detail$,
+          time: this.advancedApi.apiAnalyticsAdvancedWatchedTotalTimeGet(
+            filterType, name,
+            this.globalFilters.watchYear, this.globalFilters.releaseYear,
+            this.globalFilters.minRating, this.globalFilters.maxRating,
+            this.globalFilters.minCustomRating, this.globalFilters.maxCustomRating,
+            this.globalFilters.genre, this.globalFilters.director, this.globalFilters.actor
+          )
+        }).pipe(
+          map(({ detail, time }: { detail: any; time: any }) => {
+            const movies = (detail.movies || []) as any[];
+            return {
+              name: detail.name,
+              profilePath: detail.profilePath,
+              count: detail.watchCount,
+              averageRating: detail.averageRating / 2,
+              totalMinutes: time.totalMinutes,
+              totalHours: time.totalHours,
+              entityId: detail.id,
+              entityType: filterType.toLowerCase() as 'director' | 'actor',
+              movies,
+              watchedMovies: movies.filter((m: any) => m.isWatched),
+              actorMovies: detail.actorMovies || null,
+              directedMovies: detail.directedMovies || null,
+              watchlistCount: detail.watchlistCount ?? detail.watchlistMovieTitles?.length ?? 0,
+              watchlistMovieTitles: detail.watchlistMovieTitles || [],
+              likedMovieTitles: detail.likedMovieTitles || []
+            };
+          })
+        );
+      }),
       finalize(() => this.loading.set(false))
     ).subscribe({
       next: (res) => {
@@ -243,7 +248,7 @@ export class StatsComponent implements OnInit {
 
     // 1. Pretentiometer check
     if (queryId === 'watched_by_year') {
-      const slowDirectors = ['tarkovsky', 'bergman', 'lav diaz', 'béla tarr', 'bela tarr', 'kierostami'];
+      const slowDirectors = ['tarkovsky', 'bergman', 'lav diaz', 'béla tarr', 'bela tarr', 'kiarostami'];
       const blockbusterKeywords = ['superhero', 'marvel', 'dc', 'action'];
 
       let slowCount = 0;
@@ -337,7 +342,7 @@ export class StatsComponent implements OnInit {
 
   hasNoData(data: any): boolean {
     if (!data) return true;
-    if (data.totalMinutes === 0 && data.totalHours === 0) return true;
+    if ('totalMinutes' in data && data.totalMinutes === 0 && data.totalHours === 0) return true;
     if (data.count === 0 && data.averageRating === undefined && data.totalMinutes === undefined) return true;
     return false;
   }
@@ -382,31 +387,33 @@ export class StatsComponent implements OnInit {
     }
   }
 
-  getColNames(): string[] {
+  public colNames = computed(() => {
     const data = this.resultData();
-    if (!this.isArray(data) || data.length === 0) return [];
-    
-    // We get the keys of the first item
+    if (!Array.isArray(data) || data.length === 0) return [];
+
     const allKeys = Object.keys(data[0]);
 
-    // Filter out keys that are always 0 or null/undefined across ALL rows
-    return allKeys.filter(key => {
-      if (key === 'posterUrl') return false; // Prevent showing poster URL directly as text
-      if (key.toLowerCase() === 'id' || key.toLowerCase().endsWith('id')) return false; // Hide all ID columns globally
-      
-      return data.some((item: any) => {
+    return allKeys.filter(key =>
+      key !== 'posterUrl' &&
+      key !== 'profilePath' &&
+      key.toLowerCase() !== 'id' &&
+      !key.toLowerCase().endsWith('id') &&
+      data.some((item: any) => {
         const val = item[key];
         return val !== 0 && val !== null && val !== undefined && val !== '';
-      });
-    });
-  }
+      })
+    );
+  });
 
   formatColName(name: string): string {
     if (name === 'count') {
-      return this.selectedCategory().toLowerCase().includes('watchlist') ? 'Pending Count' : 'Watched Count';
+      return this.currentQuery()?.id?.includes('watchlist') ? 'Pending Count' : 'Watched Count';
     }
 
-    // Camel case to words: 'averageRating' -> 'Average Rating'
+    if (name.toLowerCase().includes('rating')) {
+      return 'Your Rating';
+    }
+
     const result = name.replace(/([A-Z])/g, " $1");
     return result.charAt(0).toUpperCase() + result.slice(1);
   }
@@ -417,22 +424,90 @@ export class StatsComponent implements OnInit {
     return q.allowedFilters.includes(filterName);
   }
 
-  navigateToEntityByName(name: string, type: 'Movie' | 'Actor' | 'Director') {
+  private saveState() {
+    const state = {
+      selectedCategory: this.selectedCategory(),
+      selectedQueryId: this.selectedQueryId(),
+      globalFilters: this.globalFilters,
+      querySpecificInputs: this.querySpecificInputs,
+      currentPage: this.currentPage(),
+      pageSize: this.pageSize(),
+      showPosters: this.showPosters(),
+      sortColumn: this.sortColumn(),
+      sortDirection: this.sortDirection(),
+      resultData: this.resultData()
+    };
+    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
+  }
+
+  private restoreState(): boolean {
+    const raw = sessionStorage.getItem(this.STORAGE_KEY);
+    if (!raw) return false;
+    try {
+      const state = JSON.parse(raw);
+      this.selectedCategory.set(state.selectedCategory ?? 'Watched History');
+      this.selectedQueryId.set(state.selectedQueryId ?? 'watched_by_year');
+      this.globalFilters = state.globalFilters ?? {};
+      this.querySpecificInputs = state.querySpecificInputs ?? {};
+      this.currentPage.set(state.currentPage ?? 1);
+      this.pageSize.set(state.pageSize ?? 25);
+      this.showPosters.set(state.showPosters ?? true);
+      this.sortColumn.set(state.sortColumn ?? null);
+      this.sortDirection.set(state.sortDirection ?? 'desc');
+      this.resultData.set(state.resultData ?? null);
+      sessionStorage.removeItem(this.STORAGE_KEY);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private resolveEntityId(result: GlobalSearchResultDto, type: 'Movie' | 'Actor' | 'Director'): string | number | null {
+    if (type === 'Actor') return result.actorId || result.localId || result.tmdbId;
+    if (type === 'Director') return result.directorId || result.localId || result.tmdbId;
+    return result.localId || result.tmdbId; // Movie
+  }
+
+  navigateToEntity(name: string, type: 'Movie' | 'Actor' | 'Director', fragment?: string) {
     if (!name) return;
-    this.searchService.apiSearchGet(name).subscribe({
+    this.saveState();
+    if (type === 'Movie') {
+      this.navigateToMovie(name);
+      return;
+    }
+    this.searchService.apiSearchGet(name).pipe(first(), takeUntil(this.destroy$)).subscribe({
       next: (results) => {
-        const match = results.find(r => r.entityType === type);
+        const match = results.find(r => r.entityType === type || r.entityType === 'Director / Actor');
+        if (match) {
+          const id = this.resolveEntityId(match, type);
+          if (id) {
+            const slug = slugify(name);
+            const route = type === 'Actor' ? '/actors' : '/directors';
+            this.router.navigate([route, id, slug], fragment ? { fragment } : undefined);
+          }
+        }
+      }
+    });
+  }
+
+  isToxic(name: string): boolean {
+    return this.toxicDirectors().has(name);
+  }
+
+  splitEntityNames(value: string): string[] {
+    if (!value) return [];
+    return value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+  }
+
+  private navigateToMovie(name: string) {
+    this.saveState();
+    this.searchService.apiSearchGet(name).pipe(first(), takeUntil(this.destroy$)).subscribe({
+      next: (results) => {
+        const match = results.find(r => r.entityType === 'Movie');
         if (match) {
           const id = match.localId || match.tmdbId;
           if (id) {
-            const slug = slugify(name);
-            if (type === 'Movie') {
-              this.router.navigate(['/movies', id, slug]);
-            } else if (type === 'Actor') {
-              this.router.navigate(['/actors', id, slug]);
-            } else if (type === 'Director') {
-              this.router.navigate(['/directors', id, slug]);
-            }
+            this.router.navigate(['/movies', id, slugify(name)]);
           }
         }
       }
