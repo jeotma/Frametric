@@ -282,11 +282,11 @@ public class RecentMoodStrategy : RecommendationStrategyBase
         {
             var prefixes = new[]
             {
-                "Aligns with your recent mood because it",
-                "Matches your current vibe since it",
-                "Fits right into your latest viewing streak as it",
-                "Shares similar energy with your recent activity because it",
-                "Feels like a natural next step because it"
+                "This choice",
+                "This movie",
+                "This selection",
+                "A film that",
+                "A pick that"
             };
             var chosenPrefix = prefixes[Random.Shared.Next(prefixes.Length)];
             return $"{chosenPrefix} {FormatReasons(reasons)}.";

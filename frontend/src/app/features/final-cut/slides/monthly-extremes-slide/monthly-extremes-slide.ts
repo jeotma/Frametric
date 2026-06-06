@@ -21,7 +21,7 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
             <span class="mx-icon">🏆</span>
             <div class="mx-info">
               <span class="mx-title">{{ m.bestMovie.title }}</span>
-              <span class="mx-rating">⭐ {{ m.bestMovie.rating | number:'1.1-1' }}</span>
+              <span class="mx-rating" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">⭐ {{ m.bestMovie.rating | number:'1.1-1' }} ℹ️</span>
             </div>
           </div>
           <div class="mx-movie no-data-box" *ngIf="!m.bestMovie">No entries</div>
@@ -30,7 +30,7 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
             <span class="mx-icon">📉</span>
             <div class="mx-info">
               <span class="mx-title">{{ m.worstMovie.title }}</span>
-              <span class="mx-rating">⭐ {{ m.worstMovie.rating | number:'1.1-1' }}</span>
+              <span class="mx-rating" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">⭐ {{ m.worstMovie.rating | number:'1.1-1' }} ℹ️</span>
             </div>
           </div>
           <div class="mx-movie no-data-box" *ngIf="!m.worstMovie">No entries</div>

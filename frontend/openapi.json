@@ -11,6 +11,66 @@
     }
   ],
   "paths": {
+    "/api/Actors/{id}": {
+      "get": {
+        "tags": [
+          "Actors"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorDetailsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorDetailsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorDetailsDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/analytics/advanced/watched": {
       "get": {
         "tags": [
@@ -4887,6 +4947,66 @@
         }
       }
     },
+    "/api/Directors/{id}": {
+      "get": {
+        "tags": [
+          "Directors"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectorDetailsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectorDetailsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectorDetailsDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Import/letterboxd": {
       "post": {
         "tags": [
@@ -5076,6 +5196,129 @@
         }
       }
     },
+    "/api/Movies/{id}": {
+      "get": {
+        "tags": [
+          "Movies"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieDetailsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieDetailsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieDetailsDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Movies/{id}/log": {
+      "post": {
+        "tags": [
+          "Movies"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogMovieWatchRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogMovieWatchRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogMovieWatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/recommendations/generate": {
       "post": {
         "tags": [
@@ -5180,6 +5423,53 @@
           }
         }
       }
+    },
+    "/api/Search": {
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GlobalSearchResultDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GlobalSearchResultDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GlobalSearchResultDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5201,6 +5491,55 @@
           "watchedCount": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "ActorDetailsDto": {
+        "required": [
+          "id",
+          "name",
+          "averageRating",
+          "watchCount",
+          "movies"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "averageRating": {
+            "type": "number",
+            "format": "double"
+          },
+          "watchCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "movies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieSimpleDto"
+            }
+          }
+        }
+      },
+      "ActorSimpleDto": {
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
           }
         }
       },
@@ -5423,6 +5762,39 @@
           }
         }
       },
+      "DirectorDetailsDto": {
+        "required": [
+          "id",
+          "name",
+          "averageRating",
+          "watchCount",
+          "movies"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "averageRating": {
+            "type": "number",
+            "format": "double"
+          },
+          "watchCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "movies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieSimpleDto"
+            }
+          }
+        }
+      },
       "DirectorLeaderboardDto": {
         "required": [
           "directorId",
@@ -5456,6 +5828,22 @@
             "format": "double",
             "default": null,
             "nullable": true
+          }
+        }
+      },
+      "DirectorSimpleDto": {
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
           }
         }
       },
@@ -5528,6 +5916,22 @@
           }
         }
       },
+      "GenreSimpleDto": {
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
       "GenreStreakDto": {
         "required": [
           "genreName",
@@ -5588,6 +5992,48 @@
           "pendingMoviesCount": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "GlobalSearchResultDto": {
+        "required": [
+          "localId",
+          "tmdbId",
+          "entityType",
+          "titleOrName",
+          "releaseYear",
+          "imageUrl",
+          "isLocal"
+        ],
+        "type": "object",
+        "properties": {
+          "localId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "tmdbId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "entityType": {
+            "type": "string"
+          },
+          "titleOrName": {
+            "type": "string"
+          },
+          "releaseYear": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isLocal": {
+            "type": "boolean"
           }
         }
       },
@@ -5659,6 +6105,23 @@
           },
           "password": {
             "type": "string"
+          }
+        }
+      },
+      "LogMovieWatchRequest": {
+        "type": "object",
+        "properties": {
+          "dateWatched": {
+            "type": "string",
+            "format": "date"
+          },
+          "rating": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "isRewatch": {
+            "type": "boolean"
           }
         }
       },
@@ -5765,6 +6228,110 @@
           "rewatchCount": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "MovieDetailsDto": {
+        "required": [
+          "id",
+          "title",
+          "releaseYear",
+          "runtimeMinutes",
+          "posterUrl",
+          "overview",
+          "tmdbRating",
+          "userAverageScore",
+          "genres",
+          "directors",
+          "actors",
+          "diaryEntries"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "releaseYear": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "runtimeMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "posterUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "overview": {
+            "type": "string",
+            "nullable": true
+          },
+          "tmdbRating": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "userAverageScore": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "genres": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenreSimpleDto"
+            }
+          },
+          "directors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DirectorSimpleDto"
+            }
+          },
+          "actors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActorSimpleDto"
+            }
+          },
+          "diaryEntries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieDiaryEntryDto"
+            }
+          }
+        }
+      },
+      "MovieDiaryEntryDto": {
+        "required": [
+          "id",
+          "dateWatched",
+          "isRewatch",
+          "rating"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dateWatched": {
+            "type": "string"
+          },
+          "isRewatch": {
+            "type": "boolean"
+          },
+          "rating": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
           }
         }
       },
@@ -6356,6 +6923,9 @@
   ],
   "tags": [
     {
+      "name": "Actors"
+    },
+    {
       "name": "AdvancedAnalytics"
     },
     {
@@ -6365,10 +6935,19 @@
       "name": "Auth"
     },
     {
+      "name": "Directors"
+    },
+    {
       "name": "Import"
     },
     {
+      "name": "Movies"
+    },
+    {
       "name": "Recommendations"
+    },
+    {
+      "name": "Search"
     }
   ]
 }

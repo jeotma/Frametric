@@ -59,7 +59,7 @@ public class DapperAnalyticsService : IAnalyticsService
 
         // 5. Top Directors
         const string topDirectorsSql = @"
-            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG((SELECT ""Score"" FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG((SELECT ""Score"" * 2 FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM ""WatchedMovies"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
@@ -71,7 +71,7 @@ public class DapperAnalyticsService : IAnalyticsService
 
         // 6. Top Actors
         const string topActorsSql = @"
-            SELECT a.""Name"" AS ActorName, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG((SELECT ""Score"" FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG((SELECT ""Score"" * 2 FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM ""WatchedMovies"" w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
@@ -160,7 +160,7 @@ public class DapperAnalyticsService : IAnalyticsService
 
         // 5. Top Directors
         string topDirectorsSql = @"
-            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG((SELECT ""Score"" FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG((SELECT ""Score"" * 2 FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM ""WatchedMovies"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
@@ -172,7 +172,7 @@ public class DapperAnalyticsService : IAnalyticsService
 
         // 6. Top Actors
         string topActorsSql = @"
-            SELECT a.""Name"" AS ActorName, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG((SELECT ""Score"" FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS Count, CAST(COALESCE(AVG((SELECT ""Score"" * 2 FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating
             FROM ""WatchedMovies"" w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
@@ -273,7 +273,7 @@ public class DapperAnalyticsService : IAnalyticsService
         var parameters = new { userId, limit };
 
         const string sql = @"
-            SELECT dr.""Id"" AS DirectorId, dr.""Name"" AS Name, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS WatchCount, CAST(COALESCE(AVG((SELECT ""Score"" FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(AVG(m.""CustomAverageRating""), 0) AS DOUBLE PRECISION) AS CustomAverageRating
+            SELECT dr.""Id"" AS DirectorId, dr.""Name"" AS Name, CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS WatchCount, CAST(COALESCE(AVG((SELECT ""Score"" * 2 FROM ""MovieRatings"" mr WHERE mr.""MovieId"" = w.""MovieId"" AND mr.""UserId"" = @userId LIMIT 1)), 0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(AVG(m.""CustomAverageRating""), 0) AS DOUBLE PRECISION) AS CustomAverageRating
             FROM ""WatchedMovies"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""

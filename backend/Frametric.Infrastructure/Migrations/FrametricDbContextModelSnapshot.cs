@@ -32,6 +32,9 @@ namespace Frametric.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ProfilePath")
+                        .HasColumnType("text");
+
                     b.Property<int>("TmdbId")
                         .HasColumnType("integer");
 
@@ -89,6 +92,9 @@ namespace Frametric.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProfilePath")
                         .HasColumnType("text");
 
                     b.Property<int>("TmdbId")
@@ -410,7 +416,7 @@ namespace Frametric.Infrastructure.Migrations
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
 
-                    b.Property<Guid>("ImportHistoryId")
+                    b.Property<Guid?>("ImportHistoryId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("MovieId")
@@ -641,10 +647,9 @@ namespace Frametric.Infrastructure.Migrations
             modelBuilder.Entity("Frametric.Domain.Entities.WatchedMovie", b =>
                 {
                     b.HasOne("Frametric.Domain.Entities.ImportHistory", "ImportHistory")
-                        .WithMany()
+                        .WithMany("WatchedMovies")
                         .HasForeignKey("ImportHistoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Frametric.Domain.Entities.Movie", "Movie")
                         .WithMany()
@@ -743,6 +748,8 @@ namespace Frametric.Infrastructure.Migrations
                     b.Navigation("MovieLikes");
 
                     b.Navigation("MovieRatings");
+
+                    b.Navigation("WatchedMovies");
 
                     b.Navigation("WatchlistItems");
                 });

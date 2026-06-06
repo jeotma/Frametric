@@ -5,16 +5,23 @@ public class Actor
     public Guid Id { get; private set; }
     public int TmdbId { get; private set; }
     public string Name { get; private set; } = null!;
+    public string? ProfilePath { get; private set; }
 
     // Navigation property
     public ICollection<Movie> Movies { get; private set; } = new List<Movie>();
 
     private Actor() { } // EF Core
 
-    public Actor(Guid id, int tmdbId, string name)
+    public Actor(Guid id, int tmdbId, string name, string? profilePath = null)
     {
         Id = id;
         TmdbId = tmdbId;
         Name = name;
+        ProfilePath = profilePath;
+    }
+
+    public void UpdateProfilePath(string? profilePath)
+    {
+        ProfilePath = profilePath;
     }
 }

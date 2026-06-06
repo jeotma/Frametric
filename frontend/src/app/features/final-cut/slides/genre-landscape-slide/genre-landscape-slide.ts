@@ -21,7 +21,7 @@ import { GenreWithRatingDto } from '../../../../core/services/final-cut.service'
             <div class="genre-bar" [style.width.%]="barWidth(g.count)" [style.background]="barColor(i)"></div>
           </div>
           <div class="genre-count">{{ g.count }}</div>
-          <div class="genre-rating" *ngIf="g.averageRating > 0">⭐ {{ g.averageRating | number:'1.1-1' }}</div>
+          <div class="genre-rating" *ngIf="g.averageRating > 0" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">⭐ {{ g.averageRating | number:'1.1-1' }} ℹ️</div>
         </div>
       </div>
 

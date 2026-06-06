@@ -195,14 +195,14 @@ public class BonusQueriesImpl : IBonusQueries
             SELECT 
                 'first' AS ""Which"",
                 m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath"",
-                m.""RuntimeMinutes"", CAST(mr.""Score"" AS DOUBLE PRECISION) AS ""Rating""
+                m.""RuntimeMinutes"", CAST(mr.""Score"" * 2 AS DOUBLE PRECISION) AS ""Rating""
             FROM FirstWatch fw JOIN ""Movies"" m ON fw.""MovieId"" = m.""Id""
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = m.""Id"" AND mr.""UserId"" = @userId
             UNION ALL
             SELECT 
                 'last' AS ""Which"",
                 m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath"",
-                m.""RuntimeMinutes"", CAST(mr.""Score"" AS DOUBLE PRECISION) AS ""Rating""
+                m.""RuntimeMinutes"", CAST(mr.""Score"" * 2 AS DOUBLE PRECISION) AS ""Rating""
             FROM LastWatch lw JOIN ""Movies"" m ON lw.""MovieId"" = m.""Id""
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = m.""Id"" AND mr.""UserId"" = @userId";
 
@@ -257,7 +257,7 @@ public class BonusQueriesImpl : IBonusQueries
             ),
             Ranked AS (
                 SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath"",
-                       m.""RuntimeMinutes"", CAST(mr.""Score"" AS DOUBLE PRECISION) AS ""Rating"",
+                       m.""RuntimeMinutes"", CAST(mr.""Score"" * 2 AS DOUBLE PRECISION) AS ""Rating"",
                        EXTRACT(MONTH FROM fw.""WatchDate"") AS ""Month"",
                        ROW_NUMBER() OVER (PARTITION BY EXTRACT(MONTH FROM fw.""WatchDate"") ORDER BY mr.""Score"" DESC, fw.""WatchDate"" ASC) AS rn
                 FROM FilteredWatched fw
@@ -271,7 +271,7 @@ public class BonusQueriesImpl : IBonusQueries
             SELECT 'worst' AS ""Kind"", CAST(""Month"" AS INTEGER) AS ""Month"", ""Id"", ""Title"", ""ReleaseYear"", ""PosterPath"", ""RuntimeMinutes"", ""Rating""
             FROM (
                 SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath"",
-                       m.""RuntimeMinutes"", CAST(mr.""Score"" AS DOUBLE PRECISION) AS ""Rating"",
+                       m.""RuntimeMinutes"", CAST(mr.""Score"" * 2 AS DOUBLE PRECISION) AS ""Rating"",
                        EXTRACT(MONTH FROM fw.""WatchDate"") AS ""Month"",
                        ROW_NUMBER() OVER (PARTITION BY EXTRACT(MONTH FROM fw.""WatchDate"") ORDER BY mr.""Score"" ASC, fw.""WatchDate"" ASC) AS rn
                 FROM FilteredWatched fw
@@ -334,7 +334,7 @@ public class BonusQueriesImpl : IBonusQueries
             )
             SELECT * FROM (
                 SELECT 'top' AS ""Kind"", m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath"",
-                       m.""RuntimeMinutes"", CAST(mr.""Score"" AS DOUBLE PRECISION) AS ""Rating"",
+                       m.""RuntimeMinutes"", CAST(mr.""Score"" * 2 AS DOUBLE PRECISION) AS ""Rating"",
                        CASE WHEN ml.""Id"" IS NOT NULL THEN TRUE ELSE FALSE END AS ""Liked""
                 FROM FilteredWatched fw
                 JOIN ""Movies"" m ON fw.""MovieId"" = m.""Id""
@@ -347,7 +347,7 @@ public class BonusQueriesImpl : IBonusQueries
             UNION ALL
             SELECT * FROM (
                 SELECT 'bottom' AS ""Kind"", m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath"",
-                       m.""RuntimeMinutes"", CAST(mr.""Score"" AS DOUBLE PRECISION) AS ""Rating"",
+                       m.""RuntimeMinutes"", CAST(mr.""Score"" * 2 AS DOUBLE PRECISION) AS ""Rating"",
                        CASE WHEN ml.""Id"" IS NOT NULL THEN TRUE ELSE FALSE END AS ""Liked""
                 FROM FilteredWatched fw
                 JOIN ""Movies"" m ON fw.""MovieId"" = m.""Id""

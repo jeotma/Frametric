@@ -84,6 +84,9 @@ public class TmdbCastItem
 
     [JsonPropertyName("order")]
     public int Order { get; set; }
+
+    [JsonPropertyName("profile_path")]
+    public string? ProfilePath { get; set; }
 }
 
 public class TmdbCrewItem
@@ -96,6 +99,9 @@ public class TmdbCrewItem
 
     [JsonPropertyName("job")]
     public string Job { get; set; } = string.Empty;
+
+    [JsonPropertyName("profile_path")]
+    public string? ProfilePath { get; set; }
 }
 
 public class TmdbTvDetails
@@ -177,5 +183,35 @@ public class TmdbWatchProviderItem
 {
     [JsonPropertyName("provider_name")]
     public string ProviderName { get; set; } = string.Empty;
+}
+
+public class TmdbMultiSearchResponse
+{
+    [JsonPropertyName("results")]
+    public List<TmdbMultiSearchResult> Results { get; set; } = new();
+}
+
+public class TmdbMultiSearchResult
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("media_type")]
+    public string? MediaType { get; set; }
+
+    [JsonPropertyName("title")]
+    public string? Title { get; set; }
+
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    [JsonPropertyName("release_date")]
+    public string? ReleaseDate { get; set; }
+
+    [JsonPropertyName("poster_path")]
+    public string? PosterPath { get; set; }
+
+    [JsonPropertyName("profile_path")]
+    public string? ProfilePath { get; set; }
 }
 

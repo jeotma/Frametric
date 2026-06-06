@@ -14,14 +14,14 @@ public class WatchedMovie
     public Guid UserId { get; private set; }
     public Guid MovieId { get; private set; }
     public DateOnly Date { get; private set; }
-    public Guid ImportHistoryId { get; private set; }
+    public Guid? ImportHistoryId { get; private set; }
 
     // Navigation properties
     public User User { get; private set; } = null!;
     public Movie Movie { get; private set; } = null!;
-    public ImportHistory ImportHistory { get; private set; } = null!;
+    public ImportHistory? ImportHistory { get; private set; }
 
-    public WatchedMovie(Guid id, Guid userId, Guid movieId, DateOnly date, Guid importHistoryId)
+    public WatchedMovie(Guid id, Guid userId, Guid movieId, DateOnly date, Guid? importHistoryId = null)
     {
         Id = id;
         UserId = userId;

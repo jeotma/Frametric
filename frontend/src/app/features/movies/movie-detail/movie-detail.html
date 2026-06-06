@@ -1,0 +1,134 @@
+<div class="movie-detail-container" *ngIf="!isLoading(); else loader">
+  <ng-container *ngIf="movie() as m">
+    <div class="backdrop" [style.backgroundImage]="'url(' + m.posterUrl + ')'">
+      <div class="backdrop-overlay"></div>
+    </div>
+
+    <div class="content">
+      <div class="header-section animate-slide-up">
+        <div class="poster">
+          <img [src]="m.posterUrl || 'assets/placeholder-poster.png'" alt="Poster" />
+        </div>
+        
+        <div class="info">
+          <h1>{{ m.title }} <span class="year" *ngIf="m.releaseYear">({{ m.releaseYear }})</span></h1>
+          
+          <div class="meta">
+            <span class="runtime animate-stagger-fade" style="--i: 0" *ngIf="m.runtimeMinutes">{{ m.runtimeMinutes }} min</span>
+            <span class="tmdb-rating animate-stagger-fade" style="--i: 1" *ngIf="m.tmdbRating">⭐ {{ m.tmdbRating | number:'1.1-1' }}</span>
+            <span class="user-rating tooltip-container animate-stagger-fade" style="--i: 2; cursor: help;" *ngIf="m.userAverageScore">Your rating: ⭐ {{ m.userAverageScore | number:'1.1-1' }}<span class="tooltip-text" style="width: 280px;">Your rating shown on a 10-point scale. Stored on a 5-point scale and multiplied by 2.</span></span>
+          </div>
+
+          <p class="overview animate-stagger-fade" style="--i: 3">{{ m.overview }}</p>
+
+          <div class="actions animate-stagger-fade" style="--i: 4">
+            <button class="btn" [class.btn-primary]="!isLogged(m)" [class.btn-secondary]="isLogged(m)" (click)="toggleLogForm()">
+              <i class="icon" *ngIf="!isLogged(m)">+</i>
+              <i class="icon" *ngIf="isLogged(m)">✓</i>
+              {{ isLogged(m) ? 'Watch again' : 'Mark as watched' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="error-message animate-stagger-up" style="--i: 0" *ngIf="errorMessage()">
+        {{ errorMessage() }}
+      </div>
+
+      <div class="log-form-card animate-stagger-up" style="--i: 1" *ngIf="showLogForm()">
+        <h3>Log watch</h3>
+        <form [formGroup]="logForm" (ngSubmit)="submitLog()">
+          <div class="form-group">
+            <label>Date watched</label>
+            <input type="date" formControlName="dateWatched" class="form-control" />
+          </div>
+          
+          <div class="form-group">
+            <label>Rating</label>
+            <div class="star-picker">
+              <span *ngFor="let s of [1,2,3,4,5,6,7,8,9,10]; let i = index"
+                    class="star"
+                    [class.selected]="s <= selectedRating()"
+                    [class.half]="selectedRating() >= s - 0.5 && selectedRating() < s"
+                    (click)="setRating(s)"
+                    (keydown.enter)="setRating(s)"
+                    role="button"
+                    tabindex="0"
+                    [attr.aria-label]="s + ' out of 10'">★</span>
+              <span class="picker-label" *ngIf="selectedRating() > 0">{{ selectedRating() | number:'1.0-1' }}/10</span>
+              <span class="picker-label muted" *ngIf="!selectedRating()">Click to rate</span>
+            </div>
+          </div>
+          
+          <div class="form-group checkbox">
+            <label>
+              <input type="checkbox" formControlName="isRewatch" />
+              This is a rewatch
+            </label>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" (click)="toggleLogForm()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isLogging() || logForm.invalid">
+              {{ isLogging() ? 'Saving...' : 'Save' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="details-grid animate-slide-up">
+        <div class="section">
+          <h2>Directors</h2>
+          <div class="pills">
+            <a *ngFor="let dir of m.directors; let i = index" [routerLink]="['/directors', dir.id, slugify(dir.name)]" class="pill animate-stagger-fade" style="--i: {{ i }}">
+              {{ dir.name }}
+            </a>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Top Cast</h2>
+          <div class="pills">
+            <a *ngFor="let act of m.actors; let i = index" [routerLink]="['/actors', act.id, slugify(act.name)]" class="pill animate-stagger-fade" style="--i: {{ i }}">
+              {{ act.name }}
+            </a>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Genres</h2>
+          <div class="pills">
+            <span *ngFor="let g of m.genres; let i = index" class="pill outline animate-stagger-fade" style="--i: {{ i }}">
+              {{ g.name }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="diary-section animate-slide-up" *ngIf="m.diaryEntries && m.diaryEntries.length > 0">
+        <h2>Watch History</h2>
+        <div class="diary-list">
+          <div class="diary-item animate-stagger-up" style="--i: {{ i }}" *ngFor="let entry of m.diaryEntries; let i = index">
+            <div class="date">{{ entry.dateWatched }}</div>
+            <div class="rewatch-badge" *ngIf="entry.isRewatch">Rewatch</div>
+            <div class="rating tooltip-container" *ngIf="entry.rating" style="cursor: help;">⭐ {{ entry.rating }}<span class="tooltip-text" style="width: 280px;">Rating shown on a 10-point scale (stored on 5-point, multiplied by 2).</span></div>
+            <button
+              class="btn btn-danger btn-sm"
+              [disabled]="unloggingEntryId() === entry.id"
+              (click)="unlogWatch(entry.id)"
+              aria-label="Delete this watch entry">
+              {{ unloggingEntryId() === entry.id ? '...' : '✕' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<ng-template #loader>
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading details...</p>
+  </div>
+</ng-template>

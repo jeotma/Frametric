@@ -16,6 +16,7 @@ public class ImportHistory
     public ICollection<MovieRating> MovieRatings { get; private set; } = new List<MovieRating>();
     public ICollection<WatchlistItem> WatchlistItems { get; private set; } = new List<WatchlistItem>();
     public ICollection<MovieLike> MovieLikes { get; private set; } = new List<MovieLike>();
+    public ICollection<WatchedMovie> WatchedMovies { get; private set; } = new List<WatchedMovie>();
 
     private ImportHistory() { } // For EF Core
 

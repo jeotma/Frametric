@@ -19,7 +19,7 @@ import { BestRookiesDto } from '../../../../core/services/final-cut.service';
           <div *ngFor="let d of data.newDirectors.slice(0, 4); let i = index" class="rookie-row" [class.star]="i === 0">
             <span class="rookie-name">{{ d.name }}</span>
             <span class="rookie-meta">{{ d.moviesWatchedThisYear }} film{{ d.moviesWatchedThisYear !== 1 ? 's' : '' }}</span>
-            <span class="rookie-rating" *ngIf="d.averageRating > 0">⭐ {{ d.averageRating | number:'1.1-1' }}</span>
+            <span class="rookie-rating" *ngIf="d.averageRating > 0" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">⭐ {{ d.averageRating | number:'1.1-1' }} ℹ️</span>
           </div>
           <p class="no-data-sm" *ngIf="!data.newDirectors.length">No new directors this year.</p>
         </div>
@@ -31,7 +31,7 @@ import { BestRookiesDto } from '../../../../core/services/final-cut.service';
           <div *ngFor="let a of data.newActors.slice(0, 4); let i = index" class="rookie-row" [class.star]="i === 0">
             <span class="rookie-name">{{ a.name }}</span>
             <span class="rookie-meta">{{ a.moviesWatchedThisYear }} film{{ a.moviesWatchedThisYear !== 1 ? 's' : '' }}</span>
-            <span class="rookie-rating" *ngIf="a.averageRating > 0">⭐ {{ a.averageRating | number:'1.1-1' }}</span>
+            <span class="rookie-rating" *ngIf="a.averageRating > 0" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">⭐ {{ a.averageRating | number:'1.1-1' }} ℹ️</span>
           </div>
           <p class="no-data-sm" *ngIf="!data.newActors.length">No new actors this year.</p>
         </div>

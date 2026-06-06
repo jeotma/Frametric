@@ -59,8 +59,10 @@ Create three new distinct, highly aesthetic components:
 
 ## Acceptance Criteria
 
-- [ ] Backend endpoints return comprehensive, normalized data for individual entities.
-- [ ] Users can manually log or edit a movie watch entry (date, score, rewatch status).
-- [ ] Global search bar queries the local DB first, then falls back to TMDB, and returns dynamic, categorized results.
-- [ ] Three new detail views exist and are fully styled.
-- [ ] All table lists (Advanced Stats, Dashboards) have hyperlinks on titles/posters/names directing to these new views.
+- [x] Backend endpoints return comprehensive, normalized data for individual entities.
+- [x] Users can manually log or edit a movie watch entry (date, score, rewatch status).
+- [x] Users can manually unlog a watch entry, with full data cleanup on non-rewatch deletion.
+- [x] Global search bar queries the local DB first, then falls back to TMDB, and returns dynamic, categorized results.
+- [x] Three new detail views exist and are fully styled.
+- [x] All table lists (Advanced Stats, Dashboards) have hyperlinks on titles/posters/names directing to these new views.
+- [x] Actor and Director profile photos fetched from TMDB and displayed in detail pages.
