@@ -484,6 +484,8 @@ input:checked + .slider:before {
 
     .movie-card {
       width: 100%;
+      height: auto;
+      min-width: 0;
       
       .movie-title {
         font-size: 1rem;

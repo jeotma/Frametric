@@ -323,10 +323,10 @@ export class EasterEggService {
 
     // Stats idle state meme
     if (lowerVal === 'stats-idle') {
-      if (rand < 2) {
+      if (rand < 15) {
         return {
           text: "No statistics are loaded yet. (One does not simply analyze metrics without running a query first 💍)",
-          tooltip: 'One does not simply walk into Mordor... or view stats without querying. (2% trigger rate)',
+          tooltip: 'One does not simply walk into Mordor... or view stats without querying. (15% trigger rate)',
           className: 'boromir-badge'
         };
       }
@@ -335,10 +335,10 @@ export class EasterEggService {
 
     // Recommendations empty state meme
     if (lowerVal === 'reco-empty') {
-      if (rand < 2) {
+      if (rand < 15) {
         return {
           text: "No recommendations match your criteria. (Impossible. Perhaps the archives are incomplete)",
-          tooltip: 'Obi-Wan Kenobi when a planet is missing from the Jedi Archives. (2% trigger rate)',
+          tooltip: 'Obi-Wan Kenobi when a planet is missing from the Jedi Archives. (15% trigger rate)',
           className: 'archives-incomplete-badge'
         };
       }
@@ -347,10 +347,10 @@ export class EasterEggService {
 
     // Auth tagline meme
     if (lowerVal === 'auth-tagline') {
-      if (rand < 2) {
+      if (rand < 15) {
         return {
           text: "This is fine. 🔥 (Analyzing your Letterboxd obsession)",
-          tooltip: 'This is fine. (2% trigger rate)',
+          tooltip: 'This is fine. (15% trigger rate)',
           className: 'fine-badge'
         };
       }
@@ -359,10 +359,10 @@ export class EasterEggService {
 
     // Watchlist trigger "Am I a joke to you?"
     if (lowerVal === 'watchlist') {
-      if (rand < 2) {
+      if (rand < 15) {
         return {
           text: '(Am I a joke to you? 👁️)',
-          tooltip: 'Your watchlist when you choose to discover new movies instead of clearing it. (2% trigger rate)',
+          tooltip: 'Your watchlist when you choose to discover new movies instead of clearing it. (15% trigger rate)',
           className: 'watchlist-joke-badge'
         };
       }
@@ -371,10 +371,10 @@ export class EasterEggService {
 
     // Nolan astronaut meme
     if (lowerVal.includes('nolan')) {
-      if (rand < 2) {
+      if (rand < 10) {
         return {
           text: '(Always has been 🔫)',
-          tooltip: 'Wait, it\'s all Nolan? Always has been. (2% trigger rate)',
+          tooltip: 'Wait, it\'s all Nolan? Always has been. (10% trigger rate)',
           className: 'nolan-astro-badge'
         };
       }
@@ -382,10 +382,10 @@ export class EasterEggService {
 
     // Epic / Long movie meme
     if (hasNum && num >= 180) {
-      if (rand < 1) {
+      if (rand < 10) {
         return {
           text: '(One does not simply... 💍)',
-          tooltip: 'One does not simply walk into Mordor... or watch a 3+ hour epic without a bathroom break. (1% trigger rate)',
+          tooltip: 'One does not simply walk into Mordor... or watch a 3+ hour epic without a bathroom break. (10% trigger rate)',
           className: 'boromir-badge'
         };
       }
@@ -393,10 +393,10 @@ export class EasterEggService {
 
     // 17. Nicolas Cage
     if (lowerVal.includes('nicolas cage')) {
-      if (rand < 2) {
+      if (rand < 10) {
         return {
           text: '(Not the bees! 🐝)',
-          tooltip: 'Nicolas Cage: "NOT THE BEES! NOT THE BEES!" (2% trigger rate)',
+          tooltip: 'Nicolas Cage: "NOT THE BEES! NOT THE BEES!" (10% trigger rate)',
           className: 'cage-badge'
         };
       }
@@ -405,10 +405,10 @@ export class EasterEggService {
 
     // 18. Ryan Gosling
     if (lowerVal.includes('ryan gosling')) {
-      if (rand < 2) {
+      if (rand < 10) {
         return {
           text: "(He's literally me 🕶️)",
-          tooltip: 'Ryan Gosling: The ultimate "literally me" character driver. (2% trigger rate)',
+          tooltip: 'Ryan Gosling: The ultimate "literally me" character driver. (10% trigger rate)',
           className: 'gosling-badge'
         };
       }
@@ -417,10 +417,10 @@ export class EasterEggService {
 
     // 19. Keanu Reeves
     if (lowerVal.includes('keanu reeves')) {
-      if (rand < 2) {
+      if (rand < 10) {
         return {
           text: "(You're breathtaking! 👉)",
-          tooltip: 'Keanu Reeves: "You\'re breathtaking!" (2% trigger rate)',
+          tooltip: 'Keanu Reeves: "You\'re breathtaking!" (10% trigger rate)',
           className: 'keanu-badge'
         };
       }
@@ -429,10 +429,10 @@ export class EasterEggService {
 
     // 20. Christopher Nolan
     if (lowerVal.includes('christopher nolan')) {
-      if (rand < 2) {
+      if (rand < 10) {
         return {
           text: '(BWAAAAM 🔊)',
-          tooltip: 'Christopher Nolan: Loud horns and complex temporal paradoxes. (2% trigger rate)',
+          tooltip: 'Christopher Nolan: Loud horns and complex temporal paradoxes. (10% trigger rate)',
           className: 'nolan-badge'
         };
       }
@@ -441,10 +441,10 @@ export class EasterEggService {
 
     // 21. Quentin Tarantino
     if (lowerVal.includes('quentin tarantino')) {
-      if (rand < 2) {
+      if (rand < 10) {
         return {
           text: '(Feet Close-up 🦶)',
-          tooltip: 'Quentin Tarantino: Famous for foot shots, trunk angles, and intense dialog. (2% trigger rate)',
+          tooltip: 'Quentin Tarantino: Famous for foot shots, trunk angles, and intense dialog. (10% trigger rate)',
           className: 'tarantino-badge'
         };
       }
@@ -453,10 +453,10 @@ export class EasterEggService {
 
     // 22. Martin Scorsese
     if (lowerVal.includes('martin scorsese')) {
-      if (rand < 2) {
+      if (rand < 10) {
         return {
           text: '(This is cinema 🍿)',
-          tooltip: 'Martin Scorsese: "This is cinema. It is not theme parks." (2% trigger rate)',
+          tooltip: 'Martin Scorsese: "This is cinema. It is not theme parks." (10% trigger rate)',
           className: 'scorsese-badge'
         };
       }
@@ -465,10 +465,10 @@ export class EasterEggService {
 
     // 23. Leonardo DiCaprio
     if (lowerVal.includes('leonardo dicaprio')) {
-      if (rand < 2) {
+      if (rand < 10) {
         return {
           text: '(Pointing at screen 👉)',
-          tooltip: 'Leonardo DiCaprio: *Points at screen recognizing cinematic details* (2% trigger rate)',
+          tooltip: 'Leonardo DiCaprio: *Points at screen recognizing cinematic details* (10% trigger rate)',
           className: 'dicaprio-badge'
         };
       }
@@ -477,10 +477,10 @@ export class EasterEggService {
 
     // 24. Zack Snyder
     if (lowerVal.includes('zack snyder')) {
-      if (rand < 2) {
+      if (rand < 10) {
         return {
           text: '(Slow-mo active ⏱️)',
-          tooltip: 'Zack Snyder: Expect high-contrast colors and heavy slow-motion. (2% trigger rate)',
+          tooltip: 'Zack Snyder: Expect high-contrast colors and heavy slow-motion. (10% trigger rate)',
           className: 'snyder-badge'
         };
       }
@@ -489,10 +489,10 @@ export class EasterEggService {
 
     // 25. Sci-Fi genre
     if (lowerVal === 'sci-fi' || lowerVal === 'science fiction') {
-      if (rand < 2) {
+      if (rand < 10) {
         return {
           text: '(Beam me up 🛸)',
-          tooltip: 'Sci-Fi: Space, aliens, and neon lights. (2% trigger rate)',
+          tooltip: 'Sci-Fi: Space, aliens, and neon lights. (10% trigger rate)',
           className: 'scifi-badge'
         };
       }
@@ -501,10 +501,10 @@ export class EasterEggService {
 
     // 26. Horror genre
     if (lowerVal === 'horror') {
-      if (rand < 2) {
+      if (rand < 10) {
         return {
           text: '(Don\'t look behind you 👻)',
-          tooltip: 'Horror: A spooky palette cleanser. (2% trigger rate)',
+          tooltip: 'Horror: A spooky palette cleanser. (10% trigger rate)',
           className: 'horror-badge'
         };
       }

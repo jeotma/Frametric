@@ -22,7 +22,7 @@
   
   // Neutral Colors
   --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --text-secondary: #cbd5e1;
   --text-muted: #64748b;
   --border-color: rgba(255, 255, 255, 0.08);
   --border-glow: rgba(139, 92, 246, 0.15);
@@ -321,6 +321,16 @@ a {
   animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+.animate-stagger-fade {
+  animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+.animate-stagger-up {
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -391,12 +401,14 @@ a {
   background: rgba(20, 20, 20, 0.9);
   border: 1px solid #10b981;
   color: #34d399;
-  padding: 12px 24px;
-  border-top-left-radius: 12px;
+  padding: 32px 48px;
+  border-top-left-radius: 16px;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 2.4rem;
   z-index: 10000;
   animation: peek-in 2s ease-in-out;
+  transform: scale(1.8);
+  transform-origin: bottom right;
 }
 
 @keyframes slide-up-wobble {
@@ -485,6 +497,16 @@ a {
       visibility: visible;
       transform: translate(-50%, 0);
     }
+  }
+}
+
+// --- Accessibility: Reduced Motion ---
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
