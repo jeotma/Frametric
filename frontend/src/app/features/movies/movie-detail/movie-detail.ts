@@ -23,18 +23,31 @@ export class MovieDetailComponent implements OnInit {
   isLogging = signal(false);
   showLogForm = signal(false);
   unloggingEntryId = signal<string | null>(null);
+  errorMessage = signal<string | null>(null);
+  selectedRating = signal<number>(0);
 
   logForm = this.fb.group({
     dateWatched: [new Date().toISOString().split('T')[0], Validators.required],
-    rating: [null as number | null, [Validators.min(0), Validators.max(10)]],
     isRewatch: [false]
   });
 
-  ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.loadMovie(id);
+  setRating(stars: number) {
+    const current = this.selectedRating();
+    if (current === stars) {
+      this.selectedRating.set(stars - 0.5);
+    } else {
+      this.selectedRating.set(stars);
     }
+  }
+
+  ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.isLoading.set(true);
+        this.loadMovie(id);
+      }
+    });
   }
 
   loadMovie(id: string) {
@@ -43,8 +56,9 @@ export class MovieDetailComponent implements OnInit {
         this.movie.set(data);
         this.isLoading.set(false);
       },
-      error: () => {
+      error: (err) => {
         this.isLoading.set(false);
+        this.errorMessage.set(err?.error?.title || err?.message || 'Failed to load movie details.');
       }
     });
   }
@@ -59,7 +73,7 @@ export class MovieDetailComponent implements OnInit {
     const val = this.logForm.value;
     const request = {
       dateWatched: val.dateWatched,
-      rating: val.rating,
+      rating: this.selectedRating() > 0 ? this.selectedRating() / 2 : null,
       isRewatch: val.isRewatch
     };
 
@@ -67,14 +81,16 @@ export class MovieDetailComponent implements OnInit {
     if (!id) return;
 
     this.isLogging.set(true);
+    this.errorMessage.set(null);
     this.moviesService.apiMoviesIdLogPost(id, request as any).subscribe({
       next: () => {
         this.isLogging.set(false);
         this.showLogForm.set(false);
-        this.loadMovie(id); // Reload to show new diary entry
+        this.loadMovie(id);
       },
-      error: () => {
+      error: (err) => {
         this.isLogging.set(false);
+        this.errorMessage.set(err?.error?.title || err?.message || 'Failed to log watch. Please try again.');
       }
     });
   }
@@ -86,23 +102,21 @@ export class MovieDetailComponent implements OnInit {
     if (!confirm('¿Eliminar este registro de visionado?')) return;
 
     this.unloggingEntryId.set(entryId);
+    this.errorMessage.set(null);
     this.moviesService.apiMoviesIdLogEntryIdDelete(id, entryId).subscribe({
       next: () => {
         this.unloggingEntryId.set(null);
         this.loadMovie(id);
       },
-      error: () => {
+      error: (err) => {
         this.unloggingEntryId.set(null);
+        this.errorMessage.set(err?.error?.title || err?.message || 'Failed to delete entry. Please try again.');
       }
     });
   }
 
-  getRatingArray(score: number): number[] {
-    const arr = [];
-    for (let i = 1; i <= 5; i++) {
-      arr.push(i <= score / 2 ? 1 : 0);
-    }
-    return arr;
+  isLogged(m: MovieDetailsDto): boolean {
+    return m.isWatched || (m.diaryEntries?.length > 0);
   }
 }
 

@@ -18,29 +18,76 @@ export class ActorDetailComponent implements OnInit {
 
   actor = signal<ActorDetailsDto | null>(null);
   isLoading = signal(true);
+  activeTooltip = signal<'watchlist' | 'liked' | null>(null);
 
-  get watchedMovies() {
+  toggleTooltip(type: 'watchlist' | 'liked') {
+    this.activeTooltip.update(current => current === type ? null : type);
+  }
+
+  closeTooltip() {
+    this.activeTooltip.set(null);
+  }
+
+  get watchedActingMovies() {
     const act = this.actor();
     return act ? act.movies.filter(m => m.isWatched) : [];
   }
 
-  get unwatchedMovies() {
+  get unwatchedActingMovies() {
     const act = this.actor();
     return act ? act.movies.filter(m => !m.isWatched) : [];
   }
 
-  ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.actorsService.apiActorsIdGet(id).subscribe({
-        next: (data) => {
-          this.actor.set(data);
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.isLoading.set(false);
-        }
-      });
+  get watchedDirectedMovies() {
+    const act = this.actor();
+    return act && act.directedMovies ? act.directedMovies.filter(m => m.isWatched) : [];
+  }
+
+  get unwatchedDirectedMovies() {
+    const act = this.actor();
+    return act && act.directedMovies ? act.directedMovies.filter(m => !m.isWatched) : [];
+  }
+
+  get muralMovies() {
+    const act = this.actor();
+    if (!act) return [];
+    const allMovies = [...act.movies];
+    if (act.directedMovies) {
+      allMovies.push(...act.directedMovies);
     }
+    const moviesWithPosters = allMovies.filter(m => m.posterPath && m.posterPath.trim() !== '' && m.posterPath !== 'null');
+    if (moviesWithPosters.length === 0) return [];
+    
+    const uniqueMovies = Array.from(new Map(moviesWithPosters.map(m => [m.id, m])).values());
+    const result = [...uniqueMovies];
+    while (result.length < 200) {
+      result.push(...uniqueMovies);
+    }
+    return result;
+  }
+
+  scrollToSection(sectionId: string) {
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.isLoading.set(true);
+        this.actorsService.apiActorsIdGet(id).subscribe({
+          next: (data) => {
+            this.actor.set(data);
+            this.isLoading.set(false);
+          },
+          error: () => {
+            this.isLoading.set(false);
+          }
+        });
+      }
+    });
   }
 }

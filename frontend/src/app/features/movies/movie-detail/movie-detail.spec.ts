@@ -1,17 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { MovieDetailComponent } from './movie-detail';
+import { MoviesService } from '../../../core/api';
 
-import { MovieDetail } from './movie-detail';
-
-describe('MovieDetail', () => {
-  let component: MovieDetail;
-  let fixture: ComponentFixture<MovieDetail>;
+describe('MovieDetailComponent', () => {
+  let component: MovieDetailComponent;
+  let fixture: ComponentFixture<MovieDetailComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MovieDetail],
+      imports: [MovieDetailComponent],
+      providers: [
+        provideRouter([]),
+        { provide: MoviesService, useValue: { getMovie: () => null } }
+      ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MovieDetail);
+    fixture = TestBed.createComponent(MovieDetailComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

@@ -1,17 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { ActorDetailComponent } from './actor-detail';
+import { ActorsService } from '../../../core/api';
 
-import { ActorDetail } from './actor-detail';
-
-describe('ActorDetail', () => {
-  let component: ActorDetail;
-  let fixture: ComponentFixture<ActorDetail>;
+describe('ActorDetailComponent', () => {
+  let component: ActorDetailComponent;
+  let fixture: ComponentFixture<ActorDetailComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ActorDetail],
+      imports: [ActorDetailComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActorsService, useValue: { getActor: () => null } }
+      ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ActorDetail);
+    fixture = TestBed.createComponent(ActorDetailComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
