@@ -326,3 +326,53 @@ Requires authentication.
 - **Responses**:
   - `204 NoContent`: Entry deleted successfully.
   - `404 NotFound`: Entry not found or does not belong to the authenticated user.
+
+> **Note**: Since [1.4.0], the `MovieDetailsDto` includes an `isWatched` boolean field indicating whether the authenticated user has watched the movie.
+
+---
+
+## 7. Directors (`/api/Directors`)
+
+Requires authentication.
+
+### **GET** `/api/Directors/{id}`
+
+- **Description**: Returns full details for a specific director including filmography, watch/like/watchlist counts, and average rating. If the director is also an actor (matched by TMDB ID), acting filmography is also returned with an `isActor` flag.
+- **Parameters**:
+  - `id` (`Guid` in route)
+- **Responses**:
+  - `200 OK`: Returns `DirectorDetailsDto`.
+  - `404 NotFound`: Director not found.
+
+---
+
+## 8. Actors (`/api/Actors`)
+
+Requires authentication.
+
+### **GET** `/api/Actors/{id}`
+
+- **Description**: Returns full details for a specific actor including filmography, watch/like/watchlist counts, and average rating. If the actor is also a director (matched by TMDB ID), directed filmography is also returned with an `isDirector` flag.
+- **Parameters**:
+  - `id` (`Guid` in route)
+- **Responses**:
+  - `200 OK`: Returns `ActorDetailsDto`.
+  - `404 NotFound`: Actor not found.
+
+---
+
+## 9. Search (`/api/Search`)
+
+Requires authentication.
+
+### **GET** `/api/Search`
+
+- **Description**: Global search across movies, actors, and directors. Searches are performed against the local database first. If no local results are found, falls back to the TMDB external provider.
+- **Query Parameters**:
+  - `q` (`string`) — Search query text (partial matching supported).
+- **Responses**:
+  - `200 OK`: Returns an array of `GlobalSearchResultDto` with `entityType` (Movie/Actor/Director/Director / Actor), `localId`, `tmdbId`, `actorId`, `directorId`, and display metadata.
+- **Behavior**:
+  - Returns only local results if a local match exists.
+  - Falls back to TMDB results when no local results are found.
+  - For persons who are both an actor and a director, the entity type is `Director / Actor` and both `actorId` and `directorId` are populated separately.

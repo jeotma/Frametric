@@ -4,6 +4,44 @@ All notable changes to **Frametric** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] — 2026-06-06
+
+Major analytics expansion: Advanced Statistics page, entity detail page redesigns, UI accessibility overhaul, and search navigation fixes.
+
+### Added
+
+- **Advanced Statistics Page**: New standalone stats feature with dynamic CQRS-style queries, category/metric selection, unified cross-filtering (watch year, release year, rating range, actor/director/genre), per-query inputs, sortable columns with ARIA attributes, pagination, and sessionStorage state persistence for back-navigation.
+- **Profile Card Inline Layout**: Actor/director rows in stats tables now show profile photos, names, and meta chips (watched count, average rating, and seen count).
+- **Multi-Entity Name Splitting**: Comma-separated director/actor names in stats tables are split into individual clickable links, each navigating to the correct entity detail page.
+- **Watchlist & Like Metrics**: Entity detail pages now display watchlist count with tooltip (pending movies) and liked count with tooltip (liked movies).
+- **Unwatched Count**: Actor/director detail pages show unwatched film counts with eye icon.
+- **Mural Poster Backdrops**: Detail pages display a scrolling mural of movie poster thumbnails behind the profile header.
+- **`isWatched` Field**: `MovieDetailsDto` now includes an `isWatched` boolean for the authenticated user.
+- **`ActorId`/`DirectorId` in Search**: `GlobalSearchResultDto` now exposes separate `actorId` and `directorId` fields to correctly handle persons who are both actor and director.
+- **Unit Tests**: Added test specs for `AuthService`, `EasterEggPipe`, `EasterEggService`, `FinalCutService`, `TokenStorageService`, and `slugify`.
+- **Accessibility**: Staggered entrance animations with `prefers-reduced-motion` support, `aria-live` regions, keyboard navigation (tabindex, role, escape-to-close), and ARIA sort indicators.
+
+### Changed
+
+- **Detail Page Redesign**: Actor, director, and movie detail pages rewritten with inline SVG stat icons (film, star, bookmark, heart, eye, clapperboard), clickable stat boxes with section scrolling, and responsive grid layouts.
+- **UI Icon Standardization**: All Unicode emoji icons across the application replaced with inline SVG equivalents for consistent rendering.
+- **Rating Scale Alignment**: Diary entry ratings and statistic computations now multiply Letterboxd 1–5 scores by 2 to align with the 10-point scale; tooltips explain the conversion.
+- **Easter Egg Trigger Rate**: Increased from 2% to 15% for idle-state and auth-tagline easter eggs.
+- **Search Query**: Rewritten to expose both `ActorId` and `DirectorId` separately, fixing navigation for persons registered as both roles.
+
+### Fixed
+
+- **Entity Navigation from Stats**: Fixed 404 errors when clicking a director/actor name in stats for persons who exist as both actor and director — the frontend now uses the correct `directorId`/`actorId` from the search result.
+- **Dapper Materialization**: Fixed `InvalidOperationException` in `SearchEntitiesAsync` by aligning SELECT column order with the `GlobalSearchResultDto` constructor parameter order.
+
+### Added API Endpoints
+
+- **`GET /api/Directors/{id}`**: Director detail endpoint (now documented).
+- **`GET /api/Actors/{id}`**: Actor detail endpoint (now documented).
+- **`GET /api/Search?q=`**: Global search endpoint (now documented).
+
+---
+
 ## [1.3.1] — 2026-06-05
 
 Manual watch management improvements and infrastructure bugfix.
