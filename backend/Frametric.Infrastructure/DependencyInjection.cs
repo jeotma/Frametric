@@ -1,5 +1,6 @@
 using Frametric.Application.Interfaces;
 using Frametric.Application.Interfaces.Analytics;
+using Frametric.Application.Interfaces.EntityDetails;
 using Frametric.Infrastructure.BackgroundJobs;
 using Frametric.Infrastructure.Security;
 using Frametric.Infrastructure.Importer;
@@ -41,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IWatchlistComplexCorrelationsQueries, WatchlistQueriesImpl>();
         services.AddScoped<IBonusQueries, BonusQueriesImpl>();
         services.AddScoped<IRecommendationQueries, RecommendationQueriesImpl>();
+        services.AddScoped<IEntityDetailsQueries, EntityDetailsQueriesImpl>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         // Register JWT Security and Current User services

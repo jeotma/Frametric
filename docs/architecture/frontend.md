@@ -18,10 +18,15 @@ app/
  │    ├── api/             # Auto-generated API client code (OpenAPI)
  │    ├── guards/          # Route protection guards (authGuard)
  │    ├── interceptors/    # HTTP interceptors (authInterceptor)
- │    └── services/        # Central core logic (Auth, TokenStorage, FinalCut)
+ │    ├── services/        # Central core logic (Auth, TokenStorage, FinalCut, EasterEgg)
+ │    └── utils/           # Shared utility functions (slugify, etc.)
  ├── features/             # Lazy-loaded feature domains
+ │    ├── actors/          # Actor detail view (/actors/:id/:slug)
  │    ├── auth/            # Sign in and Register pages
+ │    ├── directors/       # Director detail view (/directors/:id/:slug)
  │    ├── final-cut/       # "The Username's Cut" Spotify Wrapped-style slideshow
+ │    ├── movies/          # Movie detail view with manual log/unlog (/movies/:id)
+ │    ├── recommendations/ # Cinematic recommendation engine UI
  │    └── stats/           # Detailed analytics grids and graphs
  ├── app.config.ts         # Angular application bootstrapping and providers
  ├── app.routes.ts         # Core routing configuration with lazy loading

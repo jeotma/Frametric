@@ -195,11 +195,11 @@ public class ComfortZoneDisruptorStrategy : RecommendationStrategyBase
         {
             var prefixes = new[]
             {
-                "Disrupts your comfort zone because it",
-                "Shakes up your usual viewing habits since it",
-                "Breaks your typical pattern because it",
-                "Offers a fresh perspective as it",
-                "Steps away from your routine since it"
+                "This selection",
+                "This boundary-pushing pick",
+                "A choice that",
+                "A pick that",
+                "A movie that"
             };
             var chosenPrefix = prefixes[Random.Shared.Next(prefixes.Length)];
             return $"{chosenPrefix} {FormatReasons(reasons)}.";

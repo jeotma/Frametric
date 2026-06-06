@@ -1,0 +1,165 @@
+<div class="person-detail-container" (click)="closeTooltip()" *ngIf="!isLoading(); else loader">
+  <ng-container *ngIf="director() as d">
+    <div class="mural-backdrop">
+      <div class="mural-poster" *ngFor="let m of muralMovies">
+        <img [src]="m.posterPath" [alt]="m.title" />
+      </div>
+    </div>
+
+    <div class="header glass-panel animate-slide-up">
+      <div class="profile-avatar">
+        <img *ngIf="d.profilePath; else placeholderAvatar" [src]="d.profilePath" [alt]="d.name" />
+        <ng-template #placeholderAvatar>
+          <div class="avatar-placeholder">
+            <span>{{ d.name.charAt(0) }}</span>
+          </div>
+        </ng-template>
+      </div>
+      
+      <div class="header-info">
+        <h1>{{ d.name }}</h1>
+        <div class="stats">
+          <div class="stat-box clickable animate-stagger-fade" style="--i: 0" (click)="scrollToSection('watched-section')">
+            <span class="label">Watched</span>
+            <span class="value">
+              <svg class="stat-icon film" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+              {{ d.watchCount }}
+            </span>
+          </div>
+          <div class="stat-box tooltip-container animate-stagger-fade" style="--i: 1; cursor: help;">
+            <span class="label">Avg. rating ℹ️</span>
+            <span class="tooltip-text" style="width: 280px;">Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.</span>
+            <span class="value">
+              <svg class="stat-icon star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              {{ d.averageRating | number:'1.1-1' }}
+            </span>
+          </div>
+          <div class="stat-box watchlist-stat animate-stagger-fade" style="--i: 2" (click)="toggleTooltip('watchlist'); $event.stopPropagation()">
+            <span class="label">Watchlist</span>
+            <span class="value">
+              <svg class="stat-icon bookmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+              {{ d.watchlistCount || 0 }}
+            </span>
+            <div class="tooltip-list" (click)="$event.stopPropagation()" *ngIf="activeTooltip() === 'watchlist' && d.watchlistMovieTitles?.length">
+              <div class="tooltip-header">Watchlist Movies</div>
+              <a [routerLink]="['/movies', m.id, slugify(m.title)]" class="tooltip-item" *ngFor="let m of d.watchlistMovieTitles">{{ m.title }}</a>
+            </div>
+          </div>
+          <div class="stat-box likes-stat animate-stagger-fade" style="--i: 3" (click)="toggleTooltip('liked'); $event.stopPropagation()">
+            <span class="label">Liked</span>
+            <span class="value">
+              <svg class="stat-icon heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+              {{ d.likeCount || 0 }}
+            </span>
+            <div class="tooltip-list" (click)="$event.stopPropagation()" *ngIf="activeTooltip() === 'liked' && d.likedMovieTitles?.length">
+              <div class="tooltip-header">Liked Movies</div>
+              <a [routerLink]="['/movies', m.id, slugify(m.title)]" class="tooltip-item" *ngFor="let m of d.likedMovieTitles">{{ m.title }}</a>
+            </div>
+          </div>
+          <div class="stat-box clickable animate-stagger-fade" style="--i: 4" (click)="scrollToSection('unwatched-section')">
+            <span class="label">Unwatched</span>
+            <span class="value">
+              <svg class="stat-icon unwatched" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              {{ (unwatchedActingMovies.length + unwatchedDirectedMovies.length) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Directing Section -->
+    <div class="movies-grid animate-slide-up" [id]="watchedDirectedMovies.length > 0 ? 'watched-section' : ''" *ngIf="watchedDirectedMovies.length > 0">
+      <h2>{{ d.isActor ? 'Watched Movies (Directing)' : 'Watched Movies' }}</h2>
+      <div class="grid">
+        <a *ngFor="let m of watchedDirectedMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title)]" class="movie-card animate-stagger-up" style="--i: {{ i }}">
+          <div class="poster">
+            <img *ngIf="m.posterPath && m.posterPath !== 'null'; else noPoster" [src]="m.posterPath" [alt]="m.title" />
+            <ng-template #noPoster>
+              <div class="fallback-poster">
+                <span>{{ m.title }}</span>
+              </div>
+            </ng-template>
+          </div>
+          <div class="info">
+            <span class="title">{{ m.title }}</span>
+            <span class="year" *ngIf="m.releaseYear">{{ m.releaseYear }}</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="movies-grid unwatched-section animate-slide-up" [id]="unwatchedDirectedMovies.length > 0 ? 'unwatched-section' : ''" *ngIf="unwatchedDirectedMovies.length > 0">
+      <h2>{{ d.isActor ? 'Unwatched Movies (Directing)' : 'Unwatched Movies' }}</h2>
+      <div class="grid">
+        <a *ngFor="let m of unwatchedDirectedMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title)]" class="movie-card unwatched-card animate-stagger-up" style="--i: {{ i }}">
+          <div class="poster">
+            <img *ngIf="m.posterPath && m.posterPath !== 'null'; else noPosterUnwatched" [src]="m.posterPath" [alt]="m.title" />
+            <ng-template #noPosterUnwatched>
+              <div class="fallback-poster">
+                <span>{{ m.title }}</span>
+              </div>
+            </ng-template>
+            <div class="unwatched-badge">Discover</div>
+          </div>
+          <div class="info">
+            <span class="title">{{ m.title }}</span>
+            <span class="year" *ngIf="m.releaseYear">{{ m.releaseYear }}</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Acting Section (only if isActor) -->
+    <div class="movies-grid animate-slide-up" [id]="watchedDirectedMovies.length === 0 ? 'watched-section' : ''" *ngIf="d.isActor && watchedActingMovies.length > 0">
+      <h2>Watched Movies (Acting)</h2>
+      <div class="grid">
+        <a *ngFor="let m of watchedActingMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title)]" class="movie-card animate-stagger-up" style="--i: {{ i }}">
+          <div class="poster">
+            <img *ngIf="m.posterPath && m.posterPath !== 'null'; else noPosterDir" [src]="m.posterPath" [alt]="m.title" />
+            <ng-template #noPosterDir>
+              <div class="fallback-poster">
+                <span>{{ m.title }}</span>
+              </div>
+            </ng-template>
+          </div>
+          <div class="info">
+            <span class="title">{{ m.title }}</span>
+            <span class="year" *ngIf="m.releaseYear">{{ m.releaseYear }}</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="movies-grid unwatched-section animate-slide-up" [id]="unwatchedDirectedMovies.length === 0 ? 'unwatched-section' : ''" *ngIf="d.isActor && unwatchedActingMovies.length > 0">
+      <h2>Unwatched Movies (Acting)</h2>
+      <div class="grid">
+        <a *ngFor="let m of unwatchedActingMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title)]" class="movie-card unwatched-card animate-stagger-up" style="--i: {{ i }}">
+          <div class="poster">
+            <img *ngIf="m.posterPath && m.posterPath !== 'null'; else noPosterUnwatchedDir" [src]="m.posterPath" [alt]="m.title" />
+            <ng-template #noPosterUnwatchedDir>
+              <div class="fallback-poster">
+                <span>{{ m.title }}</span>
+              </div>
+            </ng-template>
+            <div class="unwatched-badge">Discover</div>
+          </div>
+          <div class="info">
+            <span class="title">{{ m.title }}</span>
+            <span class="year" *ngIf="m.releaseYear">{{ m.releaseYear }}</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="empty-state glass-panel animate-fade-in" *ngIf="watchedDirectedMovies.length === 0 && unwatchedDirectedMovies.length === 0 && watchedActingMovies.length === 0 && unwatchedActingMovies.length === 0">
+      <span class="empty-icon">🎬</span>
+      <h3>No movies found in database for {{ d.name }}</h3>
+    </div>
+  </ng-container>
+</div>
+
+<ng-template #loader>
+  <div class="loading-state">
+    <div class="spinner"></div>
+  </div>
+</ng-template>

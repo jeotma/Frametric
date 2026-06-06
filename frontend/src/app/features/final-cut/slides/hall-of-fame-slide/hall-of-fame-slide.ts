@@ -21,7 +21,7 @@ import { TopBottomMoviesDto } from '../../../../core/services/final-cut.service'
           </div>
           <div class="hof-info">
             <span class="hof-title">{{ m.title }}</span>
-            <span class="hof-rating">⭐ {{ m.rating | number:'1.1-1' }} <span *ngIf="m.liked" class="heart">❤️</span></span>
+            <span class="hof-rating" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">⭐ {{ m.rating | number:'1.1-1' }} <span *ngIf="m.liked" class="heart">❤️</span> ℹ️</span>
           </div>
         </div>
       </div>

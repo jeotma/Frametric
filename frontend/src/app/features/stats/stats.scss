@@ -132,6 +132,7 @@
   &:hover .tooltip-text {
     visibility: visible;
     opacity: 1;
+    transition: opacity 0.2s ease 0.6s, visibility 0s linear 0.6s;
   }
 }
 
@@ -380,6 +381,119 @@
     letter-spacing: 2px;
     color: var(--text-muted);
     font-weight: 600;
+  }
+}
+
+/* ENRICHED HERO CARD (Profile with photo) */
+.hero-card.hero-profile {
+  padding: 48px;
+}
+
+.hero-profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.hero-profile-img-wrap {
+  width: 160px;
+  height: 220px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(139, 92, 246, 0.4);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+}
+
+.hero-profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.hero-title-with-img {
+  font-size: 2.5rem;
+  margin-bottom: 0;
+}
+
+.hero-profile-actions {
+  margin-top: 40px;
+}
+
+.profile-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+
+  &:hover {
+    border-color: rgba(139, 92, 246, 0.8);
+    background: rgba(139, 92, 246, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+/* TOOLTIP LIST (hover on hero stat boxes) */
+.hero-card .stat-box.tooltip-container {
+  position: relative;
+  cursor: pointer;
+
+  .tooltip-list {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: rgba(15, 15, 20, 0.95);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    width: 260px;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 20;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    text-align: left;
+
+    .tooltip-header {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #a855f7;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.4rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .tooltip-item {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.9);
+      padding: 0.35rem 0;
+      display: block;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      &:hover {
+        color: #a855f7;
+      }
+    }
+  }
+
+  &:hover .tooltip-list {
+    display: block;
   }
 }
 
@@ -753,3 +867,162 @@
 .text-center {
   text-align: center !important;
 }
+
+/* PROFILE CARD (Actor/Director in Advanced Stats) */
+.profile-card-inline {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 0;
+}
+
+.profile-photo-wrap {
+  flex-shrink: 0;
+  width: 52px;
+  height: 72px;
+}
+
+.profile-photo-sm {
+  width: 52px;
+  height: 72px;
+  border-radius: 6px;
+  object-fit: cover;
+  object-position: top;
+  border: 2px solid rgba(139, 92, 246, 0.4);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  transition: transform 0.2s, border-color 0.2s;
+
+  &:hover {
+    transform: scale(1.08);
+    border-color: rgba(139, 92, 246, 0.8);
+  }
+}
+
+.profile-photo-placeholder-sm {
+  width: 52px;
+  height: 72px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(139,92,246,0.3), rgba(236,72,153,0.3));
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.profile-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.profile-meta-chip {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* SVG ICON STYLES (matching director-detail pattern) */
+.stat-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #a855f7;
+  flex-shrink: 0;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.stat-icon.star { color: #f59e0b; }
+.stat-icon.heart { color: #e25c5c; }
+.stat-icon.heart.unliked { color: rgba(255,255,255,0.25); filter: grayscale(100%); opacity: 0.4; }
+.stat-icon.check { color: #10b981; }
+.stat-icon.clapperboard { color: #a855f7; }
+.stat-icon.info { color: var(--text-muted); }
+
+/* UTILITY CLASSES TO REPLACE INLINE STYLES */
+.entity-link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.clickable-link {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.toxic-indicator {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.help-cursor {
+  cursor: help;
+}
+
+.count-link {
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+.liked-icon {
+  font-size: 1.2rem;
+}
+
+.liked-icon.active {
+  color: #e25c5c;
+}
+
+.liked-icon.inactive {
+  color: rgba(255,255,255,0.25);
+  filter: grayscale(100%);
+  opacity: 0.4;
+}
+
+.keyboard-interactive {
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid #a855f7;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+.info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  margin-left: 12px;
+  vertical-align: middle;
+}
+

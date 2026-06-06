@@ -22,7 +22,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
             <span class="gem-title">{{ g.title }}</span>
             <span class="gem-year">{{ g.releaseYear }}</span>
             <div class="gem-meta">
-              <span class="gem-rating">⭐ {{ g.rating | number:'1.1-1' }} / 10</span>
+              <span class="gem-rating" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">⭐ {{ g.rating | number:'1.1-1' }} / 10 ℹ️</span>
               <span class="gem-popularity">Low Popularity Index</span>
             </div>
           </div>

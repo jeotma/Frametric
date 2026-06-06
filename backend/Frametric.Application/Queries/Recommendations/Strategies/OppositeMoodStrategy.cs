@@ -240,11 +240,11 @@ public class OppositeMoodStrategy : RecommendationStrategyBase
         {
             var prefixes = new[]
             {
-                "A great palette cleanser because it",
-                "A refreshing change of pace as it",
-                "Breaks your current pattern since it",
-                "Cleanses your cinematic palate because it",
-                "Acts as a solid reset button as it"
+                "This selection",
+                "This detoured choice",
+                "This alternative pick",
+                "A pick that",
+                "A movie that"
             };
             var chosenPrefix = prefixes[Random.Shared.Next(prefixes.Length)];
             return $"{chosenPrefix} {FormatReasons(reasons)}.";

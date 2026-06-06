@@ -83,8 +83,12 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
                                ?? await _context.Directors.FirstOrDefaultAsync(d => d.TmdbId == dDto.Id, cancellationToken);
                 if (director == null)
                 {
-                    director = new Director(Guid.NewGuid(), dDto.Id, dDto.Name);
+                    director = new Director(Guid.NewGuid(), dDto.Id, dDto.Name, dDto.ProfilePath);
                     _context.Directors.Add(director);
+                }
+                else
+                {
+                    director.UpdateProfilePath(dDto.ProfilePath);
                 }
                 directors.Add(director);
             }
@@ -96,8 +100,12 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
                             ?? await _context.Actors.FirstOrDefaultAsync(a => a.TmdbId == aDto.Id, cancellationToken);
                 if (actor == null)
                 {
-                    actor = new Actor(Guid.NewGuid(), aDto.Id, aDto.Name);
+                    actor = new Actor(Guid.NewGuid(), aDto.Id, aDto.Name, aDto.ProfilePath);
                     _context.Actors.Add(actor);
+                }
+                else
+                {
+                    actor.UpdateProfilePath(aDto.ProfilePath);
                 }
                 actors.Add(actor);
             }

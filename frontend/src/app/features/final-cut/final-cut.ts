@@ -219,4 +219,14 @@ export class FinalCutComponent implements OnInit, OnDestroy {
   handleEscape() {
     this.router.navigate(['/']);
   }
+
+  @HostListener('window:keydown.arrowright')
+  handleArrowRight() {
+    this.nextSlide();
+  }
+
+  @HostListener('window:keydown.arrowleft')
+  handleArrowLeft() {
+    this.prevSlide();
+  }
 }

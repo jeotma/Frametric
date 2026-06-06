@@ -63,3 +63,7 @@ portfolio/
 # === OMDb API Cache ===
 **/omdb_cache/
 
+# === Test Results & Coverage Reports ===
+**/TestResults/
+**/coveragereport/
+

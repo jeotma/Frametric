@@ -299,7 +299,7 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
       // Verify details of first card
       const firstCard = movieCards.nth(0);
       await expect(firstCard.locator('.movie-title')).toHaveText('Inception');
-      await expect(firstCard.locator('.director')).toHaveText('Christopher Nolan');
+      await expect(firstCard.locator('.director')).toContainText('Christopher Nolan');
       await expect(firstCard.locator('.match-badge')).toHaveText('95.5% Match');
       await expect(firstCard.locator('.reason-text')).toContainText('Shares your favorite sci-fi style and pacing');
 

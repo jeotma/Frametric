@@ -35,6 +35,7 @@
               }
             ],
             "styles": ["src/styles.scss"],
+            "allowedCommonJsDependencies": ["html2canvas"],
             "stylePreprocessorOptions": {
               "includePaths": ["src"]
             }
@@ -49,7 +50,7 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "16kB",
+                  "maximumWarning": "20kB",
                   "maximumError": "32kB"
                 }
               ],

@@ -25,4 +25,4 @@ public record TmdbMovieResultDto(
 }
 
 public record TmdbGenreDto(int Id, string Name);
-public record TmdbPersonDto(int Id, string Name);
+public record TmdbPersonDto(int Id, string Name, string? ProfilePath = null);
