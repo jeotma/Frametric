@@ -508,5 +508,14 @@ a {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  // Exception: Preserve promo slideshow animations for cinematic experience
+  .promo-frame,
+  .promo-player {
+    animation-duration: auto !important;
+    animation-iteration-count: auto !important;
+    transition-duration: auto !important;
+    scroll-behavior: auto !important;
+  }
 }
 

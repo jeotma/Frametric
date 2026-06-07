@@ -133,13 +133,63 @@
   align-items: center;
   justify-content: center;
   text-align: center;
+  overflow: hidden;
 }
 
 .promo-frame {
   position: absolute;
-  width: 100%;
+  inset: 0;
   padding: 0 20px;
-  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1;
+  /* Force override of global prefers-reduced-motion rule */
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s ease !important;
+  animation-duration: auto !important;
+  animation-iteration-count: auto !important;
+
+  /* Default state for each animation type */
+  &.animate-fade-zoom:not(.active) {
+    transform: translateY(16px) scale(0.96);
+  }
+
+  &.animate-slide-left:not(.active) {
+    transform: translateX(24px) scale(0.96);
+  }
+
+  &.animate-focus-in:not(.active) {
+    transform: translateY(16px) scale(0.96);
+  }
+
+  &.animate-reveal:not(.active) {
+    transform: translateY(24px) scale(0.96);
+  }
+
+  &.animate-soft-pop:not(.active) {
+    transform: scale(0.88);
+  }
+
+  &.promo-end:not(.active) {
+    transform: translateY(16px) scale(0.96);
+  }
+
+  /* Active state: all slides enter the same way */
+  &.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1) translateX(0);
+    z-index: 2;
+    pointer-events: auto;
+  }
+
+  &.promo-end h3 {
+    letter-spacing: 0.04em;
+  }
+
   h3 {
     font-family: var(--font-display);
     font-size: 1.2rem;
@@ -147,51 +197,12 @@
     line-height: 1.4;
     margin: 0;
     color: #ffffff;
+    white-space: pre-line;
   }
-  
+
   .highlight {
     color: var(--accent-cyan);
   }
 }
 
-.animate-fade-zoom {
-  animation: fadeZoom 2.5s ease-out forwards;
-}
-
-.animate-slide-left {
-  animation: slideLeft 2.5s ease-out forwards;
-}
-
-.animate-focus-in {
-  animation: focusIn 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-
-.promo-end {
-  animation: fadeZoomEnd 0.5s ease-out forwards;
-}
-
-@keyframes fadeZoom {
-  0% { opacity: 0; transform: scale(0.9); }
-  20% { opacity: 1; transform: scale(1); }
-  80% { opacity: 1; transform: scale(1.05); }
-  100% { opacity: 0; transform: scale(1.1); }
-}
-
-@keyframes slideLeft {
-  0% { opacity: 0; transform: translateX(20px); }
-  20% { opacity: 1; transform: translateX(0); }
-  80% { opacity: 1; transform: translateX(-10px); }
-  100% { opacity: 0; transform: translateX(-30px); }
-}
-
-@keyframes focusIn {
-  0% { opacity: 0; filter: blur(10px); transform: scale(1.1); }
-  20% { opacity: 1; filter: blur(0); transform: scale(1); }
-  80% { opacity: 1; filter: blur(0); transform: scale(0.98); }
-  100% { opacity: 0; filter: blur(5px); transform: scale(0.95); }
-}
-
-@keyframes fadeZoomEnd {
-  0% { opacity: 0; transform: scale(0.9); }
-  100% { opacity: 1; transform: scale(1); }
-}
+/* Keyframes removed: transitions now controlled by .active class for robustness */

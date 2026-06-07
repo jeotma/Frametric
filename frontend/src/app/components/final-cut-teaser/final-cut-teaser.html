@@ -14,19 +14,19 @@
 
       <ng-container *ngIf="isPlayingPromo()">
         <div class="promo-player">
-          <div class="promo-frame animate-fade-zoom" *ngIf="promoStep() === 0">
+          <div class="promo-frame animate-fade-zoom" [class.active]="promoStep() === 0">
             <h3>Your cinematic year,<br>unraveled.</h3>
           </div>
-          <div class="promo-frame animate-slide-left" *ngIf="promoStep() === 1">
+          <div class="promo-frame animate-slide-left" [class.active]="promoStep() === 1">
             <h3>Relive your favorite <span class="highlight">Movies & Actors</span></h3>
           </div>
-          <div class="promo-frame animate-fade-zoom" *ngIf="promoStep() === 2">
+          <div class="promo-frame animate-reveal" [class.active]="promoStep() === 2">
             <h3>Discover your top<br><span class="highlight">Directors & Genres</span></h3>
           </div>
-          <div class="promo-frame animate-focus-in" *ngIf="promoStep() === 3">
+          <div class="promo-frame animate-soft-pop" [class.active]="promoStep() === 3">
             <h3>Generate your aesthetic<br>shareable infographic.</h3>
           </div>
-          <div class="promo-frame promo-end" *ngIf="promoStep() === 4">
+          <div class="promo-frame promo-end" [class.active]="promoStep() === 4">
             <h3>Ready to see it?</h3>
           </div>
         </div>
