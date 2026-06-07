@@ -50,7 +50,6 @@ export class FinalCutTeaserComponent implements OnInit, OnDestroy {
 
   private queueNextStep() {
     const currentStep = this.promoStep();
-    // Step 4 is the final screen. Wait 10 seconds before restarting. Others take 2.8s.
     const duration = currentStep === 4 ? 10000 : 2800;
 
     this.promoTimeout = setTimeout(() => {

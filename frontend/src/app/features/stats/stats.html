@@ -133,11 +133,16 @@
         <span class="alert-icon">🎩</span>
         <div class="alert-content">
           <h4>Pretentiometer Warning</h4>
-          <p class="tooltip-container" class="help-cursor" style="margin: 0;">
+          <p class="tooltip-container help-cursor" style="margin: 0;">
             High levels of slow-cinema superiority detected.
             <span class="tooltip-text">Have you actually watched Satantango three times, or do you just like the aesthetic of suffering? We get it, you hate fun. Here's your virtual turtleneck. Just kidding, we love you and your exquisite taste anyway! ❤️</span>
           </p>
         </div>
+      </div>
+
+      <!-- Navigation Error Toast -->
+      <div *ngIf="navigationError()" class="nav-error-toast animate-fade-in" (click)="navigationError.set(null)">
+        {{ navigationError() }}
       </div>
 
       <!-- Bacon Distance Overlay Modal -->
@@ -231,7 +236,7 @@
                               <span (click)="navigateToEntity(subName, 'Actor')" tabindex="0" role="button" class="clickable-link">{{ subName }}</span><ng-container *ngIf="!last">, </ng-container>
                             </ng-container>
                           </ng-template>
-                          <button type="button" class="bacon-calc-btn" (click)="calculateBaconDistance(item[col]); $event.stopPropagation()" aria-label="Calculate Kevin Bacon Distance">🥓</button>
+                          <button type="button" class="bacon-calc-btn" (click)="calculateBaconDistance(getFirstEntityName(item[col])); $event.stopPropagation()" aria-label="Calculate Kevin Bacon Distance">🥓</button>
                         </span>
                       }
                     </ng-container>
@@ -294,7 +299,7 @@
                               <span (click)="navigateToEntity(subName, 'Actor')" tabindex="0" role="button" class="clickable-link">{{ subName }}</span><ng-container *ngIf="!last">, </ng-container>
                             </ng-container>
                           </ng-template>
-                          <button type="button" class="bacon-calc-btn" (click)="calculateBaconDistance(item[col]); $event.stopPropagation()" aria-label="Calculate Kevin Bacon Distance">🥓</button>
+                          <button type="button" class="bacon-calc-btn" (click)="calculateBaconDistance(getFirstEntityName(item[col])); $event.stopPropagation()" aria-label="Calculate Kevin Bacon Distance">🥓</button>
                         </span>
                       }
                       @else if (col.toLowerCase() === 'count' && (selectedQueryId().includes('director') || selectedQueryId().includes('actor'))) {

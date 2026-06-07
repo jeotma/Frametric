@@ -32,6 +32,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
   public isPretentious = signal<boolean>(false);
   public baconMessage = signal<string | null>(null);
+  public navigationError = signal<string | null>(null);
   public toxicDirectors = signal<Set<string>>(new Set<string>());
 
   public globalFilters: GlobalFilters = {};
@@ -484,8 +485,11 @@ export class StatsComponent implements OnInit, OnDestroy {
             const slug = slugify(name);
             const route = type === 'Actor' ? '/actors' : '/directors';
             this.router.navigate([route, id, slug], fragment ? { fragment } : undefined);
+            return;
           }
         }
+        this.navigationError.set(`Could not find "${name}" in ${type}s.`);
+        setTimeout(() => this.navigationError.set(null), 3000);
       }
     });
   }
@@ -497,6 +501,10 @@ export class StatsComponent implements OnInit, OnDestroy {
   splitEntityNames(value: string): string[] {
     if (!value) return [];
     return value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+  }
+
+  getFirstEntityName(value: string): string {
+    return this.splitEntityNames(value)[0] || value;
   }
 
   private navigateToMovie(name: string) {
