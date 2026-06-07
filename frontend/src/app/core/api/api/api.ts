@@ -16,4 +16,6 @@ export * from './recommendations.service';
 import { RecommendationsService } from './recommendations.service';
 export * from './search.service';
 import { SearchService } from './search.service';
-export const APIS = [ActorsService, AdvancedAnalyticsService, AnalyticsService, AuthService, DirectorsService, ImportService, MoviesService, RecommendationsService, SearchService];
+export * from './discovery.service';
+import { DiscoveryService } from './discovery.service';
+export const APIS = [ActorsService, AdvancedAnalyticsService, AnalyticsService, AuthService, DirectorsService, ImportService, MoviesService, RecommendationsService, SearchService, DiscoveryService];

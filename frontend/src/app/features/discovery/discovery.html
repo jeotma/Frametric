@@ -1,0 +1,399 @@
+<div class="discovery-container">
+  <div class="discovery-header">
+    <h1>Discovery Suite</h1>
+    <p class="subtitle">Fun tools to assist you on your cinematic journey.</p>
+  </div>
+
+  <div class="tab-bar glass-panel">
+    <button *ngFor="let tab of ['bingo', 'roulette', 'mystery-box', 'dice', 'slot-machine']; trackBy: trackByIndex"
+      class="tab-btn"
+      [class.active]="activeTab() === tab"
+      (click)="setActiveTab(tab)">
+      <ng-container [ngSwitch]="tab">
+        <ng-template ngSwitchCase="bingo">
+          <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="2" y="2" width="20" height="20" rx="2" />
+            <line x1="9" y1="2" x2="9" y2="22" />
+            <line x1="16" y1="2" x2="16" y2="22" />
+            <line x1="2" y1="9" x2="22" y2="9" />
+            <line x1="2" y1="16" x2="22" y2="16" />
+          </svg>
+          Bingo
+        </ng-template>
+        <ng-template ngSwitchCase="roulette">
+          <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="2" />
+            <line x1="12" y1="4" x2="12" y2="8" />
+            <line x1="12" y1="16" x2="12" y2="20" />
+            <line x1="4" y1="12" x2="8" y2="12" />
+            <line x1="16" y1="12" x2="20" y2="12" />
+            <line x1="5.5" y1="5.5" x2="8.5" y2="8.5" />
+            <line x1="15.5" y1="15.5" x2="18.5" y2="18.5" />
+            <line x1="5.5" y1="18.5" x2="8.5" y2="15.5" />
+            <line x1="15.5" y1="8.5" x2="18.5" y2="5.5" />
+          </svg>
+          Roulette
+        </ng-template>
+        <ng-template ngSwitchCase="mystery-box">
+          <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M3 10h18" />
+            <rect x="3" y="10" width="18" height="11" rx="2" />
+            <path d="M7 10V7a5 5 0 0 1 10 0v3" />
+            <path d="M12 21v-8" />
+          </svg>
+          Mystery Box
+        </ng-template>
+        <ng-template ngSwitchCase="dice">
+          <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="3" />
+            <circle cx="8" cy="8" r="1.5" />
+            <circle cx="16" cy="8" r="1.5" />
+            <circle cx="12" cy="12" r="1.5" />
+            <circle cx="8" cy="16" r="1.5" />
+            <circle cx="16" cy="16" r="1.5" />
+          </svg>
+          Dice
+        </ng-template>
+        <ng-template ngSwitchCase="slot-machine">
+          <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="2" y="4" width="20" height="16" rx="2" />
+            <line x1="10" y1="4" x2="10" y2="20" />
+            <line x1="16" y1="4" x2="16" y2="20" />
+            <circle cx="6" cy="12" r="2" />
+            <circle cx="13" cy="12" r="2" />
+            <circle cx="19" cy="12" r="2" />
+          </svg>
+          Slot Machine
+        </ng-template>
+      </ng-container>
+    </button>
+  </div>
+
+  <div *ngIf="errorMsg()" class="error-banner glass-panel">
+    {{ errorMsg() }}
+    <button class="dismiss-btn" (click)="errorMsg.set(null)">&times;</button>
+  </div>
+
+  <!-- Bingo Panel -->
+  <div *ngIf="activeTab() === 'bingo'" class="panel glass-panel animate-fade-in">
+    <div class="panel-header">
+      <h2>
+        <svg class="heading-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <rect x="2" y="2" width="20" height="20" rx="2" />
+          <line x1="9" y1="2" x2="9" y2="22" />
+          <line x1="16" y1="2" x2="16" y2="22" />
+          <line x1="2" y1="9" x2="22" y2="9" />
+          <line x1="2" y1="16" x2="22" y2="16" />
+        </svg>
+        Cinematic Bingo
+      </h2>
+      <p>Complete objectives by watching films. Fill a line to earn bonuses!</p>
+    </div>
+    <div class="bingo-controls">
+      <label>Grid Size:
+        <select [(ngModel)]="bingoGridSize" (change)="bingoResultSig.set(null)">
+          <option [value]="3">3 &times; 3</option>
+          <option [value]="4">4 &times; 4</option>
+          <option [value]="5">5 &times; 5</option>
+        </select>
+      </label>
+      <button class="btn btn-primary" (click)="loadBingo()" [disabled]="bingoLoading()">
+        {{ bingoLoading() ? 'Loading...' : 'Load Board' }}
+      </button>
+    </div>
+
+    <div *ngIf="bingoLoading()" class="loading-state">Generating your bingo board...</div>
+
+    <div *ngIf="bingoResultSig() as bingo" class="bingo-grid"
+      [style.grid-template-columns]="'repeat(' + bingo.gridSize + ', 1fr)'">
+      <div *ngFor="let square of bingo.squares; trackBy: trackById"
+        class="bingo-square"
+        [class.completed]="square.isCompleted">
+        <div class="square-content">
+          <svg class="check-icon" *ngIf="square.isCompleted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+            <polyline points="4 12 9 17 20 6" />
+          </svg>
+          <svg class="square-icon" *ngIf="!square.isCompleted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+          </svg>
+          <span class="square-desc">{{ square.description }}</span>
+        </div>
+        <div class="square-coords">({{ square.row }},{{ square.column }})</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Roulette Panel -->
+  <div *ngIf="activeTab() === 'roulette'" class="panel glass-panel animate-fade-in">
+    <div class="panel-header">
+      <h2>
+        <svg class="heading-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <circle cx="12" cy="12" r="2" />
+          <line x1="12" y1="4" x2="12" y2="8" />
+          <line x1="12" y1="16" x2="12" y2="20" />
+          <line x1="4" y1="12" x2="8" y2="12" />
+          <line x1="16" y1="12" x2="20" y2="12" />
+          <line x1="5.5" y1="5.5" x2="8.5" y2="8.5" />
+          <line x1="15.5" y1="15.5" x2="18.5" y2="18.5" />
+          <line x1="5.5" y1="18.5" x2="8.5" y2="15.5" />
+          <line x1="15.5" y1="8.5" x2="18.5" y2="5.5" />
+        </svg>
+        Selection Roulette
+      </h2>
+      <p>Pure random selection from the discovery pool.</p>
+    </div>
+    <div class="controls-row">
+      <label>Scope:
+        <select [(ngModel)]="rouletteScope">
+          <option [value]="1">Database</option>
+          <option [value]="0">Watchlist</option>
+          <option [value]="3">Hybrid</option>
+        </select>
+      </label>
+      <label>Threshold:
+        <input type="number" min="0" max="10" [(ngModel)]="rouletteThreshold" />
+        <small>(0 = instant)</small>
+      </label>
+      <button class="btn btn-primary" (click)="spellRoulette()" [disabled]="rouletteLoading()">
+        <ng-container *ngIf="!rouletteLoading()">
+          <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="2" />
+            <line x1="12" y1="4" x2="12" y2="8" />
+            <line x1="12" y1="16" x2="12" y2="20" />
+            <line x1="4" y1="12" x2="8" y2="12" />
+            <line x1="16" y1="12" x2="20" y2="12" />
+            <line x1="5.5" y1="5.5" x2="8.5" y2="8.5" />
+            <line x1="15.5" y1="15.5" x2="18.5" y2="18.5" />
+            <line x1="5.5" y1="18.5" x2="8.5" y2="15.5" />
+            <line x1="15.5" y1="8.5" x2="18.5" y2="5.5" />
+          </svg>
+          Spin!
+        </ng-container>
+        <ng-container *ngIf="rouletteLoading()">Spinning...</ng-container>
+      </button>
+    </div>
+
+    <div *ngIf="rouletteLoading()" class="loading-state">Spinning the wheel...</div>
+
+    <div *ngIf="rouletteResultSig() as movie" class="result-card glass-panel animate-slide-up">
+      <img *ngIf="movie.posterUrl" [src]="movie.posterUrl" class="poster-thumb" />
+      <div class="result-info">
+        <h3>{{ movie.title }} ({{ movie.releaseYear }})</h3>
+        <p>{{ movie.directorName }}</p>
+        <p class="meta">{{ movie.selectionMechanismMetadata }}</p>
+        <p *ngIf="movie.runtimeMinutes">{{ movie.runtimeMinutes }} min</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mystery Box Panel -->
+  <div *ngIf="activeTab() === 'mystery-box'" class="panel glass-panel animate-fade-in">
+    <div class="panel-header">
+      <h2>
+        <svg class="heading-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 10h18" />
+          <rect x="3" y="10" width="18" height="11" rx="2" />
+          <path d="M7 10V7a5 5 0 0 1 10 0v3" />
+          <path d="M12 21v-8" />
+        </svg>
+        Mystery Box
+      </h2>
+      <p>Choose among hidden movie options.</p>
+    </div>
+    <div class="controls-row">
+      <label>Scope:
+        <select [(ngModel)]="mysteryScope">
+          <option [value]="1">Database</option>
+          <option [value]="0">Watchlist</option>
+          <option [value]="3">Hybrid</option>
+        </select>
+      </label>
+      <label>Variant:
+        <select [(ngModel)]="mysteryVariant">
+          <option [value]="0">Standard</option>
+          <option [value]="1">Thematic</option>
+          <option [value]="2">Premium</option>
+          <option [value]="3">Full Reveal</option>
+          <option [value]="4">Strategy</option>
+        </select>
+      </label>
+      <button class="btn btn-primary" (click)="generateMysteryBox()" [disabled]="mysteryLoading()">
+        <ng-container *ngIf="!mysteryLoading()">
+          <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M3 10h18" />
+            <rect x="3" y="10" width="18" height="11" rx="2" />
+            <path d="M7 10V7a5 5 0 0 1 10 0v3" />
+            <path d="M12 21v-8" />
+          </svg>
+          Generate Boxes
+        </ng-container>
+        <ng-container *ngIf="mysteryLoading()">Generating...</ng-container>
+      </button>
+    </div>
+
+    <div *ngIf="mysteryResultSig() as mb" class="boxes-row">
+      <div *ngFor="let boxId of mb.boxIds; trackBy: trackByIndex"
+        class="mystery-box"
+        [class.opened]="selectedBoxId() === boxId"
+        (click)="revealBox(boxId)" role="button" tabindex="0">
+        <div class="box-lid" *ngIf="selectedBoxId() !== boxId">?</div>
+        <div class="box-open" *ngIf="selectedBoxId() === boxId && revealedMovieSig()">
+          <img *ngIf="revealedMovieSig()?.posterUrl" [src]="revealedMovieSig()?.posterUrl" class="poster-thumb" />
+          <p class="box-title">{{ revealedMovieSig()?.title }}</p>
+        </div>
+        <div class="box-loading" *ngIf="selectedBoxId() === boxId && mysteryRevealing()">Opening...</div>
+        <div class="box-hint" *ngIf="mb.hints && !selectedBoxId()">
+          {{ mb.hints[mb.boxIds.indexOf(boxId)]?.hint }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dice Panel -->
+  <div *ngIf="activeTab() === 'dice'" class="panel glass-panel animate-fade-in">
+    <div class="panel-header">
+      <h2>
+        <svg class="heading-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="3" />
+          <circle cx="8" cy="8" r="1.5" />
+          <circle cx="16" cy="8" r="1.5" />
+          <circle cx="12" cy="12" r="1.5" />
+          <circle cx="8" cy="16" r="1.5" />
+          <circle cx="16" cy="16" r="1.5" />
+        </svg>
+        Cinematic Dice
+      </h2>
+      <p>Roll the dice to determine your film's characteristics.</p>
+    </div>
+    <div class="controls-row">
+      <label>Scope:
+        <select [(ngModel)]="diceScope">
+          <option [value]="1">Database</option>
+          <option [value]="0">Watchlist</option>
+          <option [value]="3">Hybrid</option>
+        </select>
+      </label>
+      <button class="btn btn-primary" (click)="rollDice()" [disabled]="diceLoading()">
+        <ng-container *ngIf="!diceLoading()">
+          <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="3" />
+            <circle cx="8" cy="8" r="1.5" />
+            <circle cx="16" cy="8" r="1.5" />
+            <circle cx="12" cy="12" r="1.5" />
+            <circle cx="8" cy="16" r="1.5" />
+            <circle cx="16" cy="16" r="1.5" />
+          </svg>
+          Roll All Dice!
+        </ng-container>
+        <ng-container *ngIf="diceLoading()">Rolling...</ng-container>
+      </button>
+    </div>
+
+    <div *ngIf="diceLoading()" class="loading-state">Rolling dice...</div>
+
+    <div *ngIf="diceResultSig() as dr" class="dice-result">
+      <div class="dice-results-row">
+        <div *ngFor="let die of dr.diceResults; trackBy: trackByIndex" class="die-card glass-panel">
+          <div class="die-type">{{ ['Quality','Rarity','Risk','Complexity','Exploration'][die.diceType] || 'Unknown' }}</div>
+          <div class="die-value">{{ die.rollValue }}</div>
+          <div class="die-label">{{ die.label }}</div>
+          <div class="die-desc">{{ die.description }}</div>
+        </div>
+      </div>
+      <div *ngIf="dr.specialEvent" class="special-event glass-panel animate-slide-up">
+        {{ dr.specialEvent }}
+      </div>
+      <div class="result-card glass-panel animate-slide-up">
+        <img *ngIf="dr.posterUrl" [src]="dr.posterUrl" class="poster-thumb" />
+        <div class="result-info">
+          <h3>{{ dr.title }} ({{ dr.releaseYear }})</h3>
+          <p>{{ dr.directorName }}</p>
+          <p class="meta">{{ dr.selectionMechanismMetadata }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slot Machine Panel -->
+  <div *ngIf="activeTab() === 'slot-machine'" class="panel glass-panel animate-fade-in">
+    <div class="panel-header">
+      <h2>
+        <svg class="heading-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <rect x="2" y="4" width="20" height="16" rx="2" />
+          <line x1="10" y1="4" x2="10" y2="20" />
+          <line x1="16" y1="4" x2="16" y2="20" />
+          <circle cx="6" cy="12" r="2" />
+          <circle cx="13" cy="12" r="2" />
+          <circle cx="19" cy="12" r="2" />
+        </svg>
+        Slot Machine
+      </h2>
+      <p>Spin to build a search combination.</p>
+    </div>
+    <div class="controls-row">
+      <label>Scope:
+        <select [(ngModel)]="slotScope">
+          <option [value]="1">Database</option>
+          <option [value]="0">Watchlist</option>
+          <option [value]="3">Hybrid</option>
+        </select>
+      </label>
+      <label>Genre:
+        <input type="text" [(ngModel)]="slotGenre" placeholder="e.g. Horror (optional)" />
+      </label>
+      <button class="btn btn-primary" (click)="spinSlots()" [disabled]="slotLoading()">
+        <ng-container *ngIf="!slotLoading()">
+          <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="2" y="4" width="20" height="16" rx="2" />
+            <line x1="10" y1="4" x2="10" y2="20" />
+            <line x1="16" y1="4" x2="16" y2="20" />
+            <circle cx="6" cy="12" r="2" />
+            <circle cx="13" cy="12" r="2" />
+            <circle cx="19" cy="12" r="2" />
+          </svg>
+          Pull Lever!
+        </ng-container>
+        <ng-container *ngIf="slotLoading()">Spinning...</ng-container>
+      </button>
+    </div>
+
+    <div *ngIf="slotLoading()" class="loading-state">Spinning the reels...</div>
+
+    <div *ngIf="slotResultSig() as sr" class="slot-result">
+      <div class="slot-reels">
+        <div *ngFor="let reel of sr.reelResults; trackBy: trackByIndex" class="reel glass-panel">
+          <div class="reel-label">{{ reel.label }}</div>
+          <div class="reel-value">{{ reel.value }}</div>
+        </div>
+      </div>
+      <div *ngIf="sr.isJackpot" class="jackpot glass-panel animate-slide-up">
+        <svg class="disco-svg-icon jackpot-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M12 2l2 6h6l-4.5 4 1.5 6-5-3.5L9 18l1.5-6L6 8h6z" />
+          <circle cx="4" cy="4" r="1" fill="currentColor" />
+          <circle cx="20" cy="6" r="1" fill="currentColor" />
+          <circle cx="18" cy="20" r="1" fill="currentColor" />
+          <circle cx="6" cy="18" r="1" fill="currentColor" />
+        </svg>
+        JACKPOT!
+        <svg class="disco-svg-icon jackpot-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M12 2l2 6h6l-4.5 4 1.5 6-5-3.5L9 18l1.5-6L6 8h6z" />
+          <circle cx="4" cy="4" r="1" fill="currentColor" />
+          <circle cx="20" cy="6" r="1" fill="currentColor" />
+          <circle cx="18" cy="20" r="1" fill="currentColor" />
+          <circle cx="6" cy="18" r="1" fill="currentColor" />
+        </svg>
+      </div>
+      <div class="result-card glass-panel animate-slide-up">
+        <img *ngIf="sr.posterUrl" [src]="sr.posterUrl" class="poster-thumb" />
+        <div class="result-info">
+          <h3>{{ sr.title }} ({{ sr.releaseYear }})</h3>
+          <p>{{ sr.directorName }}</p>
+          <p class="meta">{{ sr.selectionMechanismMetadata }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
