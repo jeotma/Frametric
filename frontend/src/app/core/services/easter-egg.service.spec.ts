@@ -21,14 +21,14 @@ describe('EasterEggService', () => {
     });
 
     it('should cache results and not re-evaluate on second call', () => {
-      const spy = spyOn<any>(service, 'rollEasterEgg').and.returnValue(null);
+      const spy = vi.spyOn(service as any, 'rollEasterEgg').mockReturnValue(null);
       service.getEasterEgg('test', 'ctx');
       service.getEasterEgg('test', 'ctx');
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it('should use different cache keys for different contexts', () => {
-      const spy = spyOn<any>(service, 'rollEasterEgg').and.returnValue(null);
+      const spy = vi.spyOn(service as any, 'rollEasterEgg').mockReturnValue(null);
       service.getEasterEgg('2001', 'table-year');
       service.getEasterEgg('2001', 'rec-year');
       expect(spy).toHaveBeenCalledTimes(2);
@@ -37,7 +37,7 @@ describe('EasterEggService', () => {
 
   describe('specific easter egg rules (with controlled Math.random)', () => {
     function setRandom(value: number) {
-      spyOn(Math, 'random').and.returnValue(value);
+      vi.spyOn(Math, 'random').mockReturnValue(value);
     }
 
     it('table-year 2001 with 1% roll', () => {
@@ -196,7 +196,7 @@ describe('EasterEggService', () => {
 
   describe('context-specific idle/empty messages (15% probability)', () => {
     function setRandom(value: number) {
-      spyOn(Math, 'random').and.returnValue(value);
+      vi.spyOn(Math, 'random').mockReturnValue(value);
     }
 
     it('stats-idle with 15% roll', () => {
@@ -225,13 +225,13 @@ describe('EasterEggService', () => {
 
   describe('name-based easter eggs (10% probability)', () => {
     function setRandom(value: number) {
-      spyOn(Math, 'random').and.returnValue(value);
+      vi.spyOn(Math, 'random').mockReturnValue(value);
     }
 
-    it('Nolan triggers BWAAM (10%)', () => {
+    it('Nolan triggers astronaut meme (10%)', () => {
       setRandom(0.05);
       const result = service.getEasterEgg('Christopher Nolan', 'actor-name');
-      expect(result?.text).toContain('BWAAAAM');
+      expect(result?.text).toContain('Always has been');
     });
 
     it('Nolan above 10% returns null', () => {
@@ -296,7 +296,7 @@ describe('EasterEggService', () => {
 
   describe('long movie easter egg (runtime >= 180, 10%)', () => {
     function setRandom(value: number) {
-      spyOn(Math, 'random').and.returnValue(value);
+      vi.spyOn(Math, 'random').mockReturnValue(value);
     }
 
     it('runtime 180 triggers "one does not simply" (10%)', () => {
@@ -314,16 +314,16 @@ describe('EasterEggService', () => {
   describe('getLoadingMessage', () => {
     it('should return a non-empty string', () => {
       const msg = service.getLoadingMessage();
-      expect(msg).toEqual(jasmine.any(String));
+      expect(typeof msg).toBe('string');
     });
 
     it('should return empty string by default (98% chance)', () => {
-      spyOn(Math, 'random').and.returnValue(0.5);
+      vi.spyOn(Math, 'random').mockReturnValue(0.5);
       expect(service.getLoadingMessage()).toBe('');
     });
 
     it('should return a custom message with 2% chance', () => {
-      spyOn(Math, 'random').and.returnValue(0.01);
+      vi.spyOn(Math, 'random').mockReturnValue(0.01);
       const msg = service.getLoadingMessage();
       expect(msg.length).toBeGreaterThan(0);
     });
