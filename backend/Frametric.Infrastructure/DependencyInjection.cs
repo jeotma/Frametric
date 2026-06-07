@@ -1,5 +1,6 @@
 using Frametric.Application.Interfaces;
 using Frametric.Application.Interfaces.Analytics;
+using Frametric.Application.Interfaces.Discovery;
 using Frametric.Application.Interfaces.EntityDetails;
 using Frametric.Infrastructure.BackgroundJobs;
 using Frametric.Infrastructure.Security;
@@ -23,7 +24,19 @@ public static class DependencyInjection
                 npgsql => npgsql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<FrametricDbContext>());
-        services.AddDistributedMemoryCache();
+
+        var redisConnectionString = configuration["Redis:ConnectionString"];
+        if (!string.IsNullOrWhiteSpace(redisConnectionString))
+        {
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConnectionString;
+            });
+        }
+        else
+        {
+            services.AddDistributedMemoryCache();
+        }
         
         services.AddScoped<ILetterboxdImporter, LetterboxdZipImporter>();
 
@@ -42,6 +55,7 @@ public static class DependencyInjection
         services.AddScoped<IWatchlistComplexCorrelationsQueries, WatchlistQueriesImpl>();
         services.AddScoped<IBonusQueries, BonusQueriesImpl>();
         services.AddScoped<IRecommendationQueries, RecommendationQueriesImpl>();
+        services.AddScoped<IDiscoveryQueries, DiscoveryQueriesImpl>();
         services.AddScoped<IEntityDetailsQueries, EntityDetailsQueriesImpl>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
 

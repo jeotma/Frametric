@@ -1,5 +1,6 @@
 using System.Reflection;
 using Frametric.Application.Interfaces;
+using Frametric.Domain.Discovery.Entities;
 using Frametric.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +25,7 @@ public class FrametricDbContext : DbContext, IApplicationDbContext
     public DbSet<TvShow> TvShows => Set<TvShow>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<ImportHistory> ImportHistories => Set<ImportHistory>();
+    public DbSet<DiscoveryObjective> DiscoveryObjectives => Set<DiscoveryObjective>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -18,6 +18,7 @@ public interface IApplicationDbContext
     DbSet<TvShow> TvShows { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<ImportHistory> ImportHistories { get; }
+    DbSet<Frametric.Domain.Discovery.Entities.DiscoveryObjective> DiscoveryObjectives { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

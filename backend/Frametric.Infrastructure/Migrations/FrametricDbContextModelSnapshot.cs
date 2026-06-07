@@ -773,6 +773,48 @@ namespace Frametric.Infrastructure.Migrations
 
                     b.Navigation("RefreshTokens");
                 });
+
+            modelBuilder.Entity("Frametric.Domain.Discovery.Entities.DiscoveryObjective", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Column")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("CompletionDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("FulfillingDiaryEntryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsAchieved")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("GridSize")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Row")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RequirementExpression")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DiscoveryObjectives");
+                });
 #pragma warning restore 612, 618
         }
     }
