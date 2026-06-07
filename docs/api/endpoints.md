@@ -376,3 +376,58 @@ Requires authentication.
   - Returns only local results if a local match exists.
   - Falls back to TMDB results when no local results are found.
   - For persons who are both an actor and a director, the entity type is `Director / Actor` and both `actorId` and `directorId` are populated separately.
+
+---
+
+## 10. Discovery (`/api/v1/discovery`)
+
+Requires authentication.
+
+### **POST** `/api/v1/discovery/roulette`
+
+- **Description**: Selects a random movie from the discovery pool with absolute randomness. Supports optional persistence threshold mode where a movie must appear multiple times before being selected.
+- **Request body**: `RouletteRequest` (`Scope`, `PersistenceThreshold?`, `CustomSourceIds?`, `CustomSourceTitles?`)
+- **Responses**:
+  - `200 OK`: Returns `SelectionResultDto`.
+  - `400 BadRequest`: Pool empty or missing custom collection IDs.
+
+### **POST** `/api/v1/discovery/dice`
+
+- **Description**: Rolls one or more cinematic dice (Quality, Rarity, Risk, Complexity, Exploration) to determine the characteristics of the recommended film. Each die maps to analytical constraints (rating, popularity, runtime) that filter the pool.
+- **Request body**: `DiceRollRequest` (`Scope`, `DiceTypes?`, `CustomSourceIds?`, `CustomSourceTitles?`)
+- **Responses**:
+  - `200 OK`: Returns `DiceRollResultDto` with per-die results and optional special event.
+  - `400 BadRequest`: Pool empty.
+
+### **POST** `/api/v1/discovery/slot-machine`
+
+- **Description**: Spins 5 reels (Genre, Decade, Director, Duration, Country) to build a search combination. Null reels are randomly resolved from available pool data. Special jackpot combinations trigger premium rewards.
+- **Request body**: `SlotMachineRequest` (`Scope`, `Genre?`, `Decade?`, `Director?`, `Duration?`, `Country?`, `CustomSourceIds?`, `CustomSourceTitles?`)
+- **Responses**:
+  - `200 OK`: Returns `SlotMachineResultDto` with reel results and jackpot flag.
+  - `400 BadRequest`: Pool empty.
+
+### **POST** `/api/v1/discovery/mystery-box`
+
+- **Description**: Generates a set of hidden movie boxes for the user to choose from. Supports variant modes: Standard, Thematic (shared genre), Premium (top-rated), FullReveal (ranked), and Strategy (diverse genres with hints).
+- **Request body**: `MysteryBoxRequest` (`Scope`, `Variant`, `BoxCount`, `CustomSourceIds?`, `CustomSourceTitles?`)
+- **Responses**:
+  - `200 OK`: Returns `MysteryBoxDto` with box IDs, variant, and optional hints.
+  - `400 BadRequest`: Pool empty.
+
+### **GET** `/api/v1/discovery/mystery-box/{boxId}/reveal`
+
+- **Description**: Reveals the movie inside a specific mystery box by its movie ID.
+- **Parameters**:
+  - `boxId` (`Guid` in route)
+- **Responses**:
+  - `200 OK`: Returns `SelectionResultDto` with full movie details.
+  - `400 BadRequest`: Movie not found.
+
+### **GET** `/api/v1/discovery/bingo`
+
+- **Description**: Returns the user's bingo grid with objectives and completion status. Creates default objectives when none exist. Evaluates diary entries to automatically mark squares as completed.
+- **Query Parameters**:
+  - `gridSize` (`int`, default `3`) — Grid dimensions (3/4/5).
+- **Responses**:
+  - `200 OK`: Returns `BingoGridDto` with grid size and square states.

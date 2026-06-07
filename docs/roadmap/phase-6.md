@@ -31,7 +31,7 @@ public enum DiscoveryDataSourceScope
 {
     WatchlistOnly,     // Restricted to the user's local watchlist
     DatabaseOnly,      // Queries the global enriched catalog (TMDB)
-    CustomCollection,  // Based on a list of IDs (Custom List) provided on-demand
+    CustomCollection,  // Based on a list of IDs (Custom List) extracted from a provided list of titles for movies on-demand
     Hybrid             // Weighted combination of local and global sources
 }
 

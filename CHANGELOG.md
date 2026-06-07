@@ -4,6 +4,21 @@ All notable changes to **Frametric** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] — 2026-06-07
+
+Discovery suite: gamified interactive selection systems.
+
+### Added
+
+- **Roulette**: Random movie selection with optional persistence threshold mode where a movie must appear multiple times before selection.
+- **Dice System**: Five cinematic dice types (Quality, Rarity, Risk, Complexity, Exploration) that determine recommendation characteristics via analytical constraints with critical/fumble events.
+- **Slot Machine**: Five-reel search combination system (Genre, Decade, Director, Duration, Country) with random resolution of null reels and jackpot detection for premium matches.
+- **Mystery Box**: Hidden movie selection with Standard, Thematic, Premium, FullReveal, and Strategy variants; individual box reveal endpoint.
+- **Cinematic Bingo**: Long-term cinephile objectives grid (3×3/4×4/5×5) with automatic diary-based tracking via `DiscoveryObjective` entities and `DiscoveryObjectiveEvaluator`.
+- **Discovery API Endpoints**: `POST /discovery/roulette`, `POST /discovery/dice`, `POST /discovery/slot-machine`, `POST /discovery/mystery-box`, `GET /discovery/mystery-box/{boxId}/reveal`, `GET /discovery/bingo`.
+- **Discovery Documentation**: Section 10 (Discovery) added to `docs/api/endpoints.md`.
+- **Unit Tests**: 25 new tests covering `DiscoveryObjectiveEvaluator`, `RouletteSelectionQueryHandler`, `MysteryBoxGenerationQueryHandler`, `DiceRollQueryHandler`, and `SlotMachineSpinQueryHandler`.
+
 ## [1.4.0] — 2026-06-06
 
 Major analytics expansion: Advanced Statistics page, entity detail page redesigns, UI accessibility overhaul, and search navigation fixes.
