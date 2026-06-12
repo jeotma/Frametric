@@ -7,7 +7,7 @@ import { CinematicFatigueExpandedDto } from '../../../../core/services/final-cut
   standalone: true,
   imports: [CommonModule, DecimalPipe],
   template: `
-    <div class="slide-content slide-bg-record">
+    <div class="slide-content slide-bg-silver">
       <div class="act-label">ACT III · SCENE 14 · CINEMATIC FATIGUE</div>
       <h2 class="slide-title">Cinematic Fatigue.</h2>
       <p class="slide-subtitle">The binge toll: Does watching more make you enjoy it less?</p>
@@ -17,7 +17,13 @@ import { CinematicFatigueExpandedDto } from '../../../../core/services/final-cut
         <div class="fatigue-card">
           <div class="f-row">
             <span class="f-label">On Light Days (1 film)</span>
-            <span class="f-value" style="font-family: var(--font-mono)">
+            <span class="f-value" 
+                  [ngClass]="{
+                    'higher': data.avgRatingLightDays > data.avgRatingHeavyDays,
+                    'lower': data.avgRatingLightDays < data.avgRatingHeavyDays,
+                    'equal': data.avgRatingLightDays === data.avgRatingHeavyDays
+                  }"
+                  style="font-family: var(--font-mono)">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="star-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               {{ data.avgRatingLightDays | number:'1.2-2' }}
             </span>
@@ -25,7 +31,13 @@ import { CinematicFatigueExpandedDto } from '../../../../core/services/final-cut
           <div class="f-divider"></div>
           <div class="f-row">
             <span class="f-label">On Heavy Days (2+ films)</span>
-            <span class="f-value" [class.lower]="data.avgRatingHeavyDays < data.avgRatingLightDays" style="font-family: var(--font-mono)">
+            <span class="f-value" 
+                  [ngClass]="{
+                    'higher': data.avgRatingHeavyDays > data.avgRatingLightDays,
+                    'lower': data.avgRatingHeavyDays < data.avgRatingLightDays,
+                    'equal': data.avgRatingHeavyDays === data.avgRatingLightDays
+                  }"
+                  style="font-family: var(--font-mono)">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="star-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               {{ data.avgRatingHeavyDays | number:'1.2-2' }}
             </span>
@@ -75,12 +87,13 @@ import { CinematicFatigueExpandedDto } from '../../../../core/services/final-cut
     .f-value { 
       font-size: 1.7rem; 
       font-weight: 700; 
-      color: #fbbf24; 
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .f-value.lower { color: #f43f5e; }
+    .f-value.higher { color: var(--accent-emerald); }
+    .f-value.lower { color: var(--accent-record); }
+    .f-value.equal { color: #fbbf24; }
     .fatigue-insight {
       font-size: 1.15rem;
       color: var(--text-muted);

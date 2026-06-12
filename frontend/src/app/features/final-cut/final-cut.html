@@ -28,21 +28,12 @@
     </div>
   </div>
 
-  <!-- Navigation Overlays -->
-  <div class="nav-zone left-zone"
-       (pointerdown)="onPointerDown()"
-       (pointerup)="onPointerUp('left')"
-       (pointerleave)="onPointerLeave()"
-       (pointercancel)="onPointerLeave()"></div>
-
-  <div class="nav-zone right-zone"
-       (pointerdown)="onPointerDown()"
-       (pointerup)="onPointerUp('right')"
-       (pointerleave)="onPointerLeave()"
-       (pointercancel)="onPointerLeave()"></div>
-
   <!-- Slides -->
-  <div class="slides-wrapper">
+  <div class="slides-wrapper"
+       (pointerdown)="onPointerDown()"
+       (pointerup)="onPointerUpEvent($event)"
+       (pointerleave)="onPointerLeave()"
+       (pointercancel)="onPointerLeave()">
 
     <!-- ACT I: The Establishing Shots -->
     <!-- 0: The Opening Credits -->

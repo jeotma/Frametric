@@ -17,17 +17,26 @@ import { DirectorActorPairDto } from '../../../../core/services/final-cut.servic
         <div *ngFor="let p of topPairs; let i = index" class="pair-card" [class.top-pair]="i === 0">
           <div class="pair-badge">#{{ i + 1 }}</div>
           <div class="pair-info">
-            <span class="pair-director">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon"><path d="M2 10v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-9"/><path d="M2 10l5-5"/><path d="M7 5l5 5"/><path d="M12 5l5 5"/><path d="M17 5l5 5"/><path d="M22 10H2"/></svg>
-              {{ p.directorName }}
+            <span class="pair-person">
+              <div class="pair-avatar">
+                <img *ngIf="p.directorProfilePath" [src]="'https://image.tmdb.org/t/p/w185' + p.directorProfilePath" [alt]="p.directorName">
+                <div *ngIf="!p.directorProfilePath" class="pair-avatar-fallback">{{ p.directorName.charAt(0) }}</div>
+              </div>
+              <span class="pair-director">{{ p.directorName }}</span>
             </span>
             <span class="pair-connector">+</span>
-            <span class="pair-actor">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-              {{ p.actorName }}
+            <span class="pair-person">
+              <div class="pair-avatar">
+                <img *ngIf="p.actorProfilePath" [src]="'https://image.tmdb.org/t/p/w185' + p.actorProfilePath" [alt]="p.actorName">
+                <div *ngIf="!p.actorProfilePath" class="pair-avatar-fallback">{{ p.actorName.charAt(0) }}</div>
+              </div>
+              <span class="pair-actor">{{ p.actorName }}</span>
             </span>
           </div>
-          <div class="pair-count" style="font-family: var(--font-mono)">{{ p.collaborationCount }} films together</div>
+          <div class="pair-count custom-tooltip-container" style="font-family: var(--font-mono)">
+            {{ p.collaborationCount }} shared viewings
+            <span class="custom-tooltip">Total number of times you've watched a film with this pair, including rewatches.</span>
+          </div>
         </div>
       </div>
 
@@ -36,17 +45,26 @@ import { DirectorActorPairDto } from '../../../../core/services/final-cut.servic
         <div *ngFor="let p of castingPairs.slice(0, 3); let i = index" class="pair-card">
           <div class="pair-badge">#{{ i + 1 }}</div>
           <div class="pair-info">
-            <span class="pair-director">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-              {{ p.actor1Name }}
+            <span class="pair-person">
+              <div class="pair-avatar">
+                <img *ngIf="p.actor1ProfilePath" [src]="'https://image.tmdb.org/t/p/w185' + p.actor1ProfilePath" [alt]="p.actor1Name">
+                <div *ngIf="!p.actor1ProfilePath" class="pair-avatar-fallback">{{ p.actor1Name.charAt(0) }}</div>
+              </div>
+              <span class="pair-director">{{ p.actor1Name }}</span>
             </span>
             <span class="pair-connector">+</span>
-            <span class="pair-actor">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-              {{ p.actor2Name }}
+            <span class="pair-person">
+              <div class="pair-avatar">
+                <img *ngIf="p.actor2ProfilePath" [src]="'https://image.tmdb.org/t/p/w185' + p.actor2ProfilePath" [alt]="p.actor2Name">
+                <div *ngIf="!p.actor2ProfilePath" class="pair-avatar-fallback">{{ p.actor2Name.charAt(0) }}</div>
+              </div>
+              <span class="pair-actor">{{ p.actor2Name }}</span>
             </span>
           </div>
-          <div class="pair-count" style="font-family: var(--font-mono)">{{ p.collaborationCount }} films together</div>
+          <div class="pair-count custom-tooltip-container" style="font-family: var(--font-mono)">
+            {{ p.collaborationCount }} shared viewings
+            <span class="custom-tooltip">Total number of times you've watched a film with this pair, including rewatches.</span>
+          </div>
         </div>
       </div>
 
@@ -60,7 +78,7 @@ import { DirectorActorPairDto } from '../../../../core/services/final-cut.servic
     .slide-explainer {
       font-size: 0.95rem;
       color: rgba(255,255,255,0.7);
-      margin-bottom: 32px;
+      margin-bottom: 16px;
       font-style: italic;
       max-width: 600px;
       text-align: center;
@@ -68,24 +86,29 @@ import { DirectorActorPairDto } from '../../../../core/services/final-cut.servic
     .pairs-section, .casting-pairs-section {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 10px;
       width: 100%;
       max-width: 800px;
     }
     .section-note {
-      font-size: 0.8rem;
-      color: var(--text-muted);
+      font-size: 0.85rem;
+      color: var(--accent-sepia);
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 4px;
+      letter-spacing: 0.15em;
+      margin-top: 20px;
+      margin-bottom: 12px;
+      text-align: center;
+      font-weight: 600;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 16px;
     }
     .pair-card {
       display: grid;
       grid-template-columns: 40px 1fr auto;
       align-items: center;
       gap: 20px;
-      padding: 20px 24px;
-      border-radius: 20px;
+      padding: 12px 24px;
+      border-radius: 16px;
       border: 1px solid rgba(255,255,255,0.04);
       background: rgba(255,255,255,0.02);
       backdrop-filter: blur(8px);
@@ -105,12 +128,53 @@ import { DirectorActorPairDto } from '../../../../core/services/final-cut.servic
       gap: 12px;
       flex-wrap: wrap;
     }
-    .pair-director { font-size: 1.1rem; font-weight: 600; color: #60a5fa; display: flex; align-items: center; gap: 6px; }
+    .pair-person { display: flex; align-items: center; gap: 8px; }
+    .pair-avatar { width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .pair-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .pair-avatar-fallback { font-size: 0.9rem; font-weight: 700; color: var(--text-muted); }
+    .pair-director { font-size: 1.1rem; font-weight: 600; color: #60a5fa; }
     .pair-connector { color: var(--text-muted); font-weight: 700; }
-    .pair-actor { font-size: 1.1rem; font-weight: 600; color: #f472b6; display: flex; align-items: center; gap: 6px; }
-    .pair-count { font-size: 0.95rem; color: var(--text-muted); white-space: nowrap; }
-    .no-data { color: var(--text-muted); }
+    .pair-actor { font-size: 1.1rem; font-weight: 600; color: #f472b6; }
+    .pair-count {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-weight: 500;
+      text-align: right;
+    }.no-data { color: var(--text-muted); }
     .inline-icon { opacity: 0.8; }
+    .custom-tooltip-container {
+      position: relative;
+      cursor: help;
+    }
+    .custom-tooltip {
+      visibility: hidden;
+      opacity: 0;
+      width: 220px;
+      background-color: rgba(10, 10, 10, 0.95);
+      color: #fff;
+      text-align: center;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.75rem;
+      font-family: system-ui, sans-serif;
+      white-space: normal;
+      line-height: 1.4;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      position: absolute;
+      z-index: 100;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: opacity 0.3s ease 0.2s, visibility 0.3s ease 0.2s;
+    }
+    .custom-tooltip-container:hover .custom-tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
   `]
 })
 export class DynamicDuosSlideComponent {

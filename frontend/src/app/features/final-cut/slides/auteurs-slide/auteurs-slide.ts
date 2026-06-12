@@ -16,9 +16,13 @@ import { CommonModule } from '@angular/common';
         <div *ngFor="let d of topDirectors; let i = index" class="director-row" [class.top-dir]="i === 0">
           <span class="dir-rank" *ngIf="i !== 0">#{{ i + 1 }}</span>
           <span class="dir-rank" *ngIf="i === 0">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dir-icon"><path d="M2 10v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-9"/><path d="M2 10l5-5"/><path d="M7 5l5 5"/><path d="M12 5l5 5"/><path d="M17 5l5 5"/><path d="M22 10H2"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="dir-icon"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
           </span>
           <div class="dir-info">
+            <div class="dir-avatar">
+              <img *ngIf="d.profilePath" [src]="'https://image.tmdb.org/t/p/w185' + d.profilePath" [alt]="d.directorName">
+              <div *ngIf="!d.profilePath" class="dir-avatar-fallback">{{ d.directorName?.charAt(0) }}</div>
+            </div>
             <span class="dir-name">{{ d.directorName }}</span>
           </div>
           <span class="dir-count" style="font-family: var(--font-mono)">{{ d.count }} film{{ d.count !== 1 ? 's' : '' }}</span>
@@ -33,7 +37,7 @@ import { CommonModule } from '@angular/common';
     .slide-explainer {
       font-size: 0.95rem;
       color: rgba(255,255,255,0.7);
-      margin-bottom: 32px;
+      margin-bottom: 20px;
       font-style: italic;
       max-width: 600px;
       text-align: center;
@@ -41,16 +45,18 @@ import { CommonModule } from '@angular/common';
     .director-list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 8px;
       width: 100%;
       max-width: 560px;
+      margin-bottom: 40px;
+      flex-shrink: 0;
     }
     .director-row {
       display: grid;
       grid-template-columns: 48px 1fr auto;
       align-items: center;
       gap: 16px;
-      padding: 16px 20px;
+      padding: 10px 20px;
       border-radius: 16px;
       border: 1px solid rgba(255,255,255,0.04);
       background: rgba(255,255,255,0.02);
@@ -70,10 +76,20 @@ import { CommonModule } from '@angular/common';
       justify-content: center;
     }
     .top-dir .dir-rank { color: #60a5fa; }
-    .dir-info { display: flex; flex-direction: column; }
+    .dir-info { display: flex; flex-direction: row; align-items: center; gap: 12px; }
+    .dir-avatar { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: rgba(255,255,255,0.05); flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); }
+    .dir-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .dir-avatar-fallback { font-size: 1.1rem; font-weight: 700; color: var(--text-muted); }
     .dir-name { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); }
-    .dir-count { font-size: 0.95rem; color: var(--text-muted); }
-    .no-data { color: var(--text-muted); }
+    .director-count {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-weight: 500;
+    }.no-data { color: var(--text-muted); }
   `]
 })
 export class AutoeursSlideComponent {

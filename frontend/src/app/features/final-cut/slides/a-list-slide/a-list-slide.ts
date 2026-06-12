@@ -20,6 +20,10 @@ interface ActorCount { actorName: string; count: number; }
           <span class="actor-rank" *ngIf="i === 0">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="star-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           </span>
+          <div class="actor-avatar">
+            <img *ngIf="a.profilePath" [src]="'https://image.tmdb.org/t/p/w185' + a.profilePath" [alt]="a.actorName">
+            <div *ngIf="!a.profilePath" class="actor-avatar-fallback">{{ a.actorName.charAt(0) }}</div>
+          </div>
           <span class="actor-name">{{ a.actorName }}</span>
           <span class="actor-count" style="font-family: var(--font-mono)">{{ a.count }} film{{ a.count !== 1 ? 's' : '' }}</span>
         </div>
@@ -33,7 +37,7 @@ interface ActorCount { actorName: string; count: number; }
     .slide-explainer {
       font-size: 0.95rem;
       color: rgba(255,255,255,0.7);
-      margin-bottom: 32px;
+      margin-bottom: 20px;
       font-style: italic;
       max-width: 600px;
       text-align: center;
@@ -41,16 +45,18 @@ interface ActorCount { actorName: string; count: number; }
     .actor-list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 8px;
       width: 100%;
       max-width: 560px;
+      margin-bottom: 40px;
+      flex-shrink: 0;
     }
     .actor-row {
       display: grid;
-      grid-template-columns: 48px 1fr auto;
+      grid-template-columns: 48px 40px 1fr auto;
       align-items: center;
       gap: 16px;
-      padding: 16px 20px;
+      padding: 10px 20px;
       border-radius: 16px;
       border: 1px solid rgba(255,255,255,0.04);
       background: rgba(255,255,255,0.02);
@@ -78,10 +84,18 @@ interface ActorCount { actorName: string; count: number; }
       color: var(--text-primary);
     }
     .actor-count {
-      font-size: 0.95rem;
-      color: var(--text-muted);
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-weight: 500;
     }
     .no-data { color: var(--text-muted); }
+    .actor-avatar { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: rgba(255,255,255,0.05); flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); }
+    .actor-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .actor-avatar-fallback { font-size: 1.1rem; font-weight: 700; color: var(--text-muted); }
   `]
 })
 export class AListSlideComponent {

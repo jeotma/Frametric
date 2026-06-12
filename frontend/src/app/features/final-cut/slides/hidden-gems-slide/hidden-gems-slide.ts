@@ -17,14 +17,14 @@ import { CommonModule, DecimalPipe } from '@angular/common';
           <div class="poster-wrap">
             <img *ngIf="g.posterPath" [src]="posterUrl(g.posterPath)" [alt]="g.title" class="poster-img">
             <div class="poster-fallback" *ngIf="!g.posterPath">
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fallback-icon"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13"/><path d="M13 3l3 6-4 13"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="rgba(255,255,255,0.2)" stroke="none" class="fallback-icon"><path d="M12.16 3h-.32L9.21 8.25h5.58zm4.3 5.25h5.16L19 3h-2.54zm-8.92 0H2.38L4.54 3h2.54zM12 21.33L4.25 10.5h15.5z"/></svg>
             </div>
           </div>
           <div class="gem-info">
             <span class="gem-title">{{ g.title }}</span>
             <span class="gem-year" style="font-family: var(--font-mono)">{{ g.releaseYear }}</span>
             <div class="gem-meta">
-              <span class="gem-rating" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">
+              <span class="gem-rating" data-tooltip="Your ratings, imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="star-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 {{ g.rating | number:'1.1-1' }} / 10
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="info-icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>

@@ -8,7 +8,7 @@ import { EasterEggPipe } from '../../../../core/services/easter-egg.pipe';
   standalone: true,
   imports: [CommonModule, DecimalPipe, EasterEggPipe],
   template: `
-    <div class="slide-content slide-bg-record">
+    <div class="slide-content slide-bg-sepia">
       <div class="act-label">ACT I · SCENE 2 · THE BOX OFFICE RECEIPTS</div>
       <h2 class="slide-title">The Box Office Receipts.</h2>
       <p class="slide-subtitle">Here's what {{ year === 'global' ? 'All-Time' : year }} looked like in raw numbers.</p>

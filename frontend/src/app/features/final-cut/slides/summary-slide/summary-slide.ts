@@ -23,7 +23,7 @@ import html2canvas from 'html2canvas';
 
         <div class="card-header">
           <div class="logo">
-            <svg class="clapper-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; margin-right: 6px; color: #d4d4d8;"><path d="M20 21H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2z"></path><line x1="2" y1="9" x2="22" y2="9"></line><path d="M4 5l4 4"></path><path d="M10 5l4 4"></path><path d="M16 5l4 4"></path></svg>
+            <svg class="clapper-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width: 20px; height: 20px; margin-right: 6px; color: #d4d4d8;"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
             Frametric
           </div>
           <div class="year">THE {{ username | uppercase }}'S CUT {{ year === 'global' ? 'ALL-TIME' : year }}</div>
@@ -519,7 +519,7 @@ export class SummarySlideComponent {
 
       const canvas = await html2canvas(element, {
         scale: 2, // High resolution
-        backgroundColor: '#111116',
+        backgroundColor: null,
         useCORS: true
       });
       

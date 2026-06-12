@@ -196,14 +196,15 @@ export class FinalCutComponent implements OnInit, OnDestroy {
     this.isPaused.set(true);
   }
 
-  public onPointerUp(direction: 'left' | 'right') {
+  public onPointerUpEvent(event: PointerEvent) {
     this.isPaused.set(false);
     const holdDuration = Date.now() - this.pointerDownTime;
     if (holdDuration < 250) {
-      if (direction === 'right') {
-        this.nextSlide();
-      } else {
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      if (event.clientX < rect.left + rect.width / 2) {
         this.prevSlide();
+      } else {
+        this.nextSlide();
       }
     }
   }

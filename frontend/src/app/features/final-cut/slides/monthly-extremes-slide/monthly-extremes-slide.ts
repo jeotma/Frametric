@@ -18,10 +18,10 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
           <div class="mx-month-name">{{ m.monthName }}</div>
           
           <div class="mx-movie best-movie" *ngIf="m.bestMovie">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-icon"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="var(--accent-emerald)" stroke="none" class="mx-icon"><path d="M12 15.22l-5.32 2.8 1.02-5.93L3.38 7.84l5.95-.87L12 1.58l2.67 5.39 5.95.87-4.32 4.25 1.02 5.93z"/></svg>
             <div class="mx-info">
               <span class="mx-title">{{ m.bestMovie.title }}</span>
-              <span class="mx-rating" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">
+              <span class="mx-rating" data-tooltip="Your ratings, imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="star-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 {{ m.bestMovie.rating | number:'1.1-1' }}
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="info-icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
@@ -31,10 +31,10 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
           <div class="mx-movie no-data-box" *ngIf="!m.bestMovie">No entries</div>
 
           <div class="mx-movie worst-movie" *ngIf="m.worstMovie">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-record)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-icon"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="var(--accent-record)" stroke="none" class="mx-icon"><path d="M16 18l2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6z"/></svg>
             <div class="mx-info">
               <span class="mx-title">{{ m.worstMovie.title }}</span>
-              <span class="mx-rating" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">
+              <span class="mx-rating" data-tooltip="Your ratings, imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="star-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 {{ m.worstMovie.rating | number:'1.1-1' }}
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="info-icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
@@ -53,7 +53,7 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
     .slide-explainer {
       font-size: 0.95rem;
       color: rgba(255,255,255,0.7);
-      margin-bottom: 32px;
+      margin-bottom: 24px;
       font-style: italic;
       max-width: 600px;
       text-align: center;
@@ -61,7 +61,7 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
     .mx-grid {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
       width: 100%;
       max-width: 900px;
     }
@@ -83,7 +83,7 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
       display: flex;
       align-items: center;
       gap: 16px;
-      padding: 16px 20px;
+      padding: 12px 20px;
       border-radius: 16px;
       background: rgba(255,255,255,0.02);
       border: 1px solid rgba(255,255,255,0.04);
