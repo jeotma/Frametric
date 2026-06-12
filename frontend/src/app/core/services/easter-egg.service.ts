@@ -38,9 +38,9 @@ export class EasterEggService {
       'Bribing the Academy voters...',
       'Fetching coffee for the director...',
       'Running simulation of a 10-star movie...',
-      'One does not simply walk into Mordor... or watch a 4-hour director\'s cut without a bathroom break. 💍',
-      'Wait, it\'s all Nolan? Always has been. 🔫👩‍🚀',
-      'This is fine. 🔥 (Me watching a devastating 3-hour indie drama at 2 AM)',
+      'One does not simply walk into Mordor... or watch a 4-hour director\'s cut without a bathroom break.',
+      'Wait, it\'s all Nolan? Always has been.',
+      'This is fine. (Me watching a devastating 3-hour indie drama at 2 AM)',
       'Am I a joke to you? (Your watchlist, when you generate Discover recommendations instead)',
       '*Visible Confusion* (When the Marvel movie ends and there is no post-credits scene)',
       'Distracted Boyfriend: Me looking at brand new releases instead of my 200+ movie watchlist.'
@@ -62,7 +62,7 @@ export class EasterEggService {
       if (val === '2001' || (hasNum && num === 2001)) {
         if (rand < 1) {
           return {
-            text: "(I'm sorry, Dave 🔴)",
+            text: "(I'm sorry, Dave)",
             tooltip: '2001: "I\'m afraid I can\'t let you watch that, Dave." (1% trigger rate)',
             className: 'space-badge'
           };
@@ -71,7 +71,7 @@ export class EasterEggService {
       if (val === '1985' || val === '1955' || (hasNum && (num === 1985 || num === 1955))) {
         if (rand < 1) {
           return {
-            text: '(Doc! ⚡)',
+            text: '(Doc!)',
             tooltip: 'Back to the Future: "Great Scott! We are going back to the future!" (1% trigger rate)',
             className: 'future-badge'
           };
@@ -85,7 +85,7 @@ export class EasterEggService {
       if (hasNum && num <= 1920) {
         if (rand < 2) {
           return {
-            text: '🎥',
+            text: '(Silent Film)',
             tooltip: 'A silent film! Make sure to put on your monocle and complain about how "talkies" ruined the purity of the medium. (2% trigger rate)',
             className: 'silent-film-warn'
           };
@@ -96,7 +96,7 @@ export class EasterEggService {
       if (hasNum && num === 2001) {
         if (rand < 1) {
           return {
-            text: "(I'm sorry, Dave 🔴)",
+            text: "(I'm sorry, Dave)",
             tooltip: '2001: "I\'m afraid I can\'t let you watch that, Dave." (1% trigger rate)',
             className: 'space-badge'
           };
@@ -106,7 +106,7 @@ export class EasterEggService {
       if (hasNum && (num === 1985 || num === 1955)) {
         if (rand < 1) {
           return {
-            text: '(Doc! ⚡)',
+            text: '(Doc!)',
             tooltip: 'Back to the Future: "Great Scott! We are going back to the future!" (1% trigger rate)',
             className: 'future-badge'
           };
@@ -119,7 +119,7 @@ export class EasterEggService {
     if (val === '2.5' || val === '5.0' || (hasNum && (num === 2.5 || num === 5.0))) {
       if (rand < 1) {
         return {
-          text: '(Centrist ⚠️)',
+          text: '(Centrist)',
           tooltip: 'Ah, the ultimate centrist. Not good enough to love, not bad enough to hate. Indifference is the real killer here. (1% trigger rate)',
           className: 'mid-curve-warn'
         };
@@ -155,7 +155,7 @@ export class EasterEggService {
     if (val === '420' || (hasNum && num === 420)) {
       if (rand < 1) {
         return {
-          text: '(Blaze it 🌿)',
+          text: '(Blaze it)',
           tooltip: '420: The universal symbol. Grab some "snacks" for this run! (1% trigger rate)',
           className: 'weed-badge'
         };
@@ -175,11 +175,11 @@ export class EasterEggService {
       return null;
     }
 
-    // 5. 1 / 1.0 (True Cinema 🗑️) - Probability 1%
+    // 5. 1 / 1.0 (True Cinema) - Probability 1%
     if (val === '1' || val === '1.0' || (hasNum && num === 1)) {
       if (rand < 1) {
         return {
-          text: '(True Cinema 🗑️)',
+          text: '(True Cinema)',
           tooltip: '1/10: Certified garbage or misunderstood avant-garde genius? (1% trigger rate)',
           className: 'trash-badge'
         };
@@ -227,7 +227,7 @@ export class EasterEggService {
     if (val === '1000' || (hasNum && num === 1000)) {
       if (rand < 1) {
         return {
-          text: '(Absolute Cinephile 🏆)',
+          text: '(Absolute Cinephile)',
           tooltip: '1000 watches: You have spent weeks of your life staring at screens. (1% trigger rate)',
           className: 'legend-badge'
         };
@@ -239,7 +239,7 @@ export class EasterEggService {
     if (val === '88' || val === '8.8' || (hasNum && (num === 88 || num === 8.8))) {
       if (rand < 1) {
         return {
-          text: '(Doc! ⚡)',
+          text: '(Doc!)',
           tooltip: '88: "Great Scott! We are going back to the future!" (1% trigger rate)',
           className: 'future-badge'
         };
@@ -251,7 +251,7 @@ export class EasterEggService {
     if (val === '1.21' || (hasNum && num === 1.21)) {
       if (rand < 1) {
         return {
-          text: '(1.21 Gigawatts! ⚡)',
+          text: '(1.21 Gigawatts!)',
           tooltip: '1.21 Gigawatts: "What the hell is a gigawatt?!" (1% trigger rate)',
           className: 'future-badge'
         };
@@ -263,7 +263,7 @@ export class EasterEggService {
     if (val === '2001' || (hasNum && num === 2001)) {
       if (rand < 1) {
         return {
-          text: "(I'm sorry, Dave 🔴)",
+          text: "(I'm sorry, Dave)",
           tooltip: '2001: "I\'m afraid I can\'t let you watch that, Dave." (1% trigger rate)',
           className: 'space-badge'
         };
@@ -287,7 +287,7 @@ export class EasterEggService {
     if (val === '0' || val === '0.0' || (hasNum && num === 0)) {
       if (rand < 1) {
         return {
-          text: '(Literally Gotti 🍅)',
+          text: '(Literally Gotti)',
           tooltip: '0%: Audience loved it, critics put out a hit. (1% trigger rate)',
           className: 'gotti-badge'
         };
@@ -299,7 +299,7 @@ export class EasterEggService {
     if (val === '7' || val === '7.0' || (hasNum && (num === 7 || num === 7.0))) {
       if (rand < 1) {
         return {
-          text: "(What's in the box? 📦)",
+          text: "(What's in the box?)",
           tooltip: '7: "Oh, what\'s in the box?!" (1% trigger rate)',
           className: 'seven-badge'
         };
@@ -311,7 +311,7 @@ export class EasterEggService {
     if (val === '42' || val === '4.2' || (hasNum && (num === 42 || num === 4.2))) {
       if (rand < 1) {
         return {
-          text: '(The Answer to Life 🌌)',
+          text: '(The Answer to Life)',
           tooltip: '42: The Answer to the Ultimate Question of Life, the Universe, and Everything. (1% trigger rate)',
           className: 'galaxy-badge'
         };
@@ -325,7 +325,7 @@ export class EasterEggService {
     if (lowerVal === 'stats-idle') {
       if (rand < 15) {
         return {
-          text: "No statistics are loaded yet. (One does not simply analyze metrics without running a query first 💍)",
+          text: "No statistics are loaded yet. (One does not simply analyze metrics without running a query first)",
           tooltip: 'One does not simply walk into Mordor... or view stats without querying. (15% trigger rate)',
           className: 'boromir-badge'
         };
@@ -349,7 +349,7 @@ export class EasterEggService {
     if (lowerVal === 'auth-tagline') {
       if (rand < 15) {
         return {
-          text: "This is fine. 🔥 (Analyzing your Letterboxd obsession)",
+          text: "This is fine. (Analyzing your Letterboxd obsession)",
           tooltip: 'This is fine. (15% trigger rate)',
           className: 'fine-badge'
         };
@@ -361,7 +361,7 @@ export class EasterEggService {
     if (lowerVal === 'watchlist') {
       if (rand < 15) {
         return {
-          text: '(Am I a joke to you? 👁️)',
+          text: '(Am I a joke to you?)',
           tooltip: 'Your watchlist when you choose to discover new movies instead of clearing it. (15% trigger rate)',
           className: 'watchlist-joke-badge'
         };
@@ -373,7 +373,7 @@ export class EasterEggService {
     if (lowerVal.includes('nolan')) {
       if (rand < 10) {
         return {
-          text: '(Always has been 🔫)',
+          text: '(Always has been)',
           tooltip: 'Wait, it\'s all Nolan? Always has been. (10% trigger rate)',
           className: 'nolan-astro-badge'
         };
@@ -384,7 +384,7 @@ export class EasterEggService {
     if (hasNum && num >= 180) {
       if (rand < 10) {
         return {
-          text: '(One does not simply... 💍)',
+          text: '(One does not simply...)',
           tooltip: 'One does not simply walk into Mordor... or watch a 3+ hour epic without a bathroom break. (10% trigger rate)',
           className: 'boromir-badge'
         };
@@ -395,7 +395,7 @@ export class EasterEggService {
     if (lowerVal.includes('nicolas cage')) {
       if (rand < 10) {
         return {
-          text: '(Not the bees! 🐝)',
+          text: '(Not the bees!)',
           tooltip: 'Nicolas Cage: "NOT THE BEES! NOT THE BEES!" (10% trigger rate)',
           className: 'cage-badge'
         };
@@ -407,7 +407,7 @@ export class EasterEggService {
     if (lowerVal.includes('ryan gosling')) {
       if (rand < 10) {
         return {
-          text: "(He's literally me 🕶️)",
+          text: "(He's literally me)",
           tooltip: 'Ryan Gosling: The ultimate "literally me" character driver. (10% trigger rate)',
           className: 'gosling-badge'
         };
@@ -419,7 +419,7 @@ export class EasterEggService {
     if (lowerVal.includes('keanu reeves')) {
       if (rand < 10) {
         return {
-          text: "(You're breathtaking! 👉)",
+          text: "(You're breathtaking!)",
           tooltip: 'Keanu Reeves: "You\'re breathtaking!" (10% trigger rate)',
           className: 'keanu-badge'
         };
@@ -431,7 +431,7 @@ export class EasterEggService {
     if (lowerVal.includes('christopher nolan')) {
       if (rand < 10) {
         return {
-          text: '(BWAAAAM 🔊)',
+          text: '(BWAAAAM)',
           tooltip: 'Christopher Nolan: Loud horns and complex temporal paradoxes. (10% trigger rate)',
           className: 'nolan-badge'
         };
@@ -443,7 +443,7 @@ export class EasterEggService {
     if (lowerVal.includes('quentin tarantino')) {
       if (rand < 10) {
         return {
-          text: '(Feet Close-up 🦶)',
+          text: '(Feet Close-up)',
           tooltip: 'Quentin Tarantino: Famous for foot shots, trunk angles, and intense dialog. (10% trigger rate)',
           className: 'tarantino-badge'
         };
@@ -455,7 +455,7 @@ export class EasterEggService {
     if (lowerVal.includes('martin scorsese')) {
       if (rand < 10) {
         return {
-          text: '(This is cinema 🍿)',
+          text: '(This is cinema)',
           tooltip: 'Martin Scorsese: "This is cinema. It is not theme parks." (10% trigger rate)',
           className: 'scorsese-badge'
         };
@@ -467,7 +467,7 @@ export class EasterEggService {
     if (lowerVal.includes('leonardo dicaprio')) {
       if (rand < 10) {
         return {
-          text: '(Pointing at screen 👉)',
+          text: '(Pointing at screen)',
           tooltip: 'Leonardo DiCaprio: *Points at screen recognizing cinematic details* (10% trigger rate)',
           className: 'dicaprio-badge'
         };
@@ -479,7 +479,7 @@ export class EasterEggService {
     if (lowerVal.includes('zack snyder')) {
       if (rand < 10) {
         return {
-          text: '(Slow-mo active ⏱️)',
+          text: '(Slow-mo active)',
           tooltip: 'Zack Snyder: Expect high-contrast colors and heavy slow-motion. (10% trigger rate)',
           className: 'snyder-badge'
         };
@@ -491,7 +491,7 @@ export class EasterEggService {
     if (lowerVal === 'sci-fi' || lowerVal === 'science fiction') {
       if (rand < 10) {
         return {
-          text: '(Beam me up 🛸)',
+          text: '(Beam me up)',
           tooltip: 'Sci-Fi: Space, aliens, and neon lights. (10% trigger rate)',
           className: 'scifi-badge'
         };
@@ -503,7 +503,7 @@ export class EasterEggService {
     if (lowerVal === 'horror') {
       if (rand < 10) {
         return {
-          text: '(Don\'t look behind you 👻)',
+          text: '(Don\'t look behind you)',
           tooltip: 'Horror: A spooky palette cleanser. (10% trigger rate)',
           className: 'horror-badge'
         };

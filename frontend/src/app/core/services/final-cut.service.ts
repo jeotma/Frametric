@@ -50,6 +50,7 @@ export interface RookieDto {
   name: string;
   moviesWatchedThisYear: number;
   averageRating: number;
+  profilePath?: string;
 }
 
 export interface BestRookiesDto {
@@ -63,10 +64,24 @@ export interface GenreWithRatingDto {
   averageRating: number;
 }
 
+export interface DirectorCountDto {
+  directorName: string;
+  count: number;
+  profilePath?: string;
+}
+
+export interface ActorCountDto {
+  actorName: string;
+  count: number;
+  profilePath?: string;
+}
+
 export interface DirectorActorPairDto {
   directorName: string;
   actorName: string;
   collaborationCount: number;
+  directorProfilePath?: string;
+  actorProfilePath?: string;
 }
 
 export interface PrimeTimeStatsDto {

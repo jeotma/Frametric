@@ -10,13 +10,14 @@ import { SlotMachineResultDto } from '../../core/api/model/slot-machine-result-d
 import { finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { ModalService } from '../../core/services/modal.service';
+import { CinematicSelectComponent } from '../../components/cinematic-select/cinematic-select.component';
 
 type DiscoveryTab = 'roulette' | 'dice' | 'slot-machine' | 'mystery-box' | 'bingo';
 
 @Component({
   selector: 'app-discovery',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CinematicSelectComponent],
   templateUrl: './discovery.html',
   styleUrl: './discovery.scss'
 })
@@ -30,6 +31,28 @@ export class DiscoveryComponent {
     bingo: 'bingo', roulette: 'roulette', 'mystery-box': 'mystery-box',
     dice: 'dice', 'slot-machine': 'slot-machine',
   };
+
+  // Options for Cinematic Selects
+  public scopeOptions = [
+    { value: 1, label: 'Your Library' },
+    { value: 2, label: 'Your Watchlist' },
+    { value: 3, label: 'Known Universe' }
+  ];
+  public diceScopeOptions = [
+    { value: 1, label: 'Your Library' },
+    { value: 2, label: 'Your Watchlist' }
+  ];
+  public bingoGridOptions = [
+    { value: 3, label: '3x3 Grid' },
+    { value: 4, label: '4x4 Grid' },
+    { value: 5, label: '5x5 Grid' }
+  ];
+  public mysteryVariantOptions = [
+    { value: 0, label: 'Classic Box' },
+    { value: 1, label: 'Genre Theme' },
+    { value: 2, label: 'Actor Focus' },
+    { value: 3, label: 'Director Focus' }
+  ];
 
   // Roulette state
   public rouletteResultSig = signal<SelectionResultDto | null>(null);

@@ -94,11 +94,7 @@
     </div>
     <div class="bingo-controls hud-data">
       <label><span class="hud-label">GRID_SIZE:</span>
-        <select class="glass-select" [(ngModel)]="bingoGridSize" (change)="bingoResultSig.set(null)">
-          <option [value]="3">3 &times; 3</option>
-          <option [value]="4">4 &times; 4</option>
-          <option [value]="5">5 &times; 5</option>
-        </select>
+        <app-cinematic-select [options]="bingoGridOptions" [(ngModel)]="bingoGridSize" (ngModelChange)="bingoResultSig.set(null)" placeholder="Grid Size"></app-cinematic-select>
       </label>
       <button class="btn btn-primary crosshair-bracket" (click)="loadBingo()" [disabled]="bingoLoading()">
         {{ bingoLoading() ? 'INITIATING...' : 'LOAD BOARD' }}
@@ -148,11 +144,7 @@
     </div>
     <div class="controls-row hud-data">
       <label><span class="hud-label">SCOPE:</span>
-        <select class="glass-select" [(ngModel)]="rouletteScope">
-          <option [value]="1">DB_FULL</option>
-          <option [value]="0">WATCHLIST</option>
-          <option [value]="3">HYBRID_MIX</option>
-        </select>
+        <app-cinematic-select [options]="scopeOptions" [(ngModel)]="rouletteScope" placeholder="Select scope"></app-cinematic-select>
       </label>
       <label><span class="hud-label">THRESHOLD:</span>
         <input type="number" min="0" max="10" [(ngModel)]="rouletteThreshold" class="glass-select" />
@@ -207,20 +199,10 @@
     </div>
     <div class="controls-row hud-data">
       <label><span class="hud-label">SCOPE:</span>
-        <select class="glass-select" [(ngModel)]="mysteryScope">
-          <option [value]="1">DB_FULL</option>
-          <option [value]="0">WATCHLIST</option>
-          <option [value]="3">HYBRID</option>
-        </select>
+        <app-cinematic-select [options]="scopeOptions" [(ngModel)]="mysteryScope" placeholder="Select scope"></app-cinematic-select>
       </label>
       <label><span class="hud-label">VARIANT:</span>
-        <select class="glass-select" [(ngModel)]="mysteryVariant">
-          <option [value]="0">STD</option>
-          <option [value]="1">THEME</option>
-          <option [value]="2">PREMIUM</option>
-          <option [value]="3">REVEAL_ALL</option>
-          <option [value]="4">STRAT</option>
-        </select>
+        <app-cinematic-select [options]="mysteryVariantOptions" [(ngModel)]="mysteryVariant" placeholder="Select variant"></app-cinematic-select>
       </label>
       <button class="btn btn-primary crosshair-bracket" (click)="generateMysteryBox()" [disabled]="mysteryLoading()">
         <ng-container *ngIf="!mysteryLoading()">
@@ -272,11 +254,7 @@
     </div>
     <div class="controls-row hud-data">
       <label><span class="hud-label">SCOPE:</span>
-        <select class="glass-select" [(ngModel)]="diceScope">
-          <option [value]="1">DB_FULL</option>
-          <option [value]="0">WATCHLIST</option>
-          <option [value]="3">HYBRID</option>
-        </select>
+        <app-cinematic-select [options]="diceScopeOptions" [(ngModel)]="diceScope" placeholder="Select scope"></app-cinematic-select>
       </label>
       <button class="btn btn-primary crosshair-bracket" (click)="rollDice()" [disabled]="diceLoading()">
         <ng-container *ngIf="!diceLoading()">
@@ -337,11 +315,7 @@
     </div>
     <div class="controls-row hud-data">
       <label><span class="hud-label">SCOPE:</span>
-        <select class="glass-select" [(ngModel)]="slotScope">
-          <option [value]="1">DB_FULL</option>
-          <option [value]="0">WATCHLIST</option>
-          <option [value]="3">HYBRID</option>
-        </select>
+        <app-cinematic-select [options]="scopeOptions" [(ngModel)]="slotScope" placeholder="Select scope"></app-cinematic-select>
       </label>
       <label><span class="hud-label">GENRE_OVERRIDE:</span>
         <input type="text" [(ngModel)]="slotGenre" class="glass-select" placeholder="e.g. Horror" />
