@@ -18,4 +18,9 @@ public record GlobalSearchResultDto(
     bool IsLocal,
     Guid? ActorId = null,
     Guid? DirectorId = null
-);
+)
+{
+    // Dapper demands an EXACT match between returned columns and a constructor.
+    public GlobalSearchResultDto(Guid? LocalId, int? TmdbId, string EntityType, string TitleOrName, int? ReleaseYear, string? ImageUrl, bool IsLocal) 
+        : this(LocalId, TmdbId, EntityType, TitleOrName, ReleaseYear, ImageUrl, IsLocal, null, null) {}
+}
