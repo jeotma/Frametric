@@ -9,10 +9,8 @@
  */
 
 
-export interface RouletteRequest { 
-    scope: number;
-    persistenceThreshold?: number | null;
-    customSourceIds?: Array<string> | null;
-    customSourceTitles?: Array<string> | null;
+export interface SlotReelResultDto { 
+    label: string;
+    value: string;
 }
 

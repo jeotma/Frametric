@@ -10,8 +10,9 @@
 
 
 export interface RookieDto { 
-    name: string;
-    moviesWatchedThisYear: number;
-    averageRating: number;
+    name?: string;
+    moviesWatchedThisYear?: number;
+    averageRating?: number;
+    profilePath?: string | null;
 }
 

@@ -9,10 +9,12 @@
  */
 
 
-export interface RouletteRequest { 
-    scope: number;
-    persistenceThreshold?: number | null;
-    customSourceIds?: Array<string> | null;
-    customSourceTitles?: Array<string> | null;
+export interface BingoSquareDto { 
+    objectiveId: string;
+    description: string;
+    isCompleted: boolean;
+    completionDate: string | null;
+    row: number;
+    column: number;
 }
 

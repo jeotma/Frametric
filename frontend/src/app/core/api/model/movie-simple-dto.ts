@@ -10,10 +10,10 @@
 
 
 export interface MovieSimpleDto { 
-    id: string;
-    title: string;
-    releaseYear: number | null;
-    posterPath: string | null;
+    id?: string;
+    title?: string;
+    releaseYear?: number | null;
+    posterPath?: string | null;
     isWatched?: boolean;
 }
 

@@ -10,8 +10,10 @@
 
 
 export interface DirectorActorPairDto { 
-    directorName: string;
-    actorName: string;
-    collaborationCount: number;
+    directorName?: string;
+    actorName?: string;
+    collaborationCount?: number;
+    directorProfilePath?: string | null;
+    actorProfilePath?: string | null;
 }
 

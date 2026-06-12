@@ -9,10 +9,10 @@
  */
 
 
-export interface RouletteRequest { 
-    scope: number;
-    persistenceThreshold?: number | null;
-    customSourceIds?: Array<string> | null;
-    customSourceTitles?: Array<string> | null;
+export interface SingleDieResultDto { 
+    diceType: number;
+    rollValue: number;
+    label: string;
+    description: string;
 }
 

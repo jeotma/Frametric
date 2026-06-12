@@ -7,15 +7,16 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+
 import { MovieSimpleDto } from './movie-simple-dto';
 
 
 export interface ActorDetailsDto { 
-    id: string;
-    name: string;
-    averageRating: number;
-    watchCount: number;
-    movies: Array<MovieSimpleDto>;
+    id?: string;
+    name?: string;
+    averageRating?: number;
+    watchCount?: number;
+    movies?: Array<MovieSimpleDto>;
     profilePath?: string | null;
     isDirector?: boolean;
     directedMovies?: Array<MovieSimpleDto> | null;

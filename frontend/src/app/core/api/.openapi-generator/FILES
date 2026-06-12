@@ -8,6 +8,7 @@ api/analytics.service.ts
 api/api.ts
 api/auth.service.ts
 api/directors.service.ts
+api/discovery.service.ts
 api/import.service.ts
 api/movies.service.ts
 api/recommendations.service.ts
@@ -21,11 +22,15 @@ model/actor-details-dto.ts
 model/actor-simple-dto.ts
 model/auth-response-dto.ts
 model/best-rookies-dto.ts
+model/bingo-grid-dto.ts
+model/bingo-square-dto.ts
 model/bookends-dto.ts
 model/casting-pair-dto.ts
 model/cinematic-fatigue-expanded-dto.ts
 model/dashboard-summary-dto.ts
 model/decade-count-dto.ts
+model/dice-roll-request.ts
+model/dice-roll-result-dto.ts
 model/director-actor-pair-dto.ts
 model/director-count-dto.ts
 model/director-details-dto.ts
@@ -53,6 +58,9 @@ model/most-rewatched-dto.ts
 model/movie-details-dto.ts
 model/movie-diary-entry-dto.ts
 model/movie-simple-dto.ts
+model/mystery-box-dto.ts
+model/mystery-box-hint-dto.ts
+model/mystery-box-request.ts
 model/preferred-day-dto.ts
 model/prime-time-stats-dto.ts
 model/problem-details.ts
@@ -62,6 +70,12 @@ model/recommended-movie-dto.ts
 model/refresh-token-request.ts
 model/register-user-request.ts
 model/rookie-dto.ts
+model/roulette-request.ts
+model/selection-result-dto.ts
+model/single-die-result-dto.ts
+model/slot-machine-request.ts
+model/slot-machine-result-dto.ts
+model/slot-reel-result-dto.ts
 model/time-invested-dto.ts
 model/top-bottom-movies-dto.ts
 model/watched-movie-stats-dto.ts
