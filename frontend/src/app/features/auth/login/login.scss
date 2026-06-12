@@ -10,71 +10,7 @@
   background: v.$bg-base;
 }
 
-// ── Animated Background ────────────────────────────────────────────────────────
-.cinema-bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
 
-.grain {
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  opacity: 0.4;
-  animation: grain-shift 0.5s steps(1) infinite;
-}
-
-@keyframes grain-shift {
-  0%   { transform: translate(0, 0); }
-  25%  { transform: translate(-2%, -3%); }
-  50%  { transform: translate(3%, 1%); }
-  75%  { transform: translate(-1%, 4%); }
-  100% { transform: translate(2%, -2%); }
-}
-
-.glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  animation: glow-pulse 8s ease-in-out infinite alternate;
-}
-
-.glow-1 {
-  width: 500px;
-  height: 500px;
-  top: -150px;
-  left: -100px;
-  background: radial-gradient(circle, rgba(192, 132, 252, 0.15) 0%, transparent 70%);
-  animation-delay: 0s;
-}
-
-.glow-2 {
-  width: 400px;
-  height: 400px;
-  bottom: -100px;
-  right: -80px;
-  background: radial-gradient(circle, rgba(129, 140, 248, 0.12) 0%, transparent 70%);
-  animation-delay: -4s;
-}
-
-@keyframes glow-pulse {
-  from { opacity: 0.6; transform: scale(1); }
-  to   { opacity: 1; transform: scale(1.15); }
-}
-
-.scanlines {
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0px,
-    transparent 2px,
-    rgba(0, 0, 0, 0.03) 2px,
-    rgba(0, 0, 0, 0.03) 4px
-  );
-}
 
 // ── Auth Card ────────────────────────────────────────────────────────────────
 .auth-card {
@@ -230,9 +166,9 @@
     &::placeholder { color: v.$text-muted; }
 
     &:focus {
-      border-color: rgba(192, 132, 252, 0.5);
-      background: rgba(192, 132, 252, 0.06);
-      box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.1);
+      border-color: rgba(156, 163, 175, 0.5);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.1);
     }
   }
 
@@ -262,39 +198,9 @@
 }
 
 // ── Submit Button ─────────────────────────────────────────────────────────────
-.btn-primary {
+.btn-cta {
   width: 100%;
-  padding: 0.85rem;
   margin-top: 0.5rem;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #c084fc 0%, #818cf8 100%);
-  color: #fff;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  font-family: v.$font-body;
-  cursor: pointer;
-  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  letter-spacing: 0.01em;
-
-  &:hover:not(:disabled) {
-    opacity: 0.9;
-    transform: translateY(-1px);
-    box-shadow: 0 8px 25px rgba(192, 132, 252, 0.35);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
 }
 
 .spinner {
@@ -319,11 +225,11 @@
   margin-bottom: 0;
 
   a {
-    color: #c084fc;
+    color: var(--accent-silver);
     text-decoration: none;
     font-weight: 500;
     transition: color 0.15s;
 
-    &:hover { color: #d8b4fe; }
+    &:hover { color: #d1d5db; }
   }
 }

@@ -1,11 +1,13 @@
 import { Component, signal, OnInit, OnDestroy, inject, computed } from '@angular/core';
-import { RouterLink } from '@angular/router';
+
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { ModalService } from '../../core/services/modal.service';
 @Component({
   selector: 'app-final-cut-teaser',
   standalone: true,
-  imports: [RouterLink, CommonModule],
+  imports: [CommonModule],
   templateUrl: './final-cut-teaser.html',
   styleUrl: './final-cut-teaser.scss',
 })
@@ -14,7 +16,9 @@ export class FinalCutTeaserComponent implements OnInit, OnDestroy {
   public availableYears = [2026, 2025, 2024];
 
   private authService = inject(AuthService);
-  public username = computed(() => this.authService.currentUser()?.username || 'User');
+  private modalService = inject(ModalService);
+  private router = inject(Router);
+  public username = computed(() => this.authService.currentUser()?.username || null);
 
   public isPlayingPromo = signal<boolean>(true);
   public promoStep = signal<number>(0);
@@ -63,5 +67,13 @@ export class FinalCutTeaserComponent implements OnInit, OnDestroy {
       clearTimeout(this.promoTimeout);
       this.promoTimeout = null;
     }
+  }
+
+  public goToFinalCut() {
+    if (!this.authService.isAuthenticated()) {
+      this.modalService.openAuthModal();
+      return;
+    }
+    this.router.navigate(['/final-cut', this.selectedYear()]);
   }
 }

@@ -1,18 +1,23 @@
-<ng-container *ngIf="auth.isAuthenticated(); else unauthenticatedLayout">
-  <div class="app-container">
+<ng-container *ngIf="!isAuthPage; else unauthenticatedLayout">
+  <div class="app-container film-grain"
+       [style.filter]="bodyFilter()"
+       [style.transform]="bodyTransform()"
+       [style.transition]="(bodyFilter() || bodyTransform()) ? 'filter 1s ease, transform 1.5s ease' : ''">
     <!-- Standalone Sidebar Component -->
     <app-sidebar></app-sidebar>
 
     <!-- Main Content Frame -->
     <main class="main-content">
-      <header class="top-bar glass-panel">
+      <header class="top-bar" [class.expanded]="isTopbarExpanded()">
         <div class="search-wrapper" style="display: flex; align-items: center; position: relative;">
-          <div class="search-box">
-            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input type="text" placeholder="Search movies, directors, genres..." aria-label="Search movies, directors, and genres" (keyup)="onSearchKeyup($event)" (keydown.escape)="closeSearch()" (blur)="closeSearch()" />
+          <div class="search-box" (click)="expandTopbar()">
+            <div class="search-lens">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </div>
+            <input #searchInput type="text" placeholder="Search movies, directors, genres..." aria-label="Search movies, directors, and genres" (keyup)="onSearchKeyup($event)" (keydown.escape)="closeSearch()" (blur)="closeSearch()" [disabled]="!isTopbarExpanded()" />
           </div>
 
           <div class="search-dropdown" *ngIf="showSearchDropdown()" aria-live="polite">
@@ -52,18 +57,24 @@
         </div>
 
         <div class="header-actions">
-          <a href="https://www.linkedin.com/in/jesus-otero-dev" target="_blank" class="header-linkedin-link">
+          <a href="https://www.linkedin.com/in/jesus-otero-dev" target="_blank" class="header-linkedin-link" tabindex="-1">
             <svg class="linkedin-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
             </svg>
             jesus-otero-dev
           </a>
-          <button class="icon-btn" aria-label="Notifications">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </svg>
-          </button>
+          <!-- Show Notification bell only if authenticated, else login CTA -->
+          <ng-container *ngIf="auth.isAuthenticated(); else loginCta">
+            <button class="icon-btn" aria-label="Notifications">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+            </button>
+          </ng-container>
+          <ng-template #loginCta>
+            <a routerLink="/login" class="btn btn-outline" style="margin-left: 16px;">Log In</a>
+          </ng-template>
         </div>
       </header>
 
@@ -78,3 +89,27 @@
   <!-- Standard Router Outlet for auth pages -->
   <router-outlet></router-outlet>
 </ng-template>
+
+<!-- Easter egg overlays — fixed position, rendered via signals -->
+<div class="rosebud-sled" *ngIf="showRosebudSled()">🛷 ROSEBUD</div>
+<div #easterEggContainer class="easter-egg-container"></div>
+<div class="raptor-peek" *ngIf="showRaptorPeek()">🦖 Clever girl...</div>
+
+<!-- Auth Modal (Guest CTA) -->
+<div class="auth-modal-overlay" *ngIf="modalService.showAuthModal()" (click)="modalService.closeAuthModal()">
+  <div class="auth-modal viewfinder-box animate-slide-up" (click)="$event.stopPropagation()">
+    <div class="modal-header clapper-separator" style="padding: 24px; padding-bottom: 32px; border-bottom: 1px solid var(--charcoal); display: flex; justify-content: space-between; align-items: center;">
+      <h2 style="margin: 0; background: var(--true-black); padding: 4px 12px; border: 1px solid var(--charcoal);"><span class="hud-label" style="color: var(--record-red); font-size: 1.4rem; letter-spacing: 2px;">[SYS_REQ: AUTH]</span></h2>
+      <button class="close-btn" (click)="modalService.closeAuthModal()" style="background: var(--true-black); border: 1px solid var(--charcoal); color: var(--silver); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px;">
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="padding: 32px 24px;">
+      <p class="director-note" style="font-size: 1.6rem; color: var(--silver); margin-bottom: 32px; line-height: 1.4; text-align: center;">"The data is locked in the editing room. Sign in to begin your journey through your cinematic statistics."</p>
+      <div class="modal-actions" style="display: flex; gap: 16px; margin-top: 32px;">
+        <a href="javascript:void(0)" routerLink="/login" class="btn btn-primary crosshair-bracket" (click)="modalService.closeAuthModal()" style="flex: 1; text-align: center; justify-content: center;">Log In</a>
+        <a href="javascript:void(0)" routerLink="/register" class="btn btn-outline crosshair-bracket" (click)="modalService.closeAuthModal()" style="flex: 1; text-align: center; justify-content: center;">Create Account</a>
+      </div>
+    </div>
+  </div>
+</div>

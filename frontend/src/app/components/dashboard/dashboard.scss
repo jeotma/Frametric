@@ -1,9 +1,10 @@
 .dashboard-container {
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 95%;
   margin: 0 auto;
   color: var(--text-primary);
   font-family: var(--font-body);
+  position: relative;
 }
 
 .dashboard-header {
@@ -11,6 +12,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+  z-index: 1;
   
   .header-content {
     h1 {
@@ -45,10 +48,7 @@
       }
     }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
-      color: white;
-      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    .btn-cta {
     }
 
     .btn-secondary {
@@ -63,21 +63,20 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 /* Glassmorphism Panel */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
+.viewfinder-box {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
   padding: 1.5rem;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    transform: translateY(-2px);
     box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3);
   }
 }
@@ -108,10 +107,9 @@
     .stat-value {
       font-size: 3rem;
       font-weight: 800;
-      background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+      text-shadow: 0 0 20px rgba(212, 212, 216, 0.2); // Silver subtle glow
       line-height: 1.1;
     }
   }
@@ -125,11 +123,15 @@
 }
 
 .chart-panel, .leaderboard-panel {
-  h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
+  .credit-heading {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
     margin: 0 0 1.5rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 0.75rem;
   }
 }
@@ -162,12 +164,15 @@
       
       .bar-fill {
         height: 100%;
-        background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
+        background: linear-gradient(to right, rgba(226, 186, 100, 0.2), var(--accent-sepia));
+        box-shadow: 0 0 15px rgba(226, 186, 100, 0.1);
         border-radius: 4px;
         transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0.8;
         
         &.decade-fill {
-          background: linear-gradient(90deg, var(--accent-purple), var(--accent-rose));
+          background: linear-gradient(to right, rgba(226, 186, 100, 0.1), var(--accent-sepia));
+          opacity: 0.5;
         }
       }
     }
@@ -198,11 +203,11 @@
     .rank {
       font-size: 1.25rem;
       font-weight: 800;
-      color: var(--accent-purple);
+      font-family: var(--font-mono);
+      color: var(--text-muted);
       min-width: 30px;
       text-align: center;
       margin-right: 1rem;
-      opacity: 0.8;
     }
     
     .details {
@@ -245,7 +250,7 @@
   height: 40px;
   border: 3px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
-  border-top-color: var(--accent-purple);
+  border-top-color: var(--accent-silver);
   animation: spin 1s ease-in-out infinite;
 }
 
@@ -322,15 +327,14 @@
       display: inline-flex;
       align-items: center;
       padding: 0.7rem 1.2rem;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #ffffff;
+      background: var(--accent-silver);
+      color: #0a0c10;
       font-weight: 600;
       font-size: 0.9rem;
-      border-radius: 8px;
+      border-radius: var(--border-radius-sm);
       text-decoration: none;
       transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 
       svg {
         width: 16px;
@@ -341,7 +345,7 @@
 
       &:hover {
         transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 
         svg {
           transform: translateX(3px);

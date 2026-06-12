@@ -13,10 +13,9 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth/register/register').then(m => m.RegisterComponent),
   },
-  // Protected shell
+  // Protected shell (Now accessible to guests)
   {
     path: '',
-    canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {

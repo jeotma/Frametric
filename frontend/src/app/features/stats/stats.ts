@@ -13,6 +13,8 @@ import { EasterEggPipe } from '../../core/services/easter-egg.pipe';
 import { slugify } from '../../core/utils/slugify';
 import { STATS_QUERIES, GlobalFilters, QueryDef } from './stats-queries';
 import { GlobalSearchResultDto } from '../../core/api/model/global-search-result-dto';
+import { AuthService } from '../../core/services/auth.service';
+import { ModalService } from '../../core/services/modal.service';
 
 @Component({
   selector: 'app-stats',
@@ -29,6 +31,8 @@ export class StatsComponent implements OnInit, OnDestroy {
   private directorsService = inject(DirectorsService);
   private actorsService = inject(ActorsService);
   private router = inject(Router);
+  public auth = inject(AuthService);
+  public modalService = inject(ModalService);
 
   public isPretentious = signal<boolean>(false);
   public baconMessage = signal<string | null>(null);
@@ -143,6 +147,11 @@ export class StatsComponent implements OnInit, OnDestroy {
   }
 
   runQuery() {
+    if (!this.auth.isAuthenticated()) {
+      this.modalService.openAuthModal();
+      return;
+    }
+
     const q = this.currentQuery();
     if (!q || !q.execute) return;
 

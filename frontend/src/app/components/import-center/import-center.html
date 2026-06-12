@@ -1,8 +1,8 @@
 <div class="imports-dashboard animate-slide-up">
-  <div class="glass-card upload-header-card animate-slide-up">
+  <div class="crosshair-bracket upload-header-card animate-slide-up">
     <div class="upload-header">
-      <h3>Upload your Letterboxd Archive</h3>
-      <p class="description">Upload your exported Letterboxd .zip file to unlock personalized cinematic wrapped and detailed analytics.</p>
+      <h3>FILM ARCHIVE</h3>
+      <p class="description">Import, manage and preserve your viewing data — Upload your exported Letterboxd .zip file to unlock personalized analytics.</p>
     </div>
     
     <!-- Instructions Panel -->
@@ -38,7 +38,7 @@
   </div>
 
     <!-- Dropzone Panel -->
-    <div class="glass-card dropzone-panel animate-slide-up">
+    <div class="crosshair-bracket dropzone-panel animate-slide-up">
       <!-- Error Message Banner -->
       <div *ngIf="errorMessage()" class="error-banner animate-fade-in" aria-live="assertive">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -67,7 +67,7 @@
             <line x1="12" y1="3" x2="12" y2="15" />
           </svg>
           <span>Drop zip archive here or click to browse</span>
-          <button class="btn btn-primary" (click)="triggerFileInput()">Select Archive</button>
+          <button class="btn btn-cta" (click)="triggerFileInput()">Select Archive</button>
         </div>
 
         <div class="upload-progress-state" *ngIf="isUploading()" role="progressbar" aria-busy="true" aria-label="Upload progress">
@@ -81,7 +81,7 @@
     </div>
 
   <!-- History Table -->
-  <div class="glass-card table-card animate-slide-up">
+  <div class="crosshair-bracket table-card animate-slide-up">
     <h3>Active & Historical Import Ingestions</h3>
     <table class="imports-table">
       <thead>
@@ -112,8 +112,8 @@
             <span 
               class="badge" 
               [class.badge-emerald]="item.status === 'Completed'"
-              [class.badge-cyan]="item.status === 'Enriching'"
-              [class.badge-rose]="item.status === 'Failed'"
+              [class.badge-sepia]="item.status === 'Enriching'"
+              [class.badge-record]="item.status === 'Failed'"
             >
               {{ item.status }}
             </span>

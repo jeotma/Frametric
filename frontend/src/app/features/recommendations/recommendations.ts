@@ -5,6 +5,8 @@ import { RouterLink } from '@angular/router';
 import { RecommendationsService } from '../../core/api/api/recommendations.service';
 import { RecommendationRequest, RecommendedMovieDto } from '../../core/api';
 import { finalize } from 'rxjs';
+import { AuthService } from '../../core/services/auth.service';
+import { ModalService } from '../../core/services/modal.service';
 
 export enum Strategy {
   RecentMood = 0,
@@ -43,6 +45,8 @@ import { slugify } from '../../core/utils/slugify';
 export class RecommendationsComponent implements OnInit {
   protected readonly slugify = slugify;
   private recoService = inject(RecommendationsService);
+  public auth = inject(AuthService);
+  public modalService = inject(ModalService);
 
   // Form State
   public selectedStrategy = signal<Strategy>(Strategy.RecentMood);
@@ -111,7 +115,9 @@ export class RecommendationsComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.generateRecommendations();
+    if (this.auth.isAuthenticated()) {
+      this.generateRecommendations();
+    }
   }
 
   selectStrategy(strat: Strategy) {
@@ -130,6 +136,11 @@ export class RecommendationsComponent implements OnInit {
   }
 
   generateRecommendations() {
+    if (!this.auth.isAuthenticated()) {
+      this.modalService.openAuthModal();
+      return;
+    }
+
     this.loading.set(true);
     this.error.set(null);
 

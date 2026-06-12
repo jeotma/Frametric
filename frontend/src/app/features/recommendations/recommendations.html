@@ -1,14 +1,14 @@
 <div class="reco-container animate-fade-in">
   <header class="reco-header">
     <div class="header-titles">
-      <h1>Cinematic Recommendations</h1>
-      <p class="subtitle">Frametric cinematic intelligence engine — custom suggestions powered by your library</p>
+      <h1>NEXT SCREENING</h1>
+      <p class="subtitle">Personalized recommendations for your next watch.</p>
     </div>
   </header>
 
   <div class="reco-layout">
     <!-- Left panel: Control Center -->
-    <aside class="control-panel glass-panel animate-slide-up">
+    <aside class="control-panel viewfinder-box animate-slide-up">
       <div class="panel-section">
         <h2>1. Choose Strategy</h2>
         <div class="strategy-list">
@@ -180,7 +180,7 @@
 
       <button 
         type="button"
-        class="btn btn-primary generate-btn" 
+        class="btn btn-cta generate-btn" 
         [disabled]="loading()"
         (click)="generateRecommendations()"
       >
@@ -195,7 +195,7 @@
     <!-- Right panel: Recommendations Results Grid -->
     <main class="results-area animate-slide-up">
       @if (loading()) {
-        <div class="loading-state glass-panel" aria-live="polite">
+        <div class="loading-state viewfinder-box" aria-live="polite">
           <div class="loading-animation">
             <div class="orbit"></div>
             <div class="orbit"></div>
@@ -205,14 +205,14 @@
           <p>Scanning candidate movie pool against your cinema preferences.</p>
         </div>
       } @else if (error()) {
-        <div class="error-state glass-panel" aria-live="assertive">
+        <div class="error-state viewfinder-box" aria-live="assertive">
           <span class="error-icon">⚠️</span>
           <h3>No historical data found</h3>
           <p>{{ error() }}</p>
           <a href="/imports" class="btn btn-secondary mt-3">Go to Import Center</a>
         </div>
       } @else if (recommendations().length === 0) {
-        <div class="empty-state glass-panel">
+        <div class="empty-state viewfinder-box">
           <span class="empty-icon">🎬</span>
           @let emptyEE = 'reco-empty' | easterEgg:'ui';
           @if (emptyEE) {
@@ -224,7 +224,7 @@
         </div>
       } @else {
         @if (wellnessMessage()) {
-          <div class="wellness-banner glass-panel animate-fade-in" aria-live="polite">
+          <div class="wellness-banner viewfinder-box animate-fade-in" aria-live="polite">
             <span class="wellness-icon">🌱</span>
             <div class="wellness-content">
               <h4>Wellness Check</h4>
@@ -234,7 +234,7 @@
           </div>
         }
         @if (recommendations().length === 1 && recommendations()[0].easterEggTooltip?.startsWith('Watchlist Haunting')) {
-          <div class="haunting-optout-banner glass-panel" aria-live="polite">
+          <div class="haunting-optout-banner viewfinder-box" aria-live="polite">
             <span class="warning-icon">👻</span>
             <div class="optout-content">
               <h4>Watchlist Haunting Triggered</h4>
@@ -245,7 +245,7 @@
         }
         <div class="recommendations-grid" [class.grid-10]="selectedQuantity() === 10">
           @for (movie of recommendations(); track movie.movieId) {
-            <article class="movie-card glass-panel animate-stagger-up" style="--i: {{ $index }}" [class.loading]="actionLoading() === movie.movieId" [class.haunted-card]="recommendations().length === 1 && recommendations()[0].easterEggTooltip?.startsWith('Watchlist Haunting')">
+            <article class="movie-card viewfinder-box animate-stagger-up" style="--i: {{ $index }}" [class.loading]="actionLoading() === movie.movieId" [class.haunted-card]="recommendations().length === 1 && recommendations()[0].easterEggTooltip?.startsWith('Watchlist Haunting')">
               <div class="poster-container">
                 <a [routerLink]="['/movies', movie.movieId, slugify(movie.title)]" style="display: block; width: 100%; height: 100%;">
                   @if (movie.posterUrl) {

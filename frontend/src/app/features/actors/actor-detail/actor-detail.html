@@ -6,7 +6,7 @@
       </div>
     </div>
 
-    <div class="header glass-panel animate-slide-up">
+    <div class="header viewfinder-box animate-slide-up">
       <div class="profile-avatar">
         <img *ngIf="a.profilePath; else placeholderAvatar" [src]="a.profilePath" [alt]="a.name" />
         <ng-template #placeholderAvatar>
@@ -69,7 +69,7 @@
 
     <!-- Acting Section -->
     <div class="movies-grid animate-slide-up" [id]="watchedActingMovies.length > 0 ? 'watched-section' : ''" *ngIf="watchedActingMovies.length > 0">
-      <h2>{{ a.isDirector ? 'Watched Movies (Acting)' : 'Watched Movies' }}</h2>
+      <h2>{{ a.isDirector ? 'FILMOGRAPHY — ACTING' : 'FILMOGRAPHY' }}</h2>
       <div class="grid">
         <a *ngFor="let m of watchedActingMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title)]" class="movie-card animate-stagger-up" style="--i: {{ i }}">
           <div class="poster">
@@ -89,7 +89,7 @@
     </div>
 
     <div class="movies-grid unwatched-section animate-slide-up" [id]="unwatchedActingMovies.length > 0 ? 'unwatched-section' : ''" *ngIf="unwatchedActingMovies.length > 0">
-      <h2>{{ a.isDirector ? 'Unwatched Movies (Acting)' : 'Unwatched Movies' }}</h2>
+      <h2>{{ a.isDirector ? 'DISCOVER — ACTING' : 'DISCOVER' }}</h2>
       <div class="grid">
         <a *ngFor="let m of unwatchedActingMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title)]" class="movie-card unwatched-card animate-stagger-up" style="--i: {{ i }}">
           <div class="poster">
@@ -111,7 +111,7 @@
 
     <!-- Directing Section (only if isDirector) -->
     <div class="movies-grid animate-slide-up" [id]="watchedActingMovies.length === 0 ? 'watched-section' : ''" *ngIf="a.isDirector && watchedDirectedMovies.length > 0">
-      <h2>Watched Movies (Directing)</h2>
+      <h2>FILMOGRAPHY — DIRECTING</h2>
       <div class="grid">
         <a *ngFor="let m of watchedDirectedMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title)]" class="movie-card animate-stagger-up" style="--i: {{ i }}">
           <div class="poster">
@@ -131,7 +131,7 @@
     </div>
 
     <div class="movies-grid unwatched-section animate-slide-up" [id]="unwatchedActingMovies.length === 0 ? 'unwatched-section' : ''" *ngIf="a.isDirector && unwatchedDirectedMovies.length > 0">
-      <h2>Unwatched Movies (Directing)</h2>
+      <h2>DISCOVER — DIRECTING</h2>
       <div class="grid">
         <a *ngFor="let m of unwatchedDirectedMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title)]" class="movie-card unwatched-card animate-stagger-up" style="--i: {{ i }}">
           <div class="poster">
@@ -151,7 +151,7 @@
       </div>
     </div>
 
-    <div class="empty-state glass-panel animate-fade-in" *ngIf="watchedActingMovies.length === 0 && unwatchedActingMovies.length === 0 && watchedDirectedMovies.length === 0 && unwatchedDirectedMovies.length === 0">
+    <div class="empty-state viewfinder-box animate-fade-in" *ngIf="watchedActingMovies.length === 0 && unwatchedActingMovies.length === 0 && watchedDirectedMovies.length === 0 && unwatchedDirectedMovies.length === 0">
       <span class="empty-icon">🎬</span>
       <h3>No movies found in database for {{ a.name }}</h3>
     </div>
