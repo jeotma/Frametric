@@ -9,26 +9,10 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Frametric.Application.DTOs.Discovery;
 using Frametric.Domain.Enums;
 
 namespace Frametric.Application.Interfaces.Discovery;
-
-public record DiscoveryMoviePoolItemDto(
-    Guid MovieId,
-    string Title,
-    string? DirectorName,
-    int? ReleaseYear,
-    int? RuntimeMinutes,
-    string? PosterUrl,
-    double? TmdbRating,
-    double? TmdbPopularity,
-    double? CustomAverageRating,
-    string? Genres,
-    string? Keywords,
-    string? Overview,
-    string? Language,
-    string? Country
-);
 
 public interface IDiscoveryQueries
 {
