@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Frametric.Application.DTOs.Discovery;
 using Frametric.Application.Interfaces.Discovery;
 using Frametric.Application.Queries.Discovery;
 using Frametric.Domain.Enums;
@@ -37,22 +38,23 @@ public class RouletteSelectionQueryHandlerTests
 
     private static List<DiscoveryMoviePoolItemDto> CreatePool(int count)
     {
-        return Enumerable.Range(1, count).Select(i => new DiscoveryMoviePoolItemDto(
-            Guid.NewGuid(),
-            $"Movie {i}",
-            "Director",
-            2000 + i,
-            100 + i,
-            null,
-            7.0,
-            50.0,
-            7.5,
-            "Drama",
-            null,
-            null,
-            "English",
-            "USA"
-        )).ToList();
+        return Enumerable.Range(1, count).Select(i => new DiscoveryMoviePoolItemDto
+        {
+            MovieId = Guid.NewGuid(),
+            Title = $"Movie {i}",
+            DirectorName = "Director",
+            ReleaseYear = 2000 + i,
+            RuntimeMinutes = 100 + i,
+            PosterUrl = null,
+            TmdbRating = 7.0,
+            TmdbPopularity = 50.0,
+            CustomAverageRating = 7.5,
+            Genres = "Drama",
+            Keywords = null,
+            Overview = null,
+            Language = "English",
+            Country = "USA"
+        }).ToList();
     }
 
     [Fact]

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Frametric.Application.DTOs.Discovery;
 using Frametric.Application.Interfaces.Discovery;
 using Frametric.Application.Queries.Discovery;
 using Frametric.Domain.Discovery.Enums;
@@ -33,22 +34,23 @@ public class DiceRollQueryHandlerTests
 
     private static List<DiscoveryMoviePoolItemDto> CreatePool(int count)
     {
-        return Enumerable.Range(1, count).Select(i => new DiscoveryMoviePoolItemDto(
-            Guid.NewGuid(),
-            $"Movie {i}",
-            "Director",
-            2000 + i,
-            100,
-            null,
-            Math.Min(10.0, 5.0 + (i * 0.3)),
-            50.0,
-            7.5,
-            "Drama",
-            null,
-            null,
-            "English",
-            "USA"
-        )).ToList();
+        return Enumerable.Range(1, count).Select(i => new DiscoveryMoviePoolItemDto
+        {
+            MovieId = Guid.NewGuid(),
+            Title = $"Movie {i}",
+            DirectorName = "Director",
+            ReleaseYear = 2000 + i,
+            RuntimeMinutes = 100,
+            PosterUrl = null,
+            TmdbRating = Math.Min(10.0, 5.0 + (i * 0.3)),
+            TmdbPopularity = 50.0,
+            CustomAverageRating = 7.5,
+            Genres = "Drama",
+            Keywords = null,
+            Overview = null,
+            Language = "English",
+            Country = "USA"
+        }).ToList();
     }
 
     [Fact]
@@ -105,22 +107,23 @@ public class DiceRollQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldDetectCriticalSuccess()
     {
-        var pool = Enumerable.Range(1, 100).Select(i => new DiscoveryMoviePoolItemDto(
-            Guid.NewGuid(),
-            $"Movie {i}",
-            "Director",
-            2000,
-            100,
-            null,
-            9.0,
-            50.0,
-            9.0,
-            "Drama",
-            null,
-            null,
-            "English",
-            "USA"
-        )).ToList();
+        var pool = Enumerable.Range(1, 100).Select(i => new DiscoveryMoviePoolItemDto
+        {
+            MovieId = Guid.NewGuid(),
+            Title = $"Movie {i}",
+            DirectorName = "Director",
+            ReleaseYear = 2000,
+            RuntimeMinutes = 100,
+            PosterUrl = null,
+            TmdbRating = 9.0,
+            TmdbPopularity = 50.0,
+            CustomAverageRating = 9.0,
+            Genres = "Drama",
+            Keywords = null,
+            Overview = null,
+            Language = "English",
+            Country = "USA"
+        }).ToList();
         _discoveryQueriesMock
             .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(pool);

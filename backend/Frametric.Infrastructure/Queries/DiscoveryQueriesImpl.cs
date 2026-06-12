@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using Frametric.Application.DTOs.Discovery;
 using Frametric.Application.Interfaces.Discovery;
 using Frametric.Application.Interfaces;
 using Frametric.Domain.Enums;
@@ -116,27 +117,27 @@ public class DiscoveryQueriesImpl : IDiscoveryQueries
             ValidDiscoveryPool AS (
                 SELECT *
                 FROM SourceSet
-                WHERE ""EnrichmentStatus"" = 'Completed'
-                  AND ""Id"" NOT IN (
-                    SELECT d.""MovieId""
-                    FROM ""DiaryEntries"" d
-                    WHERE d.""UserId"" = @userId
+                WHERE "EnrichmentStatus" = 'Completed'
+                  AND "Id" NOT IN (
+                    SELECT d."MovieId"
+                    FROM "DiaryEntries" d
+                    WHERE d."UserId" = @userId
                 )
             )
-            SELECT vdp.""Id"" AS MovieId,
-                   vdp.""Title"" AS Title,
-                   CAST(vdp.""ReleaseYear"" AS INTEGER) AS ReleaseYear,
-                   vdp.""RuntimeMinutes"" AS RuntimeMinutes,
-                   vdp.""PosterUrl"" AS PosterUrl,
-                   CAST(vdp.""TmdbRating"" AS DOUBLE PRECISION) AS TmdbRating,
-                   CAST(vdp.""TmdbPopularity"" AS DOUBLE PRECISION) AS TmdbPopularity,
-                   CAST(vdp.""CustomAverageRating"" AS DOUBLE PRECISION) AS CustomAverageRating,
-                   (SELECT STRING_AGG(d.""Name"", ',') FROM ""MovieDirector"" md JOIN ""Directors"" d ON md.""DirectorsId"" = d.""Id"" WHERE md.""MoviesId"" = vdp.""Id"") AS DirectorName,
-                   (SELECT STRING_AGG(g.""Name"", ',') FROM ""MovieGenre"" mg JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id"" WHERE mg.""MoviesId"" = vdp.""Id"") AS Genres,
-                   vdp.""Keywords"" AS Keywords,
-                   vdp.""Overview"" AS Overview,
-                   vdp.""Language"" AS Language,
-                   vdp.""Country"" AS Country
+            SELECT vdp."Id" AS MovieId,
+                   vdp."Title" AS Title,
+                   CAST(vdp."ReleaseYear" AS INTEGER) AS ReleaseYear,
+                   vdp."RuntimeMinutes" AS RuntimeMinutes,
+                   vdp."PosterUrl" AS PosterUrl,
+                   CAST(vdp."TmdbRating" AS DOUBLE PRECISION) AS TmdbRating,
+                   CAST(vdp."TmdbPopularity" AS DOUBLE PRECISION) AS TmdbPopularity,
+                   CAST(vdp."CustomAverageRating" AS DOUBLE PRECISION) AS CustomAverageRating,
+                   (SELECT STRING_AGG(d."Name", ',') FROM "MovieDirector" md JOIN "Directors" d ON md."DirectorsId" = d."Id" WHERE md."MoviesId" = vdp."Id") AS DirectorName,
+                   (SELECT STRING_AGG(g."Name", ',') FROM "MovieGenre" mg JOIN "Genres" g ON mg."GenresId" = g."Id" WHERE mg."MoviesId" = vdp."Id") AS Genres,
+                   vdp."Keywords" AS Keywords,
+                   vdp."Overview" AS Overview,
+                   vdp."Language" AS Language,
+                   vdp."Country" AS Country
             FROM ValidDiscoveryPool vdp
             ORDER BY RANDOM()
         """;

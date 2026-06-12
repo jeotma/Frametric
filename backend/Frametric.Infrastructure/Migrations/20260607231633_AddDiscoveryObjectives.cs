@@ -1,16 +1,14 @@
-using System;
-using Frametric.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Frametric.Infrastructure.Migrations
 {
-    [DbContext(typeof(FrametricDbContext))]
-    [Migration("20260607120000_AddDiscoveryObjectives")]
+    /// <inheritdoc />
     public partial class AddDiscoveryObjectives : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -32,13 +30,9 @@ namespace Frametric.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_DiscoveryObjectives", x => x.Id);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DiscoveryObjectives_UserId",
-                table: "DiscoveryObjectives",
-                column: "UserId");
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
