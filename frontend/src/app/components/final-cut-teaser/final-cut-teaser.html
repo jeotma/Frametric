@@ -38,10 +38,7 @@
     </div>
 
     <div style="margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 16px;">
-      <select (change)="onYearChange($event)" class="glass-select" style="width: 120px; text-align: center;">
-        <option value="global" [selected]="selectedYear() === 'global'">All-Time</option>
-        <option *ngFor="let y of availableYears" [value]="y" [selected]="y === selectedYear()">{{ y }}</option>
-      </select>
+      <app-cinematic-select [options]="yearOptions()" [ngModel]="selectedYear()" (ngModelChange)="onYearChange($event)"></app-cinematic-select>
       <button (click)="goToFinalCut()" class="btn btn-cta btn-lg">
         <span>Begin Cinematic Slideshow</span>
       </button>

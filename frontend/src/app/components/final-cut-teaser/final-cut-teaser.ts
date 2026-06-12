@@ -1,19 +1,28 @@
 import { Component, signal, OnInit, OnDestroy, inject, computed } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ModalService } from '../../core/services/modal.service';
+import { CinematicSelectComponent } from '../cinematic-select/cinematic-select.component';
 @Component({
   selector: 'app-final-cut-teaser',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, CinematicSelectComponent],
   templateUrl: './final-cut-teaser.html',
   styleUrl: './final-cut-teaser.scss',
 })
 export class FinalCutTeaserComponent implements OnInit, OnDestroy {
   public selectedYear = signal<number | 'global'>(new Date().getFullYear() - 1);
   public availableYears = [2026, 2025, 2024];
+
+  public yearOptions = computed(() => {
+    return [
+      { value: 'global', label: 'All-Time' },
+      ...this.availableYears.map(y => ({ value: y, label: y.toString() }))
+    ];
+  });
 
   private authService = inject(AuthService);
   private modalService = inject(ModalService);
@@ -32,8 +41,7 @@ export class FinalCutTeaserComponent implements OnInit, OnDestroy {
     this.stopPromoLoop();
   }
 
-  onYearChange(event: any) {
-    const val = event.target.value;
+  onYearChange(val: any) {
     this.selectedYear.set(val === 'global' ? 'global' : Number(val));
   }
 

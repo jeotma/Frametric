@@ -1,5 +1,5 @@
 <div class="stats-container animate-fade-in">
-  
+
   <!-- Animated Cinematic Background -->
   <div class="cinema-bg">
     <div class="grain"></div>
@@ -14,10 +14,14 @@
       <h1 class="page-title">
         TECHNICAL REPORT
         <span class="info-icon tooltip-container help-cursor">
-          <svg class="stat-icon info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          <svg class="stat-icon info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
           </svg>
-          <span class="tooltip-text">Combine category metrics with global filters below. Filters that are irrelevant for the selected metric will be disabled automatically. Partial text matching is supported for names.</span>
+          <span class="tooltip-text">Combine category metrics with global filters below. Filters that are irrelevant for
+            the selected metric will be disabled automatically. Partial text matching is supported for names.</span>
         </span>
       </h1>
       <p class="subtitle">Technical reports, trends and advanced viewing analytics.</p>
@@ -30,65 +34,90 @@
       <!-- Query Selection -->
       <div class="filter-group select-group animate-stagger-fade" style="--i: 0">
         <label>Category</label>
-        <select [ngModel]="selectedCategory()" (ngModelChange)="onCategoryChange($event)" class="form-select">
-          <option *ngFor="let cat of categoriesList()" [value]="cat">{{ cat }}</option>
-        </select>
+        <app-cinematic-select [options]="categoriesList()" [ngModel]="selectedCategory()" (ngModelChange)="onCategoryChange($event)" placeholder="Select category"></app-cinematic-select>
       </div>
 
       <div class="filter-group select-group animate-stagger-fade" style="--i: 1">
         <label>Metric</label>
-        <select [ngModel]="selectedQueryId()" (ngModelChange)="selectedQueryId.set($event); onQueryChange()" class="form-select">
-          <option *ngFor="let q of queriesInCategory()" [value]="q.id">{{ q.name }}</option>
-        </select>
+        <app-cinematic-select [options]="queriesInCategory()" [ngModel]="selectedQueryId()" (ngModelChange)="selectedQueryId.set($event); onQueryChange()" placeholder="Select metric"></app-cinematic-select>
       </div>
 
       <!-- Divider -->
       <div class="filter-divider"></div>
 
       <!-- Unified Filters -->
-      <div class="filter-group animate-stagger-fade" style="--i: 2" [class.disabled-group]="!isFilterAllowed('watchYear')">
+      <div class="filter-group animate-stagger-fade" style="--i: 2"
+        [class.disabled-group]="!isFilterAllowed('watchYear')">
         <label>Watch Year</label>
-        <input type="number" [(ngModel)]="globalFilters.watchYear" placeholder="e.g. 2024" class="form-input short-input" [disabled]="!isFilterAllowed('watchYear')">
-      </div>
-      
-      <div class="filter-group animate-stagger-fade" style="--i: 3" [class.disabled-group]="!isFilterAllowed('releaseYear')">
-        <label>Release Year</label>
-        <input type="number" [(ngModel)]="globalFilters.releaseYear" placeholder="e.g. 1994" class="form-input short-input" [disabled]="!isFilterAllowed('releaseYear')">
+        <input type="number" [(ngModel)]="globalFilters.watchYear" placeholder="e.g. 2024"
+          class="form-input short-input" [disabled]="!isFilterAllowed('watchYear')">
       </div>
 
-      <div class="filter-group rating-group animate-stagger-fade" style="--i: 4" [class.disabled-group]="!isFilterAllowed('minRating')">
-        <label class="tooltip-container help-cursor">Rating Range <svg class="stat-icon info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width: 0.9rem; height: 0.9rem; color: var(--text-muted);"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                          <span class="tooltip-text" style="width: 280px;">Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.</span>
-                        </label>
+      <div class="filter-group animate-stagger-fade" style="--i: 3"
+        [class.disabled-group]="!isFilterAllowed('releaseYear')">
+        <label>Release Year</label>
+        <input type="number" [(ngModel)]="globalFilters.releaseYear" placeholder="e.g. 1994"
+          class="form-input short-input" [disabled]="!isFilterAllowed('releaseYear')">
+      </div>
+
+      <div class="filter-group rating-group animate-stagger-fade" style="--i: 4"
+        [class.disabled-group]="!isFilterAllowed('minRating')">
+        <label class="tooltip-container help-cursor">Rating Range <svg class="stat-icon info" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+            aria-hidden="true" style="width: 0.9rem; height: 0.9rem; color: var(--text-muted);">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+          <span class="tooltip-text" style="width: 280px;">Your ratings, imported from Letterboxd (scale 1-5) have been
+            multiplied by 2 to align with the application's 10-point scale.</span>
+        </label>
         <div class="rating-inputs">
-          <input type="number" [(ngModel)]="globalFilters.minRating" step="0.5" min="0" max="5" placeholder="Min" class="form-input mini-input" [disabled]="!isFilterAllowed('minRating')">
+          <input type="number" [(ngModel)]="globalFilters.minRating" step="0.5" min="0" max="5" placeholder="Min"
+            class="form-input mini-input" [disabled]="!isFilterAllowed('minRating')">
           <span>-</span>
-          <input type="number" [(ngModel)]="globalFilters.maxRating" step="0.5" min="0" max="5" placeholder="Max" class="form-input mini-input" [disabled]="!isFilterAllowed('maxRating')">
+          <input type="number" [(ngModel)]="globalFilters.maxRating" step="0.5" min="0" max="5" placeholder="Max"
+            class="form-input mini-input" [disabled]="!isFilterAllowed('maxRating')">
         </div>
       </div>
 
-      <div class="filter-group rating-group animate-stagger-fade" style="--i: 5" [class.disabled-group]="!isFilterAllowed('minCustomRating')">
-        <label>Custom Rating</label>
+      <div class="filter-group rating-group animate-stagger-fade" style="--i: 5"
+        [class.disabled-group]="!isFilterAllowed('minCustomRating')">
+        <label class="tooltip-container help-cursor">Custom Rating <svg class="stat-icon info" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+            aria-hidden="true" style="width: 0.9rem; height: 0.9rem; color: var(--text-muted);">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+          <span class="tooltip-text" style="width: 250px;">This custom rating is a weighted aggregation blending global critic consensus across platforms.</span>
+        </label>
         <div class="rating-inputs">
-          <input type="number" [(ngModel)]="globalFilters.minCustomRating" step="0.1" min="0" max="10" placeholder="Min" class="form-input mini-input" [disabled]="!isFilterAllowed('minCustomRating')">
+          <input type="number" [(ngModel)]="globalFilters.minCustomRating" step="0.1" min="0" max="10" placeholder="Min"
+            class="form-input mini-input" [disabled]="!isFilterAllowed('minCustomRating')">
           <span>-</span>
-          <input type="number" [(ngModel)]="globalFilters.maxCustomRating" step="0.1" min="0" max="10" placeholder="Max" class="form-input mini-input" [disabled]="!isFilterAllowed('maxCustomRating')">
+          <input type="number" [(ngModel)]="globalFilters.maxCustomRating" step="0.1" min="0" max="10" placeholder="Max"
+            class="form-input mini-input" [disabled]="!isFilterAllowed('maxCustomRating')">
         </div>
       </div>
 
       <div class="filter-group animate-stagger-fade" style="--i: 6" [class.disabled-group]="!isFilterAllowed('actor')">
         <label>Actor</label>
-        <input type="text" [(ngModel)]="globalFilters.actor" placeholder="Name" class="form-input mini-input" [disabled]="!isFilterAllowed('actor')">
+        <input type="text" [(ngModel)]="globalFilters.actor" placeholder="Name" class="form-input mini-input"
+          [disabled]="!isFilterAllowed('actor')">
       </div>
 
-      <div class="filter-group animate-stagger-fade" style="--i: 7" [class.disabled-group]="!isFilterAllowed('director')">
+      <div class="filter-group animate-stagger-fade" style="--i: 7"
+        [class.disabled-group]="!isFilterAllowed('director')">
         <label>Director</label>
-        <input type="text" [(ngModel)]="globalFilters.director" placeholder="Name" class="form-input mini-input" [disabled]="!isFilterAllowed('director')">
+        <input type="text" [(ngModel)]="globalFilters.director" placeholder="Name" class="form-input mini-input"
+          [disabled]="!isFilterAllowed('director')">
       </div>
 
       <div class="filter-group animate-stagger-fade" style="--i: 8" [class.disabled-group]="!isFilterAllowed('genre')">
         <label>Genre</label>
-        <input type="text" [(ngModel)]="globalFilters.genre" placeholder="Name" class="form-input mini-input" [disabled]="!isFilterAllowed('genre')">
+        <input type="text" [(ngModel)]="globalFilters.genre" placeholder="Name" class="form-input mini-input"
+          [disabled]="!isFilterAllowed('genre')">
       </div>
 
       <!-- Dynamic Query Specific Inputs (if any) -->
@@ -96,11 +125,11 @@
         <div class="filter-divider"></div>
         <div class="filter-group" *ngFor="let input of currentQuery().inputs">
           <label>{{ input.label }}</label>
-          <input *ngIf="input.type === 'number'" type="number" [(ngModel)]="querySpecificInputs[input.name]" class="form-input short-input">
-          <input *ngIf="input.type === 'text'" type="text" [(ngModel)]="querySpecificInputs[input.name]" class="form-input short-input">
-          <select *ngIf="input.type === 'select'" [(ngModel)]="querySpecificInputs[input.name]" class="form-select short-input">
-            <option *ngFor="let opt of input.options" [value]="opt.value">{{ opt.label }}</option>
-          </select>
+          <input *ngIf="input.type === 'number'" type="number" [(ngModel)]="querySpecificInputs[input.name]"
+            class="form-input short-input">
+          <input *ngIf="input.type === 'text'" type="text" [(ngModel)]="querySpecificInputs[input.name]"
+            class="form-input short-input">
+          <app-cinematic-select *ngIf="input.type === 'select'" [(ngModel)]="querySpecificInputs[input.name]" [options]="input.options!" placeholder="Select..."></app-cinematic-select>
         </div>
       </ng-container>
 
@@ -119,7 +148,7 @@
 
   <!-- PROFESSIONAL RESULTS CANVAS -->
   <div class="explorer-results professional-panel animate-slide-up">
-    
+
     <div class="loader-state" *ngIf="loading()" aria-live="polite">
       <div class="pulse-green loader-pulse"></div>
       <span>Crunching numbers...</span>
@@ -128,22 +157,25 @@
     <div class="empty-state" *ngIf="!loading() && !resultData()">
       @let idleEE = 'stats-idle' | easterEgg:'ui';
       @if (idleEE) {
-        <span [class]="idleEE.className" [attr.data-tooltip]="idleEE.tooltip">{{ idleEE.text }}</span>
+      <span [class]="idleEE.className" [attr.data-tooltip]="idleEE.tooltip">{{ idleEE.text }}</span>
       } @else {
-        Configure your filters above and click Analyze.
+      Configure your filters above and click Analyze.
       }
     </div>
 
     <div class="results-content" *ngIf="!loading() && resultData()" aria-live="polite">
-      
+
       <!-- Pretentiometer Easter Egg Alert -->
-      <div *ngIf="isPretentious()" class="pretentious-alert-banner viewfinder-box animate-fade-in" style="margin-bottom: 24px;" aria-live="polite">
+      <div *ngIf="isPretentious()" class="pretentious-alert-banner viewfinder-box animate-fade-in"
+        style="margin-bottom: 24px;" aria-live="polite">
         <span class="alert-icon">🎩</span>
         <div class="alert-content">
           <h4>Pretentiometer Warning</h4>
           <p class="tooltip-container help-cursor" style="margin: 0;">
             High levels of slow-cinema superiority detected.
-            <span class="tooltip-text">Have you actually watched Satantango three times, or do you just like the aesthetic of suffering? We get it, you hate fun. Here's your virtual turtleneck. Just kidding, we love you and your exquisite taste anyway! ❤️</span>
+            <span class="tooltip-text">Have you actually watched Satantango three times, or do you just like the
+              aesthetic of suffering? We get it, you hate fun. Here's your virtual turtleneck. Just kidding, we love you
+              and your exquisite taste anyway! ❤️</span>
           </p>
         </div>
       </div>
@@ -154,7 +186,8 @@
       </div>
 
       <!-- Bacon Distance Overlay Modal -->
-      <div *ngIf="baconMessage()" class="bacon-modal-overlay animate-fade-in" (click)="closeBaconModal()" (keydown.escape)="closeBaconModal()" role="dialog" aria-modal="true" aria-labelledby="bacon-modal-title">
+      <div *ngIf="baconMessage()" class="bacon-modal-overlay animate-fade-in" (click)="closeBaconModal()"
+        (keydown.escape)="closeBaconModal()" role="dialog" aria-modal="true" aria-labelledby="bacon-modal-title">
         <div class="bacon-modal viewfinder-box" (click)="$event.stopPropagation()">
           <h3 id="bacon-modal-title">Six Degrees of Kevin Bacon 🥓</h3>
           <p>{{ baconMessage() }}</p>
@@ -165,7 +198,7 @@
       <!-- LIST VIEW (TABULAR) -->
       <ng-container *ngIf="currentQuery().type === 'list' && isArray(resultData())">
         <div class="table-container animate-fade-in">
-          
+
           <!-- Controls Toolbar -->
           <div class="table-controls-toolbar" *ngIf="hasPosterField() || hasProfileField()">
             <label class="toggle-control">
@@ -178,7 +211,9 @@
           <table class="glass-table">
             <thead>
               <tr>
-                <th *ngFor="let col of colNames()" (click)="sortBy(col)" [class.sortable]="true" [class.text-center]="col.toLowerCase() === 'customaveragerating'" [attr.aria-sort]="sortColumn() === col ? (sortDirection() === 'asc' ? 'ascending' : 'descending') : null">
+                <th *ngFor="let col of colNames()" (click)="sortBy(col)" [class.sortable]="true"
+                  [class.text-center]="col.toLowerCase() === 'customaveragerating'"
+                  [attr.aria-sort]="sortColumn() === col ? (sortDirection() === 'asc' ? 'ascending' : 'descending') : null">
                   {{ formatColName(col) }}
                   <span class="sort-icon" *ngIf="sortColumn() === col">
                     {{ sortDirection() === 'asc' ? '▲' : '▼' }}
@@ -187,16 +222,20 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let item of paginatedResultData(); let i = index" class="animate-slide-up" [style.animation-delay]="(i % 10) * 0.02 + 's'">
-                
+              <tr *ngFor="let item of paginatedResultData(); let i = index" class="animate-slide-up"
+                [style.animation-delay]="(i % 10) * 0.02 + 's'">
+
                 <td *ngFor="let col of colNames()" [class.text-center]="col.toLowerCase() === 'customaveragerating'">
                   <!-- Actor/Director Profile Card Layout -->
-                  <ng-container *ngIf="(col.toLowerCase().includes('actor') || col.toLowerCase().includes('director') || col.toLowerCase() === 'name') && hasProfileField()">
+                  <ng-container
+                    *ngIf="(col.toLowerCase().includes('actor') || col.toLowerCase().includes('director') || col.toLowerCase() === 'name') && hasProfileField()">
                     <!-- Profile Card when posters ON -->
                     <div *ngIf="showPosters()" class="profile-card-inline">
                       <div class="profile-photo-wrap">
-                        <img *ngIf="item.profilePath" [src]="'https://image.tmdb.org/t/p/w185' + item.profilePath" [alt]="item[col]" class="profile-photo-sm" />
-                        <div *ngIf="!item.profilePath" class="profile-photo-placeholder-sm">{{ item[col]?.charAt(0) }}</div>
+                        <img *ngIf="item.profilePath" [src]="'https://image.tmdb.org/t/p/w185' + item.profilePath"
+                          [alt]="item[col]" class="profile-photo-sm" />
+                        <div *ngIf="!item.profilePath" class="profile-photo-placeholder-sm">{{ item[col]?.charAt(0) }}
+                        </div>
                       </div>
                       <div class="profile-info">
                         <span *ngIf="item.id; else profileNameLookup" class="profile-name">
@@ -207,57 +246,85 @@
                           </a>
                         </span>
                         <ng-template #profileNameLookup>
-                          <span class="profile-name clickable-link" tabindex="0" role="button" (click)="navigateToEntity(item[col], col.toLowerCase().includes('actor') || (col.toLowerCase() === 'name' && selectedQueryId().toLowerCase().includes('actor')) ? 'Actor' : 'Director')">
+                          <span class="profile-name clickable-link" tabindex="0" role="button"
+                            (click)="navigateToEntity(item[col], col.toLowerCase().includes('actor') || (col.toLowerCase() === 'name' && selectedQueryId().toLowerCase().includes('actor')) ? 'Actor' : 'Director')">
                             {{ item[col] }}
                           </span>
                         </ng-template>
                         <div class="profile-meta">
-                <span *ngIf="item.count > 0" class="profile-meta-chip"><svg class="stat-icon clapperboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width: 0.8rem; height: 0.8rem; margin-right: 2px;"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="4" x2="8" y2="10"/><line x1="16" y1="4" x2="16" y2="10"/></svg> {{ item.count }} watched</span>
-                <span *ngIf="item.averageRating > 0" class="profile-meta-chip"><svg class="stat-icon star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width: 0.8rem; height: 0.8rem; color: #f59e0b; margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> {{ (item.averageRating * 2) | number:'1.1-2' }}</span>
-                          <span *ngIf="item.watchedCount > 0" class="profile-meta-chip"><svg class="stat-icon check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width: 0.8rem; height: 0.8rem; margin-right: 2px;"><polyline points="20 6 9 17 4 12"/></svg> {{ item.watchedCount }} seen</span>
+                          <span *ngIf="item.count > 0" class="profile-meta-chip"><svg class="stat-icon clapperboard"
+                              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                              style="width: 0.8rem; height: 0.8rem; margin-right: 2px;">
+                              <rect x="3" y="4" width="18" height="16" rx="2" />
+                              <line x1="3" y1="10" x2="21" y2="10" />
+                              <line x1="8" y1="4" x2="8" y2="10" />
+                              <line x1="16" y1="4" x2="16" y2="10" />
+                            </svg> {{ item.count }} watched</span>
+                          <span *ngIf="item.averageRating > 0" class="profile-meta-chip"><svg class="stat-icon star"
+                              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                              style="width: 0.8rem; height: 0.8rem; color: #f59e0b; margin-right: 2px;">
+                              <polygon
+                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            </svg> {{ (item.averageRating * 2) | number:'1.1-2' }}</span>
+                          <span *ngIf="item.watchedCount > 0" class="profile-meta-chip"><svg class="stat-icon check"
+                              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                              style="width: 0.8rem; height: 0.8rem; margin-right: 2px;">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg> {{ item.watchedCount }} seen</span>
                         </div>
                       </div>
                     </div>
                     <!-- Name only when posters OFF -->
                     <ng-container *ngIf="!showPosters()">
-                      @if (col.toLowerCase().includes('director') || (col.toLowerCase() === 'name' && selectedQueryId().toLowerCase().includes('director'))) {
-                        <span *ngIf="item.id; else dirNameFallback">
-                          <a [routerLink]="['/directors', item.id, slugify(item[col])]" class="entity-link">
-                            <span *ngIf="isToxic(item[col])" class="toxic-indicator">☠️ </span>
-                            {{ item[col] }}
-                          </a>
+                      @if (col.toLowerCase().includes('director') || (col.toLowerCase() === 'name' &&
+                      selectedQueryId().toLowerCase().includes('director'))) {
+                      <span *ngIf="item.id; else dirNameFallback">
+                        <a [routerLink]="['/directors', item.id, slugify(item[col])]" class="entity-link">
+                          <span *ngIf="isToxic(item[col])" class="toxic-indicator">☠️ </span>
+                          {{ item[col] }}
+                        </a>
+                      </span>
+                      <ng-template #dirNameFallback>
+                        <ng-container *ngFor="let subName of splitEntityNames(item[col]); let last = last">
+                          <span (click)="navigateToEntity(subName, 'Director')" tabindex="0" role="button"
+                            class="clickable-link">
+                            <span *ngIf="isToxic(subName)" class="toxic-indicator">☠️ </span>{{ subName }}
+                          </span><ng-container *ngIf="!last">, </ng-container>
+                        </ng-container>
+                      </ng-template>
+                      } @else {
+                      <span [class]="(item[col] | easterEgg:'actor-name')?.className">
+                        <span *ngIf="item.id; else actNameFallback">
+                          <a [routerLink]="['/actors', item.id, slugify(item[col])]" class="entity-link">{{ item[col]
+                            }}</a>
                         </span>
-                        <ng-template #dirNameFallback>
+                        <ng-template #actNameFallback>
                           <ng-container *ngFor="let subName of splitEntityNames(item[col]); let last = last">
-                            <span (click)="navigateToEntity(subName, 'Director')" tabindex="0" role="button" class="clickable-link">
-                              <span *ngIf="isToxic(subName)" class="toxic-indicator">☠️ </span>{{ subName }}
-                            </span><ng-container *ngIf="!last">, </ng-container>
+                            <span (click)="navigateToEntity(subName, 'Actor')" tabindex="0" role="button"
+                              class="clickable-link">{{ subName }}</span><ng-container *ngIf="!last">, </ng-container>
                           </ng-container>
                         </ng-template>
-                      } @else {
-                        <span [class]="(item[col] | easterEgg:'actor-name')?.className">
-                          <span *ngIf="item.id; else actNameFallback">
-                            <a [routerLink]="['/actors', item.id, slugify(item[col])]" class="entity-link">{{ item[col] }}</a>
-                          </span>
-                          <ng-template #actNameFallback>
-                            <ng-container *ngFor="let subName of splitEntityNames(item[col]); let last = last">
-                              <span (click)="navigateToEntity(subName, 'Actor')" tabindex="0" role="button" class="clickable-link">{{ subName }}</span><ng-container *ngIf="!last">, </ng-container>
-                            </ng-container>
-                          </ng-template>
-                          <button type="button" class="bacon-calc-btn" (click)="calculateBaconDistance(getFirstEntityName(item[col])); $event.stopPropagation()" aria-label="Calculate Kevin Bacon Distance">🥓</button>
-                        </span>
+                        <button type="button" class="bacon-calc-btn"
+                          (click)="calculateBaconDistance(getFirstEntityName(item[col])); $event.stopPropagation()"
+                          aria-label="Calculate Kevin Bacon Distance">🥓</button>
+                      </span>
                       }
                     </ng-container>
                   </ng-container>
 
                   <!-- Title Layout (Movies) -->
                   <ng-container *ngIf="col.toLowerCase() === 'title'">
-                    <div *ngIf="showPosters() && hasPosterField()" class="poster-title-layout keyboard-interactive" tabindex="0" role="button" (click)="navigateToEntity(item[col], 'Movie')">
+                    <div *ngIf="showPosters() && hasPosterField()" class="poster-title-layout keyboard-interactive"
+                      tabindex="0" role="button" (click)="navigateToEntity(item[col], 'Movie')">
                       <img *ngIf="item.posterUrl" [src]="item.posterUrl" alt="Poster" class="row-poster-stacked" />
                       <div *ngIf="!item.posterUrl" class="row-poster-placeholder-stacked">No Poster</div>
                       <span class="movie-title-text" style="text-decoration: underline;">{{ item[col] }}</span>
                     </div>
-                    <span *ngIf="!(showPosters() && hasPosterField())" tabindex="0" role="button" class="clickable-link" (click)="navigateToEntity(item[col], 'Movie')">{{ item[col] }}</span>
+                    <span *ngIf="!(showPosters() && hasPosterField())" tabindex="0" role="button" class="clickable-link"
+                      (click)="navigateToEntity(item[col], 'Movie')">{{ item[col] }}</span>
                   </ng-container>
 
                   <!-- Generic formatting based on key (for non-profile, non-title columns) -->
@@ -266,94 +333,131 @@
                       <span class="elegant-unrated">No ratings</span>
                     </ng-container>
                     <ng-container *ngIf="col.toLowerCase().includes('rating') && item[col] > 0">
-                      <span class="rating-badge tooltip-container help-cursor" *ngIf="col.toLowerCase() === 'customaveragerating'">
-                        <svg class="stat-icon star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      <span class="rating-badge tooltip-container help-cursor"
+                        *ngIf="col.toLowerCase() === 'customaveragerating'">
+                        <svg class="stat-icon star" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <polygon
+                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
                         {{ item[col] | number:'1.1-2' }}
-                        <span class="tooltip-text" style="width: 250px;">This custom rating is a weighted aggregation blending global critic consensus across platforms.</span>
+                        <span class="tooltip-text" style="width: 250px;">This custom rating is a weighted aggregation
+                          blending global critic consensus across platforms.</span>
                       </span>
-                      <span class="rating-badge tooltip-container help-cursor" *ngIf="col.toLowerCase() !== 'customaveragerating'">
-                        <svg class="stat-icon star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      <span class="rating-badge tooltip-container help-cursor"
+                        *ngIf="col.toLowerCase() !== 'customaveragerating'">
+                        <svg class="stat-icon star" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <polygon
+                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
                         {{ (item[col] * 2) | number:'1.1-2' }}
-                        <span class="tooltip-text" style="width: 280px;">Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.</span>
+                        <span class="tooltip-text" style="width: 280px;">Your ratings, imported from Letterboxd (scale
+                          1-5) have been multiplied by 2 to align with the application's 10-point scale.</span>
                       </span>
                     </ng-container>
                     <ng-container *ngIf="!col.toLowerCase().includes('rating') && col.toLowerCase() !== 'liked'">
                       @let valEE = item[col] | easterEgg:'actor-name';
 
                       <!-- If this is a director name, check if they are toxic -->
-                      @if (col.toLowerCase().includes('director') || (col.toLowerCase() === 'name' && selectedQueryId().toLowerCase().includes('director'))) {
-                        <span *ngIf="item.directorId; else nameLookupDir">
-                          <a [routerLink]="['/directors', item.directorId, slugify(item[col])]" class="entity-link">
-                            <span *ngIf="isToxic(item[col])" class="toxic-indicator">☠️ </span>
-                            {{ item[col] }}
-                          </a>
-                        </span>
-                        <ng-template #nameLookupDir>
-                          <ng-container *ngFor="let subName of splitEntityNames(item[col]); let last = last">
-                            <span (click)="navigateToEntity(subName, 'Director')" tabindex="0" role="button" class="clickable-link">
-                              <span *ngIf="isToxic(subName)" class="toxic-indicator">☠️ </span>{{ subName }}
-                            </span><ng-container *ngIf="!last">, </ng-container>
-                          </ng-container>
-                        </ng-template>
+                      @if (col.toLowerCase().includes('director') || (col.toLowerCase() === 'name' &&
+                      selectedQueryId().toLowerCase().includes('director'))) {
+                      <span *ngIf="item.directorId; else nameLookupDir">
+                        <a [routerLink]="['/directors', item.directorId, slugify(item[col])]" class="entity-link">
+                          <span *ngIf="isToxic(item[col])" class="toxic-indicator">☠️ </span>
+                          {{ item[col] }}
+                        </a>
+                      </span>
+                      <ng-template #nameLookupDir>
+                        <ng-container *ngFor="let subName of splitEntityNames(item[col]); let last = last">
+                          <span (click)="navigateToEntity(subName, 'Director')" tabindex="0" role="button"
+                            class="clickable-link">
+                            <span *ngIf="isToxic(subName)" class="toxic-indicator">☠️ </span>{{ subName }}
+                          </span><ng-container *ngIf="!last">, </ng-container>
+                        </ng-container>
+                      </ng-template>
                       }
                       <!-- If this is an actor name, add the Kevin Bacon trigger -->
-                      @else if (col.toLowerCase().includes('actor') || (col.toLowerCase() === 'name' && selectedQueryId().toLowerCase().includes('actor'))) {
-                        <span [class]="valEE ? valEE.className : ''" [attr.data-tooltip]="valEE ? valEE.tooltip : null">
-                          <span *ngIf="item.actorId; else nameLookupAct">
-                            <a [routerLink]="['/actors', item.actorId, slugify(item[col])]" class="entity-link">{{ item[col] }}</a>
-                          </span>
-                          <ng-template #nameLookupAct>
-                            <ng-container *ngFor="let subName of splitEntityNames(item[col]); let last = last">
-                              <span (click)="navigateToEntity(subName, 'Actor')" tabindex="0" role="button" class="clickable-link">{{ subName }}</span><ng-container *ngIf="!last">, </ng-container>
-                            </ng-container>
-                          </ng-template>
-                          <button type="button" class="bacon-calc-btn" (click)="calculateBaconDistance(getFirstEntityName(item[col])); $event.stopPropagation()" aria-label="Calculate Kevin Bacon Distance">🥓</button>
+                      @else if (col.toLowerCase().includes('actor') || (col.toLowerCase() === 'name' &&
+                      selectedQueryId().toLowerCase().includes('actor'))) {
+                      <span [class]="valEE ? valEE.className : ''" [attr.data-tooltip]="valEE ? valEE.tooltip : null">
+                        <span *ngIf="item.actorId; else nameLookupAct">
+                          <a [routerLink]="['/actors', item.actorId, slugify(item[col])]" class="entity-link">{{
+                            item[col] }}</a>
                         </span>
+                        <ng-template #nameLookupAct>
+                          <ng-container *ngFor="let subName of splitEntityNames(item[col]); let last = last">
+                            <span (click)="navigateToEntity(subName, 'Actor')" tabindex="0" role="button"
+                              class="clickable-link">{{ subName }}</span><ng-container *ngIf="!last">, </ng-container>
+                          </ng-container>
+                        </ng-template>
+                        <button type="button" class="bacon-calc-btn"
+                          (click)="calculateBaconDistance(getFirstEntityName(item[col])); $event.stopPropagation()"
+                          aria-label="Calculate Kevin Bacon Distance">🥓</button>
+                      </span>
                       }
-                      @else if (col.toLowerCase() === 'count' && (selectedQueryId().includes('director') || selectedQueryId().includes('actor'))) {
-                        <span (click)="navigateToEntity(
+                      @else if (col.toLowerCase() === 'count' && (selectedQueryId().includes('director') ||
+                      selectedQueryId().includes('actor'))) {
+                      <span (click)="navigateToEntity(
                           item.directorName || item.actorName,
                           selectedQueryId().includes('actor') ? 'Actor' : 'Director',
                           selectedQueryId().startsWith('watched') ? 'watched-section' : undefined
                         )" tabindex="0" role="button" class="count-link">
-                          {{ item[col] }}
-                        </span>
+                        {{ item[col] }}
+                      </span>
                       }
                       @else {
-                        <span>
-                          {{ item[col] }}
-                        </span>
+                      <span>
+                        {{ item[col] }}
+                      </span>
                       }
                     </ng-container>
                     <ng-container *ngIf="col.toLowerCase() === 'liked'">
-                      <svg *ngIf="item[col]" class="stat-icon heart" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                      <svg *ngIf="!item[col]" class="stat-icon heart unliked" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                      <svg *ngIf="item[col]" class="stat-icon heart" viewBox="0 0 24 24" fill="currentColor"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                        aria-hidden="true">
+                        <path
+                          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                      <svg *ngIf="!item[col]" class="stat-icon heart unliked" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                        aria-hidden="true">
+                        <path
+                          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
                     </ng-container>
                   </ng-container>
 
                   <!-- Rating/Liked rendering for profile rows (actor/director) -->
-                  <ng-container *ngIf="hasProfileField() && col.toLowerCase() !== 'title' && !(col.toLowerCase().includes('actor') || col.toLowerCase().includes('director') || col.toLowerCase() === 'name')">
+                  <ng-container
+                    *ngIf="hasProfileField() && col.toLowerCase() !== 'title' && !(col.toLowerCase().includes('actor') || col.toLowerCase().includes('director') || col.toLowerCase() === 'name')">
                     <ng-container *ngIf="col.toLowerCase().includes('rating') && item[col] === 0">
                       <span class="elegant-unrated">No ratings</span>
                     </ng-container>
                     <ng-container *ngIf="col.toLowerCase().includes('rating') && item[col] > 0">
                       <span class="rating-badge tooltip-container help-cursor">
-                        <svg class="stat-icon star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg class="stat-icon star" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <polygon
+                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
                         {{ (item[col] * 2) | number:'1.1-2' }}
-                        <span class="tooltip-text" style="width: 280px;">Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.</span>
+                        <span class="tooltip-text" style="width: 280px;">Your ratings, imported from Letterboxd (scale
+                          1-5) have been multiplied by 2 to align with the application's 10-point scale.</span>
                       </span>
                     </ng-container>
                     <ng-container *ngIf="!col.toLowerCase().includes('rating')">
-                      @if (col.toLowerCase() === 'count' && (selectedQueryId().includes('director') || selectedQueryId().includes('actor'))) {
-                        <span (click)="navigateToEntity(
+                      @if (col.toLowerCase() === 'count' && (selectedQueryId().includes('director') ||
+                      selectedQueryId().includes('actor'))) {
+                      <span (click)="navigateToEntity(
                           item.directorName || item.actorName,
                           selectedQueryId().includes('actor') ? 'Actor' : 'Director',
                           selectedQueryId().startsWith('watched') ? 'watched-section' : undefined
                         )" tabindex="0" role="button" class="count-link">
-                          {{ item[col] }}
-                        </span>
-                      } @else {
                         {{ item[col] }}
+                      </span>
+                      } @else {
+                      {{ item[col] }}
                       }
                     </ng-container>
                   </ng-container>
@@ -367,13 +471,13 @@
 
           <!-- Pagination Controls -->
           <div class="pagination-controls animate-fade-in" *ngIf="totalPages() > 1">
-            <button class="btn btn-outline" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)" aria-label="Previous page">Previous</button>
+            <button class="btn btn-outline" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)"
+              aria-label="Previous page">Previous</button>
             <span class="page-info" aria-live="polite">Page {{ currentPage() }} of {{ totalPages() }}</span>
-            <button class="btn btn-outline" [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)" aria-label="Next page">Next</button>
-            
-            <select class="input-field page-size-select" [ngModel]="pageSize()" (ngModelChange)="changePageSize($event)" aria-label="Results per page">
-              <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }} items</option>
-            </select>
+            <button class="btn btn-outline" [disabled]="currentPage() === totalPages()"
+              (click)="goToPage(currentPage() + 1)" aria-label="Next page">Next</button>
+
+            <app-cinematic-select [options]="pageSizeOptions" [ngModel]="pageSize()" (ngModelChange)="changePageSize($event)" placeholder="Page size"></app-cinematic-select>
           </div>
         </div>
       </ng-container>
@@ -388,8 +492,10 @@
               </div>
               <h2 class="hero-title hero-title-with-img">{{ resultData().name }}</h2>
             </div>
-            <h2 class="hero-title" *ngIf="!resultData().profilePath && (resultData().name || resultData().title || resultData().genreName || resultData().directorName || resultData().actorName || resultData().eraName)">
-              {{ resultData().name || resultData().title || resultData().genreName || resultData().directorName || resultData().actorName || resultData().eraName }}
+            <h2 class="hero-title"
+              *ngIf="!resultData().profilePath && (resultData().name || resultData().title || resultData().genreName || resultData().directorName || resultData().actorName || resultData().eraName)">
+              {{ resultData().name || resultData().title || resultData().genreName || resultData().directorName ||
+              resultData().actorName || resultData().eraName }}
             </h2>
             <div class="hero-stats-grid">
               <div class="stat-box tooltip-container" *ngIf="resultData().count !== undefined">
@@ -397,7 +503,8 @@
                 <span class="label">Watches</span>
                 <div class="tooltip-list" *ngIf="resultData().watchedMovies?.length">
                   <div class="tooltip-header">Watched Movies</div>
-                  <a *ngFor="let m of resultData().watchedMovies" [routerLink]="['/movies', m.id, slugify(m.title)]" class="tooltip-item">{{ m.title }}</a>
+                  <a *ngFor="let m of resultData().watchedMovies" [routerLink]="['/movies', m.id, slugify(m.title)]"
+                    class="tooltip-item">{{ m.title }}</a>
                 </div>
               </div>
               <div class="stat-box tooltip-container" *ngIf="resultData().watchlistCount !== undefined">
@@ -405,18 +512,24 @@
                 <span class="label">Pending</span>
                 <div class="tooltip-list" *ngIf="resultData().watchlistMovieTitles?.length">
                   <div class="tooltip-header">Watchlist Movies</div>
-                  <a *ngFor="let m of resultData().watchlistMovieTitles" [routerLink]="['/movies', m.id, slugify(m.title)]" class="tooltip-item">{{ m.title }}</a>
+                  <a *ngFor="let m of resultData().watchlistMovieTitles"
+                    [routerLink]="['/movies', m.id, slugify(m.title)]" class="tooltip-item">{{ m.title }}</a>
                 </div>
               </div>
               <div class="stat-box" *ngIf="resultData().totalMinutes !== undefined">
                 <span class="value">
-                  {{ resultData().totalHours }}<span class="unit">h</span> {{ resultData().totalMinutes % 60 }}<span class="unit">m</span>
+                  {{ resultData().totalHours }}<span class="unit">h</span> {{ resultData().totalMinutes % 60 }}<span
+                    class="unit">m</span>
                 </span>
                 <span class="label">Time Invested</span>
               </div>
               <div class="stat-box" *ngIf="resultData().averageRating !== undefined">
                 <span class="value" *ngIf="resultData().averageRating > 0">
-                  <svg class="stat-icon star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> {{ (resultData().averageRating * 2) | number:'1.1-2' }}
+                  <svg class="stat-icon star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polygon
+                      points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg> {{ (resultData().averageRating * 2) | number:'1.1-2' }}
                 </span>
                 <span class="value unrated-text" *ngIf="resultData().averageRating === 0">N/A</span>
                 <span class="label">Avg Rating</span>
@@ -428,15 +541,19 @@
             </div>
 
             <div class="hero-profile-actions" *ngIf="resultData().entityId">
-              <a *ngIf="resultData().entityType === 'director'" [routerLink]="['/directors', resultData().entityId, slugify(resultData().name)]" class="btn-outline profile-link-btn">
+              <a *ngIf="resultData().entityType === 'director'"
+                [routerLink]="['/directors', resultData().entityId, slugify(resultData().name)]"
+                class="btn-outline profile-link-btn">
                 View Full Profile →
               </a>
-              <a *ngIf="resultData().entityType === 'actor'" [routerLink]="['/actors', resultData().entityId, slugify(resultData().name)]" class="btn-outline profile-link-btn">
+              <a *ngIf="resultData().entityType === 'actor'"
+                [routerLink]="['/actors', resultData().entityId, slugify(resultData().name)]"
+                class="btn-outline profile-link-btn">
                 View Full Profile →
               </a>
             </div>
           </ng-container>
-          
+
           <div class="no-data-msg" *ngIf="hasNoData(resultData())">
             No viewing history found for this combination of filters.
           </div>
@@ -489,29 +606,33 @@
         <div class="chart-card animate-fade-in">
           <div class="css-chart horizontal-scroll">
             <div class="bar-col" *ngFor="let item of resultData()">
-              <div class="bar-value">{{ item.count || (item.averageRating | number:'1.1-2') || item.totalWatches || item.shortCount }}</div>
+              <div class="bar-value">{{ item.count || (item.averageRating | number:'1.1-2') || item.totalWatches ||
+                item.shortCount }}</div>
               <div class="bar-fill-container">
-                <div class="bar-fill" [style.height.%]="((item.count || item.averageRating || item.totalWatches || item.shortCount || 0) / getChartMaxValue()) * 100"></div>
+                <div class="bar-fill"
+                  [style.height.%]="((item.count || item.averageRating || item.totalWatches || item.shortCount || 0) / getChartMaxValue()) * 100">
+                </div>
               </div>
               <div class="bar-label">
-                {{ item.dayOfWeek || item.month || item.genreName || item.durationCategory || item.eraName || item.decade || 'Item' }}
+                {{ item.dayOfWeek || item.month || item.genreName || item.durationCategory || item.eraName ||
+                item.decade || 'Item' }}
               </div>
             </div>
           </div>
-          
+
           <ng-container *ngIf="resultData()[0]?.shortCount !== undefined">
-             <div class="hero-stats-grid mt-4">
-               <div class="stat-box" *ngFor="let item of resultData()">
-                  <span class="label">Short (<90m)</span>
-                  <span class="value">{{ item.shortCount }}</span>
-                  <br>
-                  <span class="label">Medium</span>
-                  <span class="value">{{ item.mediumCount }}</span>
-                  <br>
-                  <span class="label">Long (>150m)</span>
-                  <span class="value">{{ item.longCount }}</span>
-               </div>
-             </div>
+            <div class="hero-stats-grid mt-4">
+              <div class="stat-box" *ngFor="let item of resultData()">
+                <span class="label">Short (&lt;90m)</span>
+                    <span class="value">{{ item.shortCount }}</span>
+                    <br>
+                    <span class="label">Medium</span>
+                    <span class="value">{{ item.mediumCount }}</span>
+                    <br>
+                    <span class="label">Long (>150m)</span>
+                    <span class="value">{{ item.longCount }}</span>
+              </div>
+            </div>
           </ng-container>
         </div>
       </ng-container>

@@ -537,8 +537,8 @@ input:checked + .slider:before {
   flex: 0 0 auto;
   background: rgba(0, 0, 0, 0.4);
   overflow: hidden;
-  border-top-left-radius: 24px;
-  border-top-right-radius: 24px;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
 }
 
 .movie-poster {

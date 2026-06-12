@@ -206,14 +206,14 @@
         </div>
       } @else if (error()) {
         <div class="error-state viewfinder-box" aria-live="assertive">
-          <span class="error-icon">⚠️</span>
+          <span class="error-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1.5rem; height:1.5rem;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
           <h3>No historical data found</h3>
           <p>{{ error() }}</p>
           <a href="/imports" class="btn btn-secondary mt-3">Go to Import Center</a>
         </div>
       } @else if (recommendations().length === 0) {
         <div class="empty-state viewfinder-box">
-          <span class="empty-icon">🎬</span>
+          <span class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1.5rem; height:1.5rem;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg></span>
           @let emptyEE = 'reco-empty' | easterEgg:'ui';
           @if (emptyEE) {
             <h3 [class]="emptyEE.className" [attr.data-tooltip]="emptyEE.tooltip" style="font-size: 1.15rem; font-weight: 500; margin: 10px 0;">{{ emptyEE.text }}</h3>
@@ -225,7 +225,7 @@
       } @else {
         @if (wellnessMessage()) {
           <div class="wellness-banner viewfinder-box animate-fade-in" aria-live="polite">
-            <span class="wellness-icon">🌱</span>
+            <span class="wellness-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1.5rem; height:1.5rem;"><path d="M12 2v20"/><path d="M12 22s-6-4.5-6-11 6-11 6-11"/><path d="M12 22s6-4.5 6-11-6-11-6-11"/></svg></span>
             <div class="wellness-content">
               <h4>Wellness Check</h4>
               <p>{{ wellnessMessage() }}</p>
@@ -235,7 +235,7 @@
         }
         @if (recommendations().length === 1 && recommendations()[0].easterEggTooltip?.startsWith('Watchlist Haunting')) {
           <div class="haunting-optout-banner viewfinder-box" aria-live="polite">
-            <span class="warning-icon">👻</span>
+            <span class="warning-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1.5rem; height:1.5rem;"><path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"/></svg></span>
             <div class="optout-content">
               <h4>Watchlist Haunting Triggered</h4>
               <p>One of your oldest watchlist movies has completely haunted your dashboard recommendations. Would you like to keep ignoring your watchlist forever?</p>
@@ -265,7 +265,7 @@
               @if (movie.customAverageRating) {
                 @let ratingEE = (movie.customAverageRating | number:'1.1-1') | easterEgg:'rating';
                 <div class="rating-badge" [class]="ratingEE ? ratingEE.className : ''" [attr.data-tooltip]="ratingEE ? ratingEE.tooltip : ('Custom Rating: ' + (movie.customAverageRating | number:'1.1-1') + '/10. This is the arithmetic mean calculated from TMDB, and OMDb sources (including IMDb, Rotten Tomatoes, and Metacritic).')">
-                  ⭐ {{ movie.customAverageRating | number:'1.1-1' }} {{ ratingEE ? ' ' + ratingEE.text : '' }}
+                  <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px; height:14px; margin-right:4px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> {{ movie.customAverageRating | number:'1.1-1' }} {{ ratingEE ? ' ' + ratingEE.text : '' }}
                 </div>
               }
 
@@ -292,9 +292,9 @@
 
                 <div class="why-this-movie-container">
                   <span class="why-this-movie-trigger" [attr.data-tooltip]="movie.recommendationReason">
-                    Why this movie? 💡
+                    Why this movie?
                     @if (movie.easterEggTooltip) {
-                      <span class="easter-egg-indicator" [attr.data-tooltip]="movie.easterEggTooltip">🥚</span>
+                      <span class="easter-egg-indicator" [attr.data-tooltip]="movie.easterEggTooltip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px; height:14px; margin-left:4px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
                     }
                   </span>
                 </div>
