@@ -11,10 +11,7 @@
   h1 {
     font-size: 2rem;
     margin: 0;
-    background: linear-gradient(135deg, var(--accent-purple), var(--accent-rose));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--text-primary);
   }
 
   .subtitle {
@@ -251,8 +248,8 @@
 .mystery-box {
   width: 140px;
   height: 180px;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2));
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: var(--surface-elevated);
+  border: 1px solid rgba(139, 92, 246, 0.25);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -269,13 +266,13 @@
 
   &.opened {
     background: rgba(255,255,255,0.05);
-    border-color: var(--accent-rose);
+    border-color: var(--accent-record);
   }
 
   .box-lid {
     font-size: 2.5rem;
     font-weight: bold;
-    color: var(--accent-purple);
+    color: var(--accent-silver);
   }
 
   .box-open {
@@ -337,7 +334,7 @@
   .die-value {
     font-size: 2rem;
     font-weight: bold;
-    color: var(--accent-purple);
+    color: var(--accent-amber);
   }
 
   .die-label {
@@ -386,7 +383,7 @@
 
   .reel-value {
     font-size: 1rem;
-    color: var(--accent-purple);
+    color: var(--accent-amber);
     font-weight: bold;
   }
 }
@@ -442,14 +439,14 @@
 
 .btn-primary {
   padding: 10px 24px;
-  background: linear-gradient(135deg, var(--accent-purple), var(--accent-rose));
-  color: white;
-  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.9rem;
   white-space: nowrap;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
 
   &:disabled {
     opacity: 0.5;
@@ -457,6 +454,8 @@
   }
 
   &:hover:not(:disabled) {
-    opacity: 0.9;
+    background: rgba(139, 92, 246, 0.15);
+    border-color: var(--accent-purple);
+    color: var(--accent-purple);
   }
 }

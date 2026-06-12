@@ -8,6 +8,8 @@ import { BingoGridDto } from '../../core/api/model/bingo-grid-dto';
 import { DiceRollResultDto } from '../../core/api/model/dice-roll-result-dto';
 import { SlotMachineResultDto } from '../../core/api/model/slot-machine-result-dto';
 import { finalize } from 'rxjs';
+import { AuthService } from '../../core/services/auth.service';
+import { ModalService } from '../../core/services/modal.service';
 
 type DiscoveryTab = 'roulette' | 'dice' | 'slot-machine' | 'mystery-box' | 'bingo';
 
@@ -20,6 +22,8 @@ type DiscoveryTab = 'roulette' | 'dice' | 'slot-machine' | 'mystery-box' | 'bing
 })
 export class DiscoveryComponent {
   private discoveryService = inject(DiscoveryService);
+  public auth = inject(AuthService);
+  public modalService = inject(ModalService);
 
   public activeTab = signal<DiscoveryTab>('bingo');
   private tabMap: Record<string, DiscoveryTab> = {
@@ -67,6 +71,7 @@ export class DiscoveryComponent {
   }
 
   public spellRoulette(): void {
+    if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
     this.errorMsg.set(null);
     this.rouletteLoading.set(true);
     this.discoveryService.apiV1DiscoveryRoulettePost({
@@ -77,6 +82,7 @@ export class DiscoveryComponent {
   }
 
   public rollDice(): void {
+    if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
     this.errorMsg.set(null);
     this.diceLoading.set(true);
     this.discoveryService.apiV1DiscoveryDicePost({ scope: this.diceScope() })
@@ -85,6 +91,7 @@ export class DiscoveryComponent {
   }
 
   public spinSlots(): void {
+    if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
     this.errorMsg.set(null);
     this.slotLoading.set(true);
     this.discoveryService.apiV1DiscoverySlotMachinePost({
@@ -96,6 +103,7 @@ export class DiscoveryComponent {
   }
 
   public generateMysteryBox(): void {
+    if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
     this.errorMsg.set(null);
     this.revealedMovieSig.set(null);
     this.selectedBoxId.set(null);
@@ -108,6 +116,7 @@ export class DiscoveryComponent {
   }
 
   public revealBox(boxId: string): void {
+    if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
     this.errorMsg.set(null);
     this.selectedBoxId.set(boxId);
     this.mysteryRevealing.set(true);
@@ -117,6 +126,7 @@ export class DiscoveryComponent {
   }
 
   public loadBingo(): void {
+    if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
     this.errorMsg.set(null);
     this.bingoLoading.set(true);
     this.discoveryService.apiV1DiscoveryBingoGet(this.bingoGridSize())
