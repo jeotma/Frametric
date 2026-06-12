@@ -428,24 +428,24 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "d", "WatchedDate", isMoviesJoined: false);
         string sql = $@"
             SELECT 
                 dr.""Name"" AS DirectorName,
                 a.""Name"" AS ActorName,
-                CAST(COUNT(DISTINCT w.""MovieId"") AS INTEGER) AS CollaborationCount
-            FROM ""WatchedMovies"" w
-            JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
+                CAST(COUNT(d.""Id"") AS INTEGER) AS CollaborationCount
+            FROM ""DiaryEntries"" d
+            JOIN ""MovieDirector"" md ON d.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
-            JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
+            JOIN ""MovieActor"" ma ON d.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
             
             {filterBuilder.BuildJoins()}
-            WHERE w.""UserId"" = @userId 
+            WHERE d.""UserId"" = @userId 
             
             {filterBuilder.BuildWhereClause()}
             GROUP BY dr.""Name"", a.""Name""
-            HAVING COUNT(DISTINCT w.""MovieId"") >= 2
+            HAVING COUNT(d.""Id"") >= 2
             ORDER BY CollaborationCount DESC
             LIMIT 10";
         return await connection.QueryAsync<DirectorActorPairDto>(sql, parameters);
@@ -554,15 +554,15 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "d", "WatchedDate", isMoviesJoined: false);
         string sql = $@"
             WITH WatchedActors AS (
-                SELECT w.""MovieId"", ma.""ActorsId""
-                FROM ""WatchedMovies"" w
-                JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
+                SELECT d.""Id"" AS ""WatchId"", d.""MovieId"", ma.""ActorsId""
+                FROM ""DiaryEntries"" d
+                JOIN ""MovieActor"" ma ON d.""MovieId"" = ma.""MoviesId""
                 
             {filterBuilder.BuildJoins()}
-            WHERE w.""UserId"" = @userId 
+            WHERE d.""UserId"" = @userId 
             {filterBuilder.BuildWhereClause()}
             )
             SELECT 
@@ -570,7 +570,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 a2.""Name"" AS Actor2Name, 
                 CAST(COUNT(*) AS INTEGER) AS CollaborationCount
             FROM WatchedActors w1
-            JOIN WatchedActors w2 ON w1.""MovieId"" = w2.""MovieId"" AND w1.""ActorsId"" < w2.""ActorsId""
+            JOIN WatchedActors w2 ON w1.""WatchId"" = w2.""WatchId"" AND w1.""ActorsId"" < w2.""ActorsId""
             JOIN ""Actors"" a1 ON w1.""ActorsId"" = a1.""Id""
             JOIN ""Actors"" a2 ON w2.""ActorsId"" = a2.""Id""
             
