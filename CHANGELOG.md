@@ -19,6 +19,11 @@ Discovery suite: gamified interactive selection systems.
 - **Discovery Documentation**: Section 10 (Discovery) added to `docs/api/endpoints.md`.
 - **Unit Tests**: 25 new tests covering `DiscoveryObjectiveEvaluator`, `RouletteSelectionQueryHandler`, `MysteryBoxGenerationQueryHandler`, `DiceRollQueryHandler`, and `SlotMachineSpinQueryHandler`.
 
+### Changed
+
+- **Final Cut Aesthetics**: Replaced emojis with SVG icons across all slides, optimized layout sizing/margins for readability, and aligned background gradients/highlights with the official color palette (e.g., replacing purple with record red).
+- **Visual Identity Rules**: Added strict SVG-only icon requirements, explicit color palette hex definitions, and the "Cinematic Data as Narrative" philosophical design rules to `AGENTS.md`.
+
 ## [1.4.0] — 2026-06-06
 
 Major analytics expansion: Advanced Statistics page, entity detail page redesigns, UI accessibility overhaul, and search navigation fixes.
