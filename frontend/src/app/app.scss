@@ -229,10 +229,11 @@
   .spinner-small {
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-top-color: var(--accent-silver);
+    border: 2px dashed rgba(255, 255, 255, 0.5);
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin 3s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
   }
 
   .search-results {
@@ -442,3 +443,16 @@
   padding: 0;
 }
 
+
+
+/* Global Cinematic Spinners (Film Reel style) */
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px dashed rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  animation: spin 3s linear infinite;
+  margin: 0 auto 16px;
+  opacity: 0.8;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+}

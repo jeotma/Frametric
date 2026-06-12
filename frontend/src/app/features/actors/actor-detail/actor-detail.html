@@ -11,7 +11,7 @@
         <img *ngIf="a.profilePath; else placeholderAvatar" [src]="a.profilePath" [alt]="a.name" />
         <ng-template #placeholderAvatar>
           <div class="avatar-placeholder">
-            <span>{{ a.name.charAt(0) }}</span>
+            <span>{{ a.name?.charAt(0) }}</span>
           </div>
         </ng-template>
       </div>
@@ -28,7 +28,7 @@
           </div>
           <div class="stat-box tooltip-container animate-stagger-fade" style="--i: 1; cursor: help;">
             <span class="label">Avg. Rating ℹ️</span>
-            <span class="tooltip-text" style="width: 280px;">Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.</span>
+            <span class="tooltip-text" style="width: 280px;">Your ratings, imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.</span>
             <span class="value">
               <svg class="stat-icon star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
               {{ a.averageRating | number:'1.1-1' }}
@@ -42,7 +42,7 @@
             </span>
             <div class="tooltip-list" (click)="$event.stopPropagation()" *ngIf="activeTooltip() === 'watchlist' && a.watchlistMovieTitles?.length">
               <div class="tooltip-header">Watchlist Movies</div>
-              <a [routerLink]="['/movies', m.id, slugify(m.title)]" class="tooltip-item" *ngFor="let m of a.watchlistMovieTitles">{{ m.title }}</a>
+              <a [routerLink]="['/movies', m.id, slugify(m.title || '')]" class="tooltip-item" *ngFor="let m of a.watchlistMovieTitles">{{ m.title }}</a>
             </div>
           </div>
           <div class="stat-box likes-stat animate-stagger-fade" style="--i: 3" (click)="toggleTooltip('liked'); $event.stopPropagation()">
@@ -53,7 +53,7 @@
             </span>
             <div class="tooltip-list" (click)="$event.stopPropagation()" *ngIf="activeTooltip() === 'liked' && a.likedMovieTitles?.length">
               <div class="tooltip-header">Liked Movies</div>
-              <a [routerLink]="['/movies', m.id, slugify(m.title)]" class="tooltip-item" *ngFor="let m of a.likedMovieTitles">{{ m.title }}</a>
+              <a [routerLink]="['/movies', m.id, slugify(m.title || '')]" class="tooltip-item" *ngFor="let m of a.likedMovieTitles">{{ m.title }}</a>
             </div>
           </div>
           <div class="stat-box clickable animate-stagger-fade" style="--i: 4" (click)="scrollToSection('unwatched-section')">
@@ -71,7 +71,7 @@
     <div class="movies-grid animate-slide-up" [id]="watchedActingMovies.length > 0 ? 'watched-section' : ''" *ngIf="watchedActingMovies.length > 0">
       <h2>{{ a.isDirector ? 'FILMOGRAPHY — ACTING' : 'FILMOGRAPHY' }}</h2>
       <div class="grid">
-        <a *ngFor="let m of watchedActingMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title)]" class="movie-card animate-stagger-up" style="--i: {{ i }}">
+        <a *ngFor="let m of watchedActingMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title || '')]" class="movie-card animate-stagger-up" style="--i: {{ i }}">
           <div class="poster">
             <img *ngIf="m.posterPath && m.posterPath !== 'null'; else noPoster" [src]="m.posterPath" [alt]="m.title" />
             <ng-template #noPoster>
@@ -91,7 +91,7 @@
     <div class="movies-grid unwatched-section animate-slide-up" [id]="unwatchedActingMovies.length > 0 ? 'unwatched-section' : ''" *ngIf="unwatchedActingMovies.length > 0">
       <h2>{{ a.isDirector ? 'DISCOVER — ACTING' : 'DISCOVER' }}</h2>
       <div class="grid">
-        <a *ngFor="let m of unwatchedActingMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title)]" class="movie-card unwatched-card animate-stagger-up" style="--i: {{ i }}">
+        <a *ngFor="let m of unwatchedActingMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title || '')]" class="movie-card unwatched-card animate-stagger-up" style="--i: {{ i }}">
           <div class="poster">
             <img *ngIf="m.posterPath && m.posterPath !== 'null'; else noPosterUnwatched" [src]="m.posterPath" [alt]="m.title" />
             <ng-template #noPosterUnwatched>
@@ -113,7 +113,7 @@
     <div class="movies-grid animate-slide-up" [id]="watchedActingMovies.length === 0 ? 'watched-section' : ''" *ngIf="a.isDirector && watchedDirectedMovies.length > 0">
       <h2>FILMOGRAPHY — DIRECTING</h2>
       <div class="grid">
-        <a *ngFor="let m of watchedDirectedMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title)]" class="movie-card animate-stagger-up" style="--i: {{ i }}">
+        <a *ngFor="let m of watchedDirectedMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title || '')]" class="movie-card animate-stagger-up" style="--i: {{ i }}">
           <div class="poster">
             <img *ngIf="m.posterPath && m.posterPath !== 'null'; else noPosterDir" [src]="m.posterPath" [alt]="m.title" />
             <ng-template #noPosterDir>
@@ -133,7 +133,7 @@
     <div class="movies-grid unwatched-section animate-slide-up" [id]="unwatchedActingMovies.length === 0 ? 'unwatched-section' : ''" *ngIf="a.isDirector && unwatchedDirectedMovies.length > 0">
       <h2>DISCOVER — DIRECTING</h2>
       <div class="grid">
-        <a *ngFor="let m of unwatchedDirectedMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title)]" class="movie-card unwatched-card animate-stagger-up" style="--i: {{ i }}">
+        <a *ngFor="let m of unwatchedDirectedMovies; let i = index" [routerLink]="['/movies', m.id, slugify(m.title || '')]" class="movie-card unwatched-card animate-stagger-up" style="--i: {{ i }}">
           <div class="poster">
             <img *ngIf="m.posterPath && m.posterPath !== 'null'; else noPosterUnwatchedDir" [src]="m.posterPath" [alt]="m.title" />
             <ng-template #noPosterUnwatchedDir>

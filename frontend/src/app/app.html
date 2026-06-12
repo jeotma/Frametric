@@ -91,15 +91,14 @@
 </ng-template>
 
 <!-- Easter egg overlays — fixed position, rendered via signals -->
-<div class="rosebud-sled" *ngIf="showRosebudSled()">🛷 ROSEBUD</div>
+<div class="rosebud-sled" *ngIf="showRosebudSled()">[ROSEBUD]</div>
 <div #easterEggContainer class="easter-egg-container"></div>
-<div class="raptor-peek" *ngIf="showRaptorPeek()">🦖 Clever girl...</div>
+<div class="raptor-peek" *ngIf="showRaptorPeek()">[Clever girl...]</div>
 
 <!-- Auth Modal (Guest CTA) -->
 <div class="auth-modal-overlay" *ngIf="modalService.showAuthModal()" (click)="modalService.closeAuthModal()">
-  <div class="auth-modal viewfinder-box animate-slide-up" (click)="$event.stopPropagation()">
-    <div class="modal-header clapper-separator" style="padding: 24px; padding-bottom: 32px; border-bottom: 1px solid var(--charcoal); display: flex; justify-content: space-between; align-items: center;">
-      <h2 style="margin: 0; background: var(--true-black); padding: 4px 12px; border: 1px solid var(--charcoal);"><span class="hud-label" style="color: var(--record-red); font-size: 1.4rem; letter-spacing: 2px;">[SYS_REQ: AUTH]</span></h2>
+  <div class="auth-modal animate-slide-up" (click)="$event.stopPropagation()" style="border: 1px solid rgba(212, 212, 216, 0.15); border-radius: 6px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.9);">
+    <div class="modal-header clapper-separator" style="padding: 24px; padding-bottom: 32px; border-bottom: 1px solid var(--charcoal); display: flex; justify-content: flex-end; align-items: center;">
       <button class="close-btn" (click)="modalService.closeAuthModal()" style="background: var(--true-black); border: 1px solid var(--charcoal); color: var(--silver); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px;">
         <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
@@ -107,8 +106,8 @@
     <div class="modal-body" style="padding: 32px 24px;">
       <p class="director-note" style="font-size: 1.6rem; color: var(--silver); margin-bottom: 32px; line-height: 1.4; text-align: center;">"The data is locked in the editing room. Sign in to begin your journey through your cinematic statistics."</p>
       <div class="modal-actions" style="display: flex; gap: 16px; margin-top: 32px;">
-        <a href="javascript:void(0)" routerLink="/login" class="btn btn-primary crosshair-bracket" (click)="modalService.closeAuthModal()" style="flex: 1; text-align: center; justify-content: center;">Log In</a>
-        <a href="javascript:void(0)" routerLink="/register" class="btn btn-outline crosshair-bracket" (click)="modalService.closeAuthModal()" style="flex: 1; text-align: center; justify-content: center;">Create Account</a>
+        <a href="javascript:void(0)" routerLink="/login" class="btn" (click)="modalService.closeAuthModal()" style="flex: 1; text-align: center; justify-content: center; background: rgba(212, 212, 216, 0.15); color: var(--text-primary); border: 1px solid rgba(212, 212, 216, 0.3);">Log In</a>
+        <a href="javascript:void(0)" routerLink="/register" class="btn" (click)="modalService.closeAuthModal()" style="flex: 1; text-align: center; justify-content: center; background: rgba(212, 212, 216, 0.15); color: var(--text-primary); border: 1px solid rgba(212, 212, 216, 0.3);">Create Account</a>
       </div>
     </div>
   </div>

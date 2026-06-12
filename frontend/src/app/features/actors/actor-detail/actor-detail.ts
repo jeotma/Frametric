@@ -30,12 +30,12 @@ export class ActorDetailComponent implements OnInit {
 
   get watchedActingMovies() {
     const act = this.actor();
-    return act ? act.movies.filter(m => m.isWatched) : [];
+    return act && act.movies ? act.movies.filter(m => m.isWatched) : [];
   }
 
   get unwatchedActingMovies() {
     const act = this.actor();
-    return act ? act.movies.filter(m => !m.isWatched) : [];
+    return act && act.movies ? act.movies.filter(m => !m.isWatched) : [];
   }
 
   get watchedDirectedMovies() {
@@ -51,7 +51,7 @@ export class ActorDetailComponent implements OnInit {
   get muralMovies() {
     const act = this.actor();
     if (!act) return [];
-    const allMovies = [...act.movies];
+    const allMovies = [...(act.movies || [])];
     if (act.directedMovies) {
       allMovies.push(...act.directedMovies);
     }
