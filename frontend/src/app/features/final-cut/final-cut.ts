@@ -178,6 +178,13 @@ export class FinalCutComponent implements OnInit, OnDestroy {
     }
   }
 
+  public goToSlide(index: number) {
+    if (index >= 0 && index < this.SLIDE_COUNT) {
+      this.activeSlide.set(index);
+      this.startTimer();
+    }
+  }
+
   public togglePause() {
     this.isManuallyPaused.update(v => !v);
   }
@@ -211,7 +218,7 @@ export class FinalCutComponent implements OnInit, OnDestroy {
   }
 
   public includesRewatches(slideIndex: number): boolean {
-    const uniqueSlides = [5, 6, 7, 8, 9, 10, 12, 15, 16, 18, 19];
+    const uniqueSlides = [5, 6, 7, 9, 10, 12, 15, 16, 18, 19];
     return !uniqueSlides.includes(slideIndex);
   }
 

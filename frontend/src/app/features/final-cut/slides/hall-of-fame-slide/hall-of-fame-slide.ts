@@ -7,8 +7,8 @@ import { TopBottomMoviesDto } from '../../../../core/services/final-cut.service'
   standalone: true,
   imports: [CommonModule, DecimalPipe],
   template: `
-    <div class="slide-content hof-bg">
-      <div class="act-label">Act IV · The Climax</div>
+    <div class="slide-content slide-bg-sepia">
+      <div class="act-label">ACT IV · SCENE 19 · HALL OF FAME</div>
       <h2 class="slide-title">The Hall of Fame.</h2>
       <p class="slide-subtitle">Your top rated masterpieces of {{ year === 'global' ? 'All-Time' : year }}.</p>
       <p class="slide-explainer">Five stars. Absolute cinema. The masterpieces that left a lasting mark.</p>
@@ -21,7 +21,14 @@ import { TopBottomMoviesDto } from '../../../../core/services/final-cut.service'
           </div>
           <div class="hof-info">
             <span class="hof-title">{{ m.title }}</span>
-            <span class="hof-rating" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">⭐ {{ m.rating | number:'1.1-1' }} <span *ngIf="m.liked" class="heart">❤️</span> ℹ️</span>
+            <span class="hof-rating" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="star-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              {{ m.rating | number:'1.1-1' }}
+              <span *ngIf="m.liked" class="heart">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="heart-icon"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="info-icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </span>
           </div>
         </div>
       </div>
@@ -31,6 +38,7 @@ import { TopBottomMoviesDto } from '../../../../core/services/final-cut.service'
       <div class="tie-breaker-note" *ngIf="data?.topRated?.length">
         * Films ordered by highest rating, favor, and ultimately, chance.
       </div>
+      <div class="timecode">TC 02:14:45:03</div>
     </div>
   `,
   styles: [`
@@ -42,17 +50,14 @@ import { TopBottomMoviesDto } from '../../../../core/services/final-cut.service'
       max-width: 600px;
       text-align: center;
     }
-    .hof-bg {
-      background: radial-gradient(ellipse at 50% 40%, rgba(52, 211, 153, 0.1) 0%, transparent 60%);
-    }
     .top5-grid {
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      gap: 16px;
+      gap: 24px;
       width: 100%;
-      max-width: 880px;
-      margin-top: 40px;
+      max-width: 1000px;
+      margin-top: 50px;
     }
     .hof-card {
       display: flex;
@@ -70,11 +75,11 @@ import { TopBottomMoviesDto } from '../../../../core/services/final-cut.service'
     .number-one:hover { transform: scale(1.15) translateY(-30px); }
     
     .hof-rank {
-      font-size: 1.1rem;
+      font-size: 1.3rem;
       font-weight: 800;
       color: var(--text-muted);
     }
-    .number-one .hof-rank { color: #fbbf24; font-size: 1.3rem; }
+    .number-one .hof-rank { color: #fbbf24; font-size: 1.6rem; }
     
     .poster-wrap {
       width: 100%;
@@ -98,7 +103,7 @@ import { TopBottomMoviesDto } from '../../../../core/services/final-cut.service'
       gap: 4px;
     }
     .hof-title {
-      font-size: 0.9rem;
+      font-size: 1.15rem;
       font-weight: 700;
       color: var(--text-primary);
       display: -webkit-box;
@@ -106,10 +111,20 @@ import { TopBottomMoviesDto } from '../../../../core/services/final-cut.service'
       -webkit-box-orient: vertical;
       overflow: hidden;
       min-height: 2.4em;
+      margin-bottom: 4px;
     }
-    .number-one .hof-title { font-size: 1rem; color: #34d399; }
-    .hof-rating { font-size: 0.85rem; color: #fbbf24; }
-    .heart { font-size: 0.85em; margin-left: 2px; }
+    .number-one .hof-title { font-size: 1.3rem; color: #34d399; }
+    .hof-rating { 
+      font-size: 0.95rem; 
+      color: #fbbf24; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-family: var(--font-mono);
+    }
+    .heart { display: flex; align-items: center; color: #f43f5e; }
+    .info-icon { opacity: 0.5; margin-left: 2px; }
     .no-data { color: var(--text-muted); }
     .tie-breaker-note {
       font-size: 0.75rem;

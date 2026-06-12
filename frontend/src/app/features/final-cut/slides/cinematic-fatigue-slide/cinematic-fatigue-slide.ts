@@ -7,8 +7,8 @@ import { CinematicFatigueExpandedDto } from '../../../../core/services/final-cut
   standalone: true,
   imports: [CommonModule, DecimalPipe],
   template: `
-    <div class="slide-content fatigue-bg">
-      <div class="act-label">Act III · The Deep Cuts</div>
+    <div class="slide-content slide-bg-record">
+      <div class="act-label">ACT III · SCENE 14 · CINEMATIC FATIGUE</div>
       <h2 class="slide-title">Cinematic Fatigue.</h2>
       <p class="slide-subtitle">The binge toll: Does watching more make you enjoy it less?</p>
       <p class="slide-explainer">Quality vs. Quantity. How your ratings shifted during your movie marathons.</p>
@@ -17,12 +17,18 @@ import { CinematicFatigueExpandedDto } from '../../../../core/services/final-cut
         <div class="fatigue-card">
           <div class="f-row">
             <span class="f-label">On Light Days (1 film)</span>
-            <span class="f-value">⭐ {{ data.avgRatingLightDays | number:'1.2-2' }}</span>
+            <span class="f-value" style="font-family: var(--font-mono)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="star-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              {{ data.avgRatingLightDays | number:'1.2-2' }}
+            </span>
           </div>
           <div class="f-divider"></div>
           <div class="f-row">
             <span class="f-label">On Heavy Days (2+ films)</span>
-            <span class="f-value" [class.lower]="data.avgRatingHeavyDays < data.avgRatingLightDays">⭐ {{ data.avgRatingHeavyDays | number:'1.2-2' }}</span>
+            <span class="f-value" [class.lower]="data.avgRatingHeavyDays < data.avgRatingLightDays" style="font-family: var(--font-mono)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="star-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              {{ data.avgRatingHeavyDays | number:'1.2-2' }}
+            </span>
           </div>
         </div>
 
@@ -35,6 +41,7 @@ import { CinematicFatigueExpandedDto } from '../../../../core/services/final-cut
       </div>
 
       <p class="no-data" *ngIf="!data">No cinematic fatigue data.</p>
+      <div class="timecode">TC 01:34:12:08</div>
     </div>
   `,
   styles: [`
@@ -46,32 +53,36 @@ import { CinematicFatigueExpandedDto } from '../../../../core/services/final-cut
       max-width: 600px;
       text-align: center;
     }
-    .fatigue-bg {
-      background: radial-gradient(ellipse at 70% 30%, rgba(244, 63, 94, 0.08) 0%, transparent 60%);
-    }
     .fatigue-container {
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 32px;
       width: 100%;
-      max-width: 520px;
+      max-width: 640px;
     }
     .fatigue-card {
       display: flex;
       flex-direction: column;
-      padding: 32px;
+      padding: 40px;
       border-radius: 24px;
       border: 1px solid rgba(255,255,255,0.06);
       background: rgba(255,255,255,0.03);
       backdrop-filter: blur(12px);
     }
     .f-row { display: flex; justify-content: space-between; align-items: center; }
-    .f-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 20px 0; }
-    .f-label { font-size: 1rem; color: var(--text-secondary); }
-    .f-value { font-size: 1.4rem; font-weight: 700; color: #fbbf24; }
+    .f-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 24px 0; }
+    .f-label { font-size: 1.15rem; color: var(--text-secondary); }
+    .f-value { 
+      font-size: 1.7rem; 
+      font-weight: 700; 
+      color: #fbbf24; 
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     .f-value.lower { color: #f43f5e; }
     .fatigue-insight {
-      font-size: 1rem;
+      font-size: 1.15rem;
       color: var(--text-muted);
       text-align: center;
       line-height: 1.5;

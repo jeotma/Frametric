@@ -8,21 +8,25 @@ interface ActorCount { actorName: string; count: number; }
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="slide-content alist-bg">
-      <div class="act-label">Act II · The Cast & Crew</div>
+    <div class="slide-content slide-bg-silver">
+      <div class="act-label">ACT II · SCENE 7 · THE A-LIST</div>
       <h2 class="slide-title">The A-List.</h2>
       <p class="slide-subtitle">The faces that dominated your screens in {{ year === 'global' ? 'All-Time' : year }}.</p>
       <p class="slide-explainer">Your leading stars. The actors who captured the screen and your attention the most.</p>
 
       <div class="actor-list" *ngIf="topActors.length">
         <div *ngFor="let a of topActors; let i = index" class="actor-row" [class.top-actor]="i === 0">
-          <span class="actor-rank">{{ i === 0 ? '★' : '#' + (i + 1) }}</span>
+          <span class="actor-rank" *ngIf="i !== 0">#{{ i + 1 }}</span>
+          <span class="actor-rank" *ngIf="i === 0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="star-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
           <span class="actor-name">{{ a.actorName }}</span>
-          <span class="actor-count">{{ a.count }} film{{ a.count !== 1 ? 's' : '' }}</span>
+          <span class="actor-count" style="font-family: var(--font-mono)">{{ a.count }} film{{ a.count !== 1 ? 's' : '' }}</span>
         </div>
       </div>
 
       <p class="no-data" *ngIf="!topActors.length">No actor data for {{ year === 'global' ? 'All-Time' : year }}.</p>
+      <div class="timecode">TC 00:41:20:11</div>
     </div>
   `,
   styles: [`
@@ -34,22 +38,19 @@ interface ActorCount { actorName: string; count: number; }
       max-width: 600px;
       text-align: center;
     }
-    .alist-bg {
-      background: radial-gradient(ellipse at 60% 30%, rgba(251, 113, 133, 0.1) 0%, transparent 55%);
-    }
     .actor-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       width: 100%;
-      max-width: 520px;
+      max-width: 560px;
     }
     .actor-row {
       display: grid;
-      grid-template-columns: 36px 1fr auto;
+      grid-template-columns: 48px 1fr auto;
       align-items: center;
       gap: 16px;
-      padding: 14px 20px;
+      padding: 16px 20px;
       border-radius: 16px;
       border: 1px solid rgba(255,255,255,0.04);
       background: rgba(255,255,255,0.02);
@@ -62,19 +63,22 @@ interface ActorCount { actorName: string; count: number; }
       background: rgba(251, 191, 36, 0.05);
     }
     .actor-rank {
-      font-size: 0.85rem;
+      font-size: 1rem;
       font-weight: 700;
       color: var(--text-muted);
       text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .top-actor .actor-rank { color: #fbbf24; font-size: 1.1rem; }
+    .top-actor .actor-rank { color: #fbbf24; }
     .actor-name {
-      font-size: 0.95rem;
+      font-size: 1.15rem;
       font-weight: 600;
       color: var(--text-primary);
     }
     .actor-count {
-      font-size: 0.8rem;
+      font-size: 0.95rem;
       color: var(--text-muted);
     }
     .no-data { color: var(--text-muted); }

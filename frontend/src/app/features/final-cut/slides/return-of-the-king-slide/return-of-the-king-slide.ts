@@ -7,8 +7,8 @@ import { MostRewatchedDto } from '../../../../core/services/final-cut.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="slide-content rotk-bg">
-      <div class="act-label">Act IV · The Climax</div>
+    <div class="slide-content slide-bg-sepia">
+      <div class="act-label">ACT IV · SCENE 18 · RETURN OF THE KING</div>
       <h2 class="slide-title">The Return of the King.</h2>
       <p class="slide-subtitle">The movie you just couldn't stay away from.</p>
       <p class="slide-explainer">Encore performances. The stories you just had to experience one more time.</p>
@@ -16,14 +16,16 @@ import { MostRewatchedDto } from '../../../../core/services/final-cut.service';
       <div class="rotk-container" *ngIf="data">
         <div class="rotk-poster-wrap">
           <img *ngIf="data.posterPath" [src]="posterUrl(data.posterPath)" [alt]="data.title" class="rotk-poster">
-          <div class="rotk-fallback" *ngIf="!data.posterPath">👑</div>
+          <div class="rotk-fallback" *ngIf="!data.posterPath">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--accent-sepia)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fallback-icon"><polygon points="12 2 15 8 22 7 18 13 20 20 12 18 4 20 6 13 2 7 9 8 12 2"/></svg>
+          </div>
         </div>
         
         <div class="rotk-info">
           <div class="rotk-title">{{ data.title }}</div>
-          <div class="rotk-year">{{ data.releaseYear }}</div>
+          <div class="rotk-year" style="font-family: var(--font-mono)">{{ data.releaseYear }}</div>
           <div class="rotk-meta">
-            <span class="rotk-count">{{ data.rewatchCount }}</span>
+            <span class="rotk-count" style="font-family: var(--font-mono)">{{ data.rewatchCount }}</span>
             <span class="rotk-label">{{ year === 'global' ? 'all-time rewatches' : 'rewatches this year' }}</span>
           </div>
         </div>
@@ -34,6 +36,7 @@ import { MostRewatchedDto } from '../../../../core/services/final-cut.service';
       <div class="tie-breaker-note" *ngIf="data">
         * Films ordered by highest rating, favor, and ultimately, chance.
       </div>
+      <div class="timecode">TC 02:05:20:11</div>
     </div>
   `,
   styles: [`
@@ -45,18 +48,15 @@ import { MostRewatchedDto } from '../../../../core/services/final-cut.service';
       max-width: 600px;
       text-align: center;
     }
-    .rotk-bg {
-      background: radial-gradient(circle at center, rgba(251, 191, 36, 0.12) 0%, transparent 60%);
-    }
     .rotk-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
-      margin-top: 20px;
+      gap: 24px;
+      margin-top: 24px;
     }
     .rotk-poster-wrap {
-      height: min(265px, 35vh);
+      height: min(340px, 45vh);
       aspect-ratio: 2/3;
       border-radius: 16px;
       overflow: hidden;
@@ -73,33 +73,33 @@ import { MostRewatchedDto } from '../../../../core/services/final-cut.service';
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
     }
     .rotk-title {
-      font-size: 1.8rem;
+      font-size: 2.5rem;
       font-weight: 800;
       color: var(--text-primary);
       text-align: center;
     }
-    .rotk-year { font-size: 1rem; color: var(--text-muted); }
+    .rotk-year { font-size: 1.25rem; color: var(--text-muted); }
     .rotk-meta {
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-top: 12px;
+      margin-top: 20px;
     }
     .rotk-count {
-      font-size: 3rem;
+      font-size: 4rem;
       font-weight: 900;
-      color: #fbbf24;
+      color: var(--accent-sepia);
       line-height: 1;
     }
     .rotk-label {
-      font-size: 0.8rem;
+      font-size: 1rem;
       text-transform: uppercase;
       letter-spacing: 0.15em;
       color: var(--text-muted);
-      margin-top: 8px;
+      margin-top: 12px;
     }
     .no-data { color: var(--text-muted); }
     .tie-breaker-note {

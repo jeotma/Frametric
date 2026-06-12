@@ -7,8 +7,8 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
   standalone: true,
   imports: [CommonModule, DecimalPipe],
   template: `
-    <div class="slide-content mx-bg">
-      <div class="act-label">Act IV · The Climax</div>
+    <div class="slide-content slide-bg-record">
+      <div class="act-label">{{ part === 1 ? 'ACT IV · SCENE 16 · MONTHLY EXTREMES — #1' : 'ACT IV · SCENE 17 · MONTHLY EXTREMES — #2' }}</div>
       <h2 class="slide-title">{{ year === 'global' ? 'The Monthly Anthology.' : 'A Year of Extremes.' }}</h2>
       <p class="slide-subtitle">{{ year === 'global' ? 'The all-time highest highs and lowest lows, aggregated month by month.' : 'The highest highs and lowest lows of ' + year + ', month by month.' }}</p>
       <p class="slide-explainer">{{ year === 'global' ? 'A lifetime of logging. The absolute triumphs and the colossal misfires you\\'ve witnessed across the calendar.' : 'The soaring highs and the crushing lows. Your peak cinematic triumphs and your biggest misfires, month by month.' }}</p>
@@ -18,19 +18,27 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
           <div class="mx-month-name">{{ m.monthName }}</div>
           
           <div class="mx-movie best-movie" *ngIf="m.bestMovie">
-            <span class="mx-icon">🏆</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-icon"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
             <div class="mx-info">
               <span class="mx-title">{{ m.bestMovie.title }}</span>
-              <span class="mx-rating" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">⭐ {{ m.bestMovie.rating | number:'1.1-1' }} ℹ️</span>
+              <span class="mx-rating" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="star-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                {{ m.bestMovie.rating | number:'1.1-1' }}
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="info-icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              </span>
             </div>
           </div>
           <div class="mx-movie no-data-box" *ngIf="!m.bestMovie">No entries</div>
 
           <div class="mx-movie worst-movie" *ngIf="m.worstMovie">
-            <span class="mx-icon">📉</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-record)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-icon"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
             <div class="mx-info">
               <span class="mx-title">{{ m.worstMovie.title }}</span>
-              <span class="mx-rating" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">⭐ {{ m.worstMovie.rating | number:'1.1-1' }} ℹ️</span>
+              <span class="mx-rating" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="star-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                {{ m.worstMovie.rating | number:'1.1-1' }}
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="info-icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              </span>
             </div>
           </div>
           <div class="mx-movie no-data-box" *ngIf="!m.worstMovie">No entries</div>
@@ -38,6 +46,7 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
       </div>
 
       <p class="no-data" *ngIf="!topMonths.length">No monthly data available.</p>
+      <div class="timecode">{{ part === 1 ? 'TC 01:50:30:05' : 'TC 01:58:14:22' }}</div>
     </div>
   `,
   styles: [`
@@ -49,24 +58,21 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
       max-width: 600px;
       text-align: center;
     }
-    .mx-bg {
-      background: radial-gradient(ellipse at 50% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 60%);
-    }
     .mx-grid {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
       width: 100%;
-      max-width: 800px;
+      max-width: 900px;
     }
     .mx-month-row {
       display: grid;
-      grid-template-columns: 100px minmax(0, 1fr) minmax(0, 1fr);
-      gap: 16px;
+      grid-template-columns: 120px minmax(0, 1fr) minmax(0, 1fr);
+      gap: 24px;
       align-items: center;
     }
     .mx-month-name {
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
@@ -76,9 +82,9 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
     .mx-movie {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      border-radius: 12px;
+      gap: 16px;
+      padding: 16px 20px;
+      border-radius: 16px;
       background: rgba(255,255,255,0.02);
       border: 1px solid rgba(255,255,255,0.04);
       min-width: 0;
@@ -96,7 +102,7 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
       flex: 1;
     }
     .mx-title {
-      font-size: 0.85rem;
+      font-size: 1rem;
       font-weight: 600;
       color: var(--text-primary);
       white-space: nowrap;
@@ -104,7 +110,15 @@ import { MonthlyExtremeDto } from '../../../../core/services/final-cut.service';
       text-overflow: ellipsis;
       max-width: 100%;
     }
-    .mx-rating { font-size: 0.75rem; color: var(--text-muted); }
+    .mx-rating { 
+      font-size: 0.85rem; 
+      color: #fbbf24; 
+      display: flex; 
+      align-items: center; 
+      gap: 4px; 
+      font-family: var(--font-mono);
+    }
+    .info-icon { opacity: 0.5; margin-left: 2px; }
     .no-data-box {
       justify-content: center;
       color: var(--text-muted);
