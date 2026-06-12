@@ -24,6 +24,11 @@ Discovery suite: gamified interactive selection systems.
 - **Final Cut Aesthetics**: Replaced emojis with SVG icons across all slides, optimized layout sizing/margins for readability, and aligned background gradients/highlights with the official color palette (e.g., replacing purple with record red).
 - **Visual Identity Rules**: Added strict SVG-only icon requirements, explicit color palette hex definitions, and the "Cinematic Data as Narrative" philosophical design rules to `AGENTS.md`.
 
+### Fixed
+
+- **Cinematic Selects**: Resolved type binding errors in dynamic select components in the stats view.
+- **Visual Stacking Issues**: Eliminated rounded corners on posters to seamlessly integrate with sharp crosshair frames and fixed z-index overlapping hiding the top-left bracket.
+
 ## [1.4.0] — 2026-06-06
 
 Major analytics expansion: Advanced Statistics page, entity detail page redesigns, UI accessibility overhaul, and search navigation fixes.
