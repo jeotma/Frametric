@@ -14,10 +14,15 @@ public record BingoSquareDto(
     bool IsCompleted,
     DateTime? CompletionDate,
     int Row,
-    int Column
+    int Column,
+    Guid? MovieId = null,
+    string? MovieTitle = null,
+    DateOnly? WatchedDate = null
 );
 
 public record BingoGridDto(
     int GridSize,
-    IReadOnlyList<BingoSquareDto> Squares
+    IReadOnlyList<BingoSquareDto> Squares,
+    DateTime? StartDate = null,
+    DateTime? EndDate = null
 );

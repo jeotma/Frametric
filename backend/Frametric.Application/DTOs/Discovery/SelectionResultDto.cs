@@ -15,5 +15,6 @@ public record SelectionResultDto(
     int ReleaseYear,
     string SelectionMechanismMetadata,
     string? PosterUrl = null,
-    int? RuntimeMinutes = null
+    int? RuntimeMinutes = null,
+    string? Overview = null
 );

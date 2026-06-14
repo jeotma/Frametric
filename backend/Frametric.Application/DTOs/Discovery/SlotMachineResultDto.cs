@@ -24,5 +24,8 @@ public record SlotMachineResultDto(
     int? RuntimeMinutes,
     string SelectionMechanismMetadata,
     IReadOnlyList<SlotReelResultDto> ReelResults,
-    bool IsJackpot
+    bool IsJackpot,
+    int MatchCount = 0,
+    IReadOnlyList<bool>? MatchedReels = null,
+    string? Overview = null
 );

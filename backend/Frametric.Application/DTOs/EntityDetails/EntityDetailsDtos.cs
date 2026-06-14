@@ -37,13 +37,13 @@ public record ActorDetailsDto(
     IEnumerable<MovieSimpleDto> Movies,
     string? ProfilePath = null,
     bool IsDirector = false,
-    IEnumerable<MovieSimpleDto>? DirectedMovies = null,
+    List<MovieSimpleDto>? DirectedMovies = null,
     int WatchlistCount = 0,
     int LikeCount = 0,
     [property: JsonPropertyName("likedMovieTitles")]
-    IEnumerable<MovieSimpleDto>? LikedMovies = null,
+    List<MovieSimpleDto>? LikedMovies = null,
     [property: JsonPropertyName("watchlistMovieTitles")]
-    IEnumerable<MovieSimpleDto>? WatchlistMovies = null
+    List<MovieSimpleDto>? WatchlistMovies = null
 )
 {
     public ActorDetailsDto(Guid id, string name, double averageRating, int watchCount, IEnumerable<MovieSimpleDto> movies) 
@@ -61,13 +61,13 @@ public record DirectorDetailsDto(
     IEnumerable<MovieSimpleDto> Movies,
     string? ProfilePath = null,
     bool IsActor = false,
-    IEnumerable<MovieSimpleDto>? ActorMovies = null,
+    List<MovieSimpleDto>? ActorMovies = null,
     int WatchlistCount = 0,
     int LikeCount = 0,
     [property: JsonPropertyName("likedMovieTitles")]
-    IEnumerable<MovieSimpleDto>? LikedMovies = null,
+    List<MovieSimpleDto>? LikedMovies = null,
     [property: JsonPropertyName("watchlistMovieTitles")]
-    IEnumerable<MovieSimpleDto>? WatchlistMovies = null
+    List<MovieSimpleDto>? WatchlistMovies = null
 )
 {
     public DirectorDetailsDto(Guid id, string name, double averageRating, int watchCount, IEnumerable<MovieSimpleDto> movies) 

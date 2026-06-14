@@ -19,5 +19,6 @@ public record MysteryBoxGenerationQuery(
     MysteryBoxVariant Variant,
     int BoxCount = 5,
     IEnumerable<Guid>? CustomSourceIds = null,
-    IEnumerable<string>? CustomSourceTitles = null
+    IEnumerable<string>? CustomSourceTitles = null,
+    bool ExcludeWatched = true
 ) : IRequest<MysteryBoxDto>;

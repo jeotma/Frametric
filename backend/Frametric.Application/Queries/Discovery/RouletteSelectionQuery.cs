@@ -16,7 +16,8 @@ namespace Frametric.Application.Queries.Discovery;
 public record RouletteSelectionQuery(
     Guid UserId,
     DiscoveryDataSourceScope Scope,
-    int? PersistenceThreshold = null,
+    int WinningThreshold = 1,
     IEnumerable<Guid>? CustomSourceIds = null,
-    IEnumerable<string>? CustomSourceTitles = null
-) : IRequest<SelectionResultDto>;
+    IEnumerable<string>? CustomSourceTitles = null,
+    bool ExcludeWatched = true
+) : IRequest<RouletteRaceResultDto>;

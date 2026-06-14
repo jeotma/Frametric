@@ -39,14 +39,15 @@ public class DiscoveryController : ControllerBase
     }
 
     [HttpPost("roulette")]
-    public async Task<ActionResult<SelectionResultDto>> Roulette([FromBody] RouletteRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<RouletteRaceResultDto>> Roulette([FromBody] RouletteRequest request, CancellationToken cancellationToken)
     {
         var query = new RouletteSelectionQuery(
             GetUserIdOrThrow(),
             request.Scope,
-            request.PersistenceThreshold,
+            request.WinningThreshold,
             request.CustomSourceIds,
-            request.CustomSourceTitles);
+            request.CustomSourceTitles,
+            request.ExcludeWatched);
 
         try
         {
@@ -68,7 +69,8 @@ public class DiscoveryController : ControllerBase
             request.Variant,
             request.BoxCount,
             request.CustomSourceIds,
-            request.CustomSourceTitles);
+            request.CustomSourceTitles,
+            request.ExcludeWatched);
 
         try
         {
@@ -89,7 +91,9 @@ public class DiscoveryController : ControllerBase
             request.Scope,
             request.DiceTypes,
             request.CustomSourceIds,
-            request.CustomSourceTitles);
+            request.CustomSourceTitles,
+            request.ExcludeWatched,
+            request.Presets);
 
         try
         {
@@ -110,11 +114,12 @@ public class DiscoveryController : ControllerBase
             request.Scope,
             request.Genre,
             request.Decade,
-            request.Director,
-            request.Duration,
+            request.Popularity,
+            request.Rating,
             request.Country,
             request.CustomSourceIds,
-            request.CustomSourceTitles);
+            request.CustomSourceTitles,
+            request.ExcludeWatched);
 
         try
         {
@@ -143,10 +148,17 @@ public class DiscoveryController : ControllerBase
         }
     }
 
-    [HttpGet("bingo")]
-    public async Task<ActionResult<BingoGridDto>> Bingo([FromQuery] BingoRequest request, CancellationToken cancellationToken)
+    [HttpPost("bingo")]
+    public async Task<ActionResult<BingoGridDto>> Bingo([FromBody] BingoRequest request, CancellationToken cancellationToken)
     {
-        var query = new GetBingoGridQuery(GetUserIdOrThrow(), request.GridSize);
+        var query = new GetBingoGridQuery(
+            GetUserIdOrThrow(), 
+            request.GridSize, 
+            request.Scope, 
+            request.CustomSourceIds, 
+            request.CustomSourceTitles, 
+            request.ExcludeWatched,
+            request.DurationDays);
         var result = await _mediator.Send(query, cancellationToken);
         return Ok(result);
     }

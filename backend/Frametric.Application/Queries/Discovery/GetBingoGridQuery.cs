@@ -13,5 +13,10 @@ namespace Frametric.Application.Queries.Discovery;
 
 public record GetBingoGridQuery(
     Guid UserId,
-    int GridSize = 3
+    int GridSize = 3,
+    Frametric.Domain.Enums.DiscoveryDataSourceScope Scope = Frametric.Domain.Enums.DiscoveryDataSourceScope.DatabaseOnly,
+    System.Collections.Generic.IEnumerable<System.Guid>? CustomSourceIds = null,
+    System.Collections.Generic.IEnumerable<string>? CustomSourceTitles = null,
+    bool ExcludeWatched = true,
+    int? DurationDays = null
 ) : IRequest<BingoGridDto>;

@@ -27,11 +27,11 @@ public class DiceRollQueryHandler : IRequestHandler<DiceRollQuery, DiceRollResul
 
     private static readonly IReadOnlyDictionary<DiceType, int> MaxValues = new Dictionary<DiceType, int>
     {
-        [DiceType.Quality] = 8,
-        [DiceType.Rarity] = 6,
-        [DiceType.Risk] = 6,
-        [DiceType.Complexity] = 8,
-        [DiceType.Exploration] = 6,
+        [DiceType.Quality] = 3,      // D3
+        [DiceType.Rarity] = 4,       // D4
+        [DiceType.Risk] = 6,         // D6
+        [DiceType.Complexity] = 12,  // D12
+        [DiceType.Exploration] = 20, // D20
     };
 
     public DiceRollQueryHandler(IDiscoveryQueries discoveryQueries, ILogger<DiceRollQueryHandler> logger)
@@ -46,11 +46,18 @@ public class DiceRollQueryHandler : IRequestHandler<DiceRollQuery, DiceRollResul
 
         var diceToRoll = request.DiceTypes ?? new List<DiceType> { DiceType.Quality, DiceType.Rarity, DiceType.Risk, DiceType.Complexity, DiceType.Exploration };
 
-        var rollResults = diceToRoll.Select(RollDie).ToList();
+        var rollResults = diceToRoll.Select(dt => {
+            int? preset = null;
+            if (request.Presets != null && request.Presets.TryGetValue(dt, out var val))
+            {
+                preset = val;
+            }
+            return RollDie(dt, preset);
+        }).ToList();
         var constraints = BuildConstraints(rollResults);
 
         var customSourceIds = await ResolveCustomSourceIds(request, cancellationToken);
-        var pool = (await _discoveryQueries.GetDiscoveryPoolAsync(request.UserId, request.Scope, customSourceIds, cancellationToken)).ToList();
+        var pool = (await _discoveryQueries.GetDiscoveryPoolAsync(request.UserId, request.Scope, customSourceIds, request.ExcludeWatched, cancellationToken)).ToList();
 
         if (!pool.Any())
         {
@@ -70,7 +77,8 @@ public class DiceRollQueryHandler : IRequestHandler<DiceRollQuery, DiceRollResul
             selected.RuntimeMinutes,
             filteredPool.Any() ? $"Dice-selected from {filteredPool.Count} matching movies." : "Fell back to full pool — no exact dice match found.",
             rollResults,
-            specialEvent);
+            specialEvent,
+            selected.Overview);
     }
 
     private async Task<IEnumerable<Guid>?> ResolveCustomSourceIds(DiceRollQuery request, CancellationToken cancellationToken)
@@ -91,18 +99,17 @@ public class DiceRollQueryHandler : IRequestHandler<DiceRollQuery, DiceRollResul
         return (ids != null && ids.Any()) ? ids : (await _discoveryQueries.ResolveMovieIdsByTitlesAsync(titles!, cancellationToken)).ToArray();
     }
 
-    private static SingleDieResultDto RollDie(DiceType diceType)
+    private static SingleDieResultDto RollDie(DiceType diceType, int? presetRoll = null)
     {
         var max = MaxValues[diceType];
-        var roll = Random.Shared.Next(1, max + 1);
+        var roll = presetRoll ?? Random.Shared.Next(1, max + 1);
 
         var (label, description) = diceType switch
         {
             DiceType.Quality => roll switch
             {
-                <= 2 => ("Low", "An entertaining but not particularly notable film."),
-                <= 4 => ("Medium", "A solid, well-crafted film."),
-                <= 6 => ("High", "A very good film with strong craftsmanship."),
+                1 => ("Low", "An entertaining but not particularly notable film."),
+                2 => ("Medium", "A solid, well-crafted film."),
                 _ => ("Critical", "A potential masterpiece of cinema.")
             },
             DiceType.Rarity => roll switch
@@ -110,8 +117,7 @@ public class DiceRollQueryHandler : IRequestHandler<DiceRollQuery, DiceRollResul
                 1 => ("Popular", "A widely-known mainstream film."),
                 2 => ("Known", "A film most cinephiles recognize."),
                 3 => ("Lesser-known", "A film that flew under most radars."),
-                4 => ("Hidden gem", "A true hidden gem awaiting discovery."),
-                _ => ("Extreme discovery", "An obscurity even dedicated cinephiles may have missed.")
+                _ => ("Hidden gem", "A true hidden gem awaiting discovery.")
             },
             DiceType.Risk => roll switch
             {
@@ -123,18 +129,18 @@ public class DiceRollQueryHandler : IRequestHandler<DiceRollQuery, DiceRollResul
             },
             DiceType.Complexity => roll switch
             {
-                <= 2 => ("Easy", "A light, accessible watch — no preparation needed."),
-                <= 4 => ("Conventional", "Standard narrative structure, easy to follow."),
-                <= 6 => ("Deep", "Requires attention and some cinematic literacy."),
-                7 => ("Complex", "Dense narrative, challenging themes, rewarding."),
+                <= 3 => ("Easy", "A light, accessible watch — no preparation needed."),
+                <= 6 => ("Conventional", "Standard narrative structure, easy to follow."),
+                <= 9 => ("Deep", "Requires attention and some cinematic literacy."),
+                <= 11 => ("Complex", "Dense narrative, challenging themes, rewarding."),
                 _ => ("Challenging", "An endurance test for the dedicated viewer.")
             },
             DiceType.Exploration => roll switch
             {
-                1 => ("Habitual", "Familiar cinematic territory."),
-                2 => ("International", "A window into another culture."),
-                3 => ("Uncommon", "From a lesser-seen film industry."),
-                4 => ("Global cinema", "Geographically and culturally distant."),
+                <= 4 => ("Habitual", "Familiar cinematic territory."),
+                <= 8 => ("International", "A window into another culture."),
+                <= 12 => ("Uncommon", "From a lesser-seen film industry."),
+                <= 16 => ("Global cinema", "Geographically and culturally distant."),
                 _ => ("Extreme discovery", "From a rarely-explored cinematic tradition.")
             },
             _ => ("Unknown", "An indeterminate roll.")
@@ -154,28 +160,26 @@ public class DiceRollQueryHandler : IRequestHandler<DiceRollQuery, DiceRollResul
             switch (roll.DiceType)
             {
                 case DiceType.Quality:
-                    if (roll.RollValue <= 2) { minRating = null; maxRating = 6.0; }
-                    else if (roll.RollValue <= 4) { minRating = 6.0; maxRating = 7.5; }
-                    else if (roll.RollValue <= 6) { minRating = 7.5; maxRating = 8.5; }
-                    else { minRating = 8.5; maxRating = null; }
+                    if (roll.RollValue == 1) { minRating = null; maxRating = 6.0; }
+                    else if (roll.RollValue == 2) { minRating = 6.0; maxRating = 7.8; }
+                    else { minRating = 7.8; maxRating = null; }
                     break;
 
                 case DiceType.Rarity:
                     switch (roll.RollValue)
                     {
                         case 1: minPopularity = 80.0; maxPopularity = null; break;
-                        case 2: minPopularity = 60.0; maxPopularity = 80.0; break;
-                        case 3: minPopularity = 40.0; maxPopularity = 60.0; break;
-                        case 4: minPopularity = 20.0; maxPopularity = 40.0; break;
-                        default: minPopularity = null; maxPopularity = 20.0; break;
+                        case 2: minPopularity = 50.0; maxPopularity = 80.0; break;
+                        case 3: minPopularity = 20.0; maxPopularity = 50.0; break;
+                        case 4: minPopularity = null; maxPopularity = 20.0; break;
                     }
                     break;
 
                 case DiceType.Complexity:
-                    if (roll.RollValue <= 2) { minRuntime = null; maxRuntime = 90; }
-                    else if (roll.RollValue <= 4) { minRuntime = 90; maxRuntime = 120; }
-                    else if (roll.RollValue <= 6) { minRuntime = 120; maxRuntime = 150; }
-                    else if (roll.RollValue == 7) { minRuntime = 150; maxRuntime = 180; }
+                    if (roll.RollValue <= 3) { minRuntime = null; maxRuntime = 90; }
+                    else if (roll.RollValue <= 6) { minRuntime = 90; maxRuntime = 120; }
+                    else if (roll.RollValue <= 9) { minRuntime = 120; maxRuntime = 150; }
+                    else if (roll.RollValue <= 11) { minRuntime = 150; maxRuntime = 180; }
                     else { minRuntime = 180; maxRuntime = null; }
                     break;
             }
@@ -205,12 +209,12 @@ public class DiceRollQueryHandler : IRequestHandler<DiceRollQuery, DiceRollResul
         var qualityRoll = rolls.FirstOrDefault(r => r.DiceType == DiceType.Quality);
         var riskRoll = rolls.FirstOrDefault(r => r.DiceType == DiceType.Risk);
 
-        if (qualityRoll?.RollValue >= 7)
+        if (qualityRoll?.RollValue >= 3)
         {
             return "Critical Success — a potential masterpiece has been identified.";
         }
 
-        if (qualityRoll?.RollValue <= 2 && riskRoll?.RollValue >= 5)
+        if (qualityRoll?.RollValue <= 1 && riskRoll?.RollValue >= 5)
         {
             return "Chaos Mode — critical fumble! Brace for the unexpected.";
         }

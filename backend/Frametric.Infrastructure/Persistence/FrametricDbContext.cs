@@ -25,6 +25,8 @@ public class FrametricDbContext : DbContext, IApplicationDbContext
     public DbSet<TvShow> TvShows => Set<TvShow>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<ImportHistory> ImportHistories => Set<ImportHistory>();
+    public DbSet<CustomList> CustomLists => Set<CustomList>();
+    public DbSet<CustomListItem> CustomListItems => Set<CustomListItem>();
     public DbSet<DiscoveryObjective> DiscoveryObjectives => Set<DiscoveryObjective>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

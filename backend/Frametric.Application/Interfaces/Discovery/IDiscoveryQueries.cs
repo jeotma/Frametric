@@ -17,5 +17,5 @@ namespace Frametric.Application.Interfaces.Discovery;
 public interface IDiscoveryQueries
 {
     Task<IEnumerable<Guid>> ResolveMovieIdsByTitlesAsync(IEnumerable<string> titles, CancellationToken ct = default);
-    Task<IEnumerable<DiscoveryMoviePoolItemDto>> GetDiscoveryPoolAsync(Guid userId, DiscoveryDataSourceScope scope, IEnumerable<Guid>? customSourceIds, CancellationToken ct = default);
+    Task<IEnumerable<DiscoveryMoviePoolItemDto>> GetDiscoveryPoolAsync(Guid userId, DiscoveryDataSourceScope scope, IEnumerable<Guid>? customSourceIds, bool excludeWatched = true, CancellationToken ct = default);
 }

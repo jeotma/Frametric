@@ -25,29 +25,95 @@ public static class DiscoveryObjectiveEvaluator
 
         expression = expression.Trim();
 
-        return expression switch
+        string op = "";
+        if (expression.Contains("==")) op = "==";
+        else if (expression.Contains("!=")) op = "!=";
+        else if (expression.Contains(">=")) op = ">=";
+        else if (expression.Contains("<=")) op = "<=";
+        else if (expression.Contains(">")) op = ">";
+        else if (expression.Contains("<")) op = "<";
+
+        if (string.IsNullOrEmpty(op)) return false;
+
+        var parts = expression.Split(new[] { op }, StringSplitOptions.None);
+        if (parts.Length != 2) return false;
+
+        string property = parts[0].Trim();
+        string valueStr = parts[1].Trim().Trim('\'');
+
+        switch (property)
         {
-            "RuntimeMinutes < 90" => movie.RuntimeMinutes.HasValue && movie.RuntimeMinutes.Value < 90,
-            "RuntimeMinutes > 120" => movie.RuntimeMinutes.HasValue && movie.RuntimeMinutes.Value > 120,
-            "Genre == 'Horror'" => HasGenre(movie, "Horror"),
-            "Genre == 'Animation'" => HasGenre(movie, "Animation"),
-            "Genre == 'Science Fiction'" => HasGenre(movie, "Science Fiction"),
-            "Genre == 'Comedy'" => HasGenre(movie, "Comedy"),
-            "Genre == 'Drama'" => HasGenre(movie, "Drama"),
-            "Genre == 'Action'" => HasGenre(movie, "Action"),
-            "Genre == 'Romance'" => HasGenre(movie, "Romance"),
-            "Genre == 'Thriller'" => HasGenre(movie, "Thriller"),
-            "Genre == 'Fantasy'" => HasGenre(movie, "Fantasy"),
-            "IsDocumentary == true" => movie.IsDocumentary,
-            "Language != 'English'" => !string.IsNullOrWhiteSpace(movie.Language) && !movie.Language.Equals("English", StringComparison.OrdinalIgnoreCase),
-            "Country != 'USA'" => !string.IsNullOrWhiteSpace(movie.Country) && !movie.Country.Equals("USA", StringComparison.OrdinalIgnoreCase),
-            "Country == 'Japan'" => movie.Country?.Equals("Japan", StringComparison.OrdinalIgnoreCase) ?? false,
-            "Country == 'France'" => movie.Country?.Equals("France", StringComparison.OrdinalIgnoreCase) ?? false,
-            "ReleaseYear < 1980" => movie.ReleaseYear.HasValue && movie.ReleaseYear.Value < 1980,
-            "TmdbRating >= 8.0" => movie.TmdbRating.HasValue && movie.TmdbRating.Value >= 8.0,
-            "TmdbRating >= 7.5" => movie.TmdbRating.HasValue && movie.TmdbRating.Value >= 7.5,
-            _ => false,
-        };
+            case "RuntimeMinutes":
+                if (!movie.RuntimeMinutes.HasValue || !int.TryParse(valueStr, out var runtimeVal)) return false;
+                return op switch {
+                    "==" => movie.RuntimeMinutes.Value == runtimeVal,
+                    "!=" => movie.RuntimeMinutes.Value != runtimeVal,
+                    "<" => movie.RuntimeMinutes.Value < runtimeVal,
+                    ">" => movie.RuntimeMinutes.Value > runtimeVal,
+                    ">=" => movie.RuntimeMinutes.Value >= runtimeVal,
+                    "<=" => movie.RuntimeMinutes.Value <= runtimeVal,
+                    _ => false
+                };
+
+            case "ReleaseYear":
+                if (!movie.ReleaseYear.HasValue || !int.TryParse(valueStr, out var yearVal)) return false;
+                return op switch {
+                    "==" => movie.ReleaseYear.Value == yearVal,
+                    "!=" => movie.ReleaseYear.Value != yearVal,
+                    "<" => movie.ReleaseYear.Value < yearVal,
+                    ">" => movie.ReleaseYear.Value > yearVal,
+                    ">=" => movie.ReleaseYear.Value >= yearVal,
+                    "<=" => movie.ReleaseYear.Value <= yearVal,
+                    _ => false
+                };
+
+            case "TmdbRating":
+                if (!movie.TmdbRating.HasValue || !double.TryParse(valueStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var ratingVal)) return false;
+                return op switch {
+                    "==" => movie.TmdbRating.Value == ratingVal,
+                    "!=" => movie.TmdbRating.Value != ratingVal,
+                    "<" => movie.TmdbRating.Value < ratingVal,
+                    ">" => movie.TmdbRating.Value > ratingVal,
+                    ">=" => movie.TmdbRating.Value >= ratingVal,
+                    "<=" => movie.TmdbRating.Value <= ratingVal,
+                    _ => false
+                };
+
+            case "Genre":
+                bool hasGen = HasGenre(movie, valueStr);
+                return op switch {
+                    "==" => hasGen,
+                    "!=" => !hasGen,
+                    _ => false
+                };
+
+            case "IsDocumentary":
+                if (!bool.TryParse(valueStr, out var docVal)) return false;
+                return op switch {
+                    "==" => movie.IsDocumentary == docVal,
+                    "!=" => movie.IsDocumentary != docVal,
+                    _ => false
+                };
+
+            case "Language":
+                bool langMatch = !string.IsNullOrWhiteSpace(movie.Language) && movie.Language.Contains(valueStr, StringComparison.OrdinalIgnoreCase);
+                return op switch {
+                    "==" => langMatch,
+                    "!=" => !langMatch,
+                    _ => false
+                };
+
+            case "Country":
+                bool countryMatch = !string.IsNullOrWhiteSpace(movie.Country) && movie.Country.Equals(valueStr, StringComparison.OrdinalIgnoreCase);
+                return op switch {
+                    "==" => countryMatch,
+                    "!=" => !countryMatch,
+                    _ => false
+                };
+
+            default:
+                return false;
+        }
     }
 
     private static bool HasGenre(Movie movie, string genre)

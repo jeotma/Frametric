@@ -16,5 +16,6 @@ public record MysteryBoxRequest(
     MysteryBoxVariant Variant,
     int BoxCount = 5,
     IEnumerable<Guid>? CustomSourceIds = null,
-    IEnumerable<string>? CustomSourceTitles = null
+    IEnumerable<string>? CustomSourceTitles = null,
+    bool ExcludeWatched = true
 );

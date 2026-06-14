@@ -19,5 +19,7 @@ public record DiceRollQuery(
     DiscoveryDataSourceScope Scope,
     IReadOnlyList<DiceType>? DiceTypes = null,
     IEnumerable<Guid>? CustomSourceIds = null,
-    IEnumerable<string>? CustomSourceTitles = null
+    IEnumerable<string>? CustomSourceTitles = null,
+    bool ExcludeWatched = true,
+    IReadOnlyDictionary<DiceType, int>? Presets = null
 ) : IRequest<DiceRollResultDto>;

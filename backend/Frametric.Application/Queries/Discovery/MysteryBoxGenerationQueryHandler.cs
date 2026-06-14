@@ -51,7 +51,7 @@ public class MysteryBoxGenerationQueryHandler : IRequestHandler<MysteryBoxGenera
             }
         }
 
-        var pool = (await _discoveryQueries.GetDiscoveryPoolAsync(request.UserId, request.Scope, customSourceIds, cancellationToken)).ToList();
+        var pool = (await _discoveryQueries.GetDiscoveryPoolAsync(request.UserId, request.Scope, customSourceIds, request.ExcludeWatched, cancellationToken)).ToList();
         if (!pool.Any())
         {
             throw new InvalidOperationException("No mystery box candidates are available for the selected discovery pool.");

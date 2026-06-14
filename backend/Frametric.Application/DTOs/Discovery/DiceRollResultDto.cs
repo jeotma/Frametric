@@ -27,5 +27,6 @@ public record DiceRollResultDto(
     int? RuntimeMinutes,
     string SelectionMechanismMetadata,
     IReadOnlyList<SingleDieResultDto> DiceResults,
-    string? SpecialEvent = null
+    string? SpecialEvent = null,
+    string? Overview = null
 );

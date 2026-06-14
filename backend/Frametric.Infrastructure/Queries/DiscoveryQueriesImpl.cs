@@ -53,7 +53,7 @@ public class DiscoveryQueriesImpl : IDiscoveryQueries
         return (await connection.QueryAsync<Guid>(sql, new { titles = normalizedTitles })).ToArray();
     }
 
-    public async Task<IEnumerable<DiscoveryMoviePoolItemDto>> GetDiscoveryPoolAsync(Guid userId, DiscoveryDataSourceScope scope, IEnumerable<Guid>? customSourceIds, CancellationToken ct = default)
+    public async Task<IEnumerable<DiscoveryMoviePoolItemDto>> GetDiscoveryPoolAsync(Guid userId, DiscoveryDataSourceScope scope, IEnumerable<Guid>? customSourceIds, bool excludeWatched = true, CancellationToken ct = default)
     {
         if (scope == DiscoveryDataSourceScope.CustomCollection)
         {
@@ -64,11 +64,15 @@ public class DiscoveryQueriesImpl : IDiscoveryQueries
         }
 
         using var connection = _dbConnectionFactory.CreateConnection();
-        var sql = BuildScopeSql(scope);
-        return await connection.QueryAsync<DiscoveryMoviePoolItemDto>(sql, new { userId, customSourceIds });
+        var sql = BuildScopeSql(scope, excludeWatched);
+        
+        var currentYear = DateTime.UtcNow.Year;
+        var currentDate = DateTime.UtcNow.Date;
+        
+        return await connection.QueryAsync<DiscoveryMoviePoolItemDto>(sql, new { userId, customSourceIds, currentYear, currentDate });
     }
 
-    private string BuildScopeSql(DiscoveryDataSourceScope scope)
+    private string BuildScopeSql(DiscoveryDataSourceScope scope, bool excludeWatched)
     {
         string sourceSql;
 
@@ -118,11 +122,18 @@ public class DiscoveryQueriesImpl : IDiscoveryQueries
                 SELECT *
                 FROM SourceSet
                 WHERE "EnrichmentStatus" = 'Completed'
-                  AND "Id" NOT IN (
-                    SELECT d."MovieId"
-                    FROM "DiaryEntries" d
-                    WHERE d."UserId" = @userId
-                )
+                  AND "ReleaseYear" > 0
+                  AND (
+                      "ReleaseYear" < @currentYear
+                      OR ("ReleaseYear" = @currentYear AND "ReleaseDate" IS NOT NULL AND "ReleaseDate" <= @currentDate)
+                  )
+                  {(excludeWatched ? @"AND ""Id"" NOT IN (
+                    SELECT w.""MovieId"" FROM ""WatchedMovies"" w WHERE w.""UserId"" = @userId
+                    UNION
+                    SELECT de.""MovieId"" FROM ""DiaryEntries"" de WHERE de.""UserId"" = @userId
+                    UNION
+                    SELECT mr.""MovieId"" FROM ""MovieRatings"" mr WHERE mr.""UserId"" = @userId
+                )" : "")}
             )
             SELECT vdp."Id" AS MovieId,
                    vdp."Title" AS Title,

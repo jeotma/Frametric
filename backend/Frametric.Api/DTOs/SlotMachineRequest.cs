@@ -15,9 +15,10 @@ public record SlotMachineRequest(
     DiscoveryDataSourceScope Scope,
     string? Genre = null,
     int? Decade = null,
-    string? Director = null,
-    string? Duration = null,
+    string? Popularity = null,
+    string? Rating = null,
     string? Country = null,
     IEnumerable<Guid>? CustomSourceIds = null,
-    IEnumerable<string>? CustomSourceTitles = null
+    IEnumerable<string>? CustomSourceTitles = null,
+    bool ExcludeWatched = true
 );

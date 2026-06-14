@@ -44,7 +44,8 @@ public class RevealMysteryBoxQueryHandler : IRequestHandler<RevealMysteryBoxQuer
                 m.ReleaseYear ?? 0,
                 "MysteryBoxReveal",
                 m.PosterUrl,
-                m.RuntimeMinutes))
+                m.RuntimeMinutes,
+                m.Overview))
             .SingleOrDefaultAsync(cancellationToken);
 
         if (movie == null)

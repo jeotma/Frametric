@@ -85,14 +85,19 @@ public class TmdbService : ITmdbService
 
         if (result == null) return null;
 
+        return await GetMovieDetailsByIdAsync(result.Id, cancellationToken);
+    }
+
+    public async Task<TmdbMovieResultDto?> GetMovieDetailsByIdAsync(int tmdbId, CancellationToken cancellationToken)
+    {
         var detailsTask = _httpClient.GetFromJsonAsync<TmdbMovieDetails>(
-            $"movie/{result.Id}?append_to_response=credits&language=en-US", cancellationToken);
+            $"movie/{tmdbId}?append_to_response=credits&language=en-US", cancellationToken);
 
         var keywordsTask = _httpClient.GetFromJsonAsync<TmdbKeywordsResponse>(
-            $"movie/{result.Id}/keywords", cancellationToken);
+            $"movie/{tmdbId}/keywords", cancellationToken);
 
         var providersTask = _httpClient.GetFromJsonAsync<TmdbWatchProvidersResponse>(
-            $"movie/{result.Id}/watch/providers", cancellationToken);
+            $"movie/{tmdbId}/watch/providers", cancellationToken);
 
         try
         {

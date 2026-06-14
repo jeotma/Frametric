@@ -3,6 +3,7 @@ using System;
 using Frametric.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Frametric.Infrastructure.Migrations
 {
     [DbContext(typeof(FrametricDbContext))]
-    partial class FrametricDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260614160613_AddBingoActivePeriod")]
+    partial class AddBingoActivePeriod
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

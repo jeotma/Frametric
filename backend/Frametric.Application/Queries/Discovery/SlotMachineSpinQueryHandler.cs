@@ -37,32 +37,62 @@ public class SlotMachineSpinQueryHandler : IRequestHandler<SlotMachineSpinQuery,
         _logger.LogInformation("Executing slot machine spin for user {UserId} with scope {Scope}", request.UserId, request.Scope);
 
         var customSourceIds = await ResolveCustomSourceIds(request, cancellationToken);
-        var pool = (await _discoveryQueries.GetDiscoveryPoolAsync(request.UserId, request.Scope, customSourceIds, cancellationToken)).ToList();
+        var pool = (await _discoveryQueries.GetDiscoveryPoolAsync(request.UserId, request.Scope, customSourceIds, request.ExcludeWatched, cancellationToken)).ToList();
 
         if (!pool.Any())
         {
             throw new InvalidOperationException("No movies are available for slot machine in the chosen discovery pool.");
         }
 
-        var genre = ResolveGenre(request.Genre, pool);
-        var decade = ResolveDecade(request.Decade, pool);
-        var director = ResolveDirector(request.Director, pool);
-        var (durationLabel, durationMin, durationMax) = ResolveDuration(request.Duration, pool);
-        var country = ResolveCountry(request.Country, pool);
+        var genre = ResolveGenre(request.Genre);
+        var decade = ResolveDecade(request.Decade);
+        var popularity = ResolvePopularity(request.Popularity);
+        var rating = ResolveRating(request.Rating);
+        var country = ResolveCountry(request.Country);
 
-        var filteredPool = FilterPool(pool, genre, decade, director, durationMin, durationMax, country);
-        var selected = filteredPool.Any() ? filteredPool[Random.Shared.Next(filteredPool.Count)] : pool[Random.Shared.Next(pool.Count)];
+        // Calculate match metrics for each movie in the pool
+        var results = pool.Select(movie =>
+        {
+            var movieGenres = (movie.Genres ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var meetsGenre = !string.IsNullOrWhiteSpace(request.Genre) || (!string.IsNullOrWhiteSpace(genre) && movieGenres.Contains(genre, StringComparer.OrdinalIgnoreCase));
 
-        var isJackpot = CheckJackpot(genre, decade, director, durationLabel, country, selected);
+            var movieDecade = movie.ReleaseYear.HasValue ? (movie.ReleaseYear.Value / 10) * 10 : 0;
+            var meetsDecade = request.Decade.HasValue || (decade.HasValue && movieDecade == decade.Value);
+
+            var pop = movie.TmdbPopularity ?? 0;
+            var popClass = pop >= 50 ? "BLOCKBUSTER" : pop >= 20 ? "MAINSTREAM" : pop >= 8 ? "NICHE / CULT" : "HIDDEN GEM";
+            var meetsPopularity = !string.IsNullOrWhiteSpace(request.Popularity) || (!string.IsNullOrWhiteSpace(popularity) && string.Equals(popClass, popularity, StringComparison.OrdinalIgnoreCase));
+
+            var rat = movie.CustomAverageRating ?? movie.TmdbRating ?? 0;
+            var ratClass = rat >= 8.0 ? "MASTERPIECE" : rat >= 7.0 ? "GREAT" : rat >= 6.0 ? "DECENT" : "UNDERDOG";
+            var meetsRating = !string.IsNullOrWhiteSpace(request.Rating) || (!string.IsNullOrWhiteSpace(rating) && string.Equals(ratClass, rating, StringComparison.OrdinalIgnoreCase));
+
+            var meetsCountry = !string.IsNullOrWhiteSpace(request.Country) || (!string.IsNullOrWhiteSpace(country) && string.Equals(movie.Country, country, StringComparison.OrdinalIgnoreCase));
+
+            var matchedList = new[] { meetsGenre, meetsDecade, meetsPopularity, meetsRating, meetsCountry };
+            var matchCount = matchedList.Count(m => m);
+
+            return new { Movie = movie, MatchedReels = matchedList, MatchCount = matchCount };
+        }).ToList();
+
+        // Complex fallback logic: find maximum possible matches (5 down to 0)
+        var maxMatches = results.Max(r => r.MatchCount);
+        var bestMatches = results.Where(r => r.MatchCount == maxMatches).ToList();
+        var selectedItem = bestMatches[Random.Shared.Next(bestMatches.Count)];
+        
+        var selected = selectedItem.Movie;
+        var isJackpot = maxMatches == 5 && (selected.TmdbRating ?? 0) >= 8.2;
 
         var reelResults = new List<SlotReelResultDto>
         {
             new("Genre", genre ?? "Any"),
             new("Decade", decade.HasValue ? $"{decade.Value}s" : "Any"),
-            new("Director", director ?? "Any"),
-            new("Duration", durationLabel ?? "Any"),
+            new("Popularity", popularity ?? "Any"),
+            new("Rating", rating ?? "Any"),
             new("Country", country ?? "Any"),
         };
+
+        var matchedReels = selectedItem.MatchedReels.ToList();
 
         return new SlotMachineResultDto(
             selected.MovieId,
@@ -71,11 +101,12 @@ public class SlotMachineSpinQueryHandler : IRequestHandler<SlotMachineSpinQuery,
             selected.ReleaseYear ?? 0,
             selected.PosterUrl,
             selected.RuntimeMinutes,
-            filteredPool.Any()
-                ? $"Slot machine matched {filteredPool.Count} film(s) with the spun combination."
-                : "Fell back to full pool — no exact combination match found.",
+            $"Slot machine matched {maxMatches}/5 reels for the selected film.",
             reelResults,
-            isJackpot);
+            isJackpot,
+            maxMatches,
+            matchedReels,
+            selected.Overview);
     }
 
     private async Task<IEnumerable<Guid>?> ResolveCustomSourceIds(SlotMachineSpinQuery request, CancellationToken cancellationToken)
@@ -96,163 +127,38 @@ public class SlotMachineSpinQueryHandler : IRequestHandler<SlotMachineSpinQuery,
         return (ids != null && ids.Any()) ? ids : (await _discoveryQueries.ResolveMovieIdsByTitlesAsync(titles!, cancellationToken)).ToArray();
     }
 
-    private static string? ResolveGenre(string? genre, IReadOnlyList<DiscoveryMoviePoolItemDto> pool)
+    private static string? ResolveGenre(string? genre)
     {
         if (!string.IsNullOrWhiteSpace(genre)) return genre;
-
-        var allGenres = pool
-            .SelectMany(m => (m.Genres ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-            .Where(g => !string.IsNullOrWhiteSpace(g))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        return allGenres.Any() ? allGenres[Random.Shared.Next(allGenres.Count)] : null;
+        var options = new[] { "ACTION", "COMEDY", "DRAMA", "HORROR", "THRILLER" };
+        return options[Random.Shared.Next(options.Length)];
     }
 
-    private static int? ResolveDecade(int? decade, IReadOnlyList<DiscoveryMoviePoolItemDto> pool)
+    private static int? ResolveDecade(int? decade)
     {
         if (decade.HasValue) return decade;
-
-        var allDecades = pool
-            .Select(m => m.ReleaseYear)
-            .Where(y => y.HasValue)
-            .Select(y => (y.Value / 10) * 10)
-            .Distinct()
-            .OrderBy(d => d)
-            .ToList();
-
-        return allDecades.Any() ? allDecades[Random.Shared.Next(allDecades.Count)] : null;
+        var options = new[] { 1980, 1990, 2000, 2010, 2020 };
+        return options[Random.Shared.Next(options.Length)];
     }
 
-    private static string? ResolveDirector(string? director, IReadOnlyList<DiscoveryMoviePoolItemDto> pool)
+    private static string? ResolvePopularity(string? popularity)
     {
-        if (!string.IsNullOrWhiteSpace(director)) return director;
-
-        var allDirectors = pool
-            .Select(m => m.DirectorName)
-            .Where(d => !string.IsNullOrWhiteSpace(d))
-            .SelectMany(d => d!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        return allDirectors.Any() ? allDirectors[Random.Shared.Next(allDirectors.Count)] : null;
+        if (!string.IsNullOrWhiteSpace(popularity)) return popularity;
+        var options = new[] { "BLOCKBUSTER", "MAINSTREAM", "NICHE / CULT", "HIDDEN GEM" };
+        return options[Random.Shared.Next(options.Length)];
     }
 
-    private static (string? Label, int? Min, int? Max) ResolveDuration(string? duration, IReadOnlyList<DiscoveryMoviePoolItemDto> pool)
+    private static string? ResolveRating(string? rating)
     {
-        if (!string.IsNullOrWhiteSpace(duration))
-        {
-            var (min, max) = duration switch
-            {
-                "< 60 min" => ((int?)null, (int?)60),
-                "60-90 min" => ((int?)60, (int?)90),
-                "90-120 min" => ((int?)90, (int?)120),
-                "120-150 min" => ((int?)120, (int?)150),
-                "> 150 min" => ((int?)150, (int?)null),
-                _ => ((int?)null, (int?)null)
-            };
-            return (duration, min, max);
-        }
-
-        var allRuntimes = pool
-            .Select(m => m.RuntimeMinutes)
-            .Where(r => r.HasValue)
-            .Select(r => r.Value)
-            .ToList();
-
-        if (!allRuntimes.Any()) return (null, null, null);
-
-        var labelIndex = Random.Shared.Next(DurationLabels.Count);
-        var chosenLabel = DurationLabels[labelIndex];
-
-        var (cmin, cmax) = labelIndex switch
-        {
-            0 => ((int?)null, (int?)60),
-            1 => ((int?)60, (int?)90),
-            2 => ((int?)90, (int?)120),
-            3 => ((int?)120, (int?)150),
-            4 => ((int?)150, (int?)null),
-            _ => ((int?)null, (int?)null)
-        };
-
-        return (chosenLabel, cmin, cmax);
+        if (!string.IsNullOrWhiteSpace(rating)) return rating;
+        var options = new[] { "MASTERPIECE", "GREAT", "DECENT", "UNDERDOG" };
+        return options[Random.Shared.Next(options.Length)];
     }
 
-    private static string? ResolveCountry(string? country, IReadOnlyList<DiscoveryMoviePoolItemDto> pool)
+    private static string? ResolveCountry(string? country)
     {
         if (!string.IsNullOrWhiteSpace(country)) return country;
-
-        var allCountries = pool
-            .Select(m => m.Country)
-            .Where(c => !string.IsNullOrWhiteSpace(c))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        return allCountries.Any() ? allCountries[Random.Shared.Next(allCountries.Count)] : null;
-    }
-
-    private static List<DiscoveryMoviePoolItemDto> FilterPool(
-        List<DiscoveryMoviePoolItemDto> pool,
-        string? genre, int? decade,
-        string? director,
-        int? durationMin, int? durationMax,
-        string? country)
-    {
-        return pool.Where(m =>
-        {
-            if (!string.IsNullOrWhiteSpace(genre))
-            {
-                var movieGenres = (m.Genres ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                if (!movieGenres.Contains(genre, StringComparer.OrdinalIgnoreCase))
-                    return false;
-            }
-
-            if (decade.HasValue && m.ReleaseYear.HasValue)
-            {
-                var movieDecade = (m.ReleaseYear.Value / 10) * 10;
-                if (movieDecade != decade.Value)
-                    return false;
-            }
-            else if (decade.HasValue)
-            {
-                return false;
-            }
-
-            if (!string.IsNullOrWhiteSpace(director))
-            {
-                var movieDirectors = (m.DirectorName ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                if (!movieDirectors.Contains(director, StringComparer.OrdinalIgnoreCase))
-                    return false;
-            }
-
-            if (durationMin.HasValue || durationMax.HasValue)
-            {
-                var runtime = m.RuntimeMinutes;
-                if (!runtime.HasValue) return false;
-                if (durationMin.HasValue && runtime.Value < durationMin.Value) return false;
-                if (durationMax.HasValue && runtime.Value >= durationMax.Value) return false;
-            }
-
-            if (!string.IsNullOrWhiteSpace(country))
-            {
-                if (!string.Equals(m.Country, country, StringComparison.OrdinalIgnoreCase))
-                    return false;
-            }
-
-            return true;
-        }).ToList();
-    }
-
-    private static bool CheckJackpot(string? genre, int? decade, string? director, string? duration, string? country, DiscoveryMoviePoolItemDto selected)
-    {
-        var allSpecified = !string.IsNullOrWhiteSpace(genre)
-            && decade.HasValue
-            && !string.IsNullOrWhiteSpace(director)
-            && !string.IsNullOrWhiteSpace(duration)
-            && !string.IsNullOrWhiteSpace(country);
-
-        if (!allSpecified) return false;
-
-        return (selected.TmdbRating ?? 0) >= 8.5 && (selected.TmdbPopularity ?? 0) > 50;
+        var options = new[] { "USA", "UK", "FRANCE", "JAPAN", "SOUTH KOREA" };
+        return options[Random.Shared.Next(options.Length)];
     }
 }

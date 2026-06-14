@@ -13,7 +13,8 @@ namespace Frametric.Api.DTOs;
 
 public record RouletteRequest(
     DiscoveryDataSourceScope Scope,
-    int? PersistenceThreshold = null,
+    int WinningThreshold = 1,
     IEnumerable<Guid>? CustomSourceIds = null,
-    IEnumerable<string>? CustomSourceTitles = null
+    IEnumerable<string>? CustomSourceTitles = null,
+    bool ExcludeWatched = true
 );

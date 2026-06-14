@@ -41,9 +41,12 @@ public class DiscoveryObjective
 
     public Guid? FulfillingDiaryEntryId { get; private set; }
 
+    public DateTime? StartDate { get; private set; }
+    public DateTime? EndDate { get; private set; }
+
     private DiscoveryObjective() { }
 
-    public DiscoveryObjective(Guid id, Guid userId, int gridSize, int row, int column, string requirementExpression, string description)
+    public DiscoveryObjective(Guid id, Guid userId, int gridSize, int row, int column, string requirementExpression, string description, DateTime? startDate = null, DateTime? endDate = null)
     {
         Id = id;
         UserId = userId;
@@ -53,6 +56,8 @@ public class DiscoveryObjective
         RequirementExpression = requirementExpression;
         Description = description;
         IsAchieved = false;
+        StartDate = startDate;
+        EndDate = endDate;
     }
 
     public void MarkAsAchieved(Guid fulfillingDiaryEntryId)
