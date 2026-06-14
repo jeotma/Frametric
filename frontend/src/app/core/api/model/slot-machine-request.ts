@@ -13,10 +13,11 @@ export interface SlotMachineRequest {
     scope: number;
     genre?: string | null;
     decade?: number | null;
-    director?: string | null;
-    duration?: string | null;
+    popularity?: string | null;
+    rating?: string | null;
     country?: string | null;
     customSourceIds?: Array<string> | null;
     customSourceTitles?: Array<string> | null;
+    excludeWatched?: boolean;
 }
 

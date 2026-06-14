@@ -4947,6 +4947,146 @@
         }
       }
     },
+    "/api/v1/custom-lists": {
+      "get": {
+        "tags": [
+          "CustomLists"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomListDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomListDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomListDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "CustomLists"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomListRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomListRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomListRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomListDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomListDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomListDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/custom-lists/{id}": {
+      "delete": {
+        "tags": [
+          "CustomLists"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/custom-lists/{id}/movies/{movieId}": {
+      "delete": {
+        "tags": [
+          "CustomLists"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "movieId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Directors/{id}": {
       "get": {
         "tags": [
@@ -5038,17 +5178,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/SelectionResultDto"
+                  "$ref": "#/components/schemas/RouletteRaceResultDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SelectionResultDto"
+                  "$ref": "#/components/schemas/RouletteRaceResultDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SelectionResultDto"
+                  "$ref": "#/components/schemas/RouletteRaceResultDto"
                 }
               }
             }
@@ -5244,20 +5384,30 @@
       }
     },
     "/api/v1/discovery/bingo": {
-      "get": {
+      "post": {
         "tags": [
           "Discovery"
         ],
-        "parameters": [
-          {
-            "name": "GridSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BingoRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BingoRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BingoRequest"
+              }
             }
-          }
-        ],
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -5504,6 +5654,75 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MovieDetailsDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Movies/enrich-from-tmdb": {
+      "post": {
+        "tags": [
+          "Movies"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrichMovieRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrichMovieRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrichMovieRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieSimpleDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieSimpleDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieSimpleDto"
                 }
               }
             }
@@ -5864,7 +6083,7 @@
           "directedMovies": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/#/properties/movies/items"
+              "$ref": "#/components/schemas/MovieSimpleDto"
             },
             "nullable": true
           },
@@ -5879,14 +6098,14 @@
           "likedMovieTitles": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/#/properties/movies/items"
+              "$ref": "#/components/schemas/MovieSimpleDto"
             },
             "nullable": true
           },
           "watchlistMovieTitles": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/#/properties/movies/items"
+              "$ref": "#/components/schemas/MovieSimpleDto"
             },
             "nullable": true
           }
@@ -5964,6 +6183,58 @@
             "items": {
               "$ref": "#/components/schemas/BingoSquareDto"
             }
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "default": null,
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "default": null,
+            "nullable": true
+          }
+        }
+      },
+      "BingoRequest": {
+        "type": "object",
+        "properties": {
+          "gridSize": {
+            "type": "integer",
+            "format": "int32",
+            "default": 3
+          },
+          "scope": {
+            "$ref": "#/components/schemas/DiscoveryDataSourceScope2"
+          },
+          "customSourceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "customSourceTitles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "excludeWatched": {
+            "type": "boolean",
+            "default": true
+          },
+          "durationDays": {
+            "type": "integer",
+            "format": "int32",
+            "default": null,
+            "nullable": true
           }
         }
       },
@@ -6000,6 +6271,23 @@
           "column": {
             "type": "integer",
             "format": "int32"
+          },
+          "movieId": {
+            "type": "string",
+            "format": "uuid",
+            "default": null,
+            "nullable": true
+          },
+          "movieTitle": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          },
+          "watchedDate": {
+            "type": "string",
+            "format": "date",
+            "default": null,
+            "nullable": true
           }
         }
       },
@@ -6075,6 +6363,43 @@
           "slumpMonthWatchCount": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "CreateCustomListRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "movieIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "CustomListDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "movies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieSimpleDto"
+            }
           }
         }
       },
@@ -6178,6 +6503,19 @@
             },
             "default": null,
             "nullable": true
+          },
+          "excludeWatched": {
+            "type": "boolean",
+            "default": true
+          },
+          "presets": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "default": null,
+            "nullable": true
           }
         }
       },
@@ -6227,6 +6565,11 @@
             }
           },
           "specialEvent": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          },
+          "overview": {
             "type": "string",
             "default": null,
             "nullable": true
@@ -6322,7 +6665,7 @@
           "actorMovies": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/#/properties/movies/items"
+              "$ref": "#/components/schemas/MovieSimpleDto"
             },
             "nullable": true
           },
@@ -6337,14 +6680,14 @@
           "likedMovieTitles": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/#/properties/movies/items"
+              "$ref": "#/components/schemas/MovieSimpleDto"
             },
             "nullable": true
           },
           "watchlistMovieTitles": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/#/properties/movies/items"
+              "$ref": "#/components/schemas/MovieSimpleDto"
             },
             "nullable": true
           }
@@ -6405,6 +6748,10 @@
       "DiscoveryDataSourceScope": {
         "type": "integer"
       },
+      "DiscoveryDataSourceScope2": {
+        "type": "integer",
+        "default": 1
+      },
       "DurationBalanceDto": {
         "required": [
           "durationCategory",
@@ -6416,6 +6763,15 @@
             "type": "string"
           },
           "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "EnrichMovieRequest": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
             "type": "integer",
             "format": "int32"
           }
@@ -7004,6 +7360,10 @@
             },
             "default": null,
             "nullable": true
+          },
+          "excludeWatched": {
+            "type": "boolean",
+            "default": true
           }
         }
       },
@@ -7259,6 +7619,24 @@
           }
         }
       },
+      "RouletteRaceResultDto": {
+        "required": [
+          "winner",
+          "spinSequence"
+        ],
+        "type": "object",
+        "properties": {
+          "winner": {
+            "$ref": "#/components/schemas/SelectionResultDto"
+          },
+          "spinSequence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectionResultDto"
+            }
+          }
+        }
+      },
       "RouletteRequest": {
         "required": [
           "scope"
@@ -7268,11 +7646,10 @@
           "scope": {
             "$ref": "#/components/schemas/DiscoveryDataSourceScope"
           },
-          "persistenceThreshold": {
+          "winningThreshold": {
             "type": "integer",
             "format": "int32",
-            "default": null,
-            "nullable": true
+            "default": 1
           },
           "customSourceIds": {
             "type": "array",
@@ -7290,6 +7667,10 @@
             },
             "default": null,
             "nullable": true
+          },
+          "excludeWatched": {
+            "type": "boolean",
+            "default": true
           }
         }
       },
@@ -7328,6 +7709,11 @@
           "runtimeMinutes": {
             "type": "integer",
             "format": "int32",
+            "default": null,
+            "nullable": true
+          },
+          "overview": {
+            "type": "string",
             "default": null,
             "nullable": true
           }
@@ -7377,12 +7763,12 @@
             "default": null,
             "nullable": true
           },
-          "director": {
+          "popularity": {
             "type": "string",
             "default": null,
             "nullable": true
           },
-          "duration": {
+          "rating": {
             "type": "string",
             "default": null,
             "nullable": true
@@ -7408,6 +7794,10 @@
             },
             "default": null,
             "nullable": true
+          },
+          "excludeWatched": {
+            "type": "boolean",
+            "default": true
           }
         }
       },
@@ -7459,6 +7849,24 @@
           },
           "isJackpot": {
             "type": "boolean"
+          },
+          "matchCount": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          },
+          "matchedReels": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "overview": {
+            "type": "string",
+            "default": null,
+            "nullable": true
           }
         }
       },
@@ -7798,6 +8206,9 @@
     },
     {
       "name": "Auth"
+    },
+    {
+      "name": "CustomLists"
     },
     {
       "name": "Directors"

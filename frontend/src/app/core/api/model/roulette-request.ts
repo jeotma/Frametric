@@ -11,8 +11,9 @@
 
 export interface RouletteRequest { 
     scope: number;
-    persistenceThreshold?: number | null;
+    winningThreshold?: number;
     customSourceIds?: Array<string> | null;
     customSourceTitles?: Array<string> | null;
+    excludeWatched?: boolean;
 }
 

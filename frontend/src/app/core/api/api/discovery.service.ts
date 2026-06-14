@@ -19,6 +19,8 @@ import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 // @ts-ignore
 import { BingoGridDto } from '../model/bingo-grid-dto';
 // @ts-ignore
+import { BingoRequest } from '../model/bingo-request';
+// @ts-ignore
 import { DiceRollRequest } from '../model/dice-roll-request';
 // @ts-ignore
 import { DiceRollResultDto } from '../model/dice-roll-result-dto';
@@ -26,6 +28,8 @@ import { DiceRollResultDto } from '../model/dice-roll-result-dto';
 import { MysteryBoxDto } from '../model/mystery-box-dto';
 // @ts-ignore
 import { MysteryBoxRequest } from '../model/mystery-box-request';
+// @ts-ignore
+import { RouletteRaceResultDto } from '../model/roulette-race-result-dto';
 // @ts-ignore
 import { RouletteRequest } from '../model/roulette-request';
 // @ts-ignore
@@ -52,27 +56,19 @@ export class DiscoveryService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/v1/discovery/bingo
-     * @param gridSize 
+     * @endpoint post /api/v1/discovery/bingo
+     * @param bingoRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiV1DiscoveryBingoGet(gridSize?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<BingoGridDto>;
-    public apiV1DiscoveryBingoGet(gridSize?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<BingoGridDto>>;
-    public apiV1DiscoveryBingoGet(gridSize?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<BingoGridDto>>;
-    public apiV1DiscoveryBingoGet(gridSize?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'GridSize',
-            <any>gridSize,
-            QueryParamStyle.Form,
-            true,
-        );
-
+    public apiV1DiscoveryBingoPost(bingoRequest: BingoRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<BingoGridDto>;
+    public apiV1DiscoveryBingoPost(bingoRequest: BingoRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<BingoGridDto>>;
+    public apiV1DiscoveryBingoPost(bingoRequest: BingoRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<BingoGridDto>>;
+    public apiV1DiscoveryBingoPost(bingoRequest: BingoRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (bingoRequest === null || bingoRequest === undefined) {
+            throw new Error('Required parameter bingoRequest was null or undefined when calling apiV1DiscoveryBingoPost.');
+        }
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -93,6 +89,17 @@ export class DiscoveryService extends BaseService {
         const localVarTransferCache: boolean = options?.transferCache ?? true;
 
 
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'text/json',
+            'application/*+json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
@@ -106,10 +113,10 @@ export class DiscoveryService extends BaseService {
 
         let localVarPath = `/api/v1/discovery/bingo`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<BingoGridDto>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<BingoGridDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
+                body: bingoRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -331,9 +338,9 @@ export class DiscoveryService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiV1DiscoveryRoulettePost(rouletteRequest: RouletteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<SelectionResultDto>;
-    public apiV1DiscoveryRoulettePost(rouletteRequest: RouletteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SelectionResultDto>>;
-    public apiV1DiscoveryRoulettePost(rouletteRequest: RouletteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SelectionResultDto>>;
+    public apiV1DiscoveryRoulettePost(rouletteRequest: RouletteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<RouletteRaceResultDto>;
+    public apiV1DiscoveryRoulettePost(rouletteRequest: RouletteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<RouletteRaceResultDto>>;
+    public apiV1DiscoveryRoulettePost(rouletteRequest: RouletteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<RouletteRaceResultDto>>;
     public apiV1DiscoveryRoulettePost(rouletteRequest: RouletteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (rouletteRequest === null || rouletteRequest === undefined) {
             throw new Error('Required parameter rouletteRequest was null or undefined when calling apiV1DiscoveryRoulettePost.');
@@ -382,7 +389,7 @@ export class DiscoveryService extends BaseService {
 
         let localVarPath = `/api/v1/discovery/roulette`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<SelectionResultDto>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<RouletteRaceResultDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: rouletteRequest,

@@ -20,5 +20,8 @@ export interface SlotMachineResultDto {
     selectionMechanismMetadata: string;
     reelResults: Array<SlotReelResultDto>;
     isJackpot: boolean;
+    matchCount?: number;
+    matchedReels?: Array<boolean> | null;
+    overview?: string | null;
 }
 

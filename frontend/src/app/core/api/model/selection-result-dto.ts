@@ -17,5 +17,6 @@ export interface SelectionResultDto {
     selectionMechanismMetadata: string;
     posterUrl?: string | null;
     runtimeMinutes?: number | null;
+    overview?: string | null;
 }
 

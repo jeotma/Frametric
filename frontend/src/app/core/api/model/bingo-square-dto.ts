@@ -16,5 +16,8 @@ export interface BingoSquareDto {
     completionDate: string | null;
     row: number;
     column: number;
+    movieId?: string | null;
+    movieTitle?: string | null;
+    watchedDate?: string | null;
 }
 

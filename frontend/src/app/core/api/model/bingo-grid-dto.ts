@@ -13,5 +13,7 @@ import { BingoSquareDto } from './bingo-square-dto';
 export interface BingoGridDto { 
     gridSize: number;
     squares: Array<BingoSquareDto>;
+    startDate?: string | null;
+    endDate?: string | null;
 }
 

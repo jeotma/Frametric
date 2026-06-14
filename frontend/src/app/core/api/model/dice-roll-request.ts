@@ -14,5 +14,7 @@ export interface DiceRollRequest {
     diceTypes?: Array<number> | null;
     customSourceIds?: Array<string> | null;
     customSourceTitles?: Array<string> | null;
+    excludeWatched?: boolean;
+    presets?: { [key: string]: number; } | null;
 }
 

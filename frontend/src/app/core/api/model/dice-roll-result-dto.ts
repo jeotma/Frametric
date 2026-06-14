@@ -20,5 +20,6 @@ export interface DiceRollResultDto {
     selectionMechanismMetadata: string;
     diceResults: Array<SingleDieResultDto>;
     specialEvent?: string | null;
+    overview?: string | null;
 }
 

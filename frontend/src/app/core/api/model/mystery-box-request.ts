@@ -15,5 +15,6 @@ export interface MysteryBoxRequest {
     boxCount?: number;
     customSourceIds?: Array<string> | null;
     customSourceTitles?: Array<string> | null;
+    excludeWatched?: boolean;
 }
 
