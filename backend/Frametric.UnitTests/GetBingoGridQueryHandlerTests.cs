@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Frametric.Application.Queries.Discovery;
+using Frametric.Domain.Discovery.Entities;
 using Frametric.Domain.Entities;
 using Frametric.Domain.ValueObjects;
 using Frametric.Infrastructure.Persistence;
@@ -104,9 +105,21 @@ public class GetBingoGridQueryHandlerTests : IDisposable
                 false,
                 null);
 
+            var objective = new DiscoveryObjective(
+                Guid.NewGuid(),
+                userId,
+                3, // GridSize
+                1, // Row
+                1, // Column
+                "Genre == 'Horror'",
+                "Watch a horror film",
+                null,
+                null);
+
             context.Users.Add(user);
             context.Movies.Add(movie);
             context.DiaryEntries.Add(diaryEntry);
+            context.DiscoveryObjectives.Add(objective);
             await context.SaveChangesAsync(CancellationToken.None);
         }
 

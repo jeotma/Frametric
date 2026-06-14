@@ -59,7 +59,7 @@ public class MysteryBoxGenerationQueryHandlerTests
     {
         var pool = CreatePool(20);
         _discoveryQueriesMock
-            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(pool);
 
         var handler = CreateHandler();
@@ -77,7 +77,7 @@ public class MysteryBoxGenerationQueryHandlerTests
     {
         var pool = CreatePool(30);
         _discoveryQueriesMock
-            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(pool);
 
         var handler = CreateHandler();
@@ -92,7 +92,7 @@ public class MysteryBoxGenerationQueryHandlerTests
     public async Task Handle_ShouldThrow_WhenPoolIsEmpty()
     {
         _discoveryQueriesMock
-            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<DiscoveryMoviePoolItemDto>());
 
         var handler = CreateHandler();
@@ -107,7 +107,7 @@ public class MysteryBoxGenerationQueryHandlerTests
         var pool = CreatePool(40, "Horror");
         pool.AddRange(CreatePool(10, "Comedy"));
         _discoveryQueriesMock
-            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(pool);
 
         var handler = CreateHandler();
@@ -123,7 +123,7 @@ public class MysteryBoxGenerationQueryHandlerTests
     {
         var pool = CreatePool(30);
         _discoveryQueriesMock
-            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(pool);
 
         var handler = CreateHandler();
@@ -139,7 +139,7 @@ public class MysteryBoxGenerationQueryHandlerTests
     {
         var pool = CreatePool(30);
         _discoveryQueriesMock
-            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(pool);
 
         var handler = CreateHandler();
@@ -155,7 +155,7 @@ public class MysteryBoxGenerationQueryHandlerTests
     {
         var pool = CreatePool(30);
         _discoveryQueriesMock
-            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(pool);
 
         var handler = CreateHandler();
