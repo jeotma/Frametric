@@ -1,0 +1,80 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace Frametric.Infrastructure.Migrations
+{
+    /// <inheritdoc />
+    public partial class AddCustomLists : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.CreateTable(
+                name: "CustomLists",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomLists", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CustomLists_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CustomListItems",
+                columns: table => new
+                {
+                    CustomListId = table.Column<Guid>(type: "uuid", nullable: false),
+                    MovieId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AddedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomListItems", x => new { x.CustomListId, x.MovieId });
+                    table.ForeignKey(
+                        name: "FK_CustomListItems_CustomLists_CustomListId",
+                        column: x => x.CustomListId,
+                        principalTable: "CustomLists",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CustomListItems_Movies_MovieId",
+                        column: x => x.MovieId,
+                        principalTable: "Movies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomListItems_MovieId",
+                table: "CustomListItems",
+                column: "MovieId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomLists_UserId",
+                table: "CustomLists",
+                column: "UserId");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "CustomListItems");
+
+            migrationBuilder.DropTable(
+                name: "CustomLists");
+        }
+    }
+}
