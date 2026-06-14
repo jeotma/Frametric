@@ -4,6 +4,30 @@ All notable changes to **Frametric** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] — 2026-06-13
+
+Discovery suite: visual and interaction overhaul with polyhedral dice and comprehensive filtering.
+
+### Added
+
+- **Polyhedral Dice System**: Redesigned the dice rollers to use unique polyhedral SVG silhouettes matching D3, D4, D6, D12, and D20 dice types.
+- **Unified Winner Details**: Standardized detailed winner cards across all minigames featuring brand-approved gradients and direct clickable router links to movie detail pages.
+
+### Changed
+
+- **Discovery Visual Overhaul**: Completely redesigned the Discovery page layout to be wider (increased max-width to 1450px) and more immersive, adding slowly pulsing ambient projector light leaks and glassmorphic configuration controls (HUD) with aligned dimensions.
+- **SVG-Based Roulette Wheel**: Replaced the flat CSS-gradient wheel with an interactive SVG movie-reel design featuring realistic sprocket holes, dynamic sector math, auto-scaling and truncated text, and pointer tick vibrations. Scaled container size to 550px, made sector colors more vibrant, and corrected the right pointer indicator to point inward.
+- **Roulette Spin Physics**: Increased spin speed/count (18-23 spins) and duration (7000ms) with a custom long-tail deceleration curve (`cubic-bezier(0.05, 0.9, 0.1, 1)`) for a smooth, gradual stop.
+- **Cylindrical 3D Slot Machine**: Overhauled the slot reels with a metallic cabinet, status lights, curved visor reflections, and continuous scrolling animations. Built an interactive 3D lever that pivots down when pulled.
+- **Mystery Canisters Grid**: Reconstructed the mystery boxes as retro metallic film canisters. Accentuating reveals with violent shaking animations, 3D flying popped lids, and blinding glow poster emergence transitions.
+- **Dice Logic Bounds**: Re-mapped the backend `DiceRollQueryHandler` boundaries, labels, and constraints to support the D3, D4, D6, D12, and D20 polyhedral layout.
+
+### Fixed
+
+- **Exclude Watched Filter**: Resolved an issue where watched films were still appearing by checking `WatchedMovies`, `DiaryEntries`, and `MovieRatings` tables in `DiscoveryQueriesImpl`.
+- **Slot Reel Stop Bug**: Fixed an Angular `ngOnChanges` state deadlock preventing reels from executing stops on response.
+- **Mystery Box State Persistence**: Fixed box-open states leaking between reloads by resetting internal flags on new box queries.
+
 ## [1.5.0] — 2026-06-07
 
 Discovery suite: gamified interactive selection systems.
@@ -132,11 +156,7 @@ TMDB profile photo enrichment for actors and directors.
 - **Migration `AddProfilePathToPeople`**: Adds the `ProfilePath` column to both `Actors` and `Directors` tables.
 - **TmdbService update**: Credits response now maps `profile_path` for cast and crew members.
 
----
-
 Integrated probability-based pop culture & cinephile easter eggs across the platform features.
-
-### Added
 
 - **Dynamic Easter Egg Service**: Introduced `EasterEggService` and `EasterEggPipe` in the frontend client to dynamically inject pop culture references, cinephile jokes, and meme badges based on statistics and movie criteria.
 - **Loading Screen Memes**: Added randomized pop-culture/cinephile loading phrases to auth flows and analytics loading states.

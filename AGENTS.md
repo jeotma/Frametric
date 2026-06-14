@@ -281,6 +281,7 @@ Documentation is a first-class citizen of the codebase. Keep it up-to-date and c
 
 AI agents must:
 
+- **PowerShell Command Separation**: When running multiple commands in sequence (like `npm run download:spec` and `npm run generate:api`), always separate them with a semicolon (`;`) instead of `&&`, as PowerShell does not support `&&` by default.
 - **Include License Headers**: Every newly created or highly relevant C# source file must prepend the following copyright and license header at the very top:
 
   ```csharp
