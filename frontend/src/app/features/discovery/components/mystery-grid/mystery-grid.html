@@ -1,0 +1,63 @@
+<div class="boxes-row" *ngIf="mysteryBox">
+  <div *ngFor="let boxId of mysteryBox.boxIds; let i = index"
+    class="mystery-box-wrapper"
+    [class.shaking]="selectedBoxId === boxId && isRevealing"
+    [class.opened]="(selectedBoxId === boxId && showRevealed) || (revealedOthers && revealedOthers[boxId])"
+    [class.faded]="selectedBoxId && selectedBoxId !== boxId && !(revealedOthers && revealedOthers[boxId])"
+    (click)="clickBox(boxId)"
+    role="button"
+    tabindex="0">
+    
+    <div class="box-3d" [style.--box-color]="getBoxColor(i)" [style.color]="getBoxColor(i)">
+      <!-- 3D Faces -->
+      <div class="face face-front" style="border-color: var(--box-color);">
+        <div class="case-corner top-left"></div>
+        <div class="case-corner top-right"></div>
+        <div class="case-corner bottom-left"></div>
+        <div class="case-corner bottom-right"></div>
+        <div class="face-design">
+          <div class="question-mark">?</div>
+        </div>
+      </div>
+      <div class="face face-back" style="border-color: var(--box-color);">
+        <div class="case-corner top-left"></div>
+        <div class="case-corner top-right"></div>
+        <div class="case-corner bottom-left"></div>
+        <div class="case-corner bottom-right"></div>
+      </div>
+      <div class="face face-left" style="border-color: var(--box-color);">
+        <div class="case-corner top-left"></div>
+        <div class="case-corner top-right"></div>
+        <div class="case-corner bottom-left"></div>
+        <div class="case-corner bottom-right"></div>
+      </div>
+      <div class="face face-right" style="border-color: var(--box-color);">
+        <div class="case-corner top-left"></div>
+        <div class="case-corner top-right"></div>
+        <div class="case-corner bottom-left"></div>
+        <div class="case-corner bottom-right"></div>
+      </div>
+      
+      <!-- Top Lid face (flies off when opened) -->
+      <div class="face face-top" style="border-color: var(--box-color);">
+        <div class="lid-handle" style="background-color: var(--box-color);"></div>
+      </div>
+      <div class="face face-bottom" style="border-color: var(--box-color);"></div>
+
+      <!-- Inside Content (Revealed Poster) -->
+      <div class="box-content-inside">
+        <ng-container *ngIf="getMovieForBox(boxId) as movie">
+          <img *ngIf="movie.posterUrl" [src]="movie.posterUrl" class="revealed-poster" />
+          <div class="revealed-title-badge" *ngIf="selectedBoxId !== boxId">
+            {{ movie.title }}
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Hint under the box -->
+    <div class="box-hint" *ngIf="mysteryBox.hints && !selectedBoxId">
+      {{ mysteryBox.hints[i].hint }}
+    </div>
+  </div>
+</div>

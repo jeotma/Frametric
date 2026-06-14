@@ -1,7 +1,7 @@
 <div class="discovery-container film-grain">
   <div class="discovery-header viewfinder-box">
     <h1>DISCOVERY</h1>
-    <p class="subtitle director-note">"Experimental reels — Unexpected insights, challenges and experimental ways to explore your film data."</p>
+    <p class="subtitle director-note">Unexpected insights, challenges and experimental ways to explore your film data</p>
   </div>
   <div class="clapper-separator"></div>
 
@@ -92,16 +92,70 @@
       </h2>
       <p>Complete objectives by watching films. Fill a line to earn bonuses!</p>
     </div>
-    <div class="bingo-controls hud-data">
-      <label><span class="hud-label">GRID_SIZE:</span>
+    <div class="dashboard-controls-row hud-data">
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">GRID_SIZE</span>
+          <app-cinematic-tooltip>Dimensions of the Bingo board.</app-cinematic-tooltip>
+        </div>
         <app-cinematic-select [options]="bingoGridOptions" [(ngModel)]="bingoGridSize" (ngModelChange)="bingoResultSig.set(null)" placeholder="Grid Size"></app-cinematic-select>
-      </label>
-      <button class="btn btn-primary crosshair-bracket" (click)="loadBingo()" [disabled]="bingoLoading()">
-        {{ bingoLoading() ? 'INITIATING...' : 'LOAD BOARD' }}
-      </button>
+      </div>
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">SCOPE</span>
+          <app-cinematic-tooltip [wide]="true">
+            Source pool of movies.<br><br>
+            <strong>Personal Watchlist:</strong> Movies you intend to watch.<br>
+            <strong>Global Database:</strong> The entire TMDB network.<br>
+            <strong>Custom Selection:</strong> Specific movies you pick.
+          </app-cinematic-tooltip>
+        </div>
+        <app-cinematic-select [options]="scopeOptions" [(ngModel)]="bingoScope" placeholder="Select scope"></app-cinematic-select>
+      </div>
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">EXCLUDE WATCHED</span>
+          <app-cinematic-tooltip>Exclude movies you have already logged/watched.</app-cinematic-tooltip>
+        </div>
+        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="bingoExcludeWatched"></app-cinematic-toggle></div>
+      </div>
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">ACTIVE DURATION</span>
+          <app-cinematic-tooltip>Time limit to complete the board. Creating a new board resets your progress.</app-cinematic-tooltip>
+        </div>
+        <app-cinematic-select [options]="bingoDurationOptions" [(ngModel)]="bingoDurationDays" placeholder="Unlimited"></app-cinematic-select>
+      </div>
+      <div class="action-buttons-group" style="display: flex; gap: 0.5rem; align-items: flex-end;">
+        <button class="btn btn-secondary crosshair-bracket action-btn" (click)="loadBingo(false)" [disabled]="bingoLoading()" style="height: 44px; display: flex; align-items: center; justify-content: center; padding: 0 1.5rem;">
+          {{ bingoLoading() ? 'LOADING...' : 'REFRESH' }}
+        </button>
+        <button class="btn btn-primary crosshair-bracket action-btn" (click)="loadBingo(true)" [disabled]="bingoLoading()" style="height: 44px; display: flex; align-items: center; justify-content: center; padding: 0 1.5rem;">
+          {{ bingoLoading() ? 'INITIATING...' : 'NEW BOARD' }}
+        </button>
+      </div>
+    </div>
+    <div class="custom-selection-row" *ngIf="bingoScope() === 2">
+      <app-custom-selection-input [(selectedChips)]="bingoChips"></app-custom-selection-input>
     </div>
 
     <div *ngIf="bingoLoading()" class="loading-state">Generating your bingo board...</div>
+
+    <div *ngIf="bingoResultSig() as bingo" class="bingo-info-banner hud-data" [class.expired]="bingoCountdownMessage() === 'EXPIRED'">
+      <div *ngIf="bingo.startDate || bingo.endDate; else unlimitedTemplate" class="active-period-details">
+        <span class="hud-label">ACTIVE PERIOD:</span>
+        <span class="hud-value">{{ bingo.startDate | date:'mediumDate' }} — {{ bingo.endDate | date:'mediumDate' }}</span>
+        <span class="countdown-badge" [class.badge-expired]="bingoCountdownMessage() === 'EXPIRED'">
+          {{ bingoCountdownMessage() }}
+        </span>
+      </div>
+      <ng-template #unlimitedTemplate>
+        <div class="active-period-details">
+          <span class="hud-label">ACTIVE PERIOD:</span>
+          <span class="hud-value">UNLIMITED</span>
+        </div>
+      </ng-template>
+    </div>
 
     <div *ngIf="bingoResultSig() as bingo" class="bingo-grid"
       [style.grid-template-columns]="'repeat(' + bingo.gridSize + ', 1fr)'">
@@ -118,6 +172,12 @@
           <span class="square-desc">{{ square.description }}</span>
         </div>
         <div class="square-coords">({{ square.row }},{{ square.column }})</div>
+
+        <!-- Hover Movie Details -->
+        <div class="bingo-square-tooltip" *ngIf="square.isCompleted && square.movieTitle">
+          <div class="tooltip-movie-title">{{ square.movieTitle }}</div>
+          <div class="tooltip-watched-date">Watched: {{ square.watchedDate }}</div>
+        </div>
       </div>
     </div>
   </div>
@@ -142,15 +202,34 @@
       </h2>
       <p>Pure random selection from the discovery pool.</p>
     </div>
-    <div class="controls-row hud-data">
-      <label><span class="hud-label">SCOPE:</span>
+    <div class="dashboard-controls-row hud-data">
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">SCOPE</span>
+          <app-cinematic-tooltip [wide]="true">
+            Source pool of movies.<br><br>
+            <strong>Personal Watchlist:</strong> Movies you intend to watch.<br>
+            <strong>Global Database:</strong> The entire TMDB network.<br>
+            <strong>Custom Selection:</strong> Specific movies you pick.
+          </app-cinematic-tooltip>
+        </div>
         <app-cinematic-select [options]="scopeOptions" [(ngModel)]="rouletteScope" placeholder="Select scope"></app-cinematic-select>
-      </label>
-      <label><span class="hud-label">THRESHOLD:</span>
-        <input type="number" min="0" max="10" [(ngModel)]="rouletteThreshold" class="glass-select" />
-        <span class="director-note">(0 = instant)</span>
-      </label>
-      <button class="btn btn-primary crosshair-bracket" (click)="spellRoulette()" [disabled]="rouletteLoading()">
+      </div>
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">THRESHOLD</span>
+          <app-cinematic-tooltip>How many times a movie must be rolled to be declared the winner.</app-cinematic-tooltip>
+        </div>
+        <input type="number" min="1" max="10" [(ngModel)]="rouletteThreshold" class="glass-select numeric-input" />
+      </div>
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">EXCLUDE WATCHED</span>
+          <app-cinematic-tooltip>Exclude movies you have already logged/watched.</app-cinematic-tooltip>
+        </div>
+        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="rouletteExcludeWatched"></app-cinematic-toggle></div>
+      </div>
+      <button class="btn btn-primary crosshair-bracket action-btn" (click)="spellRoulette()" [disabled]="rouletteLoading()">
         <ng-container *ngIf="!rouletteLoading()">
           <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <circle cx="12" cy="12" r="10" />
@@ -169,13 +248,57 @@
         <ng-container *ngIf="rouletteLoading()">Spinning...</ng-container>
       </button>
     </div>
+    <div class="custom-selection-row" *ngIf="rouletteScope() === 2">
+      <app-custom-selection-input [(selectedChips)]="rouletteChips"></app-custom-selection-input>
+    </div>
 
-    <div *ngIf="rouletteLoading()" class="loading-state">Spinning the wheel...</div>
+    <div class="roulette-layout">
+      <div class="anim-container" style="height: 600px; margin-bottom: 2rem; flex: 1.4; width: 100%;">
+        <app-roulette-wheel
+          [sequence]="rouletteSequenceSig()"
+          [winnerTitle]="rouletteWinnerTitleSig() || ''"
+          [isSpinning]="rouletteIsRacing()"
+          [isFinalSpin]="!rouletteIsRacing() || rouletteThreshold() <= 1 || rouletteRaceIndex === rouletteSequenceSig().length - 1"
+          (interact)="spellRoulette()"
+          (finished)="onRouletteFinished()">
+        </app-roulette-wheel>
+      </div>
 
-    <div *ngIf="rouletteResultSig() as movie" class="result-card crosshair-bracket animate-slide-up">
-      <img *ngIf="movie.posterUrl" [src]="movie.posterUrl" class="poster-thumb" />
+      <!-- Leaderboard Panel (shown when threshold > 1) -->
+      <div class="roulette-leaderboard crosshair-bracket animate-fade-in" *ngIf="rouletteThreshold() > 1 && (rouletteIsRacing() || rouletteWinnerSig())">
+        <div class="hud-data leaderboard-header">
+          <span class="hud-label">RACE LEADERBOARD</span>
+          <span class="hud-value">TARGET: {{ rouletteThreshold() }}</span>
+        </div>
+        <div class="leaderboard-list">
+          <div *ngFor="let item of rouletteLeaderboard()"
+               class="leaderboard-item"
+               [class.winner]="item.count >= rouletteThreshold()">
+            <div class="item-info">
+              <span class="item-rank">#{{ item.rank }}</span>
+              <span class="item-title" [title]="item.title">{{ item.title }}</span>
+            </div>
+            <div class="item-score hud-data">
+              <span class="score-bar">
+                <span class="score-bar-fill" [style.width.%]="(item.count / rouletteThreshold()) * 100"></span>
+              </span>
+              <span class="score-text">{{ item.count }}/{{ rouletteThreshold() }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="rouletteWinnerSig() as movie" class="result-card crosshair-bracket animate-slide-up winner-card" style="border-color: var(--accent-sepia); background: rgba(226, 186, 100, 0.03);">
+      <a [routerLink]="['/movies', movie.movieId]" class="poster-link">
+        <img *ngIf="movie.posterUrl" [src]="movie.posterUrl" class="poster-thumb" />
+      </a>
       <div class="result-info">
-        <h3>{{ movie.title }} <span class="hud-data">[{{ movie.releaseYear }}]</span></h3>
+        <h3 style="color: var(--accent-sepia); margin-bottom: 8px;"><svg class="disco-svg-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>WINNER</h3>
+        <h3>
+          <a [routerLink]="['/movies', movie.movieId]" class="title-link">{{ movie.title }}</a>
+          <span class="hud-data">[{{ movie.releaseYear }}]</span>
+        </h3>
         <p class="director-note">Dir. {{ movie.directorName }}</p>
         <p class="meta hud-data"><span class="hud-label">MECH:</span> {{ movie.selectionMechanismMetadata }}</p>
         <p *ngIf="movie.runtimeMinutes" class="hud-data"><span class="hud-label">LEN:</span> {{ movie.runtimeMinutes }}M</p>
@@ -197,14 +320,34 @@
       </h2>
       <p>Choose among hidden movie options.</p>
     </div>
-    <div class="controls-row hud-data">
-      <label><span class="hud-label">SCOPE:</span>
+    <div class="dashboard-controls-row hud-data">
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">SCOPE</span>
+          <app-cinematic-tooltip [wide]="true">
+            Source pool of movies.<br><br>
+            <strong>Personal Watchlist:</strong> Movies you intend to watch.<br>
+            <strong>Global Database:</strong> The entire TMDB network.<br>
+            <strong>Custom Selection:</strong> Specific movies you pick.
+          </app-cinematic-tooltip>
+        </div>
         <app-cinematic-select [options]="scopeOptions" [(ngModel)]="mysteryScope" placeholder="Select scope"></app-cinematic-select>
-      </label>
-      <label><span class="hud-label">VARIANT:</span>
+      </div>
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">VARIANT</span>
+          <app-cinematic-tooltip>The logic used to group the hidden movies (e.g., same genre, same actor).</app-cinematic-tooltip>
+        </div>
         <app-cinematic-select [options]="mysteryVariantOptions" [(ngModel)]="mysteryVariant" placeholder="Select variant"></app-cinematic-select>
-      </label>
-      <button class="btn btn-primary crosshair-bracket" (click)="generateMysteryBox()" [disabled]="mysteryLoading()">
+      </div>
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">EXCLUDE WATCHED</span>
+          <app-cinematic-tooltip>Exclude movies you have already logged/watched.</app-cinematic-tooltip>
+        </div>
+        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="mysteryExcludeWatched"></app-cinematic-toggle></div>
+      </div>
+      <button class="btn btn-primary crosshair-bracket action-btn" (click)="generateMysteryBox()" [disabled]="mysteryLoading()">
         <ng-container *ngIf="!mysteryLoading()">
           <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M3 10h18" />
@@ -217,21 +360,47 @@
         <ng-container *ngIf="mysteryLoading()">Generating...</ng-container>
       </button>
     </div>
+    <div class="custom-selection-row" *ngIf="mysteryScope() === 2">
+      <app-custom-selection-input [(selectedChips)]="mysteryChips"></app-custom-selection-input>
+    </div>
 
-    <div *ngIf="mysteryResultSig() as mb" class="boxes-row">
-      <div *ngFor="let boxId of mb.boxIds; trackBy: trackByIndex"
-        class="mystery-box"
-        [class.opened]="selectedBoxId() === boxId"
-        (click)="revealBox(boxId)" role="button" tabindex="0">
-        <div class="box-lid" *ngIf="selectedBoxId() !== boxId">?</div>
-        <div class="box-open" *ngIf="selectedBoxId() === boxId && revealedMovieSig()">
-          <img *ngIf="revealedMovieSig()?.posterUrl" [src]="revealedMovieSig()?.posterUrl" class="poster-thumb" />
-          <p class="box-title">{{ revealedMovieSig()?.title }}</p>
-        </div>
-        <div class="box-loading" *ngIf="selectedBoxId() === boxId && mysteryRevealing()">Opening...</div>
-        <div class="box-hint" *ngIf="mb.hints && !selectedBoxId()">
-          {{ mb.hints[mb.boxIds.indexOf(boxId)]?.hint }}
-        </div>
+    <div class="anim-container" style="height: auto; min-height: 250px; padding: 20px 0; margin-bottom: 2rem;">
+      <app-mystery-grid
+        [mysteryBox]="mysteryResultSig()"
+        [revealedMovie]="revealedMovieSig()"
+        [isRevealing]="mysteryRevealing()"
+        [revealedOthers]="revealedOthersMap()"
+        (interact)="generateMysteryBox()"
+        (boxClicked)="revealBox($event)"
+        (finished)="onMysteryFinished()">
+      </app-mystery-grid>
+
+      <div class="reveal-others-row" *ngIf="revealedMovieSig() && !isRevealingOthers() && !hasRevealedOthers()">
+        <button class="btn btn-secondary" (click)="revealRemainingMysteryBoxes()" style="margin: 20px auto 0 auto; display: flex;">
+          <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="margin-right: 8px; width: 16px; height: 16px; vertical-align: middle;">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          Reveal Other Options
+        </button>
+      </div>
+      <div class="loading-state" *ngIf="isRevealingOthers()" style="margin-top: 15px;">Revealing other boxes...</div>
+    </div>
+
+    <div *ngIf="revealedMovieSig() as movie" class="result-card crosshair-bracket animate-slide-up winner-card" style="border-color: var(--accent-sepia); background: rgba(226, 186, 100, 0.03); margin-top: 1rem;">
+      <a [routerLink]="['/movies', movie.movieId]" class="poster-link">
+        <img *ngIf="movie.posterUrl" [src]="movie.posterUrl" class="poster-thumb" />
+      </a>
+      <div class="result-info">
+        <h3 style="color: var(--accent-sepia); margin-bottom: 8px;"><svg class="disco-svg-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>WINNER</h3>
+        <h3>
+          <a [routerLink]="['/movies', movie.movieId]" class="title-link">{{ movie.title }}</a>
+          <span class="hud-data">[{{ movie.releaseYear }}]</span>
+        </h3>
+        <p class="director-note">Dir. {{ movie.directorName }}</p>
+        <p class="meta hud-data"><span class="hud-label">MECH:</span> {{ movie.selectionMechanismMetadata }}</p>
+        <p *ngIf="movie.runtimeMinutes" class="hud-data"><span class="hud-label">LEN:</span> {{ movie.runtimeMinutes }}M</p>
       </div>
     </div>
   </div>
@@ -252,11 +421,27 @@
       </h2>
       <p>Roll the dice to determine your film's characteristics.</p>
     </div>
-    <div class="controls-row hud-data">
-      <label><span class="hud-label">SCOPE:</span>
-        <app-cinematic-select [options]="diceScopeOptions" [(ngModel)]="diceScope" placeholder="Select scope"></app-cinematic-select>
-      </label>
-      <button class="btn btn-primary crosshair-bracket" (click)="rollDice()" [disabled]="diceLoading()">
+    <div class="dashboard-controls-row hud-data">
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">SCOPE</span>
+          <app-cinematic-tooltip [wide]="true">
+            Source pool of movies to roll for.<br><br>
+            <strong>Personal Watchlist:</strong> Movies you intend to watch.<br>
+            <strong>Global Database:</strong> The entire TMDB network.<br>
+            <strong>Custom Selection:</strong> Specific movies you pick.
+          </app-cinematic-tooltip>
+        </div>
+        <app-cinematic-select [options]="diceScopeOptions" [(ngModel)]="diceScope" (ngModelChange)="resetDiceState()" placeholder="Select scope"></app-cinematic-select>
+      </div>
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">EXCLUDE WATCHED</span>
+          <app-cinematic-tooltip>Exclude movies you have already logged/watched.</app-cinematic-tooltip>
+        </div>
+        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="diceExcludeWatched" (ngModelChange)="resetDiceState()"></app-cinematic-toggle></div>
+      </div>
+      <button class="btn btn-primary crosshair-bracket action-btn" (click)="rollDice()" [disabled]="diceLoading()">
         <ng-container *ngIf="!diceLoading()">
           <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <rect x="3" y="3" width="18" height="18" rx="3" />
@@ -271,27 +456,44 @@
         <ng-container *ngIf="diceLoading()">Rolling...</ng-container>
       </button>
     </div>
+    <div class="custom-selection-row" *ngIf="diceScope() === 2">
+      <app-custom-selection-input [(selectedChips)]="diceChips" (selectedChipsChange)="resetDiceState()"></app-custom-selection-input>
+    </div>
 
-    <div *ngIf="diceLoading()" class="loading-state">Rolling dice...</div>
+    <div class="anim-container" style="height: auto; min-height: 250px; padding: 20px 0; margin-bottom: 2rem;">
+      <app-dice-roller
+        [values]="diceValues()"
+        [labels]="diceLabels()"
+        [settled]="diceSettled()"
+        [rolling]="diceRolling()"
+        [pendingCriticalChoice]="pendingCriticalChoice()"
+        (dieClicked)="onDieClicked($event)">
+      </app-dice-roller>
+    </div>
+
+    <div *ngIf="diceSpecialStatusMsg() as msg" class="special-event crosshair-bracket animate-slide-up text-center" style="border-color: var(--accent-sepia); color: var(--accent-sepia); background: rgba(226, 186, 100, 0.03); margin-bottom: 2rem; padding: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+      {{ msg }}
+    </div>
 
     <div *ngIf="diceResultSig() as dr" class="dice-result">
-      <div class="dice-results-row">
-        <div *ngFor="let die of dr.diceResults; trackBy: trackByIndex" class="die-card crosshair-bracket">
-          <div class="die-type hud-data"><span class="hud-label">DIE:</span> {{ ['Quality','Rarity','Risk','Complexity','Exploration'][die.diceType] || 'UNK' }}</div>
-          <div class="die-value">{{ die.rollValue }}</div>
-          <div class="die-label">{{ die.label }}</div>
-          <div class="die-desc director-note">{{ die.description }}</div>
+      <div *ngIf="diceSettled()[0] && diceSettled()[1] && diceSettled()[2] && diceSettled()[3] && diceSettled()[4] && !pendingCriticalChoice() && !diceSpecialStatusMsg()">
+        <div *ngIf="dr.specialEvent" class="special-event crosshair-bracket animate-slide-up" style="border-color: var(--accent-sepia); color: var(--accent-sepia); background: rgba(226, 186, 100, 0.03);">
+          <span class="hud-label">SPECIAL EVENT:</span> {{ dr.specialEvent }}
         </div>
-      </div>
-      <div *ngIf="dr.specialEvent" class="special-event crosshair-bracket animate-slide-up">
-        <span class="hud-label">SPECIAL EVENT:</span> {{ dr.specialEvent }}
-      </div>
-      <div class="result-card crosshair-bracket animate-slide-up">
-        <img *ngIf="dr.posterUrl" [src]="dr.posterUrl" class="poster-thumb" />
-        <div class="result-info">
-          <h3>{{ dr.title }} <span class="hud-data">[{{ dr.releaseYear }}]</span></h3>
-          <p class="director-note">Dir. {{ dr.directorName }}</p>
-          <p class="meta hud-data"><span class="hud-label">MECH:</span> {{ dr.selectionMechanismMetadata }}</p>
+        <div class="result-card crosshair-bracket animate-slide-up winner-card" style="border-color: var(--accent-sepia); background: rgba(226, 186, 100, 0.03);">
+          <a [routerLink]="['/movies', dr.movieId]" class="poster-link">
+            <img *ngIf="dr.posterUrl" [src]="dr.posterUrl" class="poster-thumb" />
+          </a>
+          <div class="result-info">
+            <h3 style="color: var(--accent-sepia); margin-bottom: 8px;"><svg class="disco-svg-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>WINNER</h3>
+            <h3>
+              <a [routerLink]="['/movies', dr.movieId]" class="title-link">{{ dr.title }}</a>
+              <span class="hud-data">[{{ dr.releaseYear }}]</span>
+            </h3>
+            <p class="director-note">Dir. {{ dr.directorName }}</p>
+            <p class="meta hud-data"><span class="hud-label">MECH:</span> {{ dr.selectionMechanismMetadata }}</p>
+            <p *ngIf="dr.runtimeMinutes" class="hud-data"><span class="hud-label">LEN:</span> {{ dr.runtimeMinutes }}M</p>
+          </div>
         </div>
       </div>
     </div>
@@ -313,15 +515,28 @@
       </h2>
       <p>Spin to build a search combination.</p>
     </div>
-    <div class="controls-row hud-data">
-      <label><span class="hud-label">SCOPE:</span>
+    <div class="dashboard-controls-row hud-data">
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">SCOPE</span>
+          <app-cinematic-tooltip [wide]="true">
+            Source pool of movies to spin for.<br><br>
+            <strong>Personal Watchlist:</strong> Movies you intend to watch.<br>
+            <strong>Global Database:</strong> The entire TMDB network.<br>
+            <strong>Custom Selection:</strong> Specific movies you pick.
+          </app-cinematic-tooltip>
+        </div>
         <app-cinematic-select [options]="scopeOptions" [(ngModel)]="slotScope" placeholder="Select scope"></app-cinematic-select>
-      </label>
-      <label><span class="hud-label">GENRE_OVERRIDE:</span>
-        <input type="text" [(ngModel)]="slotGenre" class="glass-select" placeholder="e.g. Horror" />
-      </label>
-      <button class="btn btn-primary crosshair-bracket" (click)="spinSlots()" [disabled]="slotLoading()">
-        <ng-container *ngIf="!slotLoading()">
+      </div>
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">EXCLUDE WATCHED</span>
+          <app-cinematic-tooltip>Exclude movies you have already logged/watched.</app-cinematic-tooltip>
+        </div>
+        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="slotExcludeWatched"></app-cinematic-toggle></div>
+      </div>
+      <button class="btn btn-primary crosshair-bracket action-btn" (click)="spinSlots()" [disabled]="slotLoading() || slotIsSpinning()">
+        <ng-container *ngIf="!slotLoading() && !slotIsSpinning()">
           <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <rect x="2" y="4" width="20" height="16" rx="2" />
             <line x1="10" y1="4" x2="10" y2="20" />
@@ -332,42 +547,227 @@
           </svg>
           Pull Lever!
         </ng-container>
-        <ng-container *ngIf="slotLoading()">Spinning...</ng-container>
+        <ng-container *ngIf="slotLoading() || slotIsSpinning()">Spinning...</ng-container>
       </button>
     </div>
 
-    <div *ngIf="slotLoading()" class="loading-state">Spinning the reels...</div>
+    <!-- Manual Overrides controls panel -->
+    <div class="override-controls-grid hud-data" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; background: var(--surface-floating); border: 1px solid rgba(255, 255, 255, 0.1); padding: 1.25rem 1.5rem; border-radius: 12px;">
+      <div class="override-item" [class.locked]="slotGenreLocked()">
+        <div class="override-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <span class="hud-label" style="border-left: 2px solid var(--accent-sepia); padding-left: 6px; font-size: 0.72rem; font-weight: 700; color: var(--text-secondary);">GENRE</span>
+            <app-cinematic-tooltip>Override Genre: force a specific genre for this slot.</app-cinematic-tooltip>
+          </div>
+          <button class="lock-btn" (click)="toggleSlotLock('genre')" [class.active]="slotGenreLocked()" [disabled]="!slotGenreLocked() && totalLockedSlots >= 4" style="background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; padding: 2px; transition: color 0.2s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;" [style.color]="slotGenreLocked() ? 'var(--accent-sepia)' : 'inherit'">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </button>
+        </div>
+        <input type="text" [(ngModel)]="slotGenre" class="glass-select" placeholder="e.g. Horror" [disabled]="!slotGenreLocked()" style="width: 100%; height: 38px; padding: 0 10px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: var(--text-primary);" />
+      </div>
+
+      <div class="override-item" [class.locked]="slotDecadeLocked()">
+        <div class="override-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <span class="hud-label" style="border-left: 2px solid var(--accent-sepia); padding-left: 6px; font-size: 0.72rem; font-weight: 700; color: var(--text-secondary);">DECADE</span>
+            <app-cinematic-tooltip>Override Decade: restrict results to a specific decade.</app-cinematic-tooltip>
+          </div>
+          <button class="lock-btn" (click)="toggleSlotLock('decade')" [class.active]="slotDecadeLocked()" [disabled]="!slotDecadeLocked() && totalLockedSlots >= 4" style="background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; padding: 2px; transition: color 0.2s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;" [style.color]="slotDecadeLocked() ? 'var(--accent-sepia)' : 'inherit'">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </button>
+        </div>
+        <app-cinematic-select [options]="slotDecadeOptions" [(ngModel)]="slotDecadeVal" [disabled]="!slotDecadeLocked()" placeholder="Any Decade"></app-cinematic-select>
+      </div>
+
+      <div class="override-item" [class.locked]="slotPopularityLocked()">
+        <div class="override-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <span class="hud-label" style="border-left: 2px solid var(--accent-sepia); padding-left: 6px; font-size: 0.72rem; font-weight: 700; color: var(--text-secondary);">POPULARITY</span>
+            <app-cinematic-tooltip>Override Popularity: choose Blockbuster, Mainstream, Niche/Cult, or Hidden Gem.</app-cinematic-tooltip>
+          </div>
+          <button class="lock-btn" (click)="toggleSlotLock('popularity')" [class.active]="slotPopularityLocked()" [disabled]="!slotPopularityLocked() && totalLockedSlots >= 4" style="background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; padding: 2px; transition: color 0.2s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;" [style.color]="slotPopularityLocked() ? 'var(--accent-sepia)' : 'inherit'">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </button>
+        </div>
+        <app-cinematic-select [options]="slotPopularityOptions" [(ngModel)]="slotPopularity" [disabled]="!slotPopularityLocked()" placeholder="Any Popularity"></app-cinematic-select>
+      </div>
+
+      <div class="override-item" [class.locked]="slotRatingLocked()">
+        <div class="override-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <span class="hud-label" style="border-left: 2px solid var(--accent-sepia); padding-left: 6px; font-size: 0.72rem; font-weight: 700; color: var(--text-secondary);">RATING</span>
+            <app-cinematic-tooltip>Override Custom Rating: target Masterpiece, Great, Decent, or Underdog scores.</app-cinematic-tooltip>
+          </div>
+          <button class="lock-btn" (click)="toggleSlotLock('rating')" [class.active]="slotRatingLocked()" [disabled]="!slotRatingLocked() && totalLockedSlots >= 4" style="background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; padding: 2px; transition: color 0.2s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;" [style.color]="slotRatingLocked() ? 'var(--accent-sepia)' : 'inherit'">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </button>
+        </div>
+        <app-cinematic-select [options]="slotRatingOptions" [(ngModel)]="slotRating" [disabled]="!slotRatingLocked()" placeholder="Any Rating"></app-cinematic-select>
+      </div>
+
+      <div class="override-item" [class.locked]="slotCountryLocked()">
+        <div class="override-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <span class="hud-label" style="border-left: 2px solid var(--accent-sepia); padding-left: 6px; font-size: 0.72rem; font-weight: 700; color: var(--text-secondary);">COUNTRY</span>
+            <app-cinematic-tooltip>Override Country: force a specific producing country.</app-cinematic-tooltip>
+          </div>
+          <button class="lock-btn" (click)="toggleSlotLock('country')" [class.active]="slotCountryLocked()" [disabled]="!slotCountryLocked() && totalLockedSlots >= 4" style="background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; padding: 2px; transition: color 0.2s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;" [style.color]="slotCountryLocked() ? 'var(--accent-sepia)' : 'inherit'">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </button>
+        </div>
+        <input type="text" [(ngModel)]="slotCountry" class="glass-select" placeholder="e.g. France" [disabled]="!slotCountryLocked()" style="width: 100%; height: 38px; padding: 0 10px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: var(--text-primary);" />
+      </div>
+    </div>
+
+    <div class="custom-selection-row" *ngIf="slotScope() === 2">
+      <app-custom-selection-input [(selectedChips)]="slotChips"></app-custom-selection-input>
+    </div>
+
+    <div class="anim-container" style="height: auto; min-height: 200px; padding: 20px 0; margin-bottom: 2rem;">
+      <app-slot-reels
+        [result]="slotResultSig()"
+        [isSpinning]="slotIsSpinning()"
+        (interact)="spinSlots()"
+        (finished)="onSlotFinished()">
+      </app-slot-reels>
+    </div>
 
     <div *ngIf="slotResultSig() as sr" class="slot-result">
-      <div class="slot-reels">
-        <div *ngFor="let reel of sr.reelResults; trackBy: trackByIndex" class="reel crosshair-bracket">
-          <div class="reel-label hud-data"><span class="hud-label">REEL:</span> {{ reel.label }}</div>
-          <div class="reel-value">{{ reel.value }}</div>
+      <div *ngIf="!slotIsSpinning()">
+        <!-- Match Tier Banner -->
+        <div *ngIf="sr.matchCount !== undefined" class="match-tier-banner animate-slide-up" [ngClass]="'tier-' + sr.matchCount">
+          <ng-container [ngSwitch]="sr.matchCount">
+            <div *ngSwitchCase="5" class="banner-content jackpot-flashing" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+              <svg class="disco-svg-icon jackpot-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="animation: pulse 1s infinite; width: 20px; height: 20px; color: var(--accent-sepia);">
+                <path d="M12 2l2 6h6l-4.5 4 1.5 6-5-3.5L9 18l1.5-6L6 8h6z" />
+              </svg>
+              <span>JACKPOT! PERFECT MATCH (5/5)</span>
+              <svg class="disco-svg-icon jackpot-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="animation: pulse 1s infinite; width: 20px; height: 20px; color: var(--accent-sepia);">
+                <path d="M12 2l2 6h6l-4.5 4 1.5 6-5-3.5L9 18l1.5-6L6 8h6z" />
+              </svg>
+            </div>
+            <div *ngSwitchCase="4" class="banner-content">
+              <span class="hud-label">EXCELLENT MATCH (4/5)</span>
+            </div>
+            <div *ngSwitchCase="3" class="banner-content">
+              <span class="hud-label">GOOD MATCH (3/5)</span>
+            </div>
+            <div *ngSwitchCase="2" class="banner-content">
+              <span class="hud-label">PARTIAL MATCH (2/5)</span>
+            </div>
+            <div *ngSwitchCase="1" class="banner-content">
+              <span class="hud-label">MINIMAL MATCH (1/5)</span>
+            </div>
+            <div *ngSwitchDefault class="banner-content">
+              <span class="hud-label">FALLBACK ROLL (0/5)</span>
+            </div>
+          </ng-container>
+        </div>
+        <div class="result-card crosshair-bracket animate-slide-up winner-card" style="border-color: var(--accent-sepia); background: rgba(226, 186, 100, 0.03);">
+          <a [routerLink]="['/movies', sr.movieId]" class="poster-link">
+            <img *ngIf="sr.posterUrl" [src]="sr.posterUrl" class="poster-thumb" />
+          </a>
+          <div class="result-info">
+            <h3 style="color: var(--accent-sepia); margin-bottom: 8px;"><svg class="disco-svg-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>WINNER</h3>
+            <h3>
+              <a [routerLink]="['/movies', sr.movieId]" class="title-link">{{ sr.title }}</a>
+              <span class="hud-data">[{{ sr.releaseYear }}]</span>
+            </h3>
+            <p class="director-note">Dir. {{ sr.directorName }}</p>
+            <p class="meta hud-data"><span class="hud-label">MECH:</span> {{ sr.selectionMechanismMetadata }}</p>
+            <p *ngIf="sr.runtimeMinutes" class="hud-data"><span class="hud-label">LEN:</span> {{ sr.runtimeMinutes }}M</p>
+          </div>
         </div>
       </div>
-      <div *ngIf="sr.isJackpot" class="jackpot crosshair-bracket animate-slide-up">
-        <svg class="disco-svg-icon jackpot-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path d="M12 2l2 6h6l-4.5 4 1.5 6-5-3.5L9 18l1.5-6L6 8h6z" />
-          <circle cx="4" cy="4" r="1" fill="currentColor" />
-          <circle cx="20" cy="6" r="1" fill="currentColor" />
-          <circle cx="18" cy="20" r="1" fill="currentColor" />
-          <circle cx="6" cy="18" r="1" fill="currentColor" />
+    </div>
+  </div>
+
+  <!-- Interception Toasts -->
+  <div class="toast-overlay" *ngIf="activeToasts().length > 0">
+    <app-custom-list-toast
+      *ngFor="let toast of activeToasts(); trackBy: trackByToast"
+      [data]="toast"
+      [removing]="removingToasts()[toast.listId + '-' + toast.movieId] || false"
+      (remove)="removeWinnerFromList(toast)"
+      (dismiss)="dismissToast(toast)">
+    </app-custom-list-toast>
+  </div>
+
+  <!-- Cinematic Winner Modal Overlay -->
+  <div class="winner-modal-overlay" *ngIf="winnerModalMovie() as movie" (click)="closeWinnerModal()">
+    <div class="winner-modal-content crosshair-bracket animate-scale-in" (click)="$event.stopPropagation()">
+      <button class="close-modal-btn" (click)="closeWinnerModal()">&times;</button>
+      
+      <!-- Projector beam lighting effect behind poster -->
+      <div class="modal-projector-beam"></div>
+      
+      <div class="modal-header-accent hud-data">
+        <svg class="disco-svg-icon winner-star-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
         </svg>
-        <span class="hud-label">!!! JACKPOT !!!</span>
-        <svg class="disco-svg-icon jackpot-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path d="M12 2l2 6h6l-4.5 4 1.5 6-5-3.5L9 18l1.5-6L6 8h6z" />
-          <circle cx="4" cy="4" r="1" fill="currentColor" />
-          <circle cx="20" cy="6" r="1" fill="currentColor" />
-          <circle cx="18" cy="20" r="1" fill="currentColor" />
-          <circle cx="6" cy="18" r="1" fill="currentColor" />
-        </svg>
+        <span>SELECTION WINNER</span>
       </div>
-      <div class="result-card crosshair-bracket animate-slide-up">
-        <img *ngIf="sr.posterUrl" [src]="sr.posterUrl" class="poster-thumb" />
-        <div class="result-info">
-          <h3>{{ sr.title }} <span class="hud-data">[{{ sr.releaseYear }}]</span></h3>
-          <p class="director-note">Dir. {{ sr.directorName }}</p>
-          <p class="meta hud-data"><span class="hud-label">MECH:</span> {{ sr.selectionMechanismMetadata }}</p>
+
+      <div class="modal-body-layout">
+        <div class="modal-poster-container">
+          <a [routerLink]="['/movies', movie.movieId || movie.id]" (click)="closeWinnerModal()">
+            <img *ngIf="movie.posterUrl" [src]="movie.posterUrl" class="modal-poster-img" />
+            <div *ngIf="!movie.posterUrl" class="modal-poster-placeholder">
+              <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                <line x1="7" y1="2" x2="7" y2="22"></line>
+                <line x1="17" y1="2" x2="17" y2="22"></line>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <line x1="2" y1="7" x2="7" y2="7"></line>
+                <line x1="2" y1="17" x2="7" y2="17"></line>
+                <line x1="17" y1="17" x2="22" y2="17"></line>
+                <line x1="17" y1="7" x2="22" y2="7"></line>
+              </svg>
+            </div>
+          </a>
+        </div>
+        
+        <div class="modal-info-container">
+          <h2 class="modal-title">
+            <a [routerLink]="['/movies', movie.movieId || movie.id]" (click)="closeWinnerModal()">{{ movie.title }}</a>
+          </h2>
+          
+          <div class="modal-subtitle-row hud-data">
+            <span class="subtitle-item director-note">Directed by {{ movie.directorName || 'Unknown' }}</span>
+            <span class="subtitle-separator">•</span>
+            <span class="subtitle-item">{{ movie.releaseYear }}</span>
+            <span class="subtitle-separator" *ngIf="movie.runtimeMinutes">•</span>
+            <span class="subtitle-item" *ngIf="movie.runtimeMinutes">{{ movie.runtimeMinutes }} MIN</span>
+          </div>
+          
+          <div class="modal-overview-pocket" *ngIf="movie.overview">
+            <span class="hud-label overview-pocket-header">SYNOPSIS</span>
+            <p class="overview-pocket-text">{{ movie.overview.length > 240 ? (movie.overview | slice:0:240) + '...' : movie.overview }}</p>
+          </div>
+          
+          <div class="modal-actions-row">
+            <a [routerLink]="['/movies', movie.movieId || movie.id]" (click)="closeWinnerModal()" class="btn btn-primary crosshair-bracket modal-action-btn">
+              VIEW DETAILS
+            </a>
+            <button class="btn btn-secondary crosshair-bracket modal-action-btn" (click)="closeWinnerModal()">
+              CLOSE
+            </button>
+          </div>
         </div>
       </div>
     </div>
