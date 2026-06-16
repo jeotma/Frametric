@@ -274,6 +274,26 @@ async function setupApiMocks(page: Page) {
     body: JSON.stringify(data),
   });
 
+  // Mock all TMDB image requests to return a valid image
+  await page.route(/image\.tmdb\.org/, async (route) => {
+    try {
+      const response = await page.request.get('https://image.tmdb.org/t/p/w500/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg');
+      await route.fulfill({
+        status: 200,
+        contentType: 'image/jpeg',
+        body: await response.body()
+      });
+    } catch (e) {
+      const base64Png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+      const buffer = Buffer.from(base64Png, 'base64');
+      await route.fulfill({
+        status: 200,
+        contentType: 'image/png',
+        body: buffer
+      });
+    }
+  });
+
   await page.route(/\/api\//, async (route) => {
     const url = route.request().url().toLowerCase();
 
@@ -534,6 +554,33 @@ test.describe('Portfolio Screenshot Generator', () => {
   test('Capture full showcase screenshots', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await setupApiMocks(page);
+
+    // Disable all CSS animations and transitions for screenshot stability
+    await page.addInitScript(() => {
+      const style = document.createElement('style');
+      style.id = 'playwright-disable-animations';
+      style.innerHTML = `
+        *, *::before, *::after {
+          animation-duration: 0s !important;
+          animation-delay: 0s !important;
+          transition-duration: 0s !important;
+          transition-delay: 0s !important;
+        }
+      `;
+      
+      const inject = () => {
+        if (document.head && !document.getElementById('playwright-disable-animations')) {
+          document.head.appendChild(style);
+        }
+      };
+
+      // Try immediately
+      inject();
+      
+      // Observe document loading to inject as soon as head is available
+      const observer = new MutationObserver(inject);
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+    });
 
     // 1. LANDING (unauthenticated)
     await page.goto('/');
