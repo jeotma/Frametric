@@ -179,8 +179,8 @@ const genreLandscape = [
 ];
 
 const castingPairs = [
-  { actorName: 'Leonardo DiCaprio', pairedActorName: 'Brad Pitt', collaborationCount: 2 },
-  { actorName: 'Christian Bale', pairedActorName: 'Cillian Murphy', collaborationCount: 2 },
+  { actor1Name: 'Leonardo DiCaprio', actor2Name: 'Brad Pitt', collaborationCount: 2 },
+  { actor1Name: 'Christian Bale', actor2Name: 'Cillian Murphy', collaborationCount: 2 },
 ];
 
 const directorActorPairs = [
@@ -265,6 +265,27 @@ const cinematicFatigueData = {
 
 const weekendWarriorData = { weekendWatches: 146, weekdayWatches: 99 };
 
+function getFallbackSvg(isProfile: boolean, name: string): string {
+  const label = isProfile ? 'PROFILE' : 'POSTER';
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300" width="100%" height="100%">
+    <defs>
+      <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#2c2c2e"/>
+        <stop offset="100%" stop-color="#111111"/>
+      </linearGradient>
+    </defs>
+    <rect width="200" height="300" fill="url(#g)"/>
+    ${isProfile ? `
+      <circle cx="100" cy="110" r="40" fill="#e2ba64" opacity="0.15"/>
+      <path d="M 60 210 Q 100 170 140 210" stroke="#e2ba64" stroke-width="6" fill="none" opacity="0.15" stroke-linecap="round"/>
+    ` : `
+      <rect x="30" y="40" width="140" height="200" rx="10" fill="none" stroke="#e2ba64" stroke-width="2" opacity="0.15"/>
+      <path d="M 85 115 L 125 140 L 85 165 Z" fill="#e2ba64" opacity="0.15"/>
+    `}
+    <text x="100" y="250" fill="#a3a3a3" font-family="system-ui, sans-serif" font-size="14" font-weight="600" text-anchor="middle" letter-spacing="1">${label}</text>
+  </svg>`;
+}
+
 // ── API route setup ──────────────────────────────────────────────────────────
 
 async function setupApiMocks(page: Page) {
@@ -276,20 +297,34 @@ async function setupApiMocks(page: Page) {
 
   // Mock all TMDB image requests to return a valid image
   await page.route(/image\.tmdb\.org/, async (route) => {
+    const url = route.request().url();
     try {
-      const response = await page.request.get('https://image.tmdb.org/t/p/w500/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg');
+      const response = await page.request.get(url);
+      if (response.status() !== 200) {
+        throw new Error(`Non-200 status code: ${response.status()}`);
+      }
+      const contentType = response.headers()['content-type'] || '';
+      if (!contentType.toLowerCase().startsWith('image/')) {
+        throw new Error(`Invalid content-type: ${contentType}`);
+      }
       await route.fulfill({
         status: 200,
-        contentType: 'image/jpeg',
+        contentType: contentType,
         body: await response.body()
       });
     } catch (e) {
-      const base64Png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
-      const buffer = Buffer.from(base64Png, 'base64');
+      console.log(`Failed to fetch TMDB image ${url}, falling back to SVG placeholder. Reason:`, e.message || e);
+      const isProfile = url.includes('pR2H6U7nH8lvrE02hLL6b8Ysnjm.jpg') || 
+                        url.includes('xuAIuYSmsUzKlUMBFGVZaWsY3DZ.jpg') || 
+                        url.toLowerCase().includes('profile') || 
+                        url.toLowerCase().includes('person') || 
+                        url.toLowerCase().includes('avatar');
+      const parts = url.split('/');
+      const filename = parts[parts.length - 1];
       await route.fulfill({
         status: 200,
-        contentType: 'image/png',
-        body: buffer
+        contentType: 'image/svg+xml',
+        body: getFallbackSvg(isProfile, filename)
       });
     }
   });
@@ -357,7 +392,7 @@ async function setupApiMocks(page: Page) {
         title: 'Inception',
         releaseYear: 2010,
         runtimeMinutes: 148,
-        posterUrl: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg',
+        posterUrl: 'https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg',
         overview: 'Cobb, a skilled thief who commits corporate espionage by infiltrating the subconscious of his targets is offered a chance to regain his old life as payment for a task considered to be impossible: \"inception\", the implantation of another person\'s idea into a target\'s subconscious.',
         tmdbRating: 8.3,
         userAverageScore: 9.0,
@@ -373,11 +408,11 @@ async function setupApiMocks(page: Page) {
       await route.fulfill(json({
         id: '456',
         name: 'Ryan Gosling',
-        profilePath: 'https://image.tmdb.org/t/p/w500/8qeezU4c1spIlfhpaA8m708J7IQ.jpg',
+        profilePath: 'https://image.tmdb.org/t/p/w500/pR2H6U7nH8lvrE02hLL6b8Ysnjm.jpg',
         watchCount: 14,
         averageRating: 4.2,
         movies: [
-          { id: '123', title: 'Blade Runner 2049', releaseYear: 2017, posterPath: 'https://image.tmdb.org/t/p/w500/gGe2uBwogYr4O63hk4mdlCYLI7y.jpg', isWatched: true }
+          { id: '123', title: 'Blade Runner 2049', releaseYear: 2017, posterPath: 'https://image.tmdb.org/t/p/w500/gajva2L0tP1V21S85t54e0bO8nZ.jpg', isWatched: true }
         ],
         directedMovies: []
       }));
@@ -385,11 +420,11 @@ async function setupApiMocks(page: Page) {
       await route.fulfill(json({
         id: '789',
         name: 'Christopher Nolan',
-        profilePath: 'https://image.tmdb.org/t/p/w500/xu9iaLO8afAnZo3JIBN460clwqQ.jpg',
+        profilePath: 'https://image.tmdb.org/t/p/w500/xuAIuYSmsUzKlUMBFGVZaWsY3DZ.jpg',
         watchCount: 12,
         averageRating: 4.4,
         movies: [
-          { id: '123', title: 'Inception', releaseYear: 2010, posterPath: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg', isWatched: true },
+          { id: '123', title: 'Inception', releaseYear: 2010, posterPath: 'https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg', isWatched: true },
           { id: '124', title: 'Interstellar', releaseYear: 2014, posterPath: 'https://image.tmdb.org/t/p/w500/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg', isWatched: true }
         ],
         actorMovies: []
@@ -403,7 +438,7 @@ async function setupApiMocks(page: Page) {
           releaseYear: 2016,
           matchPercentage: 98.4,
           recommendationReason: 'Shares your deep appreciation for musicals, vibrant visual styling, and romantic realism.',
-          posterUrl: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg',
+          posterUrl: 'https://image.tmdb.org/t/p/w500/oN0o3owobFjePDc5vMdLRAd0jkd.jpg',
           runtimeMinutes: 128
         },
         {
@@ -413,7 +448,7 @@ async function setupApiMocks(page: Page) {
           releaseYear: 2017,
           matchPercentage: 95.1,
           recommendationReason: 'Matches your top director Denis Villeneuve and preference for philosophical Sci-Fi.',
-          posterUrl: 'https://image.tmdb.org/t/p/w500/gGe2uBwogYr4O63hk4mdlCYLI7y.jpg',
+          posterUrl: 'https://image.tmdb.org/t/p/w500/gK15Nmi4nS6t6w71uJj7U5If5wX.jpg',
           runtimeMinutes: 164
         }
       ]));
@@ -555,6 +590,13 @@ test.describe('Portfolio Screenshot Generator', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await setupApiMocks(page);
 
+    page.on('console', msg => {
+      console.log(`BROWSER CONSOLE [${msg.type()}]: ${msg.text()}`);
+    });
+    page.on('pageerror', err => {
+      console.error(`BROWSER PAGEERROR: ${err.message}\n${err.stack}`);
+    });
+
     // Disable all CSS animations and transitions for screenshot stability
     await page.addInitScript(() => {
       const style = document.createElement('style');
@@ -565,6 +607,11 @@ test.describe('Portfolio Screenshot Generator', () => {
           animation-delay: 0s !important;
           transition-duration: 0s !important;
           transition-delay: 0s !important;
+        }
+        .animate-fade-in, .animate-slide-up, .animate-stagger-fade, .animate-stagger-up {
+          opacity: 1 !important;
+          transform: none !important;
+          animation: none !important;
         }
       `;
       
@@ -578,8 +625,10 @@ test.describe('Portfolio Screenshot Generator', () => {
       inject();
       
       // Observe document loading to inject as soon as head is available
-      const observer = new MutationObserver(inject);
-      observer.observe(document.documentElement, { childList: true, subtree: true });
+      if (document.documentElement) {
+        const observer = new MutationObserver(inject);
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+      }
     });
 
     // 1. LANDING (unauthenticated)
@@ -711,7 +760,7 @@ test.describe('Portfolio Screenshot Generator', () => {
     await page.waitForSelector('.discovery-container', { timeout: 15000 });
     await page.waitForTimeout(1000);
     // Switch to Bingo tab first
-    await page.locator('.tab-btn', { hasText: 'Bingo' }).click({ force: true });
+    await page.locator('.tab-bar .tab-btn').nth(0).click({ force: true });
     await page.waitForTimeout(500);
     // Refresh board to display the grid
     await page.locator('.action-buttons-group button').first().click({ force: true });
@@ -720,25 +769,25 @@ test.describe('Portfolio Screenshot Generator', () => {
     await page.screenshot({ path: `${IMAGES_DIR}/discovery-bingo.png` });
 
     // 15. DISCOVERY — Roulette
-    await page.locator('.tab-btn', { hasText: 'Roulette' }).click({ force: true });
+    await page.locator('.tab-bar .tab-btn').nth(1).click({ force: true });
     await page.waitForSelector('app-roulette-wheel', { timeout: 10000 });
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${IMAGES_DIR}/discovery-roulette.png` });
 
     // 16. DISCOVERY — Mystery Box
-    await page.locator('.tab-btn', { hasText: 'Mystery Box' }).click({ force: true });
+    await page.locator('.tab-bar .tab-btn').nth(2).click({ force: true });
     await page.waitForSelector('app-mystery-grid', { timeout: 10000 });
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${IMAGES_DIR}/discovery-mystery.png` });
 
     // 17. DISCOVERY — Dice
-    await page.locator('.tab-btn', { hasText: 'Dice' }).click({ force: true });
+    await page.locator('.tab-bar .tab-btn').nth(3).click({ force: true });
     await page.waitForSelector('app-dice-roller', { timeout: 10000 });
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${IMAGES_DIR}/discovery-dice.png` });
 
     // 18. DISCOVERY — Slot Machine
-    await page.locator('.tab-btn', { hasText: 'Slot Machine' }).click({ force: true });
+    await page.locator('.tab-bar .tab-btn').nth(4).click({ force: true });
     await page.waitForSelector('app-slot-reels', { timeout: 10000 });
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${IMAGES_DIR}/discovery-slots.png` });
