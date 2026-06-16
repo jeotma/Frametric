@@ -353,11 +353,11 @@ async function setupApiMocks(page: Page) {
       await route.fulfill(json({
         id: '456',
         name: 'Ryan Gosling',
-        profilePath: '/8qeezU4c1spIlfhpaA8m708J7IQ.jpg',
+        profilePath: 'https://image.tmdb.org/t/p/w500/8qeezU4c1spIlfhpaA8m708J7IQ.jpg',
         watchCount: 14,
         averageRating: 4.2,
         movies: [
-          { id: '123', title: 'Blade Runner 2049', releaseYear: 2017, posterPath: '/gGe2uBwogYr4O63hk4mdlCYLI7y.jpg', isWatched: true }
+          { id: '123', title: 'Blade Runner 2049', releaseYear: 2017, posterPath: 'https://image.tmdb.org/t/p/w500/gGe2uBwogYr4O63hk4mdlCYLI7y.jpg', isWatched: true }
         ],
         directedMovies: []
       }));
@@ -365,12 +365,12 @@ async function setupApiMocks(page: Page) {
       await route.fulfill(json({
         id: '789',
         name: 'Christopher Nolan',
-        profilePath: '/xu9iaLO8afAnZo3JIBN460clwqQ.jpg',
+        profilePath: 'https://image.tmdb.org/t/p/w500/xu9iaLO8afAnZo3JIBN460clwqQ.jpg',
         watchCount: 12,
         averageRating: 4.4,
         movies: [
-          { id: '123', title: 'Inception', releaseYear: 2010, posterPath: '/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg', isWatched: true },
-          { id: '124', title: 'Interstellar', releaseYear: 2014, posterPath: '/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg', isWatched: true }
+          { id: '123', title: 'Inception', releaseYear: 2010, posterPath: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg', isWatched: true },
+          { id: '124', title: 'Interstellar', releaseYear: 2014, posterPath: 'https://image.tmdb.org/t/p/w500/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg', isWatched: true }
         ],
         actorMovies: []
       }));
@@ -540,6 +540,18 @@ test.describe('Portfolio Screenshot Generator', () => {
     await page.waitForTimeout(1500);
     await page.screenshot({ path: `${IMAGES_DIR}/landing.jpg`, quality: 90 });
 
+    // 2. LOGIN (unauthenticated)
+    await page.goto('/login');
+    await page.waitForSelector('.auth-card', { timeout: 10000 });
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${IMAGES_DIR}/login.png` });
+
+    // 3. REGISTER (unauthenticated)
+    await page.goto('/register');
+    await page.waitForSelector('.auth-card', { timeout: 10000 });
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${IMAGES_DIR}/register.png` });
+
     // ── Authenticate ──
     await loginAndSetToken(page);
 
@@ -701,23 +713,5 @@ test.describe('Portfolio Screenshot Generator', () => {
     await page.waitForSelector('.person-detail-container', { timeout: 15000 });
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${IMAGES_DIR}/director-details.png` });
-
-    // ── Log Out to capture Login/Register ──
-    await page.evaluate(() => {
-      localStorage.removeItem('frametric_access_token');
-      localStorage.removeItem('frametric_refresh_token');
-    });
-
-    // 22. LOGIN
-    await page.goto('/login');
-    await page.waitForSelector('.auth-card', { timeout: 10000 });
-    await page.waitForTimeout(600);
-    await page.screenshot({ path: `${IMAGES_DIR}/login.png` });
-
-    // 23. REGISTER
-    await page.goto('/register');
-    await page.waitForSelector('.auth-card', { timeout: 10000 });
-    await page.waitForTimeout(600);
-    await page.screenshot({ path: `${IMAGES_DIR}/register.png` });
   });
 });
