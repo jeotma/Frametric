@@ -229,7 +229,7 @@ export class DiscoveryComponent implements OnInit {
   }
 
   private checkWinnerAgainstLists(winner: SelectionResultDto): void {
-    if (!winner || !winner.movieId) return;
+    if (!winner || !winner.movieId || !Array.isArray(this.userCustomLists)) return;
     const movieId = winner.movieId;
     const newToasts: ToastCustomListWinner[] = [];
 

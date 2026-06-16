@@ -332,7 +332,9 @@ async function setupApiMocks(page: Page) {
   await page.route(/\/api\//, async (route) => {
     const url = route.request().url().toLowerCase();
 
-    if (url.includes('/api/import/history')) {
+    if (url.includes('/api/v1/custom-lists') || url.includes('/api/custom-lists')) {
+      await route.fulfill(json([]));
+    } else if (url.includes('/api/import/history')) {
       await route.fulfill(json(importHistory));
     } else if (url.includes('/api/analytics/dashboard')) {
       await route.fulfill(json(dashboardData));
@@ -793,7 +795,16 @@ test.describe('Portfolio Screenshot Generator', () => {
     // 18. DISCOVERY — Slot Machine
     await page.locator('.tab-bar .tab-btn').nth(4).click({ force: true });
     await page.waitForSelector('app-slot-reels', { timeout: 10000 });
-    await page.evaluate(() => window.scrollTo(0, 300));
+    await page.waitForTimeout(500);
+    // Click Pull Lever!
+    await page.locator('.panel button', { hasText: 'Pull Lever!' }).click({ force: true });
+    // Wait for the JS stagger timers to complete (around 3.5 seconds)
+    await page.waitForTimeout(3800);
+    // Wait for the winner modal to appear, then close it using the CLOSE button
+    await page.waitForSelector('.winner-modal-overlay', { state: 'visible', timeout: 5000 });
+    await page.locator('.winner-modal-overlay button', { hasText: 'Close' }).click({ force: true });
+    await page.waitForSelector('.winner-modal-overlay', { state: 'hidden', timeout: 5000 });
+    await page.evaluate(() => window.scrollTo(0, 420));
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${IMAGES_DIR}/discovery-slots.png` });
 
