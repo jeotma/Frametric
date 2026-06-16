@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { Buffer } from 'buffer';
 
 // Helper to simulate authentication client-side
 async function loginAndSetToken(page: Page) {

@@ -765,30 +765,35 @@ test.describe('Portfolio Screenshot Generator', () => {
     // Refresh board to display the grid
     await page.locator('.action-buttons-group button').first().click({ force: true });
     await page.waitForSelector('.bingo-grid', { timeout: 15000 });
+    await page.evaluate(() => window.scrollTo(0, 300));
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${IMAGES_DIR}/discovery-bingo.png` });
 
     // 15. DISCOVERY — Roulette
     await page.locator('.tab-bar .tab-btn').nth(1).click({ force: true });
     await page.waitForSelector('app-roulette-wheel', { timeout: 10000 });
+    await page.evaluate(() => window.scrollTo(0, 300));
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${IMAGES_DIR}/discovery-roulette.png` });
 
     // 16. DISCOVERY — Mystery Box
     await page.locator('.tab-bar .tab-btn').nth(2).click({ force: true });
     await page.waitForSelector('app-mystery-grid', { timeout: 10000 });
+    await page.evaluate(() => window.scrollTo(0, 300));
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${IMAGES_DIR}/discovery-mystery.png` });
 
     // 17. DISCOVERY — Dice
     await page.locator('.tab-bar .tab-btn').nth(3).click({ force: true });
     await page.waitForSelector('app-dice-roller', { timeout: 10000 });
+    await page.evaluate(() => window.scrollTo(0, 300));
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${IMAGES_DIR}/discovery-dice.png` });
 
     // 18. DISCOVERY — Slot Machine
     await page.locator('.tab-bar .tab-btn').nth(4).click({ force: true });
     await page.waitForSelector('app-slot-reels', { timeout: 10000 });
+    await page.evaluate(() => window.scrollTo(0, 300));
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${IMAGES_DIR}/discovery-slots.png` });
 
