@@ -21,6 +21,13 @@ async function loginAndSetToken(page: Page) {
   }, { token });
 }
 
+async function selectCinematicOption(page: Page, index: number, optionLabel: string) {
+  const container = page.locator('app-cinematic-select').nth(index);
+  await container.locator('.select-trigger').click({ force: true });
+  const regex = new RegExp(`^\\s*${optionLabel.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}\\s*$`);
+  await container.locator('.select-option').filter({ hasText: regex }).click({ force: true });
+}
+
 test.describe('Advanced Statistics Tests', () => {
   test.beforeEach(async ({ page }) => {
     await loginAndSetToken(page);
@@ -29,14 +36,14 @@ test.describe('Advanced Statistics Tests', () => {
 
   test('should verify default category and metric selection structure', async ({ page }) => {
     // Check page header
-    await expect(page.locator('.page-title')).toContainText('Advanced Statistics');
+    await expect(page.locator('.page-title')).toContainText('TECHNICAL REPORT');
 
     // Check default category and metric values
-    const categorySelect = page.locator('select').first();
-    const metricSelect = page.locator('select').nth(1);
+    const categorySelect = page.locator('app-cinematic-select').first();
+    const metricSelect = page.locator('app-cinematic-select').nth(1);
 
-    await expect(categorySelect).toHaveValue('Watched History');
-    await expect(metricSelect).toHaveValue('watched_by_year');
+    await expect(categorySelect.locator('.selected-label')).toHaveText('Watched History');
+    await expect(metricSelect.locator('.selected-label')).toHaveText('Movies Watched');
   });
 
   test('should verify input enable/disable states based on query selection', async ({ page }) => {
@@ -50,11 +57,8 @@ test.describe('Advanced Statistics Tests', () => {
     await expect(actorGroup).not.toHaveClass(/disabled-group/);
 
     // Switch to category 'Watchlist' and metric 'watchlist_directors'
-    const categorySelect = page.locator('select').first();
-    await categorySelect.selectOption('Watchlist');
-
-    const metricSelect = page.locator('select').nth(1);
-    await metricSelect.selectOption('watchlist_directors');
+    await selectCinematicOption(page, 0, 'Watchlist');
+    await selectCinematicOption(page, 1, 'Watchlist Directors');
 
     // For 'watchlist_directors', allowedFilters are: ['releaseYear', 'genre', 'actor']
     // So 'Watch Year' and 'Director' should be disabled (class disabled-group)
@@ -100,21 +104,18 @@ test.describe('Advanced Statistics Tests', () => {
   });
 
   test('should test SINGLE query execution rendering card details', async ({ page }) => {
-    const categorySelect = page.locator('select').first();
-    await categorySelect.selectOption('Watched Insights');
+    await selectCinematicOption(page, 0, 'Watchlist Insights');
+    await selectCinematicOption(page, 1, 'Oldest Pending Movie');
 
-    const metricSelect = page.locator('select').nth(1);
-    await metricSelect.selectOption('predominant_era');
-
-    // Intercept predominant era API call
-    await page.route('**/api/analytics/advanced/watched/predominant-era**', async (route) => {
+    // Intercept oldest pending API call
+    await page.route('**/api/analytics/advanced/watchlist/oldest-pending**', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          eraName: 'Modern Era',
+          title: 'Modern Era',
           count: 420,
-          averageRating: 4.12
+          averageRating: 2.06 // Will be multiplied by 2 in the template to become 4.12
         })
       });
     });
@@ -131,11 +132,8 @@ test.describe('Advanced Statistics Tests', () => {
   });
 
   test('should test HABITS & CORRELATIONS queries rendering chart details', async ({ page }) => {
-    const categorySelect = page.locator('select').first();
-    await categorySelect.selectOption('Habits & Correlations');
-
-    const metricSelect = page.locator('select').nth(1);
-    await metricSelect.selectOption('preferred_day');
+    await selectCinematicOption(page, 0, 'Habits & Correlations');
+    await selectCinematicOption(page, 1, 'Preferred Watch Day');
 
     // Intercept preferred day API call
     await page.route('**/api/analytics/advanced/watched/preferred-day**', async (route) => {

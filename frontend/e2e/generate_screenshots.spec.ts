@@ -331,6 +331,180 @@ async function setupApiMocks(page: Page) {
       await route.fulfill(json(watchedMovies));
     } else if (url.includes('/api/analytics/wrapped')) {
       await route.fulfill(json(wrappedSummaryData));
+    } else if (url.includes('/api/movies/123') && !url.includes('/log')) {
+      await route.fulfill(json({
+        id: '123',
+        title: 'Inception',
+        releaseYear: 2010,
+        runtimeMinutes: 148,
+        posterUrl: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg',
+        overview: 'Cobb, a skilled thief who commits corporate espionage by infiltrating the subconscious of his targets is offered a chance to regain his old life as payment for a task considered to be impossible: \"inception\", the implantation of another person\'s idea into a target\'s subconscious.',
+        tmdbRating: 8.3,
+        userAverageScore: 9.0,
+        genres: [{ id: 1, name: 'Sci-Fi' }, { id: 2, name: 'Action' }],
+        directors: [{ id: '789', name: 'Christopher Nolan' }],
+        actors: [{ id: '456', name: 'Leonardo DiCaprio' }, { id: '457', name: 'Joseph Gordon-Levitt' }],
+        diaryEntries: [
+          { id: 'entry-1', dateWatched: '2026-05-01', rating: 4.5, isRewatch: true }
+        ],
+        isWatched: true
+      }));
+    } else if (url.includes('/api/actors/456')) {
+      await route.fulfill(json({
+        id: '456',
+        name: 'Ryan Gosling',
+        profilePath: '/8qeezU4c1spIlfhpaA8m708J7IQ.jpg',
+        watchCount: 14,
+        averageRating: 4.2,
+        movies: [
+          { id: '123', title: 'Blade Runner 2049', releaseYear: 2017, posterPath: '/gGe2uBwogYr4O63hk4mdlCYLI7y.jpg', isWatched: true }
+        ],
+        directedMovies: []
+      }));
+    } else if (url.includes('/api/directors/789')) {
+      await route.fulfill(json({
+        id: '789',
+        name: 'Christopher Nolan',
+        profilePath: '/xu9iaLO8afAnZo3JIBN460clwqQ.jpg',
+        watchCount: 12,
+        averageRating: 4.4,
+        movies: [
+          { id: '123', title: 'Inception', releaseYear: 2010, posterPath: '/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg', isWatched: true },
+          { id: '124', title: 'Interstellar', releaseYear: 2014, posterPath: '/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg', isWatched: true }
+        ],
+        actorMovies: []
+      }));
+    } else if (url.includes('/api/v1/recommendations/generate')) {
+      await route.fulfill(json([
+        {
+          movieId: '123',
+          title: 'La La Land',
+          directorName: 'Damien Chazelle',
+          releaseYear: 2016,
+          matchPercentage: 98.4,
+          recommendationReason: 'Shares your deep appreciation for musicals, vibrant visual styling, and romantic realism.',
+          posterUrl: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg',
+          runtimeMinutes: 128
+        },
+        {
+          movieId: '124',
+          title: 'Blade Runner 2049',
+          directorName: 'Denis Villeneuve',
+          releaseYear: 2017,
+          matchPercentage: 95.1,
+          recommendationReason: 'Matches your top director Denis Villeneuve and preference for philosophical Sci-Fi.',
+          posterUrl: 'https://image.tmdb.org/t/p/w500/gGe2uBwogYr4O63hk4mdlCYLI7y.jpg',
+          runtimeMinutes: 164
+        }
+      ]));
+    } else if (url.includes('/api/v1/discovery/bingo')) {
+      await route.fulfill(json({
+        gridSize: 3,
+        squares: [
+          { objectiveId: 'obj-1', description: 'Watch a Sci-Fi movie', isCompleted: true, completionDate: '2026-01-10', row: 0, column: 0, movieTitle: 'Blade Runner 2049', watchedDate: '2026-01-10' },
+          { objectiveId: 'obj-2', description: 'Watch a movie over 150m', isCompleted: false, completionDate: null, row: 0, column: 1 },
+          { objectiveId: 'obj-3', description: 'Watch a 90s classic', isCompleted: false, completionDate: null, row: 0, column: 2 },
+          { objectiveId: 'obj-4', description: 'Watch a movie by Christopher Nolan', isCompleted: true, completionDate: '2026-02-14', row: 1, column: 0, movieTitle: 'Interstellar', watchedDate: '2026-02-14' },
+          { objectiveId: 'obj-5', description: 'Watch an Oscar Winner', isCompleted: false, completionDate: null, row: 1, column: 1 },
+          { objectiveId: 'obj-6', description: 'Watch a Comedy', isCompleted: true, completionDate: '2026-03-01', row: 1, column: 2, movieTitle: 'Project X', watchedDate: '2026-03-01' },
+          { objectiveId: 'obj-7', description: 'Watch a Horror movie', isCompleted: false, completionDate: null, row: 2, column: 0 },
+          { objectiveId: 'obj-8', description: 'Watch a movie from France', isCompleted: false, completionDate: null, row: 2, column: 1 },
+          { objectiveId: 'obj-9', description: 'Watch a movie under 90m', isCompleted: true, completionDate: '2026-04-05', row: 2, column: 2, movieTitle: 'Project X', watchedDate: '2026-04-05' }
+        ],
+        startDate: '2026-01-01',
+        endDate: '2026-12-31'
+      }));
+    } else if (url.includes('/api/v1/discovery/roulette')) {
+      await route.fulfill(json({
+        winner: {
+          movieId: '123',
+          title: 'Inception',
+          directorName: 'Christopher Nolan',
+          releaseYear: 2010,
+          selectionMechanismMetadata: 'Random Choice',
+          posterUrl: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg',
+          runtimeMinutes: 148
+        },
+        spinSequence: [
+          {
+            movieId: '124',
+            title: 'Interstellar',
+            directorName: 'Christopher Nolan',
+            releaseYear: 2014,
+            selectionMechanismMetadata: 'Random Choice',
+            posterUrl: 'https://image.tmdb.org/t/p/w500/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg',
+            runtimeMinutes: 169
+          },
+          {
+            movieId: '123',
+            title: 'Inception',
+            directorName: 'Christopher Nolan',
+            releaseYear: 2010,
+            selectionMechanismMetadata: 'Random Choice',
+            posterUrl: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg',
+            runtimeMinutes: 148
+          }
+        ]
+      }));
+    } else if (url.includes('/api/v1/discovery/dice')) {
+      await route.fulfill(json({
+        movieId: '123',
+        title: 'Inception',
+        directorName: 'Christopher Nolan',
+        releaseYear: 2010,
+        posterUrl: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg',
+        runtimeMinutes: 148,
+        selectionMechanismMetadata: 'Crit Choice',
+        diceResults: [
+          { diceType: 0, rollValue: 4, label: 'Genre', description: 'Sci-Fi' },
+          { diceType: 1, rollValue: 6, label: 'Decade', description: '2010s' },
+          { diceType: 2, rollValue: 5, label: 'Rating', description: 'High (8+)' },
+          { diceType: 3, rollValue: 2, label: 'Popularity', description: 'Mainstream' },
+          { diceType: 4, rollValue: 1, label: 'Runtime', description: 'Medium (90-150m)' }
+        ],
+        specialEvent: null
+      }));
+    } else if (url.includes('/api/v1/discovery/slot-machine')) {
+      await route.fulfill(json({
+        movieId: '123',
+        title: 'Inception',
+        directorName: 'Christopher Nolan',
+        releaseYear: 2010,
+        posterUrl: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg',
+        runtimeMinutes: 148,
+        selectionMechanismMetadata: 'Perfect Slots Match',
+        reelResults: [
+          { label: 'Genre', value: 'Sci-Fi' },
+          { label: 'Decade', value: '2010s' },
+          { label: 'Rating', value: '8.5+' },
+          { label: 'Popularity', value: 'Jackpot' },
+          { label: 'Country', value: 'USA' }
+        ],
+        isJackpot: true,
+        matchCount: 5,
+        matchedReels: [true, true, true, true, true]
+      }));
+    } else if (url.includes('/api/v1/discovery/mystery-box') && !url.includes('/reveal')) {
+      await route.fulfill(json({
+        boxIds: ['box-1', 'box-2', 'box-3'],
+        variant: 1,
+        generatedAt: '2026-06-16T10:00:00Z',
+        hints: [
+          { boxId: 'box-1', hint: 'Directed by a 21st-century auteur' },
+          { boxId: 'box-2', hint: 'Sci-Fi masterpiece with a ticking clock' },
+          { boxId: 'box-3', hint: 'Mind-bending dream heist movie' }
+        ]
+      }));
+    } else if (url.includes('/reveal')) {
+      await route.fulfill(json({
+        movieId: '123',
+        title: 'Inception',
+        directorName: 'Christopher Nolan',
+        releaseYear: 2010,
+        selectionMechanismMetadata: 'Mystery Box Choice',
+        posterUrl: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg',
+        runtimeMinutes: 148
+      }));
     } else {
       await route.fulfill(json(null));
     }
@@ -341,9 +515,16 @@ async function setupApiMocks(page: Page) {
 
 async function clickSlideZone(page: Page, times: number) {
   for (let i = 0; i < times; i++) {
-    await page.locator('.right-zone').click({ force: true, timeout: 5000 });
+    await page.keyboard.press('ArrowRight');
     await page.waitForTimeout(400);
   }
+}
+
+async function selectCinematicOption(page: Page, index: number, optionLabel: string) {
+  const container = page.locator('app-cinematic-select').nth(index);
+  await container.locator('.select-trigger').click({ force: true });
+  const regex = new RegExp(`^\\s*${optionLabel.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}\\s*$`);
+  await container.locator('.select-option').filter({ hasText: regex }).click({ force: true });
 }
 
 // ── Test ─────────────────────────────────────────────────────────────────────
@@ -378,9 +559,9 @@ test.describe('Portfolio Screenshot Generator', () => {
     await page.screenshot({ path: `${IMAGES_DIR}/stats-movies.png` });
 
     // 4. STATS — Bar chart (Preferred Watch Day)
-    await page.locator('select').first().selectOption('Habits & Correlations');
+    await selectCinematicOption(page, 0, 'Habits & Correlations');
     await page.waitForTimeout(300);
-    await page.locator('select').nth(1).selectOption('preferred_day');
+    await selectCinematicOption(page, 1, 'Preferred Watch Day');
     await page.waitForTimeout(300);
     await page.locator('.analyze-btn').click();
     await page.waitForSelector('.chart-card', { timeout: 10000 });
@@ -388,9 +569,9 @@ test.describe('Portfolio Screenshot Generator', () => {
     await page.screenshot({ path: `${IMAGES_DIR}/stats-chart.png` });
 
     // 5. STATS — Hero card (Total Time Invested)
-    await page.locator('select').first().selectOption('Watched Insights');
+    await selectCinematicOption(page, 0, 'Watched History');
     await page.waitForTimeout(300);
-    await page.locator('select').nth(1).selectOption('total_time');
+    await selectCinematicOption(page, 1, 'Total Time Invested');
     await page.waitForTimeout(300);
     await page.locator('.analyze-btn').click();
     await page.waitForSelector('.hero-card', { timeout: 10000 });
@@ -398,7 +579,7 @@ test.describe('Portfolio Screenshot Generator', () => {
     await page.screenshot({ path: `${IMAGES_DIR}/stats-hero.png` });
 
     // 6. STATS — Director Ranking table
-    await page.locator('select').nth(1).selectOption('director_ranking');
+    await selectCinematicOption(page, 1, 'Watched Directors');
     await page.waitForTimeout(300);
     await page.locator('.analyze-btn').click();
     await page.waitForSelector('.glass-table', { timeout: 10000 });
@@ -459,5 +640,84 @@ test.describe('Portfolio Screenshot Generator', () => {
     await page.waitForSelector('.imports-dashboard', { timeout: 10000 });
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${IMAGES_DIR}/imports.png` });
+
+    // 13. RECOMMENDATIONS
+    await page.goto('/recommendations');
+    await page.waitForSelector('.recommendations-grid', { timeout: 10000 });
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${IMAGES_DIR}/recommendations.png` });
+
+    // 14. DISCOVERY — Bingo
+    await page.goto('/discovery');
+    await page.waitForSelector('.discovery-container', { timeout: 15000 });
+    await page.waitForTimeout(1000);
+    // Switch to Bingo tab first
+    await page.locator('.tab-btn', { hasText: 'Bingo' }).click({ force: true });
+    await page.waitForTimeout(500);
+    // Refresh board to display the grid
+    await page.locator('.action-buttons-group button').first().click({ force: true });
+    await page.waitForSelector('.bingo-grid', { timeout: 15000 });
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${IMAGES_DIR}/discovery-bingo.png` });
+
+    // 15. DISCOVERY — Roulette
+    await page.locator('.tab-btn', { hasText: 'Roulette' }).click({ force: true });
+    await page.waitForSelector('app-roulette-wheel', { timeout: 10000 });
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${IMAGES_DIR}/discovery-roulette.png` });
+
+    // 16. DISCOVERY — Mystery Box
+    await page.locator('.tab-btn', { hasText: 'Mystery Box' }).click({ force: true });
+    await page.waitForSelector('app-mystery-grid', { timeout: 10000 });
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${IMAGES_DIR}/discovery-mystery.png` });
+
+    // 17. DISCOVERY — Dice
+    await page.locator('.tab-btn', { hasText: 'Dice' }).click({ force: true });
+    await page.waitForSelector('app-dice-roller', { timeout: 10000 });
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${IMAGES_DIR}/discovery-dice.png` });
+
+    // 18. DISCOVERY — Slot Machine
+    await page.locator('.tab-btn', { hasText: 'Slot Machine' }).click({ force: true });
+    await page.waitForSelector('app-slot-reels', { timeout: 10000 });
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${IMAGES_DIR}/discovery-slots.png` });
+
+    // 19. DETAILS — Movie details
+    await page.goto('/movies/123/inception');
+    await page.waitForSelector('.movie-detail-container', { timeout: 15000 });
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${IMAGES_DIR}/movie-details.png` });
+
+    // 20. DETAILS — Actor details
+    await page.goto('/actors/456/ryan-gosling');
+    await page.waitForSelector('.person-detail-container', { timeout: 15000 });
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${IMAGES_DIR}/actor-details.png` });
+
+    // 21. DETAILS — Director details
+    await page.goto('/directors/789/christopher-nolan');
+    await page.waitForSelector('.person-detail-container', { timeout: 15000 });
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${IMAGES_DIR}/director-details.png` });
+
+    // ── Log Out to capture Login/Register ──
+    await page.evaluate(() => {
+      localStorage.removeItem('frametric_access_token');
+      localStorage.removeItem('frametric_refresh_token');
+    });
+
+    // 22. LOGIN
+    await page.goto('/login');
+    await page.waitForSelector('.auth-card', { timeout: 10000 });
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${IMAGES_DIR}/login.png` });
+
+    // 23. REGISTER
+    await page.goto('/register');
+    await page.waitForSelector('.auth-card', { timeout: 10000 });
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${IMAGES_DIR}/register.png` });
   });
 });

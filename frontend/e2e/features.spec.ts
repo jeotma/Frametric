@@ -220,15 +220,15 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
       await expect(introSlide).toBeVisible();
 
       // Check page controls (prev / next slide triggers)
-      const nextZone = page.locator('.right-zone');
-      await nextZone.click();
+      await page.keyboard.press('ArrowRight');
+      await page.waitForTimeout(300);
 
       // Active slide should advance to index 1 (app-big-numbers-slide)
       const bigNumbersSlide = page.locator('app-big-numbers-slide');
       await expect(bigNumbersSlide).toBeVisible();
 
-      const prevZone = page.locator('.left-zone');
-      await prevZone.click();
+      await page.keyboard.press('ArrowLeft');
+      await page.waitForTimeout(300);
 
       // Active slide should return to index 0 (app-intro-slide)
       await expect(introSlide).toBeVisible();
