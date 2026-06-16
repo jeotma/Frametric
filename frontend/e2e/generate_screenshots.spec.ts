@@ -477,7 +477,7 @@ async function setupApiMocks(page: Page) {
           directorName: 'Christopher Nolan',
           releaseYear: 2010,
           selectionMechanismMetadata: 'Random Choice',
-          posterUrl: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg',
+          posterUrl: 'https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg',
           runtimeMinutes: 148
         },
         spinSequence: [
@@ -496,7 +496,7 @@ async function setupApiMocks(page: Page) {
             directorName: 'Christopher Nolan',
             releaseYear: 2010,
             selectionMechanismMetadata: 'Random Choice',
-            posterUrl: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg',
+            posterUrl: 'https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg',
             runtimeMinutes: 148
           }
         ]
@@ -507,7 +507,7 @@ async function setupApiMocks(page: Page) {
         title: 'Inception',
         directorName: 'Christopher Nolan',
         releaseYear: 2010,
-        posterUrl: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg',
+        posterUrl: 'https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg',
         runtimeMinutes: 148,
         selectionMechanismMetadata: 'Crit Choice',
         diceResults: [
@@ -525,19 +525,19 @@ async function setupApiMocks(page: Page) {
         title: 'Inception',
         directorName: 'Christopher Nolan',
         releaseYear: 2010,
-        posterUrl: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg',
+        posterUrl: 'https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg',
         runtimeMinutes: 148,
-        selectionMechanismMetadata: 'Perfect Slots Match',
+        selectionMechanismMetadata: 'Excellent Slots Match',
         reelResults: [
           { label: 'Genre', value: 'Sci-Fi' },
           { label: 'Decade', value: '2010s' },
           { label: 'Rating', value: '8.5+' },
-          { label: 'Popularity', value: 'Jackpot' },
+          { label: 'Popularity', value: 'Mainstream' },
           { label: 'Country', value: 'USA' }
         ],
-        isJackpot: true,
-        matchCount: 5,
-        matchedReels: [true, true, true, true, true]
+        isJackpot: false,
+        matchCount: 4,
+        matchedReels: [true, true, true, true, false]
       }));
     } else if (url.includes('/api/v1/discovery/mystery-box') && !url.includes('/reveal')) {
       await route.fulfill(json({
@@ -557,7 +557,7 @@ async function setupApiMocks(page: Page) {
         directorName: 'Christopher Nolan',
         releaseYear: 2010,
         selectionMechanismMetadata: 'Mystery Box Choice',
-        posterUrl: 'https://image.tmdb.org/t/p/w500/uDO8zWDhfNsPkNyHOjftVz8u22Y.jpg',
+        posterUrl: 'https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg',
         runtimeMinutes: 148
       }));
     } else {
