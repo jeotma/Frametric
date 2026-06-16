@@ -313,7 +313,7 @@ async function setupApiMocks(page: Page) {
         body: await response.body()
       });
     } catch (e) {
-      console.log(`Failed to fetch TMDB image ${url}, falling back to SVG placeholder. Reason:`, e.message || e);
+      console.log(`Failed to fetch TMDB image ${url}, falling back to SVG placeholder. Reason:`, e instanceof Error ? e.message : e);
       const isProfile = url.includes('pR2H6U7nH8lvrE02hLL6b8Ysnjm.jpg') || 
                         url.includes('xuAIuYSmsUzKlUMBFGVZaWsY3DZ.jpg') || 
                         url.toLowerCase().includes('profile') || 

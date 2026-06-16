@@ -1,10 +1,15 @@
 import { test, expect, Page } from '@playwright/test';
 
-declare const Buffer: any;
-
 // Helper to simulate authentication client-side
 async function loginAndSetToken(page: Page) {
-  const b64 = (obj: any) => Buffer.from(JSON.stringify(obj)).toString('base64url');
+  const b64 = (obj: any) => {
+    const str = JSON.stringify(obj);
+    const base64 = btoa(unescape(encodeURIComponent(str)));
+    return base64
+      .replace(/=/g, '')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_');
+  };
   
   const header = b64({ alg: 'HS256', typ: 'JWT' });
   const payload = b64({
@@ -290,7 +295,7 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
       await page.goto('/recommendations');
 
       // Check header title is visible
-      await expect(page.locator('.reco-header h1')).toHaveText('Cinematic Recommendations');
+      await expect(page.locator('.reco-header h1')).toHaveText('NEXT SCREENING');
 
       // Check default recommendations are rendered
       const movieCards = page.locator('.movie-card');
@@ -301,7 +306,7 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
       await expect(firstCard.locator('.movie-title')).toHaveText('Inception');
       await expect(firstCard.locator('.director')).toContainText('Christopher Nolan');
       await expect(firstCard.locator('.match-badge')).toHaveText('95.5% Match');
-      await expect(firstCard.locator('.reason-text')).toContainText('Shares your favorite sci-fi style and pacing');
+      await expect(firstCard.locator('.why-this-movie-trigger')).toHaveAttribute('data-tooltip', /Shares your favorite sci-fi style and pacing/);
 
       // Change strategy to "Opposite Mood" (index 1 / card 2)
       const oppositeMoodBtn = page.locator('.strategy-card').nth(1);

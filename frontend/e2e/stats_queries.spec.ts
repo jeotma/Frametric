@@ -2,7 +2,14 @@ import { test, expect, Page } from '@playwright/test';
 
 // Helper to simulate authentication client-side
 async function loginAndSetToken(page: Page) {
-  const b64 = (obj: any) => Buffer.from(JSON.stringify(obj)).toString('base64url');
+  const b64 = (obj: any) => {
+    const str = JSON.stringify(obj);
+    const base64 = btoa(unescape(encodeURIComponent(str)));
+    return base64
+      .replace(/=/g, '')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_');
+  };
   
   const header = b64({ alg: 'HS256', typ: 'JWT' });
   const payload = b64({
