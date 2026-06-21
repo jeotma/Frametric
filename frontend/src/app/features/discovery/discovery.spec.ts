@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DiscoveryComponent } from './discovery';
 import { DiscoveryService } from '../../core/api/api/discovery.service';
+import { CustomListsService } from '../../core/api/api/custom-lists.service';
+import { AuthService } from '../../core/services/auth.service';
 import { of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 
@@ -8,21 +10,37 @@ describe('DiscoveryComponent', () => {
   let component: DiscoveryComponent;
   let fixture: ComponentFixture<DiscoveryComponent>;
   let mockService: any;
+  let mockAuthService: any;
+  let mockCustomListsService: any;
 
   const createMockService = () => ({
-    apiV1DiscoveryRoulettePost: () => of({ movieId: '1', title: 'Roulette Movie', directorName: 'Dir', releaseYear: 2020, selectionMechanismMetadata: 'random' } as any),
+    apiV1DiscoveryRoulettePost: () => of({
+      winner: { movieId: '1', title: 'Roulette Movie', directorName: 'Dir', releaseYear: 2020, selectionMechanismMetadata: 'random' },
+      spinSequence: [{ movieId: '1', title: 'Roulette Movie', directorName: 'Dir', releaseYear: 2020, selectionMechanismMetadata: 'random' }]
+    } as any),
     apiV1DiscoveryDicePost: () => of({ movieId: '2', title: 'Dice Movie', directorName: 'Dir', releaseYear: 2021, selectionMechanismMetadata: 'roll', diceResults: [], specialEvent: null } as any),
     apiV1DiscoverySlotMachinePost: () => of({ movieId: '3', title: 'Slot Movie', directorName: 'Dir', releaseYear: 2022, selectionMechanismMetadata: 'spin', reelResults: [], isJackpot: false } as any),
     apiV1DiscoveryMysteryBoxPost: () => of({ boxIds: ['a', 'b'], variant: 0, generatedAt: new Date().toISOString() } as any),
     apiV1DiscoveryMysteryBoxBoxIdRevealGet: () => of({ movieId: '4', title: 'Revealed Movie', directorName: 'Dir', releaseYear: 2023, selectionMechanismMetadata: 'reveal' } as any),
-    apiV1DiscoveryBingoGet: (gridSize?: number) => of({ gridSize: gridSize ?? 3, squares: [] } as any),
+    apiV1DiscoveryBingoPost: (req: any) => of({ gridSize: req?.gridSize ?? 3, squares: [] } as any),
+    apiV1DiscoveryAvailableCountriesGet: () => of(['USA', 'UK', 'Spain']),
   });
 
   beforeEach(async () => {
     mockService = createMockService();
+    mockAuthService = {
+      isAuthenticated: () => true,
+    };
+    mockCustomListsService = {
+      apiV1CustomListsGet: () => of([]),
+    };
     await TestBed.configureTestingModule({
       imports: [DiscoveryComponent],
-      providers: [{ provide: DiscoveryService, useValue: mockService }]
+      providers: [
+        { provide: DiscoveryService, useValue: mockService },
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: CustomListsService, useValue: mockCustomListsService }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(DiscoveryComponent);
@@ -45,8 +63,8 @@ describe('DiscoveryComponent', () => {
       expect(tabTexts).toContain('Slot Machine');
     });
 
-    it('should start with Bingo tab active', () => {
-      expect(component.activeTab()).toBe('bingo');
+    it('should start with Roulette tab active', () => {
+      expect(component.activeTab()).toBe('roulette');
     });
 
     it('should switch tabs when clicked', () => {
@@ -69,8 +87,9 @@ describe('DiscoveryComponent', () => {
   describe('roulette', () => {
     it('should spell roulette and set result', () => {
       component.spellRoulette();
-      expect(component.rouletteResultSig()).toBeTruthy();
-      expect(component.rouletteResultSig()?.title).toBe('Roulette Movie');
+      component.onRouletteFinished(); // Simulate animation finish
+      expect(component.rouletteWinnerSig()).toBeTruthy();
+      expect(component.rouletteWinnerSig()?.title).toBe('Roulette Movie');
     });
   });
 
@@ -81,9 +100,10 @@ describe('DiscoveryComponent', () => {
       expect(component.mysteryResultSig()?.boxIds.length).toBeGreaterThan(0);
     });
 
-    it('should reveal a specific box', () => {
+    it('should reveal a specific box', async () => {
       component.generateMysteryBox();
       component.revealBox('a');
+      await new Promise(r => setTimeout(r, 1600));
       expect(component.revealedMovieSig()).toBeTruthy();
       expect(component.revealedMovieSig()?.title).toBe('Revealed Movie');
     });
@@ -92,6 +112,7 @@ describe('DiscoveryComponent', () => {
   describe('dice', () => {
     it('should roll dice and set result', () => {
       component.rollDice();
+      component.onDiceFinished(); // Simulate animation finish
       expect(component.diceResultSig()).toBeTruthy();
       expect(component.diceResultSig()?.title).toBe('Dice Movie');
     });
@@ -118,6 +139,7 @@ describe('DiscoveryComponent', () => {
 
     it('should set diceLoading to false after roll completes', () => {
       component.rollDice();
+      component.onDiceFinished();
       expect(component.diceLoading()).toBe(false);
     });
   });
@@ -132,12 +154,17 @@ describe('DiscoveryComponent', () => {
         apiV1DiscoverySlotMachinePost: () => of({ movieId: '3', title: 'OK', directorName: 'Dir', releaseYear: 2022, selectionMechanismMetadata: 'spin', reelResults: [], isJackpot: false } as any),
         apiV1DiscoveryMysteryBoxPost: () => of({ boxIds: ['a', 'b'], variant: 0, generatedAt: new Date().toISOString() } as any),
         apiV1DiscoveryMysteryBoxBoxIdRevealGet: () => of({ movieId: '4', title: 'OK', directorName: 'Dir', releaseYear: 2023, selectionMechanismMetadata: 'reveal' } as any),
-        apiV1DiscoveryBingoGet: (gridSize?: number) => of({ gridSize: gridSize ?? 3, squares: [] } as any),
+        apiV1DiscoveryBingoPost: (req: any) => of({ gridSize: req?.gridSize ?? 3, squares: [] } as any),
+        apiV1DiscoveryAvailableCountriesGet: () => of(['USA', 'UK']),
       };
       TestBed.resetTestingModule();
       await TestBed.configureTestingModule({
         imports: [DiscoveryComponent],
-        providers: [{ provide: DiscoveryService, useValue: errorService }]
+        providers: [
+          { provide: DiscoveryService, useValue: errorService },
+          { provide: AuthService, useValue: mockAuthService },
+          { provide: CustomListsService, useValue: mockCustomListsService }
+        ]
       }).compileComponents();
       fixture = TestBed.createComponent(DiscoveryComponent);
       component = fixture.componentInstance;

@@ -45,6 +45,7 @@ model/director-simple-dto.ts
 model/duration-balance-dto.ts
 model/enrich-movie-request.ts
 model/era-breakdown-dto.ts
+model/forgot-password-request.ts
 model/genre-count-dto.ts
 model/genre-proportion-dto.ts
 model/genre-simple-dto.ts
@@ -79,6 +80,7 @@ model/recommendation-request.ts
 model/recommended-movie-dto.ts
 model/refresh-token-request.ts
 model/register-user-request.ts
+model/reset-password-request.ts
 model/rookie-dto.ts
 model/roulette-race-result-dto.ts
 model/roulette-request.ts

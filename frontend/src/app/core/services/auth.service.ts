@@ -51,6 +51,18 @@ export class AuthService {
     ) as unknown as Observable<void>;
   }
 
+  forgotPassword(email: string): Observable<void> {
+    return this._apiAuth.apiAuthForgotPasswordPost({ email }).pipe(
+      catchError((err: any) => throwError(() => err))
+    ) as unknown as Observable<void>;
+  }
+
+  resetPassword(email: string, token: string, newPassword: string): Observable<void> {
+    return this._apiAuth.apiAuthResetPasswordPost({ email, token, newPassword }).pipe(
+      catchError((err: any) => throwError(() => err))
+    ) as unknown as Observable<void>;
+  }
+
   logout(): void {
     this._tokenStorage.clear();
     this._currentUser.set(null);

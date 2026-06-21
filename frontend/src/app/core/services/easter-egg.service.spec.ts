@@ -60,7 +60,7 @@ describe('EasterEggService', () => {
     it('rec-year silent film (year <= 1920)', () => {
       setRandom(0.01);
       const result = service.getEasterEgg('1915', 'rec-year');
-      expect(result?.text).toContain('🎥');
+      expect(result?.text).toContain('(Silent Film)');
     });
 
     it('rec-year silent film above 2% threshold returns null', () => {

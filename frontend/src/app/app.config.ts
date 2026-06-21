@@ -5,6 +5,7 @@ import { APP_BASE_HREF } from '@angular/common';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { BASE_PATH } from './core/api/variables';
 
 export const appConfig: ApplicationConfig = {
@@ -12,7 +13,7 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     { provide: BASE_PATH, useValue: 'http://localhost:5168' },
     { provide: APP_BASE_HREF, useValue: '/' },
   ],

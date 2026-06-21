@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 
 // Standalone Child Components Import
 import { SidebarComponent } from './components/sidebar/sidebar';
+import { ToastComponent } from './components/toast/toast.component';
 import { AuthService } from './core/services/auth.service';
 import { SearchService, GlobalSearchResultDto } from './core/api';
 import { slugify } from './core/utils/slugify';
@@ -15,7 +16,8 @@ import { ModalService } from './core/services/modal.service';
     RouterOutlet, 
     RouterLink,
     CommonModule, 
-    SidebarComponent
+    SidebarComponent,
+    ToastComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',

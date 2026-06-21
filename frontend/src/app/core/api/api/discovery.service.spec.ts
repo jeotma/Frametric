@@ -84,26 +84,26 @@ describe('DiscoveryService', () => {
     expect(result).toEqual(mockResponse);
   });
 
-  it('should GET bingo with gridSize param', () => {
+  it('should POST bingo with params', () => {
     const mockResponse = { gridSize: 3, squares: [] };
     let result: any;
 
-    service.apiV1DiscoveryBingoGet(3).subscribe(r => result = r);
+    service.apiV1DiscoveryBingoPost({ gridSize: 3 }).subscribe((r: any) => result = r);
 
-    const req = httpMock.expectOne('http://localhost:5168/api/v1/discovery/bingo?gridSize=3');
-    expect(req.request.method).toBe('GET');
+    const req = httpMock.expectOne('http://localhost:5168/api/v1/discovery/bingo');
+    expect(req.request.method).toBe('POST');
     req.flush(mockResponse);
     expect(result).toEqual(mockResponse);
   });
 
-  it('should GET bingo without params when gridSize omitted', () => {
+  it('should POST bingo without params when gridSize omitted', () => {
     const mockResponse = { gridSize: 3, squares: [] };
     let result: any;
 
-    service.apiV1DiscoveryBingoGet().subscribe(r => result = r);
+    service.apiV1DiscoveryBingoPost({}).subscribe((r: any) => result = r);
 
     const req = httpMock.expectOne('http://localhost:5168/api/v1/discovery/bingo');
-    expect(req.request.method).toBe('GET');
+    expect(req.request.method).toBe('POST');
     req.flush(mockResponse);
     expect(result).toEqual(mockResponse);
   });
