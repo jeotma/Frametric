@@ -84,6 +84,32 @@ public class MoviesController : ControllerBase
         if (!success) return NotFound();
         return NoContent();
     }
+
+    [HttpPost("{id}/watchlist")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AddToWatchlist(Guid id, CancellationToken cancellationToken)
+    {
+        var userId = _currentUserService.UserId;
+        if (userId == null) return Unauthorized("User is not authenticated.");
+
+        var success = await _mediator.Send(new AddMovieToWatchlistCommand(userId.Value, id), cancellationToken);
+        if (!success) return NotFound();
+        return Ok();
+    }
+
+    [HttpDelete("{id}/watchlist")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RemoveFromWatchlist(Guid id, CancellationToken cancellationToken)
+    {
+        var userId = _currentUserService.UserId;
+        if (userId == null) return Unauthorized("User is not authenticated.");
+
+        var success = await _mediator.Send(new RemoveMovieFromWatchlistCommand(userId.Value, id), cancellationToken);
+        if (!success) return NotFound();
+        return NoContent();
+    }
 }
 
 public class LogMovieWatchRequest
@@ -97,3 +123,4 @@ public class EnrichMovieRequest
 {
     public int TmdbId { get; set; }
 }
+

@@ -26,7 +26,8 @@ public record MovieDetailsDto(
     IEnumerable<DirectorSimpleDto> Directors,
     IEnumerable<ActorSimpleDto> Actors,
     IEnumerable<MovieDiaryEntryDto> DiaryEntries,
-    bool IsWatched = false
+    bool IsWatched = false,
+    bool IsInWatchlist = false
 );
 
 public record ActorDetailsDto(
@@ -76,3 +77,4 @@ public record DirectorDetailsDto(
     public DirectorDetailsDto(Guid id, string name, double averageRating, int watchCount, IEnumerable<MovieSimpleDto> movies, string? profilePath) 
         : this(id, name, averageRating, watchCount, movies, profilePath, false, null, 0, 0, null, null) {}
 }
+

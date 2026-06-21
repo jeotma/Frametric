@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -10,13 +10,16 @@ namespace Frametric.Api.Extensions;
 
 public static class CorsExtensions
 {
-    public static IServiceCollection AddFrontendCors(this IServiceCollection services)
+    public static IServiceCollection AddFrontendCors(this IServiceCollection services, IConfiguration configuration)
     {
+        var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() 
+            ?? new[] { "http://localhost:4200" };
+
         services.AddCors(options =>
         {
             options.AddPolicy("FrontendPolicy", policy =>
             {
-                policy.WithOrigins("http://localhost:4200")
+                policy.WithOrigins(allowedOrigins)
                       .AllowAnyHeader()
                       .AllowAnyMethod()
                       .AllowCredentials();

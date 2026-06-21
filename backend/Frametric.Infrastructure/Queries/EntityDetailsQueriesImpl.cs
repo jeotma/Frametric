@@ -45,7 +45,8 @@ public class EntityDetailsQueriesImpl : IEntityDetailsQueries
                 m.""Overview"", 
                 m.""TmdbRating"",
                 (SELECT r.""Score"" * 2 FROM ""MovieRatings"" r WHERE r.""MovieId"" = m.""Id"" AND r.""UserId"" = @UserId LIMIT 1) AS ""UserAverageScore"",
-                CASE WHEN EXISTS (SELECT 1 FROM ""WatchedMovies"" w WHERE w.""MovieId"" = m.""Id"" AND w.""UserId"" = @UserId) THEN true ELSE false END AS ""IsWatched""
+                CASE WHEN EXISTS (SELECT 1 FROM ""WatchedMovies"" w WHERE w.""MovieId"" = m.""Id"" AND w.""UserId"" = @UserId) THEN true ELSE false END AS ""IsWatched"",
+                CASE WHEN EXISTS (SELECT 1 FROM ""WatchlistItems"" wl WHERE wl.""MovieId"" = m.""Id"" AND wl.""UserId"" = @UserId) THEN true ELSE false END AS ""IsInWatchlist""
             FROM ""Movies"" m
             WHERE m.""Id"" = @MovieId;
 
@@ -98,7 +99,8 @@ public class EntityDetailsQueriesImpl : IEntityDetailsQueries
             directors,
             actors,
             diaryEntries,
-            (bool)movieBase.IsWatched
+            movieBase.IsWatched != null ? (bool)movieBase.IsWatched : false,
+            movieBase.IsInWatchlist != null ? (bool)movieBase.IsInWatchlist : false
         );
     }
 
@@ -442,3 +444,5 @@ public class EntityDetailsQueriesImpl : IEntityDetailsQueries
         return await connection.QueryAsync<GlobalSearchResultDto>(sql, new { SearchPattern = searchPattern });
     }
 }
+
+

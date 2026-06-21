@@ -1,5 +1,6 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+﻿import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MoviesService, MovieDetailsDto } from '../../../core/api';
@@ -13,6 +14,7 @@ import { slugify } from '../../../core/utils/slugify';
   styleUrl: './movie-detail.scss'
 })
 export class MovieDetailComponent implements OnInit {
+  public isTogglingWatchlist = signal<boolean>(false);
   protected readonly slugify = slugify;
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -127,7 +129,7 @@ export class MovieDetailComponent implements OnInit {
     const id = this.movie()?.id;
     if (!id) return;
 
-    if (!confirm('¿Eliminar este registro de visionado?')) return;
+    if (!confirm('Â¿Eliminar este registro de visionado?')) return;
 
     this.unloggingEntryId.set(entryId);
     this.errorMessage.set(null);
@@ -146,5 +148,39 @@ export class MovieDetailComponent implements OnInit {
   isLogged(m: MovieDetailsDto): boolean {
     return m.isWatched || (m.diaryEntries?.length > 0);
   }
+  public toggleWatchlist() {
+    if (!this.movie() || !this.movie()!.id) return;
+    
+    const movieId = this.movie()!.id!;
+    const isCurrentlyInWatchlist = this.movie()!.isInWatchlist;
+    this.isTogglingWatchlist.set(true);
+
+    if (isCurrentlyInWatchlist) {
+      this.moviesService.apiMoviesIdWatchlistDelete(movieId)
+        .pipe(finalize(() => this.isTogglingWatchlist.set(false)))
+        .subscribe({
+          next: () => {
+            this.movie.update(m => m ? { ...m, isInWatchlist: false } : null);
+          },
+          error: (err) => {
+            console.error('Failed to remove from watchlist', err);
+            this.errorMessage.set('Could not remove from watchlist.');
+          }
+        });
+    } else {
+      this.moviesService.apiMoviesIdWatchlistPost(movieId)
+        .pipe(finalize(() => this.isTogglingWatchlist.set(false)))
+        .subscribe({
+          next: () => {
+            this.movie.update(m => m ? { ...m, isInWatchlist: true } : null);
+          },
+          error: (err) => {
+            console.error('Failed to add to watchlist', err);
+            this.errorMessage.set('Could not add to watchlist.');
+          }
+        });
+    }
+  }
 }
+
 
