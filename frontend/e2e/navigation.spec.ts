@@ -63,6 +63,9 @@ test.describe('Global Navigation and Shell Layout', () => {
     await expect(page.locator('.logo-version')).toHaveText('v1.2');
     
     // Topbar Search
+    const searchBox = page.locator('.search-box');
+    await searchBox.click();
+
     const searchInput = page.locator('.search-box input');
     await expect(searchInput).toBeVisible();
     await expect(searchInput).toHaveAttribute('placeholder', 'Search movies, directors, genres...');
@@ -118,7 +121,7 @@ test.describe('Global Navigation and Shell Layout', () => {
 
     // Go back and click "Final Cut 2025"
     await page.goto('/dashboard');
-    const finalCutTeaserButton = page.locator('.header-actions a.btn-primary:has-text("Final Cut 2025")');
+    const finalCutTeaserButton = page.locator('.header-actions a.btn-cta:has-text("Final Cut 2025")');
     await expect(finalCutTeaserButton).toBeVisible();
     await finalCutTeaserButton.click();
     await expect(page).toHaveURL(/\/final-cut-teaser/);

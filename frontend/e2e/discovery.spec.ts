@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { loginAndSetToken } from './helpers';
 
-test.describe('Discovery Gamified Module', () => {
+test.describe('Discovery Module', () => {
   test.beforeEach(async ({ page }) => {
     await loginAndSetToken(page);
   });
 
-  test('should navigate to Discovery and display Bingo tab by default', async ({ page }) => {
+  test('should navigate to Discovery and display Roulette tab by default', async ({ page }) => {
     await page.goto('/discovery');
     
     // Tab should be Bingo or Roulette depending on the default state
@@ -34,23 +34,24 @@ test.describe('Discovery Gamified Module', () => {
             title: 'The Matrix',
             directorName: 'Lana Wachowski, Lilly Wachowski',
             releaseYear: 1999,
-            posterPath: '/matrix.jpg'
+            posterUrl: '/matrix.jpg',
+            selectionMechanismMetadata: 'random'
           },
           spinSequence: [
-            { movieId: '111', title: 'Fake Movie 1', posterPath: null },
-            { movieId: '222', title: 'Fake Movie 2', posterPath: null },
-            { movieId: '123', title: 'The Matrix', posterPath: '/matrix.jpg' }
+            { movieId: '111', title: 'Fake Movie 1', posterUrl: null, directorName: '', releaseYear: 0, selectionMechanismMetadata: '' },
+            { movieId: '222', title: 'Fake Movie 2', posterUrl: null, directorName: '', releaseYear: 0, selectionMechanismMetadata: '' },
+            { movieId: '123', title: 'The Matrix', posterUrl: '/matrix.jpg', directorName: 'Lana Wachowski, Lilly Wachowski', releaseYear: 1999, selectionMechanismMetadata: 'random' }
           ]
         }
       });
     });
 
-    await page.locator('button:has-text("SPIN ROULETTE")').click();
+    await page.locator('button:has-text("Spin!")').click();
     
     // Wait for the animation to finish (the component uses a sequence with delays)
     // We expect the Winner Modal to be visible eventually
-    await expect(page.locator('.winner-modal')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('.winner-modal h2')).toContainText('The Matrix');
+    await expect(page.locator('.winner-modal-content')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.winner-modal-content h2')).toContainText('The Matrix');
   });
 
   test('should spin slot machine and display winner', async ({ page }) => {
@@ -66,17 +67,18 @@ test.describe('Discovery Gamified Module', () => {
           title: 'Inception',
           directorName: 'Christopher Nolan',
           releaseYear: 2010,
-          posterPath: '/inception.jpg',
+          posterUrl: '/inception.jpg',
+          selectionMechanismMetadata: 'spin',
           isJackpot: false,
-          reelResults: ['Reel1', 'Reel2', 'Reel3']
+          reelResults: []
         }
       });
     });
 
-    await page.locator('button:has-text("PULL LEVER")').click();
+    await page.locator('button:has-text("Pull Lever!")').click();
     
     // Wait for slot animation
-    await expect(page.locator('.winner-modal')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('.winner-modal h2')).toContainText('Inception');
+    await expect(page.locator('.winner-modal-content')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.winner-modal-content h2')).toContainText('Inception');
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "frametric-frontend",
-  "version": "1.5.3",
+  "version": "1.6.0",
   "scripts": {
     "prestart": "node scripts/sync-version.js",
     "ng": "ng",

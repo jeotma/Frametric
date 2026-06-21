@@ -52,11 +52,11 @@ test.describe('Authentication and Navigation Flow', () => {
       await route.fulfill({ status: 200, json: {} });
     });
     
-    await page.locator('#rp-password').fill('newpassword123');
+    await page.locator('#rp-password').fill('SecureP@ss1!');
     await page.locator('button[type="submit"]').click();
     
     // Check success toast and redirect to login
-    await expect(page.locator('.success-banner')).toContainText('Password successfully reset');
+    await expect(page.locator('.success-banner')).toContainText('Password has been successfully reset');
     await expect(page).toHaveURL(/\/login/);
   });
 });
