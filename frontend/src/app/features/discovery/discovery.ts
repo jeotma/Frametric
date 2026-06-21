@@ -137,6 +137,29 @@ export class DiscoveryComponent implements OnInit {
   public slotExcludeWatched = signal<boolean>(true);
   public slotChips = signal<MovieSimpleDto[]>([]);
 
+  public slotGenreOptions = [
+    { value: '', label: 'Any Genre' },
+    { value: 'Action', label: 'Action' },
+    { value: 'Adventure', label: 'Adventure' },
+    { value: 'Animation', label: 'Animation' },
+    { value: 'Comedy', label: 'Comedy' },
+    { value: 'Crime', label: 'Crime' },
+    { value: 'Documentary', label: 'Documentary' },
+    { value: 'Drama', label: 'Drama' },
+    { value: 'Family', label: 'Family' },
+    { value: 'Fantasy', label: 'Fantasy' },
+    { value: 'History', label: 'History' },
+    { value: 'Horror', label: 'Horror' },
+    { value: 'Music', label: 'Music' },
+    { value: 'Mystery', label: 'Mystery' },
+    { value: 'Romance', label: 'Romance' },
+    { value: 'Science Fiction', label: 'Science Fiction' },
+    { value: 'TV Movie', label: 'TV Movie' },
+    { value: 'Thriller', label: 'Thriller' },
+    { value: 'War', label: 'War' },
+    { value: 'Western', label: 'Western' }
+  ];
+
   public slotDecadeOptions = [
     { value: null, label: 'Any Decade' },
     { value: 1980, label: '1980s' },
@@ -205,16 +228,88 @@ export class DiscoveryComponent implements OnInit {
     return `${diffDays} day${diffDays === 1 ? '' : 's'} remaining`;
   });
 
+  public maxBingoRerolls = computed(() => {
+    const size = this.bingoResultSig()?.gridSize ?? this.bingoGridSize();
+    return size === 3 ? 1 : size === 4 ? 2 : 3;
+  });
+
+  public diceMatchStatus = computed(() => {
+    const res = this.diceResultSig();
+    if (!res || res.matchDistance === undefined || !this.diceSettled().every(s => s)) return null;
+    
+    const dist = res.matchDistance;
+    if (dist === 0) {
+      return {
+        text: '[SYSTEM: PERFECT MATCH] Exact alignment with rolled coordinates.',
+        class: 'match-perfect',
+        color: 'var(--accent-emerald)'
+      };
+    }
+    if (dist >= 1 && dist <= 2) {
+      return {
+        text: '[SYSTEM: APPROXIMATE MATCH] Near alignment. Adjusted constraints slightly.',
+        class: 'match-near',
+        color: 'var(--accent-sepia)'
+      };
+    }
+    if (dist >= 3 && dist <= 4) {
+      return {
+        text: '[SYSTEM: DEVIATED MATCH] Broad alignment. Multiple constraints relaxed.',
+        class: 'match-deviated',
+        color: 'rgba(229, 9, 20, 0.6)'
+      };
+    }
+    if (dist >= 5 && dist <= 6) {
+      return {
+        text: '[SYSTEM: EXTENDED MATCH] Wide alignment. Core constraints relaxed.',
+        class: 'match-extended',
+        color: 'rgba(229, 9, 20, 0.75)'
+      };
+    }
+    if (dist >= 7 && dist <= 12) {
+      return {
+        text: '[SYSTEM: MAXIMUM DEVIATION] Extreme alignment deviation. Searching pool with minimum constraints.',
+        class: 'match-maximum',
+        color: 'rgba(229, 9, 20, 0.9)'
+      };
+    }
+    return {
+      text: '[SYSTEM: CALIBRATION FAULT] No matching criteria found. Full database selection.',
+      class: 'match-fault',
+      color: 'var(--accent-record)'
+    };
+  });
+
   public winnerModalMovie = signal<any | null>(null);
 
   public closeWinnerModal(): void {
     this.winnerModalMovie.set(null);
   }
 
+  public slotCountryOptions = signal<{ value: string; label: string }[]>([
+    { value: '', label: 'Any Country' }
+  ]);
+
   ngOnInit(): void {
     if (this.auth.isAuthenticated()) {
       this.loadUserLists();
+      this.loadAvailableCountries();
     }
+  }
+
+  private loadAvailableCountries(): void {
+    this.discoveryService.apiV1DiscoveryAvailableCountriesGet().subscribe({
+      next: (countries) => {
+        const opts = [
+          { value: '', label: 'Any Country' },
+          ...countries.map(c => ({ value: c, label: c }))
+        ];
+        this.slotCountryOptions.set(opts);
+      },
+      error: () => {
+        console.warn('Failed to load available countries for slot machine.');
+      }
+    });
   }
 
   private loadUserLists(): void {
@@ -302,6 +397,11 @@ export class DiscoveryComponent implements OnInit {
     return chips.map(c => c.title!).filter(t => !!t);
   }
 
+  private getChipsIds(chips: MovieSimpleDto[]): string[] | undefined {
+    if (chips.length === 0) return undefined;
+    return chips.map(c => c.id!).filter(id => !!id);
+  }
+
   public spellRoulette(): void {
     if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
     this.errorMsg.set(null);
@@ -310,6 +410,7 @@ export class DiscoveryComponent implements OnInit {
       scope: this.rouletteScope() as any,
       winningThreshold: this.rouletteThreshold() > 1 ? this.rouletteThreshold() : 1,
       excludeWatched: this.rouletteExcludeWatched(),
+      customSourceIds: this.rouletteScope() === 2 ? this.getChipsIds(this.rouletteChips()) : undefined,
       customSourceTitles: this.rouletteScope() === 2 ? this.getChipsTitles(this.rouletteChips()) : undefined
     }).subscribe({ 
       next: (r: RouletteRaceResultDto) => {
@@ -402,8 +503,8 @@ export class DiscoveryComponent implements OnInit {
 
   public rollDice(): void {
     if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
-    if (this.diceLoading() || this.diceRolling().some(r => r)) return;
     this.errorMsg.set(null);
+    this.resetDiceState();
     this.diceLoading.set(true);
     
     // Set all dice to rolling
@@ -411,11 +512,11 @@ export class DiscoveryComponent implements OnInit {
     this.diceSettled.set([false, false, false, false, false]);
     this.diceValues.set([0, 0, 0, 0, 0]);
     this.diceLabels.set(['', '', '', '', '']);
-    this.diceResultSig.set(null);
 
     this.discoveryService.apiV1DiscoveryDicePost({ 
       scope: this.diceScope() as any,
       excludeWatched: this.diceExcludeWatched(),
+      customSourceIds: this.diceScope() === 2 ? this.getChipsIds(this.diceChips()) : undefined,
       customSourceTitles: this.diceScope() === 2 ? this.getChipsTitles(this.diceChips()) : undefined
     }).subscribe({ 
         next: r => {
@@ -480,6 +581,7 @@ export class DiscoveryComponent implements OnInit {
       this.discoveryService.apiV1DiscoveryDicePost({ 
         scope: this.diceScope() as any,
         excludeWatched: this.diceExcludeWatched(),
+        customSourceIds: this.diceScope() === 2 ? this.getChipsIds(this.diceChips()) : undefined,
         customSourceTitles: this.diceScope() === 2 ? this.getChipsTitles(this.diceChips()) : undefined
       }).subscribe({ 
         next: r => {
@@ -542,6 +644,7 @@ export class DiscoveryComponent implements OnInit {
     this.discoveryService.apiV1DiscoveryDicePost({
       scope: this.diceScope() as any,
       excludeWatched: this.diceExcludeWatched(),
+      customSourceIds: this.diceScope() === 2 ? this.getChipsIds(this.diceChips()) : undefined,
       customSourceTitles: this.diceScope() === 2 ? this.getChipsTitles(this.diceChips()) : undefined,
       presets: presets
     }).subscribe({
@@ -622,7 +725,7 @@ export class DiscoveryComponent implements OnInit {
 
       if (highestIdx !== -1) {
         this.hasAutomaticFumbleRerolled = true;
-        const diceNames = ['Quality (D3)', 'Rarity (D4)', 'Risk (D6)', 'Complexity (D12)', 'Exploration (D20)'];
+        const diceNames = ['Duration (D3)', 'Popularity (D4)', 'Risk (D6)', 'Quality (D12)', 'Genre (D20)'];
         const fumbleName = fumbleIndices.map(fi => diceNames[fi]).join(', ');
         this.diceSpecialStatusMsg.set(`FUMBLE on ${fumbleName}! Rerolling highest die: ${diceNames[highestIdx]}...`);
 
@@ -637,7 +740,7 @@ export class DiscoveryComponent implements OnInit {
     if (criticalIndices.length > 0 && !this.pendingCriticalChoice()) {
       const otherDiceIndices = [0, 1, 2, 3, 4].filter(idx => !criticalIndices.includes(idx));
       if (otherDiceIndices.length > 0) {
-        const diceNames = ['Quality (D3)', 'Rarity (D4)', 'Risk (D6)', 'Complexity (D12)', 'Exploration (D20)'];
+        const diceNames = ['Duration (D3)', 'Popularity (D4)', 'Risk (D6)', 'Quality (D12)', 'Genre (D20)'];
         const critName = criticalIndices.map(ci => diceNames[ci]).join(', ');
         this.diceSpecialStatusMsg.set(`CRITICAL ROLL on ${critName}! Click any other die to reroll it.`);
         this.pendingCriticalChoice.set(true);
@@ -692,6 +795,7 @@ export class DiscoveryComponent implements OnInit {
       rating: this.slotRatingLocked() && this.slotRating() ? this.slotRating() : null,
       country: this.slotCountryLocked() && this.slotCountry() ? this.slotCountry() : null,
       excludeWatched: this.slotExcludeWatched(),
+      customSourceIds: this.slotScope() === 2 ? this.getChipsIds(this.slotChips()) : undefined,
       customSourceTitles: this.slotScope() === 2 ? this.getChipsTitles(this.slotChips()) : undefined
     }).subscribe({ 
         next: r => {
@@ -726,6 +830,7 @@ export class DiscoveryComponent implements OnInit {
       scope: this.mysteryScope() as any,
       variant: this.mysteryVariant(),
       excludeWatched: this.mysteryExcludeWatched(),
+      customSourceIds: this.mysteryScope() === 2 ? this.getChipsIds(this.mysteryChips()) : undefined,
       customSourceTitles: this.mysteryScope() === 2 ? this.getChipsTitles(this.mysteryChips()) : undefined
     }).pipe(
       finalize(() => this.mysteryLoading.set(false))
@@ -796,11 +901,28 @@ export class DiscoveryComponent implements OnInit {
       gridSize: this.bingoGridSize(),
       scope: this.bingoScope() as any,
       excludeWatched: this.bingoExcludeWatched(),
+      customSourceIds: this.bingoScope() === 2 ? this.getChipsIds(this.bingoChips()) : undefined,
       customSourceTitles: this.bingoScope() === 2 ? this.getChipsTitles(this.bingoChips()) : undefined,
       durationDays: newBoard ? (this.bingoDurationDays() ?? undefined) : undefined
     })
       .pipe(finalize(() => this.bingoLoading.set(false)))
       .subscribe({ next: (r: any) => this.bingoResultSig.set(r), error: (e: any) => this.errorMsg.set(e.error?.error || 'Bingo load failed') });
+  }
+
+  public rerollBingoObjective(objectiveId: string): void {
+    if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
+    this.errorMsg.set(null);
+    this.bingoLoading.set(true);
+    this.discoveryService.apiV1DiscoveryBingoRerollObjectiveIdPost(objectiveId)
+      .pipe(finalize(() => this.bingoLoading.set(false)))
+      .subscribe({
+        next: (r: BingoGridDto) => {
+          this.bingoResultSig.set(r);
+        },
+        error: (e: any) => {
+          this.errorMsg.set(e.error?.error || 'Reroll failed');
+        }
+      });
   }
 
   public trackByIndex(index: number): number {

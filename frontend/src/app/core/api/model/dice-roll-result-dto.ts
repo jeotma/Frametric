@@ -21,5 +21,6 @@ export interface DiceRollResultDto {
     diceResults: Array<SingleDieResultDto>;
     specialEvent?: string | null;
     overview?: string | null;
+    matchDistance?: number;
 }
 

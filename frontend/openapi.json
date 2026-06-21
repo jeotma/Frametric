@@ -71,6 +71,275 @@
         }
       }
     },
+    "/api/Admin/users": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Admin/users/{userId}/promote": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Admin/diagnostics/database": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseStatsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseStatsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseStatsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Admin/diagnostics/providers": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDiagnosticsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDiagnosticsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDiagnosticsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Admin/diagnostics/logs": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LogEntryDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LogEntryDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LogEntryDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Admin/maintenance/purge-orphans": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurgeOrphanResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurgeOrphanResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurgeOrphanResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Admin/maintenance/clear-cache": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Admin/enrich/retry-failed": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "resetPermanentlyFailed",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "batchSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/analytics/advanced/watched": {
       "get": {
         "tags": [
@@ -5432,6 +5701,84 @@
         }
       }
     },
+    "/api/v1/discovery/bingo/reroll/{objectiveId}": {
+      "post": {
+        "tags": [
+          "Discovery"
+        ],
+        "parameters": [
+          {
+            "name": "objectiveId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BingoGridDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BingoGridDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BingoGridDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/discovery/available-countries": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Import/letterboxd": {
       "post": {
         "tags": [
@@ -6195,6 +6542,11 @@
             "format": "date-time",
             "default": null,
             "nullable": true
+          },
+          "rerollsUsed": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
           }
         }
       },
@@ -6288,6 +6640,11 @@
             "format": "date",
             "default": null,
             "nullable": true
+          },
+          "rerollCount": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
           }
         }
       },
@@ -6453,6 +6810,73 @@
           }
         }
       },
+      "DatabaseStatsDto": {
+        "required": [
+          "totalUsers",
+          "totalMovies",
+          "pendingMovies",
+          "completedMovies",
+          "failedMovies",
+          "notFoundMovies",
+          "permanentlyFailedMovies",
+          "totalTvShows",
+          "totalGenres",
+          "totalDirectors",
+          "totalActors",
+          "totalDiaryEntries"
+        ],
+        "type": "object",
+        "properties": {
+          "totalUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalMovies": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pendingMovies": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completedMovies": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "failedMovies": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notFoundMovies": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "permanentlyFailedMovies": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalTvShows": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalGenres": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalDirectors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalActors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalDiaryEntries": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "DecadeCountDto": {
         "required": [
           "decade",
@@ -6573,6 +6997,11 @@
             "type": "string",
             "default": null,
             "nullable": true
+          },
+          "matchDistance": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
           }
         }
       },
@@ -7003,6 +7432,35 @@
             "type": "string"
           },
           "errorMessage": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "LogEntryDto": {
+        "required": [
+          "timestamp",
+          "level",
+          "category",
+          "message",
+          "exception"
+        ],
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "level": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "exception": {
             "type": "string",
             "nullable": true
           }
@@ -7456,6 +7914,62 @@
           "instance": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "ProviderDiagnosticsDto": {
+        "required": [
+          "tmdbStatus",
+          "tmdbLatencyMs",
+          "omdbStatus",
+          "omdbLatencyMs",
+          "backendStatus",
+          "backendLatencyMs"
+        ],
+        "type": "object",
+        "properties": {
+          "tmdbStatus": {
+            "type": "string"
+          },
+          "tmdbLatencyMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "omdbStatus": {
+            "type": "string"
+          },
+          "omdbLatencyMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "backendStatus": {
+            "type": "string"
+          },
+          "backendLatencyMs": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PurgeOrphanResultDto": {
+        "required": [
+          "purgedGenres",
+          "purgedDirectors",
+          "purgedActors"
+        ],
+        "type": "object",
+        "properties": {
+          "purgedGenres": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "purgedDirectors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "purgedActors": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -7921,6 +8435,30 @@
           }
         }
       },
+      "UserDto": {
+        "required": [
+          "id",
+          "username",
+          "email",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      },
       "WatchedMovieStatsDto": {
         "required": [
           "title",
@@ -8197,6 +8735,9 @@
   "tags": [
     {
       "name": "Actors"
+    },
+    {
+      "name": "Admin"
     },
     {
       "name": "AdvancedAnalytics"

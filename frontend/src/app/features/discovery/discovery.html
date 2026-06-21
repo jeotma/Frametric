@@ -117,7 +117,7 @@
           <span class="hud-label">EXCLUDE WATCHED</span>
           <app-cinematic-tooltip>Exclude movies you have already logged/watched.</app-cinematic-tooltip>
         </div>
-        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="bingoExcludeWatched"></app-cinematic-toggle></div>
+        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="bingoExcludeWatched" [disabled]="bingoScope() === 2"></app-cinematic-toggle></div>
       </div>
       <div class="control-item">
         <div class="control-header">
@@ -155,6 +155,10 @@
           <span class="hud-value">UNLIMITED</span>
         </div>
       </ng-template>
+      <div class="active-period-details" style="margin-left: 2rem; border-left: 1px solid rgba(255,255,255,0.15); padding-left: 2rem;">
+        <span class="hud-label">REROLLS REMAINING:</span>
+        <span class="hud-value" style="color: var(--accent-sepia); font-family: monospace; font-size: 1.1rem;">{{ maxBingoRerolls() - (bingo.rerollsUsed || 0) }} / {{ maxBingoRerolls() }}</span>
+      </div>
     </div>
 
     <div *ngIf="bingoResultSig() as bingo" class="bingo-grid"
@@ -162,6 +166,17 @@
       <div *ngFor="let square of bingo.squares; trackBy: trackById"
         class="bingo-square"
         [class.completed]="square.isCompleted">
+        
+        <button class="square-reroll-btn" 
+                *ngIf="!square.isCompleted && (bingo.rerollsUsed || 0) < maxBingoRerolls()"
+                (click)="rerollBingoObjective(square.objectiveId); $event.stopPropagation()"
+                [disabled]="bingoLoading()">
+          <svg class="reroll-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+          </svg>
+          <app-cinematic-tooltip>Reroll this objective (Uses 1 reroll). Remaining rerolls: {{ maxBingoRerolls() - (bingo.rerollsUsed || 0) }}</app-cinematic-tooltip>
+        </button>
+
         <div class="square-content">
           <svg class="check-icon" *ngIf="square.isCompleted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
             <polyline points="4 12 9 17 20 6" />
@@ -227,7 +242,7 @@
           <span class="hud-label">EXCLUDE WATCHED</span>
           <app-cinematic-tooltip>Exclude movies you have already logged/watched.</app-cinematic-tooltip>
         </div>
-        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="rouletteExcludeWatched"></app-cinematic-toggle></div>
+        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="rouletteExcludeWatched" [disabled]="rouletteScope() === 2"></app-cinematic-toggle></div>
       </div>
       <button class="btn btn-primary crosshair-bracket action-btn" (click)="spellRoulette()" [disabled]="rouletteLoading()">
         <ng-container *ngIf="!rouletteLoading()">
@@ -345,7 +360,7 @@
           <span class="hud-label">EXCLUDE WATCHED</span>
           <app-cinematic-tooltip>Exclude movies you have already logged/watched.</app-cinematic-tooltip>
         </div>
-        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="mysteryExcludeWatched"></app-cinematic-toggle></div>
+        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="mysteryExcludeWatched" [disabled]="mysteryScope() === 2"></app-cinematic-toggle></div>
       </div>
       <button class="btn btn-primary crosshair-bracket action-btn" (click)="generateMysteryBox()" [disabled]="mysteryLoading()">
         <ng-container *ngIf="!mysteryLoading()">
@@ -439,7 +454,7 @@
           <span class="hud-label">EXCLUDE WATCHED</span>
           <app-cinematic-tooltip>Exclude movies you have already logged/watched.</app-cinematic-tooltip>
         </div>
-        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="diceExcludeWatched" (ngModelChange)="resetDiceState()"></app-cinematic-toggle></div>
+        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="diceExcludeWatched" (ngModelChange)="resetDiceState()" [disabled]="diceScope() === 2"></app-cinematic-toggle></div>
       </div>
       <button class="btn btn-primary crosshair-bracket action-btn" (click)="rollDice()" [disabled]="diceLoading()">
         <ng-container *ngIf="!diceLoading()">
@@ -480,6 +495,12 @@
         <div *ngIf="dr.specialEvent" class="special-event crosshair-bracket animate-slide-up" style="border-color: var(--accent-sepia); color: var(--accent-sepia); background: rgba(226, 186, 100, 0.03);">
           <span class="hud-label">SPECIAL EVENT:</span> {{ dr.specialEvent }}
         </div>
+        
+        <!-- Dice Match Calibration Status Banner -->
+        <div *ngIf="diceMatchStatus() as status" class="dice-match-banner {{ status.class }} animate-slide-up" [style.border-color]="status.color">
+          <span>{{ status.text }}</span>
+        </div>
+
         <div class="result-card crosshair-bracket animate-slide-up winner-card" style="border-color: var(--accent-sepia); background: rgba(226, 186, 100, 0.03);">
           <a [routerLink]="['/movies', dr.movieId]" class="poster-link">
             <img *ngIf="dr.posterUrl" [src]="dr.posterUrl" class="poster-thumb" />
@@ -533,7 +554,7 @@
           <span class="hud-label">EXCLUDE WATCHED</span>
           <app-cinematic-tooltip>Exclude movies you have already logged/watched.</app-cinematic-tooltip>
         </div>
-        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="slotExcludeWatched"></app-cinematic-toggle></div>
+        <div class="toggle-container" style="height: 44px; display: flex; align-items: center;"><app-cinematic-toggle [(ngModel)]="slotExcludeWatched" [disabled]="slotScope() === 2"></app-cinematic-toggle></div>
       </div>
       <button class="btn btn-primary crosshair-bracket action-btn" (click)="spinSlots()" [disabled]="slotLoading() || slotIsSpinning()">
         <ng-container *ngIf="!slotLoading() && !slotIsSpinning()">
@@ -565,10 +586,9 @@
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
           </button>
-        </div>
-        <input type="text" [(ngModel)]="slotGenre" class="glass-select" placeholder="e.g. Horror" [disabled]="!slotGenreLocked()" style="width: 100%; height: 38px; padding: 0 10px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: var(--text-primary);" />
+        </div>        <app-cinematic-select [options]="slotGenreOptions" [(ngModel)]="slotGenre" (ngModelChange)="slotGenre() !== '' ? slotGenreLocked.set(true) : null" [disabled]="!slotGenreLocked()" placeholder="Any Genre"></app-cinematic-select>
       </div>
-
+ 
       <div class="override-item" [class.locked]="slotDecadeLocked()">
         <div class="override-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
           <div style="display: flex; align-items: center; gap: 4px;">
@@ -582,9 +602,9 @@
             </svg>
           </button>
         </div>
-        <app-cinematic-select [options]="slotDecadeOptions" [(ngModel)]="slotDecadeVal" [disabled]="!slotDecadeLocked()" placeholder="Any Decade"></app-cinematic-select>
+        <app-cinematic-select [options]="slotDecadeOptions" [(ngModel)]="slotDecadeVal" (ngModelChange)="slotDecadeVal() !== null ? slotDecadeLocked.set(true) : null" [disabled]="!slotDecadeLocked()" placeholder="Any Decade"></app-cinematic-select>
       </div>
-
+ 
       <div class="override-item" [class.locked]="slotPopularityLocked()">
         <div class="override-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
           <div style="display: flex; align-items: center; gap: 4px;">
@@ -598,9 +618,9 @@
             </svg>
           </button>
         </div>
-        <app-cinematic-select [options]="slotPopularityOptions" [(ngModel)]="slotPopularity" [disabled]="!slotPopularityLocked()" placeholder="Any Popularity"></app-cinematic-select>
+        <app-cinematic-select [options]="slotPopularityOptions" [(ngModel)]="slotPopularity" (ngModelChange)="slotPopularity() !== '' ? slotPopularityLocked.set(true) : null" [disabled]="!slotPopularityLocked()" placeholder="Any Popularity"></app-cinematic-select>
       </div>
-
+ 
       <div class="override-item" [class.locked]="slotRatingLocked()">
         <div class="override-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
           <div style="display: flex; align-items: center; gap: 4px;">
@@ -614,9 +634,9 @@
             </svg>
           </button>
         </div>
-        <app-cinematic-select [options]="slotRatingOptions" [(ngModel)]="slotRating" [disabled]="!slotRatingLocked()" placeholder="Any Rating"></app-cinematic-select>
+        <app-cinematic-select [options]="slotRatingOptions" [(ngModel)]="slotRating" (ngModelChange)="slotRating() !== '' ? slotRatingLocked.set(true) : null" [disabled]="!slotRatingLocked()" placeholder="Any Rating"></app-cinematic-select>
       </div>
-
+ 
       <div class="override-item" [class.locked]="slotCountryLocked()">
         <div class="override-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
           <div style="display: flex; align-items: center; gap: 4px;">
@@ -630,7 +650,7 @@
             </svg>
           </button>
         </div>
-        <input type="text" [(ngModel)]="slotCountry" class="glass-select" placeholder="e.g. France" [disabled]="!slotCountryLocked()" style="width: 100%; height: 38px; padding: 0 10px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: var(--text-primary);" />
+        <app-cinematic-select [options]="slotCountryOptions()" [(ngModel)]="slotCountry" (ngModelChange)="slotCountry() !== '' ? slotCountryLocked.set(true) : null" [disabled]="!slotCountryLocked()" placeholder="Any Country"></app-cinematic-select>
       </div>
     </div>
 
