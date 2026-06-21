@@ -27,6 +27,14 @@ public class DiceRollQueryHandlerTests
     private readonly Mock<IDiscoveryQueries> _discoveryQueriesMock = new();
     private readonly Mock<ILogger<DiceRollQueryHandler>> _loggerMock = new();
 
+    public DiceRollQueryHandlerTests()
+    {
+        _discoveryQueriesMock
+            .Setup(x => x.GetUserTopGenresAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<string>());
+    }
+
+
     private DiceRollQueryHandler CreateHandler()
     {
         return new DiceRollQueryHandler(_discoveryQueriesMock.Object, _loggerMock.Object);

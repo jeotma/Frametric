@@ -67,12 +67,12 @@ public class CommandHandlerTests : IDisposable
     public async Task RegisterUserCommandHandler_ShouldRegisterUserSuccessfully()
     {
         // Arrange
-        _passwordHasherMock.Setup(h => h.Hash("securePassword123"))
+        _passwordHasherMock.Setup(h => h.Hash("SecureP@ss1!"))
             .Returns("hashedPasswordPart.saltPart");
 
         using var context = CreateContext();
         var handler = new RegisterUserCommandHandler(context, _passwordHasherMock.Object);
-        var command = new RegisterUserCommand("alice", "alice@example.com", "securePassword123");
+        var command = new RegisterUserCommand("alice", "alice@example.com", "SecureP@ss1!");
 
         // Act
         var userId = await handler.Handle(command, CancellationToken.None);
@@ -101,7 +101,7 @@ public class CommandHandlerTests : IDisposable
 
         using var actContext = CreateContext();
         var handler = new RegisterUserCommandHandler(actContext, _passwordHasherMock.Object);
-        var command = new RegisterUserCommand("alice", "alice_new@example.com", "password");
+        var command = new RegisterUserCommand("alice", "alice_new@example.com", "ValidP@ss1!");
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<ArgumentException>(() =>
