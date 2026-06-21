@@ -13,6 +13,7 @@ http.get(url, (res) => {
         // Fix known .NET 9 OpenAPI bug with duplicate array schemas producing invalid $refs
         data = data.replace(/"#\/components\/schemas\/#\/properties\/newDirectors\/items"/g, '"#/components/schemas/RookieDto"');
         data = data.replace(/"#\/components\/schemas\/#\/properties\/topRated\/items"/g, '"#/components/schemas/WrappedMovieDto2"');
+        data = data.replace(/"#\/components\/schemas\/#\/properties\/movies\/items"/g, '"#/components/schemas/MovieSimpleDto"');
         
         fs.writeFileSync(file, data, 'utf8');
         console.log('Downloaded and sanitized openapi.json');

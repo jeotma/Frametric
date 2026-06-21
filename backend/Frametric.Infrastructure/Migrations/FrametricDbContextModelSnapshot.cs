@@ -22,6 +22,57 @@ namespace Frametric.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Frametric.Domain.Discovery.Entities.DiscoveryObjective", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Column")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("CompletionDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("FulfillingDiaryEntryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("GridSize")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsAchieved")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("RequirementExpression")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("RerollCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Row")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DiscoveryObjectives");
+                });
+
             modelBuilder.Entity("Frametric.Domain.Entities.Actor", b =>
                 {
                     b.Property<Guid>("Id")
@@ -41,6 +92,48 @@ namespace Frametric.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Actors");
+                });
+
+            modelBuilder.Entity("Frametric.Domain.Entities.CustomList", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CustomLists");
+                });
+
+            modelBuilder.Entity("Frametric.Domain.Entities.CustomListItem", b =>
+                {
+                    b.Property<Guid>("CustomListId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MovieId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("CustomListId", "MovieId");
+
+                    b.HasIndex("MovieId");
+
+                    b.ToTable("CustomListItems");
                 });
 
             modelBuilder.Entity("Frametric.Domain.Entities.DiaryEntry", b =>
@@ -391,6 +484,11 @@ namespace Frametric.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -508,6 +606,36 @@ namespace Frametric.Infrastructure.Migrations
                     b.HasIndex("MoviesId");
 
                     b.ToTable("MovieGenre");
+                });
+
+            modelBuilder.Entity("Frametric.Domain.Entities.CustomList", b =>
+                {
+                    b.HasOne("Frametric.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Frametric.Domain.Entities.CustomListItem", b =>
+                {
+                    b.HasOne("Frametric.Domain.Entities.CustomList", "CustomList")
+                        .WithMany("Items")
+                        .HasForeignKey("CustomListId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Frametric.Domain.Entities.Movie", "Movie")
+                        .WithMany()
+                        .HasForeignKey("MovieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CustomList");
+
+                    b.Navigation("Movie");
                 });
 
             modelBuilder.Entity("Frametric.Domain.Entities.DiaryEntry", b =>
@@ -739,6 +867,11 @@ namespace Frametric.Infrastructure.Migrations
                         .HasForeignKey("MoviesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Frametric.Domain.Entities.CustomList", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("Frametric.Domain.Entities.ImportHistory", b =>

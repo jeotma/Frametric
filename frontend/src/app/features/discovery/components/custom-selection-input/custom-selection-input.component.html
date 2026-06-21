@@ -1,0 +1,77 @@
+<div class="custom-selection-container">
+  
+  <!-- Saved Lists Header -->
+  <div class="saved-lists-row">
+    <div class="saved-dropdown" *ngIf="savedLists().length > 0">
+      <label>Load Saved Selection</label>
+      <select (change)="loadList(savedLists()[$any($event.target).value])">
+        <option value="" disabled selected>-- Select a list --</option>
+        <option *ngFor="let list of savedLists(); let i = index" [value]="i">
+          {{list.name}} ({{list.movies?.length}} movies)
+        </option>
+      </select>
+    </div>
+    
+    <button class="btn-save-list" (click)="openSaveModal()" [disabled]="selectedChips.length === 0">
+      <i class="fa-solid fa-bookmark"></i> Save Current Selection
+    </button>
+  </div>
+
+  <!-- Search Input Area -->
+  <div class="search-wrapper">
+    <div class="input-box">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" 
+             placeholder="Search movies to add... (Max 50)" 
+             [value]="searchQuery()" 
+             (input)="onSearchInput($event)"
+             (focus)="searchResults().length > 0 ? showDropdown.set(true) : null"
+             (blur)="showDropdown.set(false)">
+      <div class="spinner" *ngIf="isSearching()"></div>
+    </div>
+
+    <div class="dropdown-results" *ngIf="showDropdown()" (mousedown)="$event.preventDefault()">
+      <div class="result-item" *ngFor="let res of searchResults()" (click)="selectResult(res)">
+        <img [src]="res.imageUrl || 'assets/placeholder-poster.png'" alt="Poster">
+        <div class="result-info">
+          <div class="result-title">{{res.titleOrName}}</div>
+          <div class="result-year">{{res.releaseYear}}</div>
+        </div>
+        <div class="result-source" [class.tmdb]="!res.isLocal" [class.local]="res.isLocal">
+          {{res.isLocal ? 'Library' : 'TMDB'}}
+        </div>
+        <!-- Enrichment cinematic loader -->
+        <div class="enrich-loader-overlay" *ngIf="enrichLoadingId() === res.tmdbId">
+          <div class="cinematic-loader"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selected Chips Area -->
+  <div class="chips-container" *ngIf="selectedChips.length > 0">
+    <div class="chip" *ngFor="let chip of selectedChips; let i = index">
+      <img [src]="chip.posterPath || 'assets/placeholder-poster.png'" alt="Poster">
+      <span class="chip-title">{{chip.title}}</span>
+      <button class="chip-remove" (click)="removeChip(i)">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+  <div class="chip-counter" [class.maxed]="selectedChips.length >= 50">
+    {{selectedChips.length}} / 50 Movies
+  </div>
+
+  <!-- Save Modal -->
+  <div class="save-modal-overlay" *ngIf="showSaveModal()">
+    <div class="save-modal">
+      <h3>Save Custom Selection</h3>
+      <p>Give a name to your current selection of {{selectedChips.length}} movies.</p>
+      <input type="text" placeholder="e.g. 80s Sci-Fi Night" [ngModel]="newListName()" (ngModelChange)="newListName.set($event)" autofocus>
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="showSaveModal.set(false)">Cancel</button>
+        <button class="btn-confirm" (click)="saveCurrentList()" [disabled]="!newListName().trim()">Save List</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -74,4 +74,22 @@ export class TokenStorageService {
 
     return { id, username, email };
   }
+
+  getUserRole(): string | null {
+    const token = this.getAccessToken();
+    if (!token) return null;
+    const payload = this.decodePayload(token);
+    if (!payload) return null;
+
+    return (
+      (payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] as string) ??
+      (payload['role'] as string) ??
+      null
+    );
+  }
+
+  isAdmin(): boolean {
+    return this.getUserRole() === 'Admin';
+  }
 }
+

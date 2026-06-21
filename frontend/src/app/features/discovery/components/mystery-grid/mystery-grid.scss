@@ -1,0 +1,315 @@
+// Frametric — Cinematic Analytics Platform
+// Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.boxes-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 48px;
+  flex-wrap: wrap;
+  padding: 40px 20px;
+}
+
+.mystery-box-wrapper {
+  position: relative;
+  width: 140px;
+  height: 190px;
+  perspective: 1000px;
+  cursor: pointer;
+  transition: all 0.5s ease;
+
+  &.faded {
+    opacity: 0.15;
+    pointer-events: none;
+    filter: grayscale(0.8);
+  }
+
+  &.shaking {
+    animation: box-shake-3d 0.1s linear infinite;
+  }
+}
+
+@keyframes box-shake-3d {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  20% { transform: translate(-2px, -1px) rotate(-1deg); }
+  40% { transform: translate(-1px, 1px) rotate(1deg); }
+  60% { transform: translate(2px, -1px) rotate(0deg); }
+  80% { transform: translate(-1px, 2px) rotate(-1deg); }
+  100% { transform: translate(1px, 1px) rotate(0deg); }
+}
+
+.box-3d {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(-15deg) rotateY(20deg);
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+
+  .mystery-box-wrapper:hover:not(.opened):not(.shaking):not(.faded) & {
+    transform: rotateX(-15deg) rotateY(35deg) translateY(-12px);
+  }
+}
+
+// Chest styles
+.face {
+  position: absolute;
+  /* Carbon fiber texture with ambient radial gradient */
+  background: 
+    radial-gradient(circle at center, rgba(30, 30, 35, 0.2) 0%, rgba(5, 5, 5, 0.95) 100%),
+    linear-gradient(45deg, #121214 25%, transparent 25%),
+    linear-gradient(-45deg, #121214 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #121214 75%),
+    linear-gradient(-45deg, transparent 75%, #121214 75%);
+  background-size: 8px 8px;
+  background-color: #08080a;
+  border: 2px solid var(--box-color);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9), 0 0 12px rgba(var(--box-color), 0.15);
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+
+// Case corner reinforces
+.case-corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--box-color);
+  opacity: 0.7;
+  z-index: 5;
+  pointer-events: none;
+
+  &.top-left { top: 4px; left: 4px; border-right: none; border-bottom: none; }
+  &.top-right { top: 4px; right: 4px; border-left: none; border-bottom: none; }
+  &.bottom-left { bottom: 4px; left: 4px; border-right: none; border-top: none; }
+  &.bottom-right { bottom: 4px; right: 4px; border-left: none; border-top: none; }
+}
+
+// Dimensions: W 140px, H 190px, D 140px.
+.face-front {
+  width: 140px;
+  height: 190px;
+  transform: rotateY(0deg) translateZ(70px);
+  z-index: 2;
+}
+
+.face-back {
+  width: 140px;
+  height: 190px;
+  transform: rotateY(180deg) translateZ(70px);
+}
+
+.face-left {
+  width: 140px;
+  height: 190px;
+  transform: rotateY(-90deg) translateZ(70px);
+}
+
+.face-right {
+  width: 140px;
+  height: 190px;
+  transform: rotateY(90deg) translateZ(70px);
+}
+
+.face-top {
+  width: 140px;
+  height: 140px;
+  transform: rotateX(90deg) translateZ(95px);
+  top: 25px; // height/2 - depth/2 = 95 - 70 = 25px
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 -5px 15px rgba(0,0,0,0.5);
+  /* origin kept default center to prevent detached floating offset */
+}
+
+.face-bottom {
+  width: 140px;
+  height: 140px;
+  transform: rotateX(-90deg) translateZ(95px);
+  top: 25px;
+  background: #010102;
+}
+
+.face-design {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  margin: 6px;
+  border-radius: 4px;
+}
+
+.question-mark {
+  font-family: 'Outfit', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 800;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.9);
+  transition: all 0.3s ease;
+  
+  /* Glowing glow matching chest color */
+  filter: drop-shadow(0 0 8px var(--box-color));
+}
+
+.lid-handle {
+  width: 30px;
+  height: 8px;
+  border-radius: 2px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+// Inside Content (Movie poster)
+.box-content-inside {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 1;
+  transform: translateZ(0px) scale(0.85);
+  opacity: 0;
+  transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.revealed-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.9);
+}
+
+.revealed-title-badge {
+  position: absolute;
+  bottom: -15px;
+  background: var(--surface-floating);
+  border: 1px solid var(--accent-sepia);
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.8);
+  z-index: 10;
+}
+
+// Opened Box State: Chest explodes outwards in 3D!
+.opened {
+  .face {
+    transition: none !important;
+  }
+
+  .box-3d {
+    transform: rotateX(0deg) rotateY(0deg) scale(1.05);
+  }
+
+  // Lid spins rapidly, flies way up and disappears
+  .face-top {
+    animation: lid-explode 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    pointer-events: none;
+  }
+
+  // Front face blows forwards/downwards and fades
+  .face-front {
+    animation: face-explode-front 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    pointer-events: none;
+  }
+
+  // Sides blow outwards and fade
+  .face-left {
+    animation: face-explode-left 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    pointer-events: none;
+  }
+  
+  .face-right {
+    animation: face-explode-right 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    pointer-events: none;
+  }
+
+  .face-back {
+    animation: face-explode-back 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    pointer-events: none;
+  }
+
+  // Poster pops up scaling with elastic bounce ease
+  .box-content-inside {
+    animation: poster-pop-up 1.1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    pointer-events: auto;
+  }
+}
+
+@keyframes lid-explode {
+  0% { transform: rotateX(90deg) translateZ(95px) scale(1) rotate(0deg); opacity: 1; }
+  40% { opacity: 0.85; }
+  100% { transform: rotateX(75deg) translateZ(320px) scale(0.15) rotate(540deg) translateY(-150px); opacity: 0; }
+}
+
+@keyframes face-explode-front {
+  0% { transform: rotateY(0deg) translateZ(70px) scale(1); opacity: 1; }
+  100% { transform: rotateX(-120deg) translateZ(110px) translateY(60px) scale(0.75); opacity: 0; }
+}
+
+@keyframes face-explode-left {
+  0% { transform: rotateY(-90deg) translateZ(70px) scale(1); opacity: 1; }
+  100% { transform: rotateY(-180deg) translateZ(110px) translateX(-60px) scale(0.75); opacity: 0; }
+}
+
+@keyframes face-explode-right {
+  0% { transform: rotateY(90deg) translateZ(70px) scale(1); opacity: 1; }
+  100% { transform: rotateY(180deg) translateZ(110px) translateX(60px) scale(0.75); opacity: 0; }
+}
+
+@keyframes face-explode-back {
+  0% { transform: rotateY(180deg) translateZ(70px) scale(1); opacity: 1; }
+  100% { transform: rotateX(90deg) translateZ(110px) translateY(-60px) scale(0.75); opacity: 0; }
+}
+
+@keyframes poster-pop-up {
+  0% { transform: translateZ(0) scale(0.4); opacity: 0; }
+  30% { opacity: 0.4; }
+  100% { transform: translateZ(110px) scale(1.35); opacity: 1; }
+}
+
+.box-hint {
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.mystery-box-wrapper.opened .box-hint {
+  opacity: 0;
+  pointer-events: none;
+}

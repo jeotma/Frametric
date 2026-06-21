@@ -7,7 +7,8 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="slide-content intro-bg">
+    <div class="slide-content slide-bg-silver">
+      <div class="act-label">ACT I · SCENE 1 · THE ESTABLISHING SHOT</div>
       <h2 class="slide-title">The {{ username }}'s Cut.</h2>
       <p class="slide-explainer">Grab your popcorn and take a seat. The show is about to begin.</p>
       <p class="subtitle">Relive your year through the art of filmmaking.</p>
@@ -15,13 +16,14 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
       <div class="stats-grid">
         <div class="stat-box">
           <span class="label">Movies Watched</span>
-          <span class="slide-value">{{ data.totalWatches }}</span>
+          <span class="slide-value" style="font-family: var(--font-mono)">{{ data.totalWatches }}</span>
         </div>
         <div class="stat-box">
           <span class="label">Time Spent (Hours)</span>
-          <span class="slide-value">{{ (data.totalWatchtimeMinutes / 60) | number:'1.0-0' }}</span>
+          <span class="slide-value" style="font-family: var(--font-mono)">{{ (data.totalWatchtimeMinutes / 60) | number:'1.0-0' }}</span>
         </div>
       </div>
+      <div class="timecode">TC 00:00:00:00</div>
       <p class="footer-note">Tap the right side of the screen to continue.</p>
     </div>
   `,
@@ -34,30 +36,27 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
       max-width: 600px;
       text-align: center;
     }
-    .intro-bg {
-      background: radial-gradient(circle at center, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
-    }
     .subtitle {
-      font-size: 1.25rem;
+      font-size: 1.4rem;
       color: var(--text-secondary);
       margin-bottom: 40px;
     }
     .stats-grid {
       display: flex;
-      gap: 32px;
+      gap: 48px;
       margin-top: 20px;
     }
     .stat-box {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.05);
-      padding: 32px;
+      padding: 40px;
       border-radius: 24px;
-      min-width: 200px;
+      min-width: 240px;
       backdrop-filter: blur(10px);
     }
     .label {
       display: block;
-      font-size: 0.9rem;
+      font-size: 1rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
       color: var(--text-muted);

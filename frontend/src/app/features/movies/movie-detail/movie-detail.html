@@ -22,7 +22,7 @@
           <p class="overview animate-stagger-fade" style="--i: 3">{{ m.overview }}</p>
 
           <div class="actions animate-stagger-fade" style="--i: 4">
-            <button class="btn" [class.btn-primary]="!isLogged(m)" [class.btn-secondary]="isLogged(m)" (click)="toggleLogForm()">
+            <button class="btn" [class.btn-cta]="!isLogged(m)" [class.btn-secondary]="isLogged(m)" (click)="toggleLogForm()">
               <i class="icon" *ngIf="!isLogged(m)">+</i>
               <i class="icon" *ngIf="isLogged(m)">✓</i>
               {{ isLogged(m) ? 'Watch again' : 'Mark as watched' }}

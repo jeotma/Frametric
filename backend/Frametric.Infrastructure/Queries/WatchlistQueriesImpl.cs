@@ -47,7 +47,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
         string sql = $@"
             WITH UserDirectorRatings AS (
-                SELECT dr.""Id"" AS DirectorId, AVG(mr.""Score"") AS AverageRating
+                SELECT dr.""Id"" AS DirectorId, (AVG(mr.""Score"") * 2) AS AverageRating
                 FROM ""MovieRatings"" mr
                 JOIN ""MovieDirector"" md ON mr.""MovieId"" = md.""MoviesId""
                 JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
@@ -88,7 +88,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
         string sql = $@"
             WITH UserActorRatings AS (
-                SELECT a.""Id"" AS ActorId, AVG(mr.""Score"") AS AverageRating
+                SELECT a.""Id"" AS ActorId, (AVG(mr.""Score"") * 2) AS AverageRating
                 FROM ""MovieRatings"" mr
                 JOIN ""MovieActor"" ma ON mr.""MovieId"" = ma.""MoviesId""
                 JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
@@ -184,7 +184,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
         string sql = $@"
             WITH UserDirectorRatings AS (
-                SELECT dr.""Id"" AS DirectorId, AVG(mr.""Score"") AS AverageRating
+                SELECT dr.""Id"" AS DirectorId, (AVG(mr.""Score"") * 2) AS AverageRating
                 FROM ""MovieRatings"" mr
                 JOIN ""MovieDirector"" md ON mr.""MovieId"" = md.""MoviesId""
                 JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
@@ -225,7 +225,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
         string sql = $@"
             WITH UserActorRatings AS (
-                SELECT a.""Id"" AS ActorId, AVG(mr.""Score"") AS AverageRating
+                SELECT a.""Id"" AS ActorId, (AVG(mr.""Score"") * 2) AS AverageRating
                 FROM ""MovieRatings"" mr
                 JOIN ""MovieActor"" ma ON mr.""MovieId"" = ma.""MoviesId""
                 JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
@@ -360,7 +360,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
             GROUP BY dr.""Id"", dr.""Name""
             ),
             WatchedDirectorRatings AS (
-                SELECT dr.""Id"", AVG(mr.""Score"") AS AvgRating, CAST(COUNT(mr.""Id"") AS INTEGER) AS WatchedCount
+                SELECT dr.""Id"", (AVG(mr.""Score"") * 2) AS AvgRating, CAST(COUNT(mr.""Id"") AS INTEGER) AS WatchedCount
                 FROM ""MovieRatings"" mr
                 JOIN ""MovieDirector"" md ON mr.""MovieId"" = md.""MoviesId""
                 JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""

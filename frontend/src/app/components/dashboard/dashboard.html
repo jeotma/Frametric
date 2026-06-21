@@ -1,126 +1,173 @@
 <div class="dashboard-container">
+  <!-- Animated Cinematic Background -->
+  <div class="cinema-bg">
+    <div class="grain"></div>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <div class="scanlines"></div>
+  </div>
+
   <header class="dashboard-header animate-slide-up">
     <div class="header-content">
-      <h1 class="gradient-text">Cinematic Analytics</h1>
-      <p class="subtitle">Your all-time cinematic journey</p>
+      <h1>DOSSIER</h1>
+      <p class="subtitle">Your complete cinematic profile and viewing overview.</p>
     </div>
     <div class="header-actions">
       <a routerLink="/stats" class="btn btn-secondary">Advanced Stats</a>
-      <a routerLink="/final-cut-teaser" class="btn btn-primary">Final Cut 2025</a>
+      <a routerLink="/final-cut-teaser" class="btn btn-cta">Final Cut 2025</a>
     </div>
   </header>
 
-  <div *ngIf="isLoading()" class="loading-state" aria-live="polite">
-    <div class="spinner"></div>
-    <p>Loading your cinematic data...</p>
-  </div>
-
-  <div *ngIf="errorMessage()" class="error-state" aria-live="assertive">
-    <p>{{ errorMessage() }}</p>
-  </div>
-
-  <!-- Warning Banner for empty Import History -->
-  <div *ngIf="!hasSuccessfulImport() && !isLoading()" class="no-imports-banner glass-panel animate-fade-in" aria-live="polite">
-    <div class="banner-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-        <line x1="12" y1="9" x2="12" y2="13"></line>
-        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-      </svg>
+  <ng-container *ngIf="auth.isAuthenticated(); else guestDashboard">
+    <div *ngIf="isLoading()" class="loading-state" aria-live="polite">
+      <div class="spinner"></div>
+      <p>Loading your cinematic data...</p>
     </div>
-    <div class="banner-message">
-      <h3>No active film imports found</h3>
-      <p>Your dashboard stats are currently empty. Upload your films data export (.zip) to unlock your cinematic statistics and custom presentation!</p>
+
+    <div *ngIf="errorMessage()" class="error-state" aria-live="assertive">
+      <p>{{ errorMessage() }}</p>
     </div>
-    <div class="banner-actions">
-      <a routerLink="/imports" class="btn btn-warning-action">
-        Go to Import Center
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-          <polyline points="12 5 19 12 12 19"></polyline>
+
+    <!-- Warning Banner for empty Import History -->
+    <div *ngIf="!hasSuccessfulImport() && !isLoading()" class="no-imports-banner viewfinder-box animate-fade-in" aria-live="polite">
+      <div class="banner-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
         </svg>
-      </a>
+      </div>
+      <div class="banner-message">
+        <h3>No active film imports found</h3>
+        <p>Your dashboard stats are currently empty. Upload your films data export (.zip) to unlock your cinematic statistics and custom presentation!</p>
+      </div>
+      <div class="banner-actions">
+        <a routerLink="/imports" class="btn btn-warning-action">
+          Go to Import Center
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+      </div>
     </div>
-  </div>
 
-  <div *ngIf="summary() as data" class="dashboard-grid">
-    <!-- Quick Stats -->
-    <section class="stat-cards">
-      <div class="stat-card glass-panel animate-stagger-fade" style="--i: 0">
-        <span class="stat-label">Total Watchtime</span>
-        <span class="stat-value">{{ formatWatchtime(data.totalWatchtimeMinutes) }}</span>
-      </div>
-      <div class="stat-card glass-panel animate-stagger-fade" style="--i: 1">
-        <span class="stat-label">Total Watches (Inc. Rewatches)</span>
-        <span class="stat-value">{{ data.totalWatches }}</span>
-      </div>
-      <div class="stat-card glass-panel animate-stagger-fade" style="--i: 2">
-        <span class="stat-label">Unique Films</span>
-        <span class="stat-value">{{ data.uniqueMoviesCount }}</span>
-      </div>
-    </section>
-
-    <!-- Top Genres & Decade Breakdown -->
-    <div class="charts-row animate-slide-up">
-      <section class="chart-panel glass-panel">
-        <h2>Top Genres</h2>
-        <div class="bar-chart" *ngIf="data.topGenres && data.topGenres.length > 0">
-          <div *ngFor="let genre of data.topGenres; let i = index" class="bar-item animate-stagger-up" style="--i: {{ i }}">
-            <div class="bar-label">
-              <span>{{ genre.genreName }}</span>
-              <span>{{ genre.count }}</span>
-            </div>
-            <!-- Dynamic width calculation based on the top genre count -->
-            <div class="bar-track">
-              <div class="bar-fill" [style.width.%]="(genre.count || 0) / ((data.topGenres[0].count || 1) / 100)"></div>
-            </div>
-          </div>
+    <div *ngIf="summary() as data" class="dashboard-grid">
+      <!-- Quick Stats -->
+      <section class="stat-cards">
+        <div class="stat-card viewfinder-box animate-stagger-fade" style="--i: 0">
+          <span class="stat-label">Total Watchtime</span>
+          <span class="stat-value">{{ formatWatchtime(data.totalWatchtimeMinutes) }}</span>
+        </div>
+        <div class="stat-card viewfinder-box animate-stagger-fade" style="--i: 1">
+          <span class="stat-label">Total Watches (Inc. Rewatches)</span>
+          <span class="stat-value">{{ data.totalWatches }}</span>
+        </div>
+        <div class="stat-card viewfinder-box animate-stagger-fade" style="--i: 2">
+          <span class="stat-label">Unique Films</span>
+          <span class="stat-value">{{ data.uniqueMoviesCount }}</span>
         </div>
       </section>
 
-      <section class="chart-panel glass-panel">
-        <h2>Decades Journey</h2>
-        <div class="bar-chart" *ngIf="data.decadeBreakdown && data.decadeBreakdown.length > 0">
-          <div *ngFor="let decade of data.decadeBreakdown; let i = index" class="bar-item animate-stagger-up" style="--i: {{ i }}">
-            <div class="bar-label">
-              <span>{{ decade.decade }}s</span>
-              <span>{{ decade.count }}</span>
-            </div>
-            <div class="bar-track">
-              <div class="bar-fill decade-fill" [style.width.%]="(decade.count || 0) / ((data.decadeBreakdown[0].count || 1) / 100)"></div>
+      <!-- Top Genres & Decade Breakdown -->
+      <div class="charts-row animate-slide-up">
+        <section class="chart-panel viewfinder-box">
+          <h2 class="credit-heading">TOP GENRES</h2>
+          <div class="bar-chart" *ngIf="data.topGenres && data.topGenres.length > 0">
+            <div *ngFor="let genre of data.topGenres; let i = index" class="bar-item animate-stagger-up" style="--i: {{ i }}">
+              <div class="bar-label">
+                <span>{{ genre.genreName }}</span>
+                <span>{{ genre.count }}</span>
+              </div>
+              <!-- Dynamic width calculation based on the top genre count -->
+              <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="(genre.count || 0) / ((data.topGenres[0].count || 1) / 100)"></div>
+              </div>
             </div>
           </div>
+        </section>
+
+        <section class="chart-panel viewfinder-box">
+          <h2 class="credit-heading">DECADES JOURNEY</h2>
+          <div class="bar-chart" *ngIf="data.decadeBreakdown && data.decadeBreakdown.length > 0">
+            <div *ngFor="let decade of data.decadeBreakdown; let i = index" class="bar-item animate-stagger-up" style="--i: {{ i }}">
+              <div class="bar-label">
+                <span>{{ decade.decade }}s</span>
+                <span>{{ decade.count }}</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill decade-fill" [style.width.%]="(decade.count || 0) / ((data.decadeBreakdown[0].count || 1) / 100)"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Leaderboards -->
+      <div class="leaderboards-row animate-slide-up">
+        <section class="leaderboard-panel viewfinder-box">
+          <h2 class="credit-heading">TOP DIRECTORS — CREDITS</h2>
+          <ul class="leaderboard-list" *ngIf="data.topDirectors && data.topDirectors.length > 0">
+            <li *ngFor="let director of data.topDirectors; let i = index" class="animate-stagger-up" style="--i: {{ i }}">
+              <div class="rank">{{ i + 1 }}</div>
+              <div class="details">
+                <span class="name">{{ director.directorName }}</span>
+                <span class="stats">{{ director.count }} films • <span class="avg-rating-value tooltip-container" style="cursor: help;">{{ director.averageRating | number:'1.1-1' }} avg ℹ️<span class="tooltip-text" style="width: 280px;">Your ratings, imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.</span></span></span>
+              </div>
+            </li>
+          </ul>
+        </section>
+
+        <section class="leaderboard-panel viewfinder-box">
+          <h2 class="credit-heading">TOP ACTORS — STARRING</h2>
+          <ul class="leaderboard-list" *ngIf="data.topActors && data.topActors.length > 0">
+            <li *ngFor="let actor of data.topActors; let i = index" class="animate-stagger-up" style="--i: {{ i }}">
+              <div class="rank">{{ i + 1 }}</div>
+              <div class="details">
+                <span class="name">{{ actor.actorName }}</span>
+                <span class="stats">{{ actor.count }} films • <span class="avg-rating-value tooltip-container" style="cursor: help;">{{ actor.averageRating | number:'1.1-1' }} avg ℹ️<span class="tooltip-text" style="width: 280px;">Your ratings, imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.</span></span></span>
+              </div>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #guestDashboard>
+    <div class="guest-showcase animate-fade-in" style="display: flex; flex-direction: column; gap: 32px;">
+      
+      <div class="showcase-banner viewfinder-box" style="padding: 48px; text-align: center; background: linear-gradient(180deg, var(--charcoal) 0%, transparent 100%);">
+        <h2 class="credit-heading" style="font-size: 2rem; color: var(--clapper-white); margin-bottom: 16px;">THE EDITING ROOM AWAITS</h2>
+        <p class="director-note" style="font-size: 1.2rem; color: var(--silver); max-width: 600px; margin: 0 auto 32px auto; line-height: 1.6;">
+          Frametric transforms your raw viewing history into a personalized cinematic narrative. 
+          When you create an account and import your data, this dashboard will come alive with deep analytics, 
+          identifying your most-watched directors, genre distributions, and hidden viewing patterns.
+        </p>
+        <button class="btn btn-primary crosshair-bracket" (click)="modalService.openAuthModal()" style="font-size: 1.2rem; padding: 12px 32px;">
+          <span class="hud-label" style="color: white;">[INITIALIZE PROFILE]</span>
+        </button>
+      </div>
+
+      <div class="dashboard-grid showcase-grid" style="opacity: 0.4; filter: grayscale(0.8); pointer-events: none; user-select: none;">
+        <section class="stat-cards">
+          <div class="stat-card viewfinder-box"><span class="stat-label">Total Watchtime</span><span class="stat-value">1,402h</span></div>
+          <div class="stat-card viewfinder-box"><span class="stat-label">Total Watches (Inc. Rewatches)</span><span class="stat-value">623</span></div>
+          <div class="stat-card viewfinder-box"><span class="stat-label">Unique Films</span><span class="stat-value">590</span></div>
+        </section>
+
+        <div class="charts-row">
+          <section class="chart-panel viewfinder-box">
+            <h2 class="credit-heading">TOP GENRES (PREVIEW)</h2>
+            <div class="bar-chart">
+              <div class="bar-item"><div class="bar-label"><span>Science Fiction</span><span>182</span></div><div class="bar-track"><div class="bar-fill" style="width: 100%;"></div></div></div>
+              <div class="bar-item"><div class="bar-label"><span>Thriller</span><span>145</span></div><div class="bar-track"><div class="bar-fill" style="width: 80%;"></div></div></div>
+              <div class="bar-item"><div class="bar-label"><span>Drama</span><span>120</span></div><div class="bar-track"><div class="bar-fill" style="width: 65%;"></div></div></div>
+            </div>
+          </section>
         </div>
-      </section>
-    </div>
+      </div>
 
-    <!-- Leaderboards -->
-    <div class="leaderboards-row animate-slide-up">
-      <section class="leaderboard-panel glass-panel">
-        <h2>Top Directors</h2>
-        <ul class="leaderboard-list" *ngIf="data.topDirectors && data.topDirectors.length > 0">
-          <li *ngFor="let director of data.topDirectors; let i = index" class="animate-stagger-up" style="--i: {{ i }}">
-            <div class="rank">{{ i + 1 }}</div>
-            <div class="details">
-              <span class="name">{{ director.directorName }}</span>
-              <span class="stats">{{ director.count }} films • <span class="avg-rating-value tooltip-container" style="cursor: help;">{{ director.averageRating | number:'1.1-1' }} avg ℹ️<span class="tooltip-text" style="width: 280px;">Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.</span></span></span>
-            </div>
-          </li>
-        </ul>
-      </section>
-
-      <section class="leaderboard-panel glass-panel">
-        <h2>Top Actors</h2>
-        <ul class="leaderboard-list" *ngIf="data.topActors && data.topActors.length > 0">
-          <li *ngFor="let actor of data.topActors; let i = index" class="animate-stagger-up" style="--i: {{ i }}">
-            <div class="rank">{{ i + 1 }}</div>
-            <div class="details">
-              <span class="name">{{ actor.actorName }}</span>
-              <span class="stats">{{ actor.count }} films • <span class="avg-rating-value tooltip-container" style="cursor: help;">{{ actor.averageRating | number:'1.1-1' }} avg ℹ️<span class="tooltip-text" style="width: 280px;">Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.</span></span></span>
-            </div>
-          </li>
-        </ul>
-      </section>
     </div>
-  </div>
+  </ng-template>
 </div>

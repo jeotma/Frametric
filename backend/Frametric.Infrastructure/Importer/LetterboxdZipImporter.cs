@@ -1,3 +1,11 @@
+// Frametric — Cinematic Analytics Platform
+// Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
 using System.Globalization;
 using System.IO.Compression;
 using CsvHelper;
@@ -26,8 +34,16 @@ public class LetterboxdZipImporter : ILetterboxdImporter
             "diary.csv", "ratings.csv", "watchlist.csv", "profile.csv", "reviews.csv",
             "watched.csv", "likes/films.csv", "likes/reviews.csv"
         };
+        
+        bool MatchEntry(string entryFullName, string requiredPath)
+        {
+            var normalized = entryFullName.Replace('\\', '/');
+            return normalized.Equals(requiredPath, StringComparison.OrdinalIgnoreCase) ||
+                   normalized.EndsWith("/" + requiredPath, StringComparison.OrdinalIgnoreCase);
+        }
+
         bool isValidArchive = requiredFiles.All(reqFile => 
-            archive.Entries.Any(e => e.FullName.Replace('\\', '/').Equals(reqFile, StringComparison.OrdinalIgnoreCase))
+            archive.Entries.Any(e => MatchEntry(e.FullName, reqFile))
         );
 
         if (!isValidArchive)
@@ -37,27 +53,27 @@ public class LetterboxdZipImporter : ILetterboxdImporter
 
         foreach (var entry in archive.Entries)
         {
-            if (entry.FullName.Equals("diary.csv", StringComparison.OrdinalIgnoreCase))
+            if (MatchEntry(entry.FullName, "diary.csv"))
             {
                 diaryDtos.AddRange(await ParseCsvAsync<DiaryCsvRecord, DiaryCsvRecordMap>(entry, cancellationToken)
                     .ContinueWith(t => t.Result.Select(MapToDto), cancellationToken));
             }
-            else if (entry.FullName.Equals("ratings.csv", StringComparison.OrdinalIgnoreCase))
+            else if (MatchEntry(entry.FullName, "ratings.csv"))
             {
                 ratingDtos.AddRange(await ParseCsvAsync<RatingCsvRecord, RatingCsvRecordMap>(entry, cancellationToken)
                     .ContinueWith(t => t.Result.Select(MapToDto), cancellationToken));
             }
-            else if (entry.FullName.Equals("watchlist.csv", StringComparison.OrdinalIgnoreCase))
+            else if (MatchEntry(entry.FullName, "watchlist.csv"))
             {
                 watchlistDtos.AddRange(await ParseCsvAsync<WatchlistCsvRecord, WatchlistCsvRecordMap>(entry, cancellationToken)
                     .ContinueWith(t => t.Result.Select(MapToDto), cancellationToken));
             }
-            else if (entry.FullName.Replace('\\', '/').Equals("likes/films.csv", StringComparison.OrdinalIgnoreCase))
+            else if (MatchEntry(entry.FullName, "likes/films.csv"))
             {
                 likeDtos.AddRange(await ParseCsvAsync<LikeCsvRecord, LikeCsvRecordMap>(entry, cancellationToken)
                     .ContinueWith(t => t.Result.Select(MapToDto), cancellationToken));
             }
-            else if (entry.FullName.Equals("watched.csv", StringComparison.OrdinalIgnoreCase))
+            else if (MatchEntry(entry.FullName, "watched.csv"))
             {
                 watchedDtos.AddRange(await ParseCsvAsync<WatchedCsvRecord, WatchedCsvRecordMap>(entry, cancellationToken)
                     .ContinueWith(t => t.Result.Select(MapToDto), cancellationToken));

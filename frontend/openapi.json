@@ -71,6 +71,275 @@
         }
       }
     },
+    "/api/Admin/users": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Admin/users/{userId}/promote": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Admin/diagnostics/database": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseStatsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseStatsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseStatsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Admin/diagnostics/providers": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDiagnosticsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDiagnosticsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDiagnosticsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Admin/diagnostics/logs": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LogEntryDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LogEntryDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LogEntryDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Admin/maintenance/purge-orphans": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurgeOrphanResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurgeOrphanResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurgeOrphanResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Admin/maintenance/clear-cache": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Admin/enrich/retry-failed": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "resetPermanentlyFailed",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "batchSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/analytics/advanced/watched": {
       "get": {
         "tags": [
@@ -4947,6 +5216,146 @@
         }
       }
     },
+    "/api/v1/custom-lists": {
+      "get": {
+        "tags": [
+          "CustomLists"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomListDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomListDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomListDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "CustomLists"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomListRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomListRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomListRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomListDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomListDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomListDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/custom-lists/{id}": {
+      "delete": {
+        "tags": [
+          "CustomLists"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/custom-lists/{id}/movies/{movieId}": {
+      "delete": {
+        "tags": [
+          "CustomLists"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "movieId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Directors/{id}": {
       "get": {
         "tags": [
@@ -5000,6 +5409,369 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/discovery/roulette": {
+      "post": {
+        "tags": [
+          "Discovery"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RouletteRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RouletteRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RouletteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouletteRaceResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouletteRaceResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouletteRaceResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/discovery/mystery-box": {
+      "post": {
+        "tags": [
+          "Discovery"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MysteryBoxRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MysteryBoxRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MysteryBoxRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/MysteryBoxDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MysteryBoxDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MysteryBoxDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/discovery/dice": {
+      "post": {
+        "tags": [
+          "Discovery"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiceRollRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiceRollRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiceRollRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiceRollResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiceRollResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiceRollResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/discovery/slot-machine": {
+      "post": {
+        "tags": [
+          "Discovery"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SlotMachineRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SlotMachineRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SlotMachineRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlotMachineResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlotMachineResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlotMachineResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/discovery/mystery-box/{boxId}/reveal": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "parameters": [
+          {
+            "name": "boxId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SelectionResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SelectionResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SelectionResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/discovery/bingo": {
+      "post": {
+        "tags": [
+          "Discovery"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BingoRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BingoRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BingoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BingoGridDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BingoGridDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BingoGridDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/discovery/bingo/reroll/{objectiveId}": {
+      "post": {
+        "tags": [
+          "Discovery"
+        ],
+        "parameters": [
+          {
+            "name": "objectiveId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BingoGridDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BingoGridDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BingoGridDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/discovery/available-countries": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 }
               }
             }
@@ -5256,6 +6028,75 @@
         }
       }
     },
+    "/api/Movies/enrich-from-tmdb": {
+      "post": {
+        "tags": [
+          "Movies"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrichMovieRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrichMovieRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrichMovieRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieSimpleDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieSimpleDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieSimpleDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Movies/{id}/log": {
       "post": {
         "tags": [
@@ -5295,6 +6136,58 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Movies/{id}/log/{entryId}": {
+      "delete": {
+        "tags": [
+          "Movies"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
           },
           "404": {
             "description": "Not Found",
@@ -5491,17 +6384,19 @@
           "watchedCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "profilePath": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
       "ActorDetailsDto": {
-        "required": [
-          "id",
-          "name",
-          "averageRating",
-          "watchCount",
-          "movies"
-        ],
         "type": "object",
         "properties": {
           "id": {
@@ -5524,6 +6419,42 @@
             "items": {
               "$ref": "#/components/schemas/MovieSimpleDto"
             }
+          },
+          "profilePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "isDirector": {
+            "type": "boolean"
+          },
+          "directedMovies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieSimpleDto"
+            },
+            "nullable": true
+          },
+          "watchlistCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "likeCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "likedMovieTitles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieSimpleDto"
+            },
+            "nullable": true
+          },
+          "watchlistMovieTitles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieSimpleDto"
+            },
+            "nullable": true
           }
         }
       },
@@ -5583,6 +6514,140 @@
           }
         }
       },
+      "BingoGridDto": {
+        "required": [
+          "gridSize",
+          "squares"
+        ],
+        "type": "object",
+        "properties": {
+          "gridSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "squares": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BingoSquareDto"
+            }
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "default": null,
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "default": null,
+            "nullable": true
+          },
+          "rerollsUsed": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          }
+        }
+      },
+      "BingoRequest": {
+        "type": "object",
+        "properties": {
+          "gridSize": {
+            "type": "integer",
+            "format": "int32",
+            "default": 3
+          },
+          "scope": {
+            "$ref": "#/components/schemas/DiscoveryDataSourceScope2"
+          },
+          "customSourceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "customSourceTitles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "excludeWatched": {
+            "type": "boolean",
+            "default": true
+          },
+          "durationDays": {
+            "type": "integer",
+            "format": "int32",
+            "default": null,
+            "nullable": true
+          }
+        }
+      },
+      "BingoSquareDto": {
+        "required": [
+          "objectiveId",
+          "description",
+          "isCompleted",
+          "completionDate",
+          "row",
+          "column"
+        ],
+        "type": "object",
+        "properties": {
+          "objectiveId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "completionDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "row": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "column": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "movieId": {
+            "type": "string",
+            "format": "uuid",
+            "default": null,
+            "nullable": true
+          },
+          "movieTitle": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          },
+          "watchedDate": {
+            "type": "string",
+            "format": "date",
+            "default": null,
+            "nullable": true
+          },
+          "rerollCount": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          }
+        }
+      },
       "BookendsDto": {
         "required": [
           "openingScene",
@@ -5599,11 +6664,6 @@
         }
       },
       "CastingPairDto": {
-        "required": [
-          "actor1Name",
-          "actor2Name",
-          "collaborationCount"
-        ],
         "type": "object",
         "properties": {
           "actor1Name": {
@@ -5615,6 +6675,14 @@
           "collaborationCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "actor1ProfilePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "actor2ProfilePath": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -5652,6 +6720,43 @@
           "slumpMonthWatchCount": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "CreateCustomListRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "movieIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "CustomListDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "movies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieSimpleDto"
+            }
           }
         }
       },
@@ -5705,6 +6810,73 @@
           }
         }
       },
+      "DatabaseStatsDto": {
+        "required": [
+          "totalUsers",
+          "totalMovies",
+          "pendingMovies",
+          "completedMovies",
+          "failedMovies",
+          "notFoundMovies",
+          "permanentlyFailedMovies",
+          "totalTvShows",
+          "totalGenres",
+          "totalDirectors",
+          "totalActors",
+          "totalDiaryEntries"
+        ],
+        "type": "object",
+        "properties": {
+          "totalUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalMovies": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pendingMovies": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completedMovies": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "failedMovies": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notFoundMovies": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "permanentlyFailedMovies": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalTvShows": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalGenres": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalDirectors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalActors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalDiaryEntries": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "DecadeCountDto": {
         "required": [
           "decade",
@@ -5722,12 +6894,121 @@
           }
         }
       },
-      "DirectorActorPairDto": {
+      "DiceRollRequest": {
         "required": [
-          "directorName",
-          "actorName",
-          "collaborationCount"
+          "scope"
         ],
+        "type": "object",
+        "properties": {
+          "scope": {
+            "$ref": "#/components/schemas/DiscoveryDataSourceScope"
+          },
+          "diceTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DiceType"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "customSourceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "customSourceTitles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "excludeWatched": {
+            "type": "boolean",
+            "default": true
+          },
+          "presets": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "default": null,
+            "nullable": true
+          }
+        }
+      },
+      "DiceRollResultDto": {
+        "required": [
+          "movieId",
+          "title",
+          "directorName",
+          "releaseYear",
+          "posterUrl",
+          "runtimeMinutes",
+          "selectionMechanismMetadata",
+          "diceResults"
+        ],
+        "type": "object",
+        "properties": {
+          "movieId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "directorName": {
+            "type": "string"
+          },
+          "releaseYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "posterUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "runtimeMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "selectionMechanismMetadata": {
+            "type": "string"
+          },
+          "diceResults": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SingleDieResultDto"
+            }
+          },
+          "specialEvent": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          },
+          "overview": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          },
+          "matchDistance": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          }
+        }
+      },
+      "DiceType": {
+        "type": "integer"
+      },
+      "DirectorActorPairDto": {
         "type": "object",
         "properties": {
           "directorName": {
@@ -5739,6 +7020,14 @@
           "collaborationCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "directorProfilePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "actorProfilePath": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -5759,17 +7048,19 @@
           "watchedCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "profilePath": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
       "DirectorDetailsDto": {
-        "required": [
-          "id",
-          "name",
-          "averageRating",
-          "watchCount",
-          "movies"
-        ],
         "type": "object",
         "properties": {
           "id": {
@@ -5792,6 +7083,42 @@
             "items": {
               "$ref": "#/components/schemas/MovieSimpleDto"
             }
+          },
+          "profilePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActor": {
+            "type": "boolean"
+          },
+          "actorMovies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieSimpleDto"
+            },
+            "nullable": true
+          },
+          "watchlistCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "likeCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "likedMovieTitles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieSimpleDto"
+            },
+            "nullable": true
+          },
+          "watchlistMovieTitles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovieSimpleDto"
+            },
+            "nullable": true
           }
         }
       },
@@ -5847,6 +7174,13 @@
           }
         }
       },
+      "DiscoveryDataSourceScope": {
+        "type": "integer"
+      },
+      "DiscoveryDataSourceScope2": {
+        "type": "integer",
+        "default": 1
+      },
       "DurationBalanceDto": {
         "required": [
           "durationCategory",
@@ -5858,6 +7192,15 @@
             "type": "string"
           },
           "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "EnrichMovieRequest": {
+        "type": "object",
+        "properties": {
+          "tmdbId": {
             "type": "integer",
             "format": "int32"
           }
@@ -5996,15 +7339,6 @@
         }
       },
       "GlobalSearchResultDto": {
-        "required": [
-          "localId",
-          "tmdbId",
-          "entityType",
-          "titleOrName",
-          "releaseYear",
-          "imageUrl",
-          "isLocal"
-        ],
         "type": "object",
         "properties": {
           "localId": {
@@ -6034,6 +7368,16 @@
           },
           "isLocal": {
             "type": "boolean"
+          },
+          "actorId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "directorId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           }
         }
       },
@@ -6088,6 +7432,35 @@
             "type": "string"
           },
           "errorMessage": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "LogEntryDto": {
+        "required": [
+          "timestamp",
+          "level",
+          "category",
+          "message",
+          "exception"
+        ],
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "level": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "exception": {
             "type": "string",
             "nullable": true
           }
@@ -6306,6 +7679,10 @@
             "items": {
               "$ref": "#/components/schemas/MovieDiaryEntryDto"
             }
+          },
+          "isWatched": {
+            "type": "boolean",
+            "default": false
           }
         }
       },
@@ -6336,12 +7713,6 @@
         }
       },
       "MovieSimpleDto": {
-        "required": [
-          "id",
-          "title",
-          "releaseYear",
-          "posterPath"
-        ],
         "type": "object",
         "properties": {
           "id": {
@@ -6359,8 +7730,103 @@
           "posterPath": {
             "type": "string",
             "nullable": true
+          },
+          "isWatched": {
+            "type": "boolean"
           }
         }
+      },
+      "MysteryBoxDto": {
+        "required": [
+          "boxIds",
+          "variant",
+          "generatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "boxIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "variant": {
+            "$ref": "#/components/schemas/MysteryBoxVariant"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "hints": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MysteryBoxHintDto"
+            },
+            "default": null,
+            "nullable": true
+          }
+        }
+      },
+      "MysteryBoxHintDto": {
+        "required": [
+          "boxId",
+          "hint"
+        ],
+        "type": "object",
+        "properties": {
+          "boxId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "hint": {
+            "type": "string"
+          }
+        }
+      },
+      "MysteryBoxRequest": {
+        "required": [
+          "scope",
+          "variant"
+        ],
+        "type": "object",
+        "properties": {
+          "scope": {
+            "$ref": "#/components/schemas/DiscoveryDataSourceScope"
+          },
+          "variant": {
+            "$ref": "#/components/schemas/MysteryBoxVariant"
+          },
+          "boxCount": {
+            "type": "integer",
+            "format": "int32",
+            "default": 5
+          },
+          "customSourceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "customSourceTitles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "excludeWatched": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "MysteryBoxVariant": {
+        "type": "integer"
       },
       "PreferredDayDto": {
         "required": [
@@ -6448,6 +7914,62 @@
           "instance": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "ProviderDiagnosticsDto": {
+        "required": [
+          "tmdbStatus",
+          "tmdbLatencyMs",
+          "omdbStatus",
+          "omdbLatencyMs",
+          "backendStatus",
+          "backendLatencyMs"
+        ],
+        "type": "object",
+        "properties": {
+          "tmdbStatus": {
+            "type": "string"
+          },
+          "tmdbLatencyMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "omdbStatus": {
+            "type": "string"
+          },
+          "omdbLatencyMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "backendStatus": {
+            "type": "string"
+          },
+          "backendLatencyMs": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PurgeOrphanResultDto": {
+        "required": [
+          "purgedGenres",
+          "purgedDirectors",
+          "purgedActors"
+        ],
+        "type": "object",
+        "properties": {
+          "purgedGenres": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "purgedDirectors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "purgedActors": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -6592,11 +8114,6 @@
         }
       },
       "RookieDto": {
-        "required": [
-          "name",
-          "moviesWatchedThisYear",
-          "averageRating"
-        ],
         "type": "object",
         "properties": {
           "name": {
@@ -6609,6 +8126,276 @@
           "averageRating": {
             "type": "number",
             "format": "double"
+          },
+          "profilePath": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "RouletteRaceResultDto": {
+        "required": [
+          "winner",
+          "spinSequence"
+        ],
+        "type": "object",
+        "properties": {
+          "winner": {
+            "$ref": "#/components/schemas/SelectionResultDto"
+          },
+          "spinSequence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectionResultDto"
+            }
+          }
+        }
+      },
+      "RouletteRequest": {
+        "required": [
+          "scope"
+        ],
+        "type": "object",
+        "properties": {
+          "scope": {
+            "$ref": "#/components/schemas/DiscoveryDataSourceScope"
+          },
+          "winningThreshold": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          "customSourceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "customSourceTitles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "excludeWatched": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "SelectionResultDto": {
+        "required": [
+          "movieId",
+          "title",
+          "directorName",
+          "releaseYear",
+          "selectionMechanismMetadata"
+        ],
+        "type": "object",
+        "properties": {
+          "movieId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "directorName": {
+            "type": "string"
+          },
+          "releaseYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "selectionMechanismMetadata": {
+            "type": "string"
+          },
+          "posterUrl": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          },
+          "runtimeMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "default": null,
+            "nullable": true
+          },
+          "overview": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          }
+        }
+      },
+      "SingleDieResultDto": {
+        "required": [
+          "diceType",
+          "rollValue",
+          "label",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "diceType": {
+            "$ref": "#/components/schemas/DiceType"
+          },
+          "rollValue": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "label": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "SlotMachineRequest": {
+        "required": [
+          "scope"
+        ],
+        "type": "object",
+        "properties": {
+          "scope": {
+            "$ref": "#/components/schemas/DiscoveryDataSourceScope"
+          },
+          "genre": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          },
+          "decade": {
+            "type": "integer",
+            "format": "int32",
+            "default": null,
+            "nullable": true
+          },
+          "popularity": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          },
+          "rating": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          },
+          "country": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          },
+          "customSourceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "customSourceTitles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "excludeWatched": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "SlotMachineResultDto": {
+        "required": [
+          "movieId",
+          "title",
+          "directorName",
+          "releaseYear",
+          "posterUrl",
+          "runtimeMinutes",
+          "selectionMechanismMetadata",
+          "reelResults",
+          "isJackpot"
+        ],
+        "type": "object",
+        "properties": {
+          "movieId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "directorName": {
+            "type": "string"
+          },
+          "releaseYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "posterUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "runtimeMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "selectionMechanismMetadata": {
+            "type": "string"
+          },
+          "reelResults": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SlotReelResultDto"
+            }
+          },
+          "isJackpot": {
+            "type": "boolean"
+          },
+          "matchCount": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          },
+          "matchedReels": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "overview": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          }
+        }
+      },
+      "SlotReelResultDto": {
+        "required": [
+          "label",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
           }
         }
       },
@@ -6645,6 +8432,30 @@
             "items": {
               "$ref": "#/components/schemas/WrappedMovieDto2"
             }
+          }
+        }
+      },
+      "UserDto": {
+        "required": [
+          "id",
+          "username",
+          "email",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
           }
         }
       },
@@ -6926,6 +8737,9 @@
       "name": "Actors"
     },
     {
+      "name": "Admin"
+    },
+    {
       "name": "AdvancedAnalytics"
     },
     {
@@ -6935,7 +8749,13 @@
       "name": "Auth"
     },
     {
+      "name": "CustomLists"
+    },
+    {
       "name": "Directors"
+    },
+    {
+      "name": "Discovery"
     },
     {
       "name": "Import"

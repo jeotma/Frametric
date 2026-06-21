@@ -7,21 +7,19 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="slide-content genre-bg">
+    <div class="slide-content slide-bg-amber">
+      <div class="act-label">ACT II · SCENE 6 · THE GENRE LANDSCAPE</div>
       <h2 class="slide-title">You craved...</h2>
       <div class="genre-list">
         <div class="genre-item" *ngFor="let g of data.topGenres.slice(0, 5); let i = index" [style.animation-delay]="(i * 0.15) + 's'">
           <span class="rank">#{{ i + 1 }}</span>
           <span class="name">{{ g.genreName }}</span>
-          <span class="count">{{ g.count }} movies</span>
+          <span class="count" style="font-family: var(--font-mono)">{{ g.count }} movies</span>
         </div>
       </div>
     </div>
   `,
   styles: [`
-    .genre-bg {
-      background: radial-gradient(circle at top right, rgba(236, 72, 153, 0.15) 0%, transparent 60%);
-    }
     .genre-list {
       display: flex;
       flex-direction: column;

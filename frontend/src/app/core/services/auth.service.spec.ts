@@ -1,34 +1,37 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, throwError, firstValueFrom } from 'rxjs';
 import { AuthService } from './auth.service';
 import { AuthService as ApiAuthService } from '../api/api/auth.service';
 import { TokenStorageService } from './token-storage.service';
 
+function createMocks() {
+  return {
+    apiAuth: { apiAuthLoginPost: vi.fn(), apiAuthSignupPost: vi.fn() },
+    tokenStorage: { isTokenValid: vi.fn(), getCurrentUser: vi.fn(), setAccessToken: vi.fn(), setRefreshToken: vi.fn(), clear: vi.fn() },
+    router: { navigate: vi.fn() },
+  };
+}
+
+function setupModule(mocks: ReturnType<typeof createMocks>) {
+  TestBed.configureTestingModule({
+    providers: [
+      AuthService,
+      { provide: ApiAuthService, useValue: mocks.apiAuth },
+      { provide: TokenStorageService, useValue: mocks.tokenStorage },
+      { provide: Router, useValue: mocks.router },
+    ]
+  });
+  return TestBed.inject(AuthService);
+}
+
 describe('AuthService', () => {
   let service: AuthService;
-  let mockApiAuth: jasmine.SpyObj<ApiAuthService>;
-  let mockTokenStorage: jasmine.SpyObj<TokenStorageService>;
-  let mockRouter: jasmine.SpyObj<Router>;
+  let mocks: ReturnType<typeof createMocks>;
 
   beforeEach(() => {
-    mockApiAuth = jasmine.createSpyObj('ApiAuthService', ['apiAuthLoginPost', 'apiAuthSignupPost']);
-    mockTokenStorage = jasmine.createSpyObj('TokenStorageService', [
-      'isTokenValid', 'getCurrentUser',
-      'setAccessToken', 'setRefreshToken', 'clear'
-    ]);
-    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-
-    TestBed.configureTestingModule({
-      providers: [
-        AuthService,
-        { provide: ApiAuthService, useValue: mockApiAuth },
-        { provide: TokenStorageService, useValue: mockTokenStorage },
-        { provide: Router, useValue: mockRouter },
-      ]
-    });
-
-    service = TestBed.inject(AuthService);
+    mocks = createMocks();
+    service = setupModule(mocks);
   });
 
   it('should be created', () => {
@@ -36,19 +39,25 @@ describe('AuthService', () => {
   });
 
   describe('initial state', () => {
+    beforeEach(() => {
+      TestBed.resetTestingModule();
+    });
+
     it('should be unauthenticated when no valid token', () => {
-      mockTokenStorage.isTokenValid.and.returnValue(false);
-      const s = TestBed.inject(AuthService);
-      expect(s.isAuthenticated()).toBeFalse();
+      const m = createMocks();
+      m.tokenStorage.isTokenValid.mockReturnValue(false);
+      const s = setupModule(m);
+      expect(s.isAuthenticated()).toBe(false);
       expect(s.currentUser()).toBeNull();
     });
 
     it('should restore session when token is valid', () => {
+      const m = createMocks();
       const fakeUser = { id: '1', username: 'test', email: 'test@test.com' };
-      mockTokenStorage.isTokenValid.and.returnValue(true);
-      mockTokenStorage.getCurrentUser.and.returnValue(fakeUser);
-      const s = TestBed.inject(AuthService);
-      expect(s.isAuthenticated()).toBeTrue();
+      m.tokenStorage.isTokenValid.mockReturnValue(true);
+      m.tokenStorage.getCurrentUser.mockReturnValue(fakeUser);
+      const s = setupModule(m);
+      expect(s.isAuthenticated()).toBe(true);
       expect(s.currentUser()).toEqual(fakeUser);
     });
   });
@@ -57,72 +66,57 @@ describe('AuthService', () => {
     const credentials = { email: 'user@test.com', password: 'secret' };
     const loginResponse = { accessToken: 'access-token', refreshToken: 'refresh-token' };
 
-    it('should store tokens and set user on successful login', (done) => {
-      mockApiAuth.apiAuthLoginPost.and.returnValue(of(loginResponse));
+    it('should store tokens and set user on successful login', async () => {
+      mocks.apiAuth.apiAuthLoginPost.mockReturnValue(of(loginResponse));
       const fakeUser = { id: '1', username: 'user', email: 'user@test.com' };
-      mockTokenStorage.getCurrentUser.and.returnValue(fakeUser);
+      mocks.tokenStorage.getCurrentUser.mockReturnValue(fakeUser);
 
-      service.login(credentials.email, credentials.password).subscribe({
-        next: () => {
-          expect(mockApiAuth.apiAuthLoginPost).toHaveBeenCalledWith(credentials);
-          expect(mockTokenStorage.setAccessToken).toHaveBeenCalledWith('access-token');
-          expect(mockTokenStorage.setRefreshToken).toHaveBeenCalledWith('refresh-token');
-          expect(service.currentUser()).toEqual(fakeUser);
-          expect(service.isAuthenticated()).toBeTrue();
-          done();
-        }
-      });
+      await firstValueFrom(service.login(credentials.email, credentials.password));
+
+      expect(mocks.apiAuth.apiAuthLoginPost).toHaveBeenCalledWith(credentials);
+      expect(mocks.tokenStorage.setAccessToken).toHaveBeenCalledWith('access-token');
+      expect(mocks.tokenStorage.setRefreshToken).toHaveBeenCalledWith('refresh-token');
+      expect(service.currentUser()).toEqual(fakeUser);
+      expect(service.isAuthenticated()).toBe(true);
     });
 
-    it('should not store tokens on failed login', (done) => {
+    it('should not store tokens on failed login', async () => {
       const err = { status: 401, message: 'Unauthorized' };
-      mockApiAuth.apiAuthLoginPost.and.returnValue(throwError(() => err));
+      mocks.apiAuth.apiAuthLoginPost.mockReturnValue(throwError(() => err));
 
-      service.login(credentials.email, credentials.password).subscribe({
-        error: (e) => {
-          expect(e).toBe(err);
-          expect(mockTokenStorage.setAccessToken).not.toHaveBeenCalled();
-          expect(mockTokenStorage.setRefreshToken).not.toHaveBeenCalled();
-          done();
-        }
-      });
+      await expect(firstValueFrom(service.login(credentials.email, credentials.password))).rejects.toBe(err);
+
+      expect(mocks.tokenStorage.setAccessToken).not.toHaveBeenCalled();
+      expect(mocks.tokenStorage.setRefreshToken).not.toHaveBeenCalled();
     });
   });
 
   describe('register', () => {
     const regData = { username: 'newuser', email: 'new@test.com', password: 'secret' };
 
-    it('should call signup API on register', (done) => {
-      mockApiAuth.apiAuthSignupPost.and.returnValue(of({}));
+    it('should call signup API on register', async () => {
+      mocks.apiAuth.apiAuthSignupPost.mockReturnValue(of({}));
 
-      service.register(regData.username, regData.email, regData.password).subscribe({
-        next: () => {
-          expect(mockApiAuth.apiAuthSignupPost).toHaveBeenCalledWith(regData);
-          done();
-        }
-      });
+      await firstValueFrom(service.register(regData.username, regData.email, regData.password));
+
+      expect(mocks.apiAuth.apiAuthSignupPost).toHaveBeenCalledWith(regData);
     });
 
-    it('should propagate registration errors', (done) => {
+    it('should propagate registration errors', async () => {
       const err = { status: 400, message: 'Email taken' };
-      mockApiAuth.apiAuthSignupPost.and.returnValue(throwError(() => err));
+      mocks.apiAuth.apiAuthSignupPost.mockReturnValue(throwError(() => err));
 
-      service.register(regData.username, regData.email, regData.password).subscribe({
-        error: (e) => {
-          expect(e).toBe(err);
-          done();
-        }
-      });
+      await expect(firstValueFrom(service.register(regData.username, regData.email, regData.password))).rejects.toBe(err);
     });
   });
 
   describe('logout', () => {
     it('should clear tokens, set user to null, and navigate to login', () => {
       service.logout();
-      expect(mockTokenStorage.clear).toHaveBeenCalled();
+      expect(mocks.tokenStorage.clear).toHaveBeenCalled();
       expect(service.currentUser()).toBeNull();
-      expect(service.isAuthenticated()).toBeFalse();
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/login']);
+      expect(service.isAuthenticated()).toBe(false);
+      expect(mocks.router.navigate).toHaveBeenCalledWith(['/login']);
     });
   });
 });

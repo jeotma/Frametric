@@ -9,60 +9,100 @@ import html2canvas from 'html2canvas';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <div class="slide-content summary-wrapper">
-      <div class="final-note">
-        And that's a wrap on {{ year === 'global' ? 'All-Time' : year }}.<br>
-        <span class="fn-sub">The projector cools down, the iris fades to black, and the credits roll on your cinematic journey.</span>
+    <div class="slide-content slide-bg-sepia">
+      <h2 class="slide-title" style="font-size: 2.2rem; margin-bottom: 8px;">Act IV<span style="color: var(--text-muted)"> - </span>Scene 21<span style="color: var(--text-muted)"> - </span>The Closing Credits</h2>
+      <p class="slide-subtitle" style="margin-bottom: 12px;">And that's a wrap on {{ year === 'global' ? 'a lifetime of cinema' : year }}.</p>
+      <p class="slide-explainer" style="margin-bottom: 16px; font-size: 0.85rem;">The projector cools down, the iris fades to black, and the credits roll on your cinematic journey.</p>
+
+      <div *ngIf="errorMessage()" class="error-banner crosshair-bracket animate-slide-in">
+        <div class="hud-data" style="margin-right: 12px; display: inline-flex; align-items: center; gap: 4px;">
+          <span class="hud-label" style="border-left: 2px solid var(--accent-record); padding-left: 6px; font-size: 0.75rem; font-weight: 700; color: var(--accent-record); text-transform: uppercase;">ERR</span>
+          <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">SYSTEM FAULT</span>
+        </div>
+        <div style="flex: 1; text-align: left; color: var(--text-secondary);">{{ errorMessage() }}</div>
+        <button class="dismiss-btn" (click)="errorMessage.set(null)">&times;</button>
       </div>
 
       <div class="summary-card" id="final-cut-card">
+        <!-- Decorative Brackets -->
+        <div class="v-bracket v-tl"></div>
+        <div class="v-bracket v-tr"></div>
+        <div class="v-bracket v-bl"></div>
+        <div class="v-bracket v-br"></div>
+
         <div class="card-header">
-          <div class="logo">Frametric</div>
+          <div class="logo">
+            <svg class="clapper-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width: 20px; height: 20px; margin-right: 6px; color: #d4d4d8;"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+            Frametric
+          </div>
           <div class="year">THE {{ username | uppercase }}'S CUT {{ year === 'global' ? 'ALL-TIME' : year }}</div>
         </div>
 
         <div class="card-body">
+          <!-- Global Stats Row -->
+          <div class="global-stats-row">
+            <div class="global-stat stat-emerald">
+              <span class="lbl" style="color: #10b981;"><span style="color: #10b981; margin-right: 4px;">★</span> Movies</span>
+              <span class="val highlight-val" style="font-family: var(--font-mono); color: #10b981;">{{ data.totalWatches }}</span>
+            </div>
+            <div class="global-stat stat-sepia">
+              <span class="lbl" style="color: #e2ba64;"><span style="color: #e2ba64; margin-right: 4px;">✦</span> Unique Films</span>
+              <span class="val highlight-val" style="font-family: var(--font-mono); color: #e2ba64;">{{ data.uniqueMoviesCount }}</span>
+            </div>
+            <div class="global-stat stat-record">
+              <span class="lbl" style="color: #e50914;"><span style="color: #e50914; margin-right: 4px;">●</span> Hours</span>
+              <span class="val highlight-val" style="font-family: var(--font-mono); color: #e50914;">{{ (data.totalWatchtimeMinutes / 60) | number:'1.0-0' }}</span>
+            </div>
+          </div>
+
           <div class="data-grid">
-            <!-- Column 1 -->
-            <div class="data-col">
-              <div class="stat-block">
-                <span class="lbl">Movies</span>
-                <span class="val">{{ data.totalWatches }}</span>
-              </div>
+            <!-- Column 1 (Emerald) -->
+            <div class="data-col col-emerald">
               <div class="list-block">
-                <span class="list-title">Top Genres</span>
-                <ol>
-                  <li *ngFor="let g of data.topGenres.slice(0, 5)">{{ g.genreName }}</li>
+                <span class="list-title" style="color: #10b981; border-bottom: 1px solid rgba(16, 185, 129, 0.3); padding-bottom: 6px;">Top Genres</span>
+                <ol class="highlighted-list">
+                  <li *ngFor="let g of data.topGenres.slice(0, 5)">
+                    <span class="list-dot" style="color: #10b981; font-size: 0.7em;">■</span> {{ g.genreName }}
+                  </li>
                 </ol>
               </div>
             </div>
 
-            <!-- Column 2 -->
-            <div class="data-col">
-              <div class="stat-block">
-                <span class="lbl">Unique</span>
-                <span class="val">{{ data.uniqueMoviesCount }}</span>
-              </div>
+            <!-- Column 2 (Sepia) -->
+            <div class="data-col col-sepia main-col">
               <div class="list-block">
-                <span class="list-title">Top Directors</span>
-                <ol>
-                  <li *ngFor="let d of data.topDirectors.slice(0, 5)">{{ d.directorName }}</li>
+                <span class="list-title" style="color: #e2ba64; border-bottom: 1px solid rgba(226, 186, 100, 0.3); padding-bottom: 6px;">Top Directors</span>
+                <ol class="highlighted-list">
+                  <li *ngFor="let d of data.topDirectors.slice(0, 5)">
+                    <span class="list-dot" style="color: #e2ba64; font-size: 0.7em;">■</span>
+                    {{ d.directorName }}
+                  </li>
                 </ol>
               </div>
             </div>
 
-            <!-- Column 3 -->
-            <div class="data-col">
-              <div class="stat-block">
-                <span class="lbl">Hours</span>
-                <span class="val">{{ (data.totalWatchtimeMinutes / 60) | number:'1.0-0' }}</span>
-              </div>
+            <!-- Column 3 (Record) -->
+            <div class="data-col col-record">
               <div class="list-block">
-                <span class="list-title">Top Actors</span>
-                <ol>
-                  <li *ngFor="let a of data.topActors.slice(0, 5)">{{ a.actorName }}</li>
+                <span class="list-title" style="color: #e50914; border-bottom: 1px solid rgba(229, 9, 20, 0.3); padding-bottom: 6px;">Top Actors</span>
+                <ol class="highlighted-list">
+                  <li *ngFor="let a of data.topActors.slice(0, 5)">
+                    <span class="list-dot" style="color: #e50914; font-size: 0.7em;">■</span> {{ a.actorName }}
+                  </li>
                 </ol>
               </div>
+            </div>
+          </div>
+
+          <div class="extra-stats" *ngIf="topDecade">
+            <div class="mini-stat">
+              <span class="mini-lbl">Top Decade</span>
+              <span class="mini-val">{{ topDecade }}s</span>
+            </div>
+            <div class="mini-separator"></div>
+            <div class="mini-stat" *ngIf="peakMonth">
+              <span class="mini-lbl">Peak Month</span>
+              <span class="mini-val">{{ peakMonth }}</span>
             </div>
           </div>
         </div>
@@ -92,13 +132,10 @@ import html2canvas from 'html2canvas';
       </div>
 
       <p class="exit-note">Press ESC or click the exit button to return.</p>
+      <div class="timecode">TC 02:30:00:00</div>
     </div>
   `,
   styles: [`
-    .summary-wrapper {
-      background: radial-gradient(circle at center, rgba(139, 92, 246, 0.1) 0%, transparent 100%);
-    }
-    
     .final-note {
       text-align: center;
       font-size: 1.5rem;
@@ -125,50 +162,88 @@ import html2canvas from 'html2canvas';
       50% { opacity: 1; }
     }
     
-    /* VERY strict CSS for html2canvas compatibility */
     .summary-card {
-      background-color: #111116; /* Solid color, no rgba/blur for better html2canvas */
-      border: 1px solid #333;
-      border-radius: 16px;
-      padding: 24px 36px;
+      background-color: #0a0a0c;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 16px 24px;
       width: 100%;
-      max-width: 660px;
+      max-width: 600px;
       color: #fff;
       font-family: 'Inter', sans-serif;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-      margin-bottom: 24px;
+      box-shadow: 0 24px 50px rgba(0,0,0,0.8);
+      margin-bottom: 12px;
+      position: relative;
     }
+
+    .v-bracket {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border: 2px solid #a3a3a3;
+      pointer-events: none;
+    }
+    .v-tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+    .v-tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+    .v-bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+    .v-br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
 
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       border-bottom: 1px solid #333;
-      padding-bottom: 16px;
+      padding-bottom: 12px;
     }
 
     .logo {
-      font-weight: 800;
-      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      font-weight: 900;
+      font-size: 1.4rem;
       letter-spacing: -0.5px;
     }
 
     .year {
-      background: #8b5cf6;
-      color: #fff;
-      padding: 4px 10px;
+      background: #e2ba64;
+      color: #000;
+      padding: 4px 12px;
       border-radius: 4px;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 0.9rem;
+      letter-spacing: 0.5px;
+    }
+
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .data-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: 1fr 1.2fr 1fr;
       gap: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
       width: 100%;
+    }
+
+    .global-stats-row {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed rgba(255,255,255,0.1);
+    }
+
+    .global-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
     }
 
     .data-col {
@@ -176,7 +251,29 @@ import html2canvas from 'html2canvas';
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 24px;
+      gap: 12px;
+      border-radius: 8px;
+      padding: 12px 8px;
+      position: relative;
+    }
+
+    .col-emerald {
+      border: 1px solid rgba(16, 185, 129, 0.1);
+      background: radial-gradient(circle at top, rgba(16, 185, 129, 0.06) 0%, rgba(0,0,0,0) 70%);
+    }
+    .col-sepia {
+      border: 1px solid rgba(226, 186, 100, 0.1);
+      background: radial-gradient(circle at top, rgba(226, 186, 100, 0.06) 0%, rgba(0,0,0,0) 70%);
+    }
+    .col-record {
+      border: 1px solid rgba(229, 9, 20, 0.1);
+      background: radial-gradient(circle at top, rgba(229, 9, 20, 0.06) 0%, rgba(0,0,0,0) 70%);
+    }
+
+    .main-col {
+      transform: scale(1.02);
+      z-index: 2;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
     .stat-block, .list-block {
@@ -184,6 +281,7 @@ import html2canvas from 'html2canvas';
       flex-direction: column;
       align-items: center;
       text-align: center;
+      width: 100%;
     }
 
     .stat-block {
@@ -191,46 +289,105 @@ import html2canvas from 'html2canvas';
     }
 
     .lbl {
-      color: #aaa;
+      color: #a3a3a3;
       font-size: 0.85rem;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
     }
 
     .val {
-      font-size: 2rem;
+      font-size: 1.6rem;
       font-weight: 800;
       color: #fff;
     }
+    
+    .highlight-val {
+      font-size: 2.2rem;
+    }
+    .col-emerald .highlight-val { text-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+    .col-sepia .highlight-val { text-shadow: 0 0 15px rgba(226, 186, 100, 0.3); }
+    .col-record .highlight-val { text-shadow: 0 0 15px rgba(229, 9, 20, 0.3); }
 
     .list-title {
       display: block;
-      color: #8b5cf6;
-      font-weight: 700;
-      margin-bottom: 12px;
-      font-size: 1rem;
+      color: #d4d4d8;
+      font-weight: 800;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
       text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     ol {
       margin: 0;
       padding: 0;
       list-style-type: none;
-      color: #ddd;
-      font-size: 1rem;
+      color: #d4d4d8;
+      font-size: 0.85rem;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .highlighted-list {
+      color: #fff;
+      font-weight: 500;
+    }
+
+    li {
+      margin-bottom: 6px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+    }
+
+    .extra-stats {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      padding-top: 12px;
+      border-top: 1px dashed #333;
+      width: 80%;
+    }
+
+    .mini-stat {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
-    li {
+    .mini-lbl {
+      font-size: 0.7rem;
+      color: #737373;
+      text-transform: uppercase;
+      letter-spacing: 1px;
       margin-bottom: 4px;
-      text-align: center;
+    }
+
+    .mini-val {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #d4d4d8;
+    }
+
+    .mini-separator {
+      width: 1px;
+      height: 24px;
+      background-color: #333;
     }
 
     .card-footer {
       border-top: 1px solid #333;
-      padding-top: 16px;
+      padding-top: 12px;
+      margin-top: 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -238,8 +395,8 @@ import html2canvas from 'html2canvas';
     }
     
     .user-handle {
-      color: #8b5cf6;
-      font-size: 1.1rem;
+      color: #e2ba64;
+      font-size: 1.2rem;
       font-weight: 800;
       letter-spacing: 0.5px;
     }
@@ -249,12 +406,11 @@ import html2canvas from 'html2canvas';
       align-items: center;
       justify-content: center;
       gap: 8px;
-      margin-top: 4px;
       width: 100%;
     }
 
     .watermark-text {
-      color: rgba(255, 255, 255, 0.3);
+      color: #737373;
       font-size: 0.75rem;
       font-weight: 500;
       letter-spacing: 0.5px;
@@ -262,7 +418,7 @@ import html2canvas from 'html2canvas';
     }
 
     .watermark-link {
-      color: rgba(255, 255, 255, 0.3);
+      color: #737373;
       font-size: 0.75rem;
       font-weight: 500;
       letter-spacing: 0.5px;
@@ -270,12 +426,6 @@ import html2canvas from 'html2canvas';
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      transition: color 0.2s ease;
-      pointer-events: auto;
-    }
-    
-    .watermark-link:hover {
-      color: rgba(255, 255, 255, 0.6);
     }
     
     .linkedin-icon {
@@ -285,7 +435,7 @@ import html2canvas from 'html2canvas';
     }
 
     .watermark-dot {
-      color: rgba(255, 255, 255, 0.15);
+      color: #333;
       font-size: 0.6rem;
     }
 
@@ -296,20 +446,20 @@ import html2canvas from 'html2canvas';
       align-items: center;
       position: relative;
       z-index: 100;
-      pointer-events: auto; /* Enable clicks for all buttons */
+      pointer-events: auto;
       margin-bottom: 16px;
     }
 
     .share-btn {
-      background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
-      color: white;
+      background: linear-gradient(135deg, var(--accent-sepia), #b89243);
+      color: #000;
       border: none;
       padding: 16px 40px;
       border-radius: 99px;
       font-size: 1.1rem;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+      box-shadow: 0 4px 15px rgba(226, 186, 100, 0.3);
       transition: transform 0.2s;
     }
 
@@ -340,6 +490,43 @@ import html2canvas from 'html2canvas';
       color: var(--text-primary);
       border-color: rgba(255, 255, 255, 0.2);
     }
+
+    /* CUSTOM ERROR BANNER STYLES */
+    .error-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      margin-bottom: 24px;
+      color: var(--accent-record);
+      border: 1px solid rgba(229, 9, 20, 0.4);
+      background: rgba(229, 9, 20, 0.05);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      width: 100%;
+      max-width: 600px;
+      box-sizing: border-box;
+      animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .dismiss-btn {
+      background: none;
+      border: none;
+      color: var(--accent-record);
+      font-size: 1.4rem;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      transition: opacity 0.2s;
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
   `]
 })
 export class SummarySlideComponent {
@@ -348,32 +535,40 @@ export class SummarySlideComponent {
   @Input() username!: string;
 
   public isGenerating = signal<boolean>(false);
+  public errorMessage = signal<string | null>(null);
+
+  get topDecade() {
+    if (!this.data?.decadeBreakdown?.length) return null;
+    return [...this.data.decadeBreakdown].sort((a, b) => b.count - a.count)[0].decade;
+  }
+
+  get peakMonth() {
+    if (!this.data?.monthlyActivity?.length) return null;
+    const peak = [...this.data.monthlyActivity].sort((a, b) => b.count - a.count)[0];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[peak.month - 1] || peak.month;
+  }
 
   public async share() {
     this.isGenerating.set(true);
+    this.errorMessage.set(null);
     try {
       const element = document.getElementById('final-cut-card');
       if (!element) return;
 
-      // Force fixed width for a pristine snapshot
-      const originalWidth = element.style.width;
-      const originalMaxWidth = element.style.maxWidth;
-      element.style.width = '600px';
-      element.style.maxWidth = '600px';
-      
-      // Wait a tick for the browser to apply layout changes
-      await new Promise(resolve => setTimeout(resolve, 100));
-
       const canvas = await html2canvas(element, {
         scale: 2, // High resolution
-        backgroundColor: '#111116',
-        useCORS: true
+        backgroundColor: null,
+        useCORS: true,
+        onclone: (clonedDoc) => {
+          const clonedElement = clonedDoc.getElementById('final-cut-card');
+          if (clonedElement) {
+            clonedElement.style.width = '600px';
+            clonedElement.style.maxWidth = '600px';
+          }
+        }
       });
       
-      // Restore styles
-      element.style.width = originalWidth;
-      element.style.maxWidth = originalMaxWidth;
-
       const image = canvas.toDataURL('image/png');
       
       // Trigger download
@@ -383,7 +578,7 @@ export class SummarySlideComponent {
       link.click();
     } catch (error) {
       console.error('Error generating image', error);
-      alert('Could not generate the image. Please try again.');
+      this.errorMessage.set('Could not generate the image. Please try again.');
     } finally {
       this.isGenerating.set(false);
     }

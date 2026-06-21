@@ -13,11 +13,14 @@ import { EasterEggPipe } from '../../core/services/easter-egg.pipe';
 import { slugify } from '../../core/utils/slugify';
 import { STATS_QUERIES, GlobalFilters, QueryDef } from './stats-queries';
 import { GlobalSearchResultDto } from '../../core/api/model/global-search-result-dto';
+import { AuthService } from '../../core/services/auth.service';
+import { ModalService } from '../../core/services/modal.service';
+import { CinematicSelectComponent } from '../../components/cinematic-select/cinematic-select.component';
 
 @Component({
   selector: 'app-stats',
   standalone: true,
-  imports: [CommonModule, FormsModule, EasterEggPipe, RouterLink],
+  imports: [CommonModule, FormsModule, EasterEggPipe, RouterLink, CinematicSelectComponent],
   templateUrl: './stats.html',
   styleUrl: './stats.scss'
 })
@@ -29,6 +32,8 @@ export class StatsComponent implements OnInit, OnDestroy {
   private directorsService = inject(DirectorsService);
   private actorsService = inject(ActorsService);
   private router = inject(Router);
+  public auth = inject(AuthService);
+  public modalService = inject(ModalService);
 
   public isPretentious = signal<boolean>(false);
   public baconMessage = signal<string | null>(null);
@@ -41,13 +46,15 @@ export class StatsComponent implements OnInit, OnDestroy {
 
   public categoriesList = computed(() => {
     const cats = new Set(this.queries.map(q => q.category));
-    return Array.from(cats);
+    return Array.from(cats).map(c => ({value: c, label: c}));
   });
 
   public selectedCategory = signal<string>('Watched History');
   
   public queriesInCategory = computed(() => {
-    return this.queries.filter(q => q.category === this.selectedCategory());
+    return this.queries
+      .filter(q => q.category === this.selectedCategory())
+      .map(q => ({value: q.id, label: q.name}));
   });
 
   public selectedQueryId = signal<string>('watched_by_year');
@@ -70,7 +77,12 @@ export class StatsComponent implements OnInit, OnDestroy {
   public showPosters = signal<boolean>(true);
   public currentPage = signal<number>(1);
   public pageSize = signal<number>(25);
-  public readonly pageSizeOptions = [10, 25, 50, 100];
+  public readonly pageSizeOptions = [
+    {value: 10, label: '10 items'},
+    {value: 25, label: '25 items'},
+    {value: 50, label: '50 items'},
+    {value: 100, label: '100 items'}
+  ];
 
   public totalPages = computed(() => {
     const data = this.resultData();
@@ -121,7 +133,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     this.selectedCategory.set(cat);
     const firstQuery = this.queriesInCategory()[0];
     if (firstQuery) {
-      this.selectedQueryId.set(firstQuery.id);
+      this.selectedQueryId.set(firstQuery.value);
       this.initInputs();
       this.resultData.set(null); // Clear previous
       this.currentPage.set(1);
@@ -143,6 +155,11 @@ export class StatsComponent implements OnInit, OnDestroy {
   }
 
   runQuery() {
+    if (!this.auth.isAuthenticated()) {
+      this.modalService.openAuthModal();
+      return;
+    }
+
     const q = this.currentQuery();
     if (!q || !q.execute) return;
 
@@ -464,9 +481,9 @@ export class StatsComponent implements OnInit, OnDestroy {
   }
 
   private resolveEntityId(result: GlobalSearchResultDto, type: 'Movie' | 'Actor' | 'Director'): string | number | null {
-    if (type === 'Actor') return result.actorId || result.localId || result.tmdbId;
-    if (type === 'Director') return result.directorId || result.localId || result.tmdbId;
-    return result.localId || result.tmdbId; // Movie
+    if (type === 'Actor') return result.actorId || result.localId || result.tmdbId || null;
+    if (type === 'Director') return result.directorId || result.localId || result.tmdbId || null;
+    return result.localId || result.tmdbId || null; // Movie
   }
 
   navigateToEntity(name: string, type: 'Movie' | 'Actor' | 'Director', fragment?: string) {

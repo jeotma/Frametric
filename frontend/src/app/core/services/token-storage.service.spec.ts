@@ -77,7 +77,7 @@ describe('TokenStorageService', () => {
       const payload = { exp: futureExp };
       const base64 = btoa(JSON.stringify(payload));
       service.setAccessToken(`header.${base64}.signature`);
-      expect(service.isTokenValid()).toBeTrue();
+      expect(service.isTokenValid()).toBe(true);
     });
 
     it('should return false for an expired token', () => {
@@ -85,11 +85,11 @@ describe('TokenStorageService', () => {
       const payload = { exp: pastExp };
       const base64 = btoa(JSON.stringify(payload));
       service.setAccessToken(`header.${base64}.signature`);
-      expect(service.isTokenValid()).toBeFalse();
+      expect(service.isTokenValid()).toBe(false);
     });
 
     it('should return false when no token exists', () => {
-      expect(service.isTokenValid()).toBeFalse();
+      expect(service.isTokenValid()).toBe(false);
     });
   });
 

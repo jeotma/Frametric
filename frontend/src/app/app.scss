@@ -20,7 +20,6 @@
 
 .top-bar {
   height: var(--header-height);
-  border-bottom: 1px solid var(--border-color);
   padding: 0 32px;
   display: flex;
   align-items: center;
@@ -28,47 +27,173 @@
   flex-shrink: 0;
   position: relative;
   z-index: 11000;
-}
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-color);
-  padding: 8px 16px;
-  border-radius: 9999px;
-  width: 320px;
-  transition: var(--transition-smooth);
+  &.expanded {
+    background: var(--bg-secondary);
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--accent-sepia), transparent);
+      opacity: 0.6;
+    }
+    
+    .header-actions {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
 
-  &:focus-within {
-    width: 380px;
-    border-color: var(--accent-purple);
-    background: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
+    .search-box {
+      width: 320px;
+      padding: 4px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 0 15px rgba(212, 180, 131, 0.1);
+      
+      .search-lens {
+        --pulse-color: var(--accent-emerald);
+      }
+      
+      input {
+        width: 200px;
+        opacity: 1;
+        pointer-events: auto;
+      }
+      
+      &:focus-within {
+        width: 380px;
+        border-color: var(--accent-sepia);
+        box-shadow: 0 0 15px rgba(212, 180, 131, 0.15);
+        background: rgba(255, 255, 255, 0.04);
+        
+        input {
+          width: 280px;
+        }
+
+        .search-lens::after {
+          animation: pulse-dot 1.5s infinite;
+        }
+      }
+    }
   }
 
+  // Collapsed state
+  &:not(.expanded) {
+    .header-actions {
+      opacity: 0;
+      transform: translateX(20px);
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+    
+    .search-box {
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid transparent;
+      
+      input {
+        display: none;
+      }
+    }
+  }
+}
+
+.search-lens {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0.4) 60%), var(--bg-secondary);
+  border: 2px solid rgba(255,255,255,0.1);
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 4px 10px rgba(0,0,0,0.3);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  --pulse-color: var(--accent-record); // Default to red
+  
+  // Camera lens recording dot
+  &::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 5px;
+    height: 5px;
+    background-color: var(--pulse-color);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--pulse-color);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  // Inner lens ring
+  &::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  
   .search-icon {
     width: 16px;
     height: 16px;
     color: var(--text-muted);
   }
+}
+
+@keyframes pulse-dot {
+  0% { opacity: 1; box-shadow: 0 0 6px var(--pulse-color); }
+  50% { opacity: 0.4; box-shadow: 0 0 2px var(--pulse-color); }
+  100% { opacity: 1; box-shadow: 0 0 6px var(--pulse-color); }
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 9999px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
 
   input {
     background: transparent;
     border: none;
     color: white;
-    width: 250px;
     font-size: 0.95rem;
-    transition: width 0.3s ease;
+    transition: width 0.3s ease, opacity 0.3s ease;
 
     &:focus {
       outline: none;
-      width: 350px;
     }
 
     &::placeholder {
       color: rgba(255, 255, 255, 0.4);
+    }
+  }
+
+  &:hover .search-lens {
+    border-color: rgba(255,255,255,0.2);
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.9), 0 6px 14px rgba(0,0,0,0.4);
+    
+    &::after {
+      animation: pulse-dot 1.5s infinite;
     }
   }
 }
@@ -104,10 +229,11 @@
   .spinner-small {
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-top-color: #a855f7;
+    border: 2px dashed rgba(255, 255, 255, 0.5);
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin 3s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
   }
 
   .search-results {
@@ -292,3 +418,41 @@
 }
 
 
+
+
+/* Auth Modal Overlay */
+.auth-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-modal {
+  width: 100%;
+  max-width: 480px;
+  background: var(--true-black);
+  border: 1px solid var(--charcoal);
+  padding: 0;
+}
+
+
+
+/* Global Cinematic Spinners (Film Reel style) */
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px dashed rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  animation: spin 3s linear infinite;
+  margin: 0 auto 16px;
+  opacity: 0.8;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+}

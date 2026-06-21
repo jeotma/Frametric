@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ImportService } from '../../core/api/api/import.service';
 import { ImportHistoryDto } from '../../core/api/model/import-history-dto';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from '../../core/services/auth.service';
+import { ModalService } from '../../core/services/modal.service';
 
 @Component({
   selector: 'app-import-center',
@@ -13,6 +15,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 export class ImportCenterComponent implements OnInit, OnDestroy {
   private importService = inject(ImportService);
+  public auth = inject(AuthService);
+  public modalService = inject(ModalService);
   
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -29,8 +33,10 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
   private pollingInterval: any;
 
   ngOnInit() {
-    this.fetchHistory();
-    this.startPolling();
+    if (this.auth.isAuthenticated()) {
+      this.fetchHistory();
+      this.startPolling();
+    }
   }
 
   ngOnDestroy() {
@@ -76,6 +82,11 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
     this.isDragging.set(false);
     this.errorMessage.set(null);
 
+    if (!this.auth.isAuthenticated()) {
+      this.modalService.openAuthModal();
+      return;
+    }
+
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
       this.handleFile(files[0]);
@@ -84,6 +95,10 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
 
   // Click to Upload Handlers
   public triggerFileInput() {
+    if (!this.auth.isAuthenticated()) {
+      this.modalService.openAuthModal();
+      return;
+    }
     this.fileInput.nativeElement.click();
   }
 

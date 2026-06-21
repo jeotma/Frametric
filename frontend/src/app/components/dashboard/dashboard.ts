@@ -2,6 +2,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AnalyticsService, DashboardSummaryDto, ImportService } from '../../core/api';
+import { AuthService } from '../../core/services/auth.service';
+import { ModalService } from '../../core/services/modal.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,6 +15,8 @@ import { AnalyticsService, DashboardSummaryDto, ImportService } from '../../core
 export class DashboardComponent implements OnInit {
   private analyticsService = inject(AnalyticsService);
   private importService = inject(ImportService);
+  public auth = inject(AuthService);
+  public modalService = inject(ModalService);
 
   summary = signal<DashboardSummaryDto | null>(null);
   isLoading = signal(true);
@@ -20,6 +24,11 @@ export class DashboardComponent implements OnInit {
   hasSuccessfulImport = signal<boolean>(true); // Defaults to true to avoid initial flicker
 
   ngOnInit() {
+    if (!this.auth.isAuthenticated()) {
+      this.isLoading.set(false);
+      return;
+    }
+
     // 1. Fetch dashboard stats
     this.analyticsService.apiAnalyticsDashboardGet().subscribe({
       next: (data: DashboardSummaryDto) => {
