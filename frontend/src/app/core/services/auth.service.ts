@@ -22,6 +22,12 @@ export class AuthService {
 
   readonly currentUser = this._currentUser.asReadonly();
   readonly isAuthenticated = computed(() => this._currentUser() !== null);
+  readonly isAdmin = computed(() => {
+    // Read _currentUser signal to establish dependency so computed re-evaluates when user logins/logouts
+    const user = this._currentUser();
+    return user !== null && this._tokenStorage.isTokenValid() && this._tokenStorage.isAdmin();
+  });
+
 
   login(email: string, password: string): Observable<void> {
     return this._apiAuth.apiAuthLoginPost({ email, password }).pipe(

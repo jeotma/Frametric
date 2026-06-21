@@ -1,3 +1,5 @@
+using Frametric.Domain.Enums;
+
 namespace Frametric.Domain.Entities;
 
 public class User
@@ -6,6 +8,7 @@ public class User
     public string Username { get; private set; } = null!;
     public string Email { get; private set; } = null!;
     public string PasswordHash { get; private set; } = null!;
+    public UserRole Role { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
     // Navigation properties
@@ -21,6 +24,13 @@ public class User
         Username = username;
         Email = email;
         PasswordHash = passwordHash;
+        Role = UserRole.User;
         CreatedAt = DateTime.UtcNow;
     }
+
+    public void PromoteToAdmin()
+    {
+        Role = UserRole.Admin;
+    }
 }
+
