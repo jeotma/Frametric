@@ -424,10 +424,71 @@ Requires authentication.
   - `200 OK`: Returns `SelectionResultDto` with full movie details.
   - `400 BadRequest`: Movie not found.
 
-### **GET** `/api/v1/discovery/bingo`
+### **POST** `/api/v1/discovery/bingo`
 
-- **Description**: Returns the user's bingo grid with objectives and completion status. Creates default objectives when none exist. Evaluates diary entries to automatically mark squares as completed.
-- **Query Parameters**:
-  - `gridSize` (`int`, default `3`) — Grid dimensions (3/4/5).
+- **Description**: Returns the user's bingo grid with objectives and completion status. Creates default objectives when none exist or if request asks for a new board. Evaluates diary entries to automatically mark squares as completed.
+- **Request Body**: `BingoRequest` (`GridSize`, `Scope`, `CustomSourceIds?`, `CustomSourceTitles?`, `ExcludeWatched`, `DurationDays?`)
 - **Responses**:
-  - `200 OK`: Returns `BingoGridDto` with grid size and square states.
+  - `200 OK`: Returns `BingoGridDto` with grid size, square states, and rerolls details.
+
+### **POST** `/api/v1/discovery/bingo/reroll/{objectiveId}`
+
+- **Description**: Rerolls a single uncompleted bingo square's objective, replacing it with a new random objective from the pool if the user has rerolls remaining.
+- **Parameters**:
+  - `objectiveId` (`Guid` in route)
+- **Responses**:
+  - `200 OK`: Returns the updated `BingoGridDto`.
+  - `400 BadRequest`: If the objective is already completed, the user has exceeded their grid-size reroll limit, or the objective does not exist.
+
+---
+
+## 11. Administration & Configuration (`/api/Admin`)
+
+Requires authentication. Restricted to users with the `Admin` role.
+
+### **GET** `/api/Admin/users`
+- **Description**: Lists all registered users on the platform.
+- **Responses**:
+  - `200 OK`: Returns an array of `UserDto` (`id`, `username`, `email`, `role`).
+
+### **POST** `/api/Admin/users/{userId}/promote`
+- **Description**: Promotes a standard user to an Admin.
+- **Parameters**:
+  - `userId` (`Guid` in route)
+- **Responses**:
+  - `200 OK`: Promotion successful.
+  - `404 NotFound`: User not found.
+
+### **GET** `/api/Admin/diagnostics/database`
+- **Description**: Retrieves aggregate library statistics (Counts of users, movies by enrichment status, TV shows, genres, directors, actors, and diary entries).
+- **Responses**:
+  - `200 OK`: Returns `DatabaseStatsDto`.
+
+### **GET** `/api/Admin/diagnostics/providers`
+- **Description**: Pings external API metadata providers (TMDB and OMDb) as well as the local Frametric backend & database connection, returning latency and health validation states.
+- **Responses**:
+  - `200 OK`: Returns `ProviderDiagnosticsDto` (including local database health status).
+
+### **GET** `/api/Admin/diagnostics/logs`
+- **Description**: Retrieves the last 50 warning or error logs recorded in the in-memory ring buffer.
+- **Responses**:
+  - `200 OK`: Returns an array of `LogEntryDto`.
+
+### **POST** `/api/Admin/maintenance/purge-orphans`
+- **Description**: Deletes genres, directors, and actors that do not have any associated movies.
+- **Responses**:
+  - `200 OK`: Returns `PurgeOrphanResultDto` with count of deleted rows.
+
+### **POST** `/api/Admin/maintenance/clear-cache`
+- **Description**: Clears the system-wide recommendations and metadata caches.
+- **Responses**:
+  - `200 OK`: Cache cleared.
+
+### **POST** `/api/Admin/enrich/retry-failed`
+- **Description**: Manually triggers TMDB metadata enrichment for failed or not found movies.
+- **Query Parameters**:
+  - `resetPermanentlyFailed` (`bool`, default: `false`) - Force retrying movies that previously failed startup recovery.
+  - `batchSize` (`int`, default: `50`) - Max movies to process in this run.
+- **Responses**:
+  - `200 OK`: Returns count of successfully enriched movies.
+

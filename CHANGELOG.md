@@ -4,6 +4,45 @@ All notable changes to **Frametric** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.3] — 2026-06-21
+
+### Added
+
+- **Dice Match Calibration HUD Banner**: A contextual status banner now appears below the dice after a roll, indicating the precision of the match: Perfect Match → Approximate → Deviated → Extended → Maximum Deviation → Calibration Fault. Color and text intensity scale with how much the constraints had to be relaxed, without exposing the word "fallback" to the user.
+- **Dynamic Constraint Relaxation**: The dice roll backend now iterates through constraints in a round-robin sequence (Quality → Popularity → Duration → Genre) when no exact match is found, incrementing a `matchDistance` counter returned to the frontend to drive the calibration HUD.
+- **Personalized D20 Genre Ordering**: The Genre die now queries the user's all-time watch history and assigns higher die values to genres the user watches most (value 19 = most-watched genre, value 20 = Wildcard unchanged). Falls back to static alphabetical ordering for users without history.
+- **Per-Material SVG Dice Visuals**: Each die now has a distinct visual material identity rendered via unique SVG gradient definitions: D3 = Polished Metal (silver-steel), D4 = Ruby Gem (deep red), D6 = Worn Leather (warm sepia), D12 = Emerald Mineral (translucent green), D20 = Legendary Gold (metallic warm gold).
+
+### Changed
+
+- **Dice Types Renamed**: Dice types re-mapped to their cinematic purpose — D3 = Duration (≤90m / 91–149m / ≥150m), D4 = Popularity (Blockbuster / Mainstream / Niche / Hidden Gem), D6 = Risk, D12 = Quality (12 tiers from Terrible to Absolute Cinema), D20 = Genre.
+- **D20 Tooltip Updated**: Tooltip now explains that values 1–19 reflect the user's own genre preferences ordered by watch history, with value 20 as Wildcard.
+- **Dice Tooltips Corrected**: All five dice tooltips updated to reflect the new dice role definitions and accurate range descriptions.
+
+### Fixed
+
+- **Fumble/Critical Die Names**: The in-game fumble and critical roll status messages were displaying stale die names (`Quality (D3)`, `Rarity (D4)`, etc.). Now correctly shows `Duration (D3)`, `Popularity (D4)`, `Risk (D6)`, `Quality (D12)`, `Genre (D20)`.
+- **`matchDistance` API Sync**: Regenerated the OpenAPI client after adding `MatchDistance` to `DiceRollResultDto`, resolving a TypeScript compilation error (`TS2339: Property 'matchDistance' does not exist on type 'DiceRollResultDto'`).
+
+## [1.5.2] — 2026-06-20
+
+### Added
+
+- **Admin Configuration Panel**: Introduced a dedicated administration panel (`/admin`) for users with the `Admin` role to manage system operations, view logs, check provider status, and trigger database maintenance.
+- **Backend & Database Health Diagnostics**: Added a self-diagnostic latency check for the Frametric Backend and PostgreSQL database, showing connection status and DB ping times in the API Health tab.
+- **User Search Filter**: Integrated a responsive search box in the User Management tab, allowing admins to dynamically filter the registered user list by username or email address.
+- **Bingo Reroll Feature**: Added ability to reroll uncompleted bingo squares (limit: 1 for 3x3, 2 for 4x4, 3 for 5x5) with persistent count tracking, UI tooltips, and remaining rerolls indicator.
+
+### Changed
+
+- **Custom Selection IDs**: Modified Roulette, Dice, Slots, Mystery Box, and Bingo discovery components to pass both custom selection titles and unique entity Guid IDs.
+
+### Fixed
+
+- **Dice Roller Repeated Spin**: Fixed dice roller state locking after the first roll by correctly resetting rolling, settled, and special event variables.
+- **Slot Machine Genre Override**: Replaced manual text input with a predefined list of movie genres using a cinematic dropdown component.
+- **Movie Detail Page TMDB Loading**: Resolved loading failure on unreleased/TMDB-only detail pages by automatically calling TMDB movie enrichment when a numeric TMDB ID is requested.
+
 ## [1.5.1] — 2026-06-13
 
 Discovery suite: visual and interaction overhaul with polyhedral dice and comprehensive filtering.

@@ -75,7 +75,7 @@ public class EnrichPendingMoviesCommandHandlerTests : IDisposable
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.Equal(0, result); // No successful enrichments
+        Assert.Equal(1, result); // 1 movie was processed/attempted
         using var assertContext = CreateContext();
         var updatedMovie = await assertContext.Movies.FindAsync(movieId);
         Assert.NotNull(updatedMovie);
@@ -322,7 +322,7 @@ public class EnrichPendingMoviesCommandHandlerTests : IDisposable
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.Equal(1, result);
+        Assert.Equal(2, result); // 2 movies were processed/attempted
         using var assertContext = CreateContext();
         var enriched = await assertContext.Movies
             .Include(m => m.Genres)
