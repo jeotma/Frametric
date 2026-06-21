@@ -9,6 +9,7 @@
 using Frametric.Api.Extensions;
 using Frametric.Application;
 using Frametric.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -35,7 +36,7 @@ builder.Services.AddControllers()
 
 // Configure Web/API specific services using Extensions
 builder.Services.AddApiAuthentication(builder.Configuration, builder.Environment);
-builder.Services.AddFrontendCors();
+builder.Services.AddFrontendCors(builder.Configuration);
 builder.Services.AddPresentationOpenApi();
 
 // Clean Architecture Dependency Injection
@@ -48,6 +49,23 @@ builder.Services.AddFrametricHealthChecks(builder.Configuration);
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
+
+using (var scope = app.Services.CreateScope())
+{
+    var scopedServices = scope.ServiceProvider;
+    try
+    {
+        var context = scopedServices.GetRequiredService<Frametric.Infrastructure.Persistence.FrametricDbContext>();
+        if (context.Database.IsRelational())
+        {
+            await context.Database.MigrateAsync();
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "An error occurred while migrating the database on startup.");
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -77,3 +95,4 @@ finally
 {
     Log.CloseAndFlush();
 }
+
