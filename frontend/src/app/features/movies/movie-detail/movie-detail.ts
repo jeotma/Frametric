@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MoviesService, MovieDetailsDto } from '../../../core/api';
 import { slugify } from '../../../core/utils/slugify';
@@ -15,6 +15,7 @@ import { slugify } from '../../../core/utils/slugify';
 export class MovieDetailComponent implements OnInit {
   protected readonly slugify = slugify;
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private moviesService = inject(MoviesService);
   private fb = inject(FormBuilder);
 
@@ -51,6 +52,33 @@ export class MovieDetailComponent implements OnInit {
   }
 
   loadMovie(id: string) {
+    const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!guidRegex.test(id)) {
+      const tmdbId = parseInt(id, 10);
+      if (isNaN(tmdbId)) {
+        this.isLoading.set(false);
+        this.errorMessage.set('Invalid movie identifier.');
+        return;
+      }
+      this.moviesService.apiMoviesEnrichFromTmdbPost({ tmdbId }).subscribe({
+        next: (enrichedMovie) => {
+          if (enrichedMovie && enrichedMovie.id) {
+            this.router.navigate(['/movies', enrichedMovie.id], { replaceUrl: true }).then(() => {
+              this.loadMovie(enrichedMovie.id!);
+            });
+          } else {
+            this.isLoading.set(false);
+            this.errorMessage.set('Failed to enrich movie from TMDB.');
+          }
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.errorMessage.set(err?.error?.title || err?.message || 'Failed to enrich movie details.');
+        }
+      });
+      return;
+    }
+
     this.moviesService.apiMoviesIdGet(id).subscribe({
       next: (data) => {
         this.movie.set(data);

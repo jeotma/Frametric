@@ -14,6 +14,15 @@ import html2canvas from 'html2canvas';
       <p class="slide-subtitle" style="margin-bottom: 12px;">And that's a wrap on {{ year === 'global' ? 'a lifetime of cinema' : year }}.</p>
       <p class="slide-explainer" style="margin-bottom: 16px; font-size: 0.85rem;">The projector cools down, the iris fades to black, and the credits roll on your cinematic journey.</p>
 
+      <div *ngIf="errorMessage()" class="error-banner crosshair-bracket animate-slide-in">
+        <div class="hud-data" style="margin-right: 12px; display: inline-flex; align-items: center; gap: 4px;">
+          <span class="hud-label" style="border-left: 2px solid var(--accent-record); padding-left: 6px; font-size: 0.75rem; font-weight: 700; color: var(--accent-record); text-transform: uppercase;">ERR</span>
+          <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">SYSTEM FAULT</span>
+        </div>
+        <div style="flex: 1; text-align: left; color: var(--text-secondary);">{{ errorMessage() }}</div>
+        <button class="dismiss-btn" (click)="errorMessage.set(null)">&times;</button>
+      </div>
+
       <div class="summary-card" id="final-cut-card">
         <!-- Decorative Brackets -->
         <div class="v-bracket v-tl"></div>
@@ -437,7 +446,7 @@ import html2canvas from 'html2canvas';
       align-items: center;
       position: relative;
       z-index: 100;
-      pointer-events: auto; /* Enable clicks for all buttons */
+      pointer-events: auto;
       margin-bottom: 16px;
     }
 
@@ -481,6 +490,43 @@ import html2canvas from 'html2canvas';
       color: var(--text-primary);
       border-color: rgba(255, 255, 255, 0.2);
     }
+
+    /* CUSTOM ERROR BANNER STYLES */
+    .error-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      margin-bottom: 24px;
+      color: var(--accent-record);
+      border: 1px solid rgba(229, 9, 20, 0.4);
+      background: rgba(229, 9, 20, 0.05);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      width: 100%;
+      max-width: 600px;
+      box-sizing: border-box;
+      animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .dismiss-btn {
+      background: none;
+      border: none;
+      color: var(--accent-record);
+      font-size: 1.4rem;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      transition: opacity 0.2s;
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
   `]
 })
 export class SummarySlideComponent {
@@ -489,6 +535,7 @@ export class SummarySlideComponent {
   @Input() username!: string;
 
   public isGenerating = signal<boolean>(false);
+  public errorMessage = signal<string | null>(null);
 
   get topDecade() {
     if (!this.data?.decadeBreakdown?.length) return null;
@@ -504,29 +551,24 @@ export class SummarySlideComponent {
 
   public async share() {
     this.isGenerating.set(true);
+    this.errorMessage.set(null);
     try {
       const element = document.getElementById('final-cut-card');
       if (!element) return;
 
-      // Force fixed width for a pristine snapshot
-      const originalWidth = element.style.width;
-      const originalMaxWidth = element.style.maxWidth;
-      element.style.width = '600px';
-      element.style.maxWidth = '600px';
-      
-      // Wait a tick for the browser to apply layout changes
-      await new Promise(resolve => setTimeout(resolve, 100));
-
       const canvas = await html2canvas(element, {
         scale: 2, // High resolution
         backgroundColor: null,
-        useCORS: true
+        useCORS: true,
+        onclone: (clonedDoc) => {
+          const clonedElement = clonedDoc.getElementById('final-cut-card');
+          if (clonedElement) {
+            clonedElement.style.width = '600px';
+            clonedElement.style.maxWidth = '600px';
+          }
+        }
       });
       
-      // Restore styles
-      element.style.width = originalWidth;
-      element.style.maxWidth = originalMaxWidth;
-
       const image = canvas.toDataURL('image/png');
       
       // Trigger download
@@ -536,7 +578,7 @@ export class SummarySlideComponent {
       link.click();
     } catch (error) {
       console.error('Error generating image', error);
-      alert('Could not generate the image. Please try again.');
+      this.errorMessage.set('Could not generate the image. Please try again.');
     } finally {
       this.isGenerating.set(false);
     }
