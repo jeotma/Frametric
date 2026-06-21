@@ -65,6 +65,37 @@ Authentication endpoints are publicly accessible (`[AllowAnonymous]`).
   - `200 OK`: Returns a new access token and refresh token.
   - `400 BadRequest`: If the refresh token is expired or invalid.
 
+### **POST** `/api/Auth/forgot-password`
+
+- **Description**: Sends a password reset email if the user exists.
+- **Request Body**:
+
+  ```json
+  {
+    "email": "string"
+  }
+  ```
+
+- **Responses**:
+  - `200 OK`: A reset link was sent (if the email exists).
+
+### **POST** `/api/Auth/reset-password`
+
+- **Description**: Resets a user's password using the provided token.
+- **Request Body**:
+
+  ```json
+  {
+    "email": "string",
+    "token": "string",
+    "newPassword": "string"
+  }
+  ```
+
+- **Responses**:
+  - `200 OK`: Password successfully reset.
+  - `400 BadRequest`: Invalid token or validation error.
+
 ---
 
 ## 2. Ingestion & Imports (`/api/Import`)
@@ -447,11 +478,13 @@ Requires authentication.
 Requires authentication. Restricted to users with the `Admin` role.
 
 ### **GET** `/api/Admin/users`
+
 - **Description**: Lists all registered users on the platform.
 - **Responses**:
   - `200 OK`: Returns an array of `UserDto` (`id`, `username`, `email`, `role`).
 
 ### **POST** `/api/Admin/users/{userId}/promote`
+
 - **Description**: Promotes a standard user to an Admin.
 - **Parameters**:
   - `userId` (`Guid` in route)
@@ -460,35 +493,40 @@ Requires authentication. Restricted to users with the `Admin` role.
   - `404 NotFound`: User not found.
 
 ### **GET** `/api/Admin/diagnostics/database`
+
 - **Description**: Retrieves aggregate library statistics (Counts of users, movies by enrichment status, TV shows, genres, directors, actors, and diary entries).
 - **Responses**:
   - `200 OK`: Returns `DatabaseStatsDto`.
 
 ### **GET** `/api/Admin/diagnostics/providers`
+
 - **Description**: Pings external API metadata providers (TMDB and OMDb) as well as the local Frametric backend & database connection, returning latency and health validation states.
 - **Responses**:
   - `200 OK`: Returns `ProviderDiagnosticsDto` (including local database health status).
 
 ### **GET** `/api/Admin/diagnostics/logs`
+
 - **Description**: Retrieves the last 50 warning or error logs recorded in the in-memory ring buffer.
 - **Responses**:
   - `200 OK`: Returns an array of `LogEntryDto`.
 
 ### **POST** `/api/Admin/maintenance/purge-orphans`
+
 - **Description**: Deletes genres, directors, and actors that do not have any associated movies.
 - **Responses**:
   - `200 OK`: Returns `PurgeOrphanResultDto` with count of deleted rows.
 
 ### **POST** `/api/Admin/maintenance/clear-cache`
+
 - **Description**: Clears the system-wide recommendations and metadata caches.
 - **Responses**:
   - `200 OK`: Cache cleared.
 
 ### **POST** `/api/Admin/enrich/retry-failed`
+
 - **Description**: Manually triggers TMDB metadata enrichment for failed or not found movies.
 - **Query Parameters**:
   - `resetPermanentlyFailed` (`bool`, default: `false`) - Force retrying movies that previously failed startup recovery.
   - `batchSize` (`int`, default: `50`) - Max movies to process in this run.
 - **Responses**:
   - `200 OK`: Returns count of successfully enriched movies.
-

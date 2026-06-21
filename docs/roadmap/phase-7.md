@@ -1,180 +1,73 @@
-# Roadmap: Phase 6 (PaaS Cloud Deployment & CI/CD)
+# Roadmap: Phase 7 (Pre-Launch Polish & Functional Refinement)
 
-This phase details the architecture and step-by-step roadmap to deploy the Frametric platform (Neon PostgreSQL database, .NET 9 Web API on Render, and Angular 19+ frontend on Cloudflare Pages) using completely **free tiers** with git-based automatic deployments.
-
----
-
-## 1. Deployment Architecture Overview
-
-```mermaid
-graph TD
-    User([Cinephile User]) -->|HTTPS| CF[Cloudflare Pages: Angular Frontend]
-    CF -->|Secure HTTPS Requests| Render[Render: .NET 9 Web API Container]
-    Render -->|Encrypted TLS| Neon[Neon: Serverless PostgreSQL]
-```
-
-### The PaaS Free Tier Stack
-
-| Component | Provider | Reason for Choice & Limits |
-| :--- | :--- | :--- |
-| **Relational Database** | **Neon** | Serverless Postgres database with 0.5 GB storage. Automatically scales to zero (sleeps) after 5-10 minutes of inactivity. Wakes up in ~1-2 seconds on the next query. |
-| **Backend API** | **Render** | Free containerized Web Service (using Docker). Auto-sleeps after 15 minutes of inactivity (causing a 50+ second cold start on wake). |
-| **Frontend Client** | **Cloudflare Pages** | Static Web App hosting. Truly unlimited bandwidth on the free tier, global CDN edge, and zero cold starts. |
-| **CI/CD Automation** | **GitHub Actions** | Built-in free build runs (2,000 minutes/month) to automate testing and build validations. |
+This phase focuses on polishing, refining, and improving all functional aspects of the Frametric platform before it is deployed to the cloud in Phase 8. It addresses missing critical workflows, optimizes existing mechanics, and ensures complete production readiness.
 
 ---
 
-## 2. Step 1: Database Setup (Neon)
+## 1. Authentication & Security Refinements
 
-Set up a production-ready serverless PostgreSQL instance.
+A critical missing feature for a production-ready application is the ability for users to recover their accounts.
 
-### Action Plan
+### Password Reset Workflow
 
-1. Register a free account on **Neon**.
-2. Provision a new PostgreSQL 16/17 database instance in a region close to your target users.
-3. Retrieve the connection string. For .NET EF Core, format the connection string:
+Implement a secure mechanism for users to request and perform a password reset via email.
 
-   ```text
-   Host=ep-cool-shadow-123456.us-east-2.aws.neon.tech;Database=neondb;Username=jeotma;Password=MySecurePassword;SSL Mode=Require;Trust Server Certificate=true;
-   ```
+* **Backend Implementation**:
+  * Create an `IEmailService` interface and a concrete implementation (e.g., `SmtpEmailService` or an integration with a provider like SendGrid/Resend).
+  * Generate secure, expiring, single-use tokens for the reset link.
+  * New Endpoints:
+    * `POST /api/auth/forgot-password`: Accepts an email, generates a token, and dispatches the reset link.
+    * `POST /api/auth/reset-password`: Accepts the token and the new password, validates the token, and updates the user's credentials securely.
+* **Frontend Implementation**:
+  * Create "Forgot Password" and "Reset Password" views.
+  * Adhere strictly to the platform's dark, premium aesthetic (`var(--bg-primary)`, `var(--accent-emerald)` for success states).
 
-4. Configure EF Core to run migrations against this connection string securely using environment variables.
+### Security Audits
 
----
-
-## 3. Step 2: Backend Containerization & Render Deployment
-
-To host the .NET 9 Web API on Render's free tier, we build a multi-stage Docker image.
-
-### Dockerfile Setup
-
-Create a production-grade `Dockerfile` in the repository root:
-
-```dockerfile
-# Frametric — Cinematic Analytics Platform
-# Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
-
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
-WORKDIR /app
-
-# Copy csproj files and restore dependencies
-COPY backend/*.sln ./backend/
-COPY backend/Frametric.Domain/*.csproj ./backend/Frametric.Domain/
-COPY backend/Frametric.Application/*.csproj ./backend/Frametric.Application/
-COPY backend/Frametric.Infrastructure/*.csproj ./backend/Frametric.Infrastructure/
-COPY backend/Frametric.Api/*.csproj ./backend/Frametric.Api/
-RUN dotnet restore ./backend/Frametric.Api/Frametric.Api.csproj
-
-# Copy everything else and build release
-COPY backend/ ./backend/
-RUN dotnet publish ./backend/Frametric.Api/Frametric.Api.csproj -c Release -o out
-
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
-WORKDIR /app
-COPY --from=build-env /app/out .
-
-# Expose Render default port
-EXPOSE 8080
-ENV ASPNETCORE_URLS=http://+:8080
-
-ENTRYPOINT ["dotnet", "Frametric.Api.dll"]
-```
-
-### Action Plan
-
-1. Link your GitHub repository to **Render**.
-2. Create a new **Web Service** and select **Docker** as the environment runtime.
-3. Configure the following Environment Variables in Render's dashboard:
-   - `ASPNETCORE_ENVIRONMENT`: `Production`
-   - `ConnectionStrings__DefaultConnection`: *[Your Neon PostgreSQL Connection String]*
-   - `Omdb__ApiKey`: *[Your OMDB API Key]*
-   - `Tmdb__BearerToken`: *[Your TMDB token]*
-4. Deploy the service. Render will automatically build the image and expose a public HTTPS URL (e.g. `https://frametric-api.onrender.com`).
+* Ensure all API endpoints that mutate data require proper authorization.
+* Validate all incoming DTOs to prevent injection attacks or malformed data.
 
 ---
 
-## 4. Step 3: Frontend Build & Cloudflare Pages Deployment
+## 2. UI/UX Polish and State Management
 
-Deploy the Angular 19+ client as a lightning-fast Static Single Page Application (SPA).
+Ensure the platform feels entirely seamless and responsive under various network conditions.
 
-### Configuration Adjustments
-
-To prevent 404 errors when reloading subpages in a client-side routed Angular SPA, output a `_redirects` file to the static build directory (`dist/frametric/browser`):
-
-```text
-/* /index.html 200
-```
-
-### Action Plan
-
-1. Configure `src/environments/environment.prod.ts` with the production URL of the API on Render:
-
-   ```typescript
-   export const environment = {
-     production: true,
-     apiUrl: 'https://frametric-api.onrender.com/api/v1'
-   };
-   ```
-
-2. Connect your GitHub repository to **Cloudflare Pages**.
-3. Set the build settings:
-   - **Framework Preset**: `Angular`
-   - **Build Command**: `npm run build -- --configuration production`
-   - **Output Directory**: `dist/frametric/browser`
-4. Trigger the build. Cloudflare Pages will serve the app under a secure domain (e.g., `https://frametric.pages.dev`).
+* **Cinematic Loading States**: Replace generic spinners with skeleton loaders for dashboards, entity detail views, and discovery systems to prevent layout shifts and maintain immersion.
+* **Graceful Error Handling**: Ensure all external API failures (e.g., TMDB timeouts) and backend validations are caught and displayed to the user via consistent, non-intrusive toast notifications.
+* **Mobile Responsiveness Audit**: Thoroughly test and refine the layout of complex UI elements, especially the gamified Discovery systems (Slot Machine reels, Roulette, Bingo grids), to guarantee they function perfectly on mobile devices.
 
 ---
 
-## 5. Step 4: CORS Configuration & Security Settings
+## 3. Performance & Architecture Optimization
 
-To allow the Cloudflare Pages frontend to communicate with the Render API, configure the CORS policy in the C# backend.
+Prepare the architecture to handle concurrent cloud traffic efficiently.
 
-Go to `backend/Frametric.Api/Program.cs` and configure:
-
-```csharp
-// Frametric — Cinematic Analytics Platform
-// Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("ProductionCorsPolicy", policy =>
-    {
-        policy.WithOrigins("https://frametric.pages.dev") // Cloudflare Pages Domain
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
-
-// Inside HTTP Pipeline configuration:
-app.UseCors("ProductionCorsPolicy");
-```
+* **Caching Strategy**: Introduce an `ICacheService` (using `IMemoryCache` initially, abstracted for future Redis integration) to cache heavy analytical Dapper queries (e.g., "Top Directors", "Dynamic Duos") to prevent database bottlenecking on dashboard loads.
+* **Angular Bundle Optimization**: Ensure that the gamified discovery routes and administrative dashboards are strictly lazy-loaded to minimize the initial application payload.
+* **N+1 Query Prevention**: Perform a final audit of EF Core queries used in the application layer to ensure `Include` / `ThenInclude` or explicit Dapper queries are correctly utilized to prevent N+1 issues when fetching user watchlists or diary entries.
 
 ---
 
-## 6. Step 5: Database Migrations Automation
+## 4. Observability, Telemetry & Testing
 
-To automatically apply migrations on startup, configure the application entrypoint to run migrations at launch:
+Production systems require visibility.
 
-```csharp
-// Frametric — Cinematic Analytics Platform
-// Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
+* **Structured Logging**: Implement Serilog (or equivalent) to capture structured logs. Ensure correlation IDs are passed through the HTTP pipeline to trace requests across the application, especially for multi-step gamified logic.
+* **Health Check Endpoints**: Implement ASP.NET Core Health Checks at `/health`.
+  * Verify the PostgreSQL connection (`Neon` readiness).
+  * Verify external provider connectivity (TMDB / OMDB).
+* **Test Coverage & Scope Review**: Conduct a comprehensive review of the testing suite, focusing especially on the Angular frontend. Analyze test coverage, identify critical missing paths, and ensure tests are reliable and deterministic.
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<FrametricDbContext>();
-        if (context.Database.IsRelational())
-        {
-            await context.Database.MigrateAsync();
-        }
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating the database.");
-    }
-}
-```
+---
+
+## 5. Codebase Cleanup & Documentation Integrity
+
+Follow the rules established in `AGENTS.md` before finalizing the release candidate.
+
+* **Dead Code Elimination**: Sweep the repository to remove unused components, obsolete experimental DTOs, and commented-out code.
+* **Clean Architecture Check**: Verify that the project still follows the clean architecture principles. Update `docs/architecture.md` if necessary.
+* **API Specification**: Check and update if necessary every doc in the project, specially `docs/api/endpoints.md` to document the new `auth` endpoints introduced in this phase.
+* **AGENTS.md**: Review `AGENTS.md` and update it to include the new features and workflows introduced in this phase.
+* **License Verification**: Ensure all newly created C# files (e.g., the Email Service, new Auth Handlers) include the mandatory Frametric copyright and license header.
+* **Changelog**: Prepare `CHANGELOG.md` with a comprehensive list of all features developed from Phase 1 through Phase 7 to mark the `v1.0.0` Release Candidate.

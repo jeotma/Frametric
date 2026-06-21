@@ -1,7 +1,5 @@
 # Roadmap: Phase 6 (Heuristic Decision & Interactive Selection Systems)
 
-> **Status:** ✅ **COMPLETED** (v1.4.0)
-
 This phase expands the cinematic platform by implementing a gamified interactive selection engine and a decision-fatigue mitigation suite. All subsystems operate under a clean architecture approach, utilizing strong typing and granular control over data scopes.
 
 Each system answers a distinct question within the user's decision process:

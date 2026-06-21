@@ -4,6 +4,28 @@ All notable changes to **Frametric** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] — 2026-06-21
+
+Phase 7 Release: Polish, Performance, and Security.
+
+### Added
+
+- **Password Reset Flow**: Implemented `ForgotPassword` and `ResetPassword` handlers, an `IEmailService` sending emails via SMTP, and new UI views for requesting and entering new passwords.
+- **Query Caching**: Integrated `ICacheService` and `MemoryCacheService` to cache expensive queries (e.g., `MoviesQueryHandler` and `DashboardQueryHandler`), reducing database load for frequent hits.
+- **Application Observability**: Configured Serilog to provide structured logging output to console and file, and implemented ASP.NET Core Health Checks for database and external provider connections.
+- **Skeleton Loaders**: Integrated animated skeleton loaders across the frontend to improve perceived performance during initial data fetches.
+- **E2E Testing Coverage**: Added complete Gamified Discovery flow and Password Reset flow Playwright tests to secure application paths.
+
+### Changed
+
+- **UI Polish & Error Handling**: Global `HttpInterceptor` now catches and displays clean error toasts for failed requests. Mobile responsiveness was audited and improved for Gamified Discovery modules.
+- **Entity Framework Optimization**: Eliminated N+1 queries by proactively projecting relations in LINQ statements where needed.
+- **Routing**: Optimized Angular lazy-loading and decoupled the dashboard from strict authentication (`authGuard`), making it accessible to guests.
+
+### Fixed
+
+- **Test Suite Integrity**: Corrected failing unit tests across `discovery.spec.ts` (mocking injected services) and `easter-egg.service.spec.ts` (correcting silent film assertions).
+
 ## [1.5.3] — 2026-06-21
 
 ### Added

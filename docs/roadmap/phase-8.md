@@ -1,155 +1,180 @@
-# Roadmap: Phase 7 (Migration to Oracle Cloud Infrastructure - Always Free VM)
+# Roadmap: Phase 8 (PaaS Cloud Deployment & CI/CD)
 
-This phase details the architecture and step-by-step roadmap to migrate the Frametric platform (both the PostgreSQL database and the .NET 9 Web API) from Render and Neon to the **Oracle Cloud Infrastructure (OCI) Always Free Tier**. This resolves cold start times and database sleep thresholds, offering production-grade performance at zero cost.
+This phase details the architecture and step-by-step roadmap to deploy the Frametric platform (Neon PostgreSQL database, .NET 9 Web API on Render, and Angular 19+ frontend on Cloudflare Pages) using completely **free tiers** with git-based automatic deployments.
 
 ---
 
-## 1. Migration Architecture Overview
-
-In this phase, we move from the serverless/PaaS model to a self-hosted hybrid architecture. The Angular frontend remains on Cloudflare Pages (retaining global edge speed and 0% CPU load on our server), while the API and Postgres DB migrate to an OCI virtual machine running Docker Compose.
+## 1. Deployment Architecture Overview
 
 ```mermaid
 graph TD
     User([Cinephile User]) -->|HTTPS| CF[Cloudflare Pages: Angular Frontend]
-    CF -->|API Requests: Port 443| NGINX[Nginx Reverse Proxy / SSL certbot on OCI]
-    NGINX -->|Proxy Pass: Port 8080| BE[.NET 9 API on OCI]
-    BE -->|Local Connection| DB[(PostgreSQL Database on OCI)]
+    CF -->|Secure HTTPS Requests| Render[Render: .NET 9 Web API Container]
+    Render -->|Encrypted TLS| Neon[Neon: Serverless PostgreSQL]
 ```
 
-### Resource Allocation
-* **VM Instance**: Ampere A1 (ARM64) running Ubuntu Linux.
-* **Compute specs**: 4 OCPUs, 24 GB RAM, and 200 GB block volume storage.
-* **Network**: Static Public IP address. Ports 80 (HTTP) and 443 (HTTPS) open.
+### The PaaS Free Tier Stack
+
+| Component | Provider | Reason for Choice & Limits |
+| :--- | :--- | :--- |
+| **Relational Database** | **Neon** | Serverless Postgres database with 0.5 GB storage. Automatically scales to zero (sleeps) after 5-10 minutes of inactivity. Wakes up in ~1-2 seconds on the next query. |
+| **Backend API** | **Render** | Free containerized Web Service (using Docker). Auto-sleeps after 15 minutes of inactivity (causing a 50+ second cold start on wake). |
+| **Frontend Client** | **Cloudflare Pages** | Static Web App hosting. Truly unlimited bandwidth on the free tier, global CDN edge, and zero cold starts. |
+| **CI/CD Automation** | **GitHub Actions** | Built-in free build runs (2,000 minutes/month) to automate testing and build validations. |
 
 ---
 
-## 2. Step 1: DNS & Domain Setup (deSEC.io / DuckDNS)
+## 2. Step 1: Database Setup (Neon)
 
-Since we now host the API on a dedicated IP address, we need a stable domain/subdomain with a fast Time-To-Live (TTL) configuration.
+Set up a production-ready serverless PostgreSQL instance.
 
 ### Action Plan
-1. Create a free account on **deSEC.io** or **DuckDNS**.
-2. Register a free subdomain (e.g. `frametric-api.dedyn.io`).
-3. Set the **A Record** of your subdomain to point to the static public IP of your newly created OCI VM.
-4. Ensure the TTL is set to minimum (60 seconds) so any server IP changes propagate quickly.
+
+1. Register a free account on **Neon**.
+2. Provision a new PostgreSQL 16/17 database instance in a region close to your target users.
+3. Retrieve the connection string. For .NET EF Core, format the connection string:
+
+   ```text
+   Host=ep-cool-shadow-123456.us-east-2.aws.neon.tech;Database=neondb;Username=jeotma;Password=MySecurePassword;SSL Mode=Require;Trust Server Certificate=true;
+   ```
+
+4. Configure EF Core to run migrations against this connection string securely using environment variables.
 
 ---
 
-## 3. Step 3: Server Virtualization & Docker Compose Setup
+## 3. Step 2: Backend Containerization & Render Deployment
 
-Deploy the backend API and database inside isolated containers on the OCI VM.
+To host the .NET 9 Web API on Render's free tier, we build a multi-stage Docker image.
 
-### Unified `docker-compose.yml`
+### Dockerfile Setup
 
-Create this file in the root of the project on the VM:
+Create a production-grade `Dockerfile` in the repository root:
 
-```yaml
-version: '3.8'
+```dockerfile
+# Frametric — Cinematic Analytics Platform
+# Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 
-services:
-  database:
-    image: postgres:16-alpine
-    container_name: frametric-db
-    restart: always
-    environment:
-      POSTGRES_USER: ${DB_USER:-jeotma}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME:-frametric}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
+WORKDIR /app
 
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: frametric-api
-    restart: always
-    depends_on:
-      - database
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Host=database;Database=${DB_NAME:-frametric};Username=${DB_USER:-jeotma};Password=${DB_PASSWORD};
-      - Omdb__ApiKey=${OMDB_API_KEY}
-      - Tmdb__BearerToken=${TMDB_BEARER_TOKEN}
-    ports:
-      - "8080:8080"
+# Copy csproj files and restore dependencies
+COPY backend/*.sln ./backend/
+COPY backend/Frametric.Domain/*.csproj ./backend/Frametric.Domain/
+COPY backend/Frametric.Application/*.csproj ./backend/Frametric.Application/
+COPY backend/Frametric.Infrastructure/*.csproj ./backend/Frametric.Infrastructure/
+COPY backend/Frametric.Api/*.csproj ./backend/Frametric.Api/
+RUN dotnet restore ./backend/Frametric.Api/Frametric.Api.csproj
 
-volumes:
-  postgres_data:
+# Copy everything else and build release
+COPY backend/ ./backend/
+RUN dotnet publish ./backend/Frametric.Api/Frametric.Api.csproj -c Release -o out
+
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+WORKDIR /app
+COPY --from=build-env /app/out .
+
+# Expose Render default port
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
+
+ENTRYPOINT ["dotnet", "Frametric.Api.dll"]
 ```
 
 ### Action Plan
-1. Connect to the OCI VM via SSH:
-   ```bash
-   ssh -i your-key.key ubuntu@your-vm-ip
-   ```
-2. Install Docker and Docker Compose:
-   ```bash
-   sudo apt-get update
-   sudo apt-get install -y docker.io docker-compose
-   sudo systemctl enable --now docker
-   ```
-3. Copy the project files to the VM and create a `.env` file containing the environment secrets (`DB_PASSWORD`, `OMDB_API_KEY`, `TMDB_BEARER_TOKEN`).
-4. Start the stack:
-   ```bash
-   sudo docker-compose up --build -d
-   ```
+
+1. Link your GitHub repository to **Render**.
+2. Create a new **Web Service** and select **Docker** as the environment runtime.
+3. Configure the following Environment Variables in Render's dashboard:
+   - `ASPNETCORE_ENVIRONMENT`: `Production`
+   - `ConnectionStrings__DefaultConnection`: *[Your Neon PostgreSQL Connection String]*
+   - `Omdb__ApiKey`: *[Your OMDB API Key]*
+   - `Tmdb__BearerToken`: *[Your TMDB token]*
+4. Deploy the service. Render will automatically build the image and expose a public HTTPS URL (e.g. `https://frametric-api.onrender.com`).
 
 ---
 
-## 4. Step 4: Nginx Reverse Proxy & Let's Encrypt SSL Configuration
+## 4. Step 3: Frontend Build & Cloudflare Pages Deployment
 
-Install Nginx on the host VM to route incoming traffic securely from port 443 to port 8080 (where the .NET API runs) and manage SSL certificates.
+Deploy the Angular 19+ client as a lightning-fast Static Single Page Application (SPA).
 
-### Nginx Server Block Configuration (`/etc/nginx/sites-available/default`)
+### Configuration Adjustments
 
-```nginx
-server {
-    server_name frametric-api.dedyn.io;
+To prevent 404 errors when reloading subpages in a client-side routed Angular SPA, output a `_redirects` file to the static build directory (`dist/frametric/browser`):
 
-    location / {
-        proxy_pass http://localhost:8080;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection keep-alive;
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
+```text
+/* /index.html 200
 ```
 
-### SSL Setup Action Plan
-1. Install Nginx and Certbot on the VM:
-   ```bash
-   sudo apt-get install -y nginx certbot python3-certbot-nginx
-   ```
-2. Apply the Nginx config and restart:
-   ```bash
-   sudo systemctl restart nginx
-   ```
-3. Run Certbot to generate the Let's Encrypt certificates and auto-configure Nginx to enforce HTTPS:
-   ```bash
-   sudo certbot --nginx -d frametric-api.dedyn.io
-   ```
-4. Verify that `https://frametric-api.dedyn.io/api/v1/health` responds securely.
-
----
-
-## 5. Step 5: Frontend Target Switch & CORS Alignment
-
-Update the Angular client to redirect requests to the new OCI-based API and update the backend CORS policy.
-
 ### Action Plan
-1. In the Angular workspace, update `src/environments/environment.prod.ts` with the new OCI domain:
+
+1. Configure `src/environments/environment.prod.ts` with the production URL of the API on Render:
+
    ```typescript
    export const environment = {
      production: true,
-     apiUrl: 'https://frametric-api.dedyn.io/api/v1'
+     apiUrl: 'https://frametric-api.onrender.com/api/v1'
    };
    ```
-2. Commit and push the code. Cloudflare Pages will automatically rebuild and deploy the frontend.
-3. Update the CORS configuration in `backend/Frametric.Api/Program.cs` to trust the Cloudflare Pages origin (if changed).
+
+2. Connect your GitHub repository to **Cloudflare Pages**.
+3. Set the build settings:
+   - **Framework Preset**: `Angular`
+   - **Build Command**: `npm run build -- --configuration production`
+   - **Output Directory**: `dist/frametric/browser`
+4. Trigger the build. Cloudflare Pages will serve the app under a secure domain (e.g., `https://frametric.pages.dev`).
+
+---
+
+## 5. Step 4: CORS Configuration & Security Settings
+
+To allow the Cloudflare Pages frontend to communicate with the Render API, configure the CORS policy in the C# backend.
+
+Go to `backend/Frametric.Api/Program.cs` and configure:
+
+```csharp
+// Frametric — Cinematic Analytics Platform
+// Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ProductionCorsPolicy", policy =>
+    {
+        policy.WithOrigins("https://frametric.pages.dev") // Cloudflare Pages Domain
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// Inside HTTP Pipeline configuration:
+app.UseCors("ProductionCorsPolicy");
+```
+
+---
+
+## 6. Step 5: Database Migrations Automation
+
+To automatically apply migrations on startup, configure the application entrypoint to run migrations at launch:
+
+```csharp
+// Frametric — Cinematic Analytics Platform
+// Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<FrametricDbContext>();
+        if (context.Database.IsRelational())
+        {
+            await context.Database.MigrateAsync();
+        }
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
+```
