@@ -89,12 +89,19 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
     {
-        var result = await _userApplication.ResetPasswordAsync(request.Email, request.Token, request.NewPassword, cancellationToken);
-        if (!result)
+        try
         {
-            return BadRequest(new { message = "Invalid or expired reset token." });
+            var result = await _userApplication.ResetPasswordAsync(request.Email, request.Token, request.NewPassword, cancellationToken);
+            if (!result)
+            {
+                return BadRequest(new { message = "Invalid or expired reset token." });
+            }
+            
+            return Ok(new { message = "Password has been successfully reset." });
         }
-        
-        return Ok(new { message = "Password has been successfully reset." });
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }

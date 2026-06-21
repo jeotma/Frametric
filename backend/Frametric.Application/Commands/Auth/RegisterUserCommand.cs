@@ -2,6 +2,7 @@ using Frametric.Application.Interfaces;
 using Frametric.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace Frametric.Application.Commands.Auth;
 
@@ -20,6 +21,11 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, G
 
     public async Task<Guid> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
+        if (!Regex.IsMatch(request.Password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$"))
+        {
+            throw new ArgumentException("Password must be at least 8 characters long, contain an uppercase letter, a lowercase letter, a number, and a special character.");
+        }
+
         var existingUser = await _context.Users.AnyAsync(u => u.Email == request.Email || u.Username == request.Username, cancellationToken);
         if (existingUser)
         {

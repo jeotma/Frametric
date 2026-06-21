@@ -27,7 +27,7 @@ export class ResetPasswordComponent implements OnInit {
   email: string | null = null;
 
   readonly form = this._fb.group({
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/)]],
   });
 
   get passwordCtrl() { return this.form.get('password')!; }
