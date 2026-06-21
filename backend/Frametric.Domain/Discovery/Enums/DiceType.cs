@@ -10,9 +10,9 @@ namespace Frametric.Domain.Discovery.Enums;
 
 public enum DiceType
 {
-    Quality,
-    Rarity,
+    Duration,
+    Popularity,
     Risk,
-    Complexity,
-    Exploration
+    Quality,
+    Genre
 }

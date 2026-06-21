@@ -17,6 +17,9 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using Frametric.Application.Commands.Discovery;
+using Frametric.Application.Interfaces.Discovery;
+
 namespace Frametric.Api.Controllers;
 
 [ApiController]
@@ -160,6 +163,28 @@ public class DiscoveryController : ControllerBase
             request.ExcludeWatched,
             request.DurationDays);
         var result = await _mediator.Send(query, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpPost("bingo/reroll/{objectiveId}")]
+    public async Task<ActionResult<BingoGridDto>> RerollBingoObjective(Guid objectiveId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var command = new RerollBingoObjectiveCommand(GetUserIdOrThrow(), objectiveId);
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpGet("available-countries")]
+    public async Task<ActionResult<IEnumerable<string>>> GetAvailableCountries([FromServices] IDiscoveryQueries discoveryQueries, CancellationToken cancellationToken)
+    {
+        var result = await discoveryQueries.GetAvailableCountriesAsync(cancellationToken);
         return Ok(result);
     }
 }

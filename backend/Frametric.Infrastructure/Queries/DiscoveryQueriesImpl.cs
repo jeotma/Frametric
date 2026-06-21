@@ -127,7 +127,7 @@ public class DiscoveryQueriesImpl : IDiscoveryQueries
                       "ReleaseYear" < @currentYear
                       OR ("ReleaseYear" = @currentYear AND "ReleaseDate" IS NOT NULL AND "ReleaseDate" <= @currentDate)
                   )
-                  {(excludeWatched ? @"AND ""Id"" NOT IN (
+                  {(excludeWatched && scope != DiscoveryDataSourceScope.CustomCollection ? @"AND ""Id"" NOT IN (
                     SELECT w.""MovieId"" FROM ""WatchedMovies"" w WHERE w.""UserId"" = @userId
                     UNION
                     SELECT de.""MovieId"" FROM ""DiaryEntries"" de WHERE de.""UserId"" = @userId
@@ -152,5 +152,31 @@ public class DiscoveryQueriesImpl : IDiscoveryQueries
             FROM ValidDiscoveryPool vdp
             ORDER BY RANDOM()
         """;
+    }
+
+    public async Task<IEnumerable<string>> GetAvailableCountriesAsync(CancellationToken ct = default)
+    {
+        using var connection = _dbConnectionFactory.CreateConnection();
+        var sql = @"
+            SELECT DISTINCT trim(unnest(string_to_array(m.""Country"", ','))) AS CleanCountry
+            FROM ""Movies"" m
+            WHERE m.""Country"" IS NOT NULL AND m.""Country"" <> ''
+            ORDER BY CleanCountry
+        ";
+        return (await connection.QueryAsync<string>(sql)).ToArray();
+    }
+    public async Task<IReadOnlyList<string>> GetUserTopGenresAsync(Guid userId, CancellationToken ct = default)
+    {
+        using var connection = _dbConnectionFactory.CreateConnection();
+        const string sql = @"
+            SELECT g.""Name"" AS GenreName
+            FROM ""WatchedMovies"" w
+            JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
+            JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
+            WHERE w.""UserId"" = @userId
+            GROUP BY g.""Name""
+            ORDER BY COUNT(DISTINCT w.""MovieId"") DESC, g.""Name""
+        ";
+        return (await connection.QueryAsync<string>(sql, new { userId })).ToList();
     }
 }

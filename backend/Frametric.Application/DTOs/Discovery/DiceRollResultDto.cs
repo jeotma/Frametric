@@ -28,5 +28,6 @@ public record DiceRollResultDto(
     string SelectionMechanismMetadata,
     IReadOnlyList<SingleDieResultDto> DiceResults,
     string? SpecialEvent = null,
-    string? Overview = null
+    string? Overview = null,
+    int MatchDistance = 0
 );
