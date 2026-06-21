@@ -54,20 +54,22 @@ public class SlotMachineSpinQueryHandler : IRequestHandler<SlotMachineSpinQuery,
         var results = pool.Select(movie =>
         {
             var movieGenres = (movie.Genres ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            var meetsGenre = !string.IsNullOrWhiteSpace(request.Genre) || (!string.IsNullOrWhiteSpace(genre) && movieGenres.Contains(genre, StringComparer.OrdinalIgnoreCase));
+            var meetsGenre = string.IsNullOrWhiteSpace(request.Genre) || movieGenres.Contains(genre, StringComparer.OrdinalIgnoreCase);
 
             var movieDecade = movie.ReleaseYear.HasValue ? (movie.ReleaseYear.Value / 10) * 10 : 0;
-            var meetsDecade = request.Decade.HasValue || (decade.HasValue && movieDecade == decade.Value);
+            var meetsDecade = !request.Decade.HasValue || movieDecade == decade;
 
             var pop = movie.TmdbPopularity ?? 0;
             var popClass = pop >= 50 ? "BLOCKBUSTER" : pop >= 20 ? "MAINSTREAM" : pop >= 8 ? "NICHE / CULT" : "HIDDEN GEM";
-            var meetsPopularity = !string.IsNullOrWhiteSpace(request.Popularity) || (!string.IsNullOrWhiteSpace(popularity) && string.Equals(popClass, popularity, StringComparison.OrdinalIgnoreCase));
+            var meetsPopularity = string.IsNullOrWhiteSpace(request.Popularity) || string.Equals(popClass, popularity, StringComparison.OrdinalIgnoreCase);
 
             var rat = movie.CustomAverageRating ?? movie.TmdbRating ?? 0;
             var ratClass = rat >= 8.0 ? "MASTERPIECE" : rat >= 7.0 ? "GREAT" : rat >= 6.0 ? "DECENT" : "UNDERDOG";
-            var meetsRating = !string.IsNullOrWhiteSpace(request.Rating) || (!string.IsNullOrWhiteSpace(rating) && string.Equals(ratClass, rating, StringComparison.OrdinalIgnoreCase));
+            var meetsRating = string.IsNullOrWhiteSpace(request.Rating) || string.Equals(ratClass, rating, StringComparison.OrdinalIgnoreCase);
 
-            var meetsCountry = !string.IsNullOrWhiteSpace(request.Country) || (!string.IsNullOrWhiteSpace(country) && string.Equals(movie.Country, country, StringComparison.OrdinalIgnoreCase));
+            // Handle comma-separated movie countries by splitting and checking matching strings
+            var movieCountries = (movie.Country ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var meetsCountry = string.IsNullOrWhiteSpace(request.Country) || movieCountries.Contains(country, StringComparer.OrdinalIgnoreCase);
 
             var matchedList = new[] { meetsGenre, meetsDecade, meetsPopularity, meetsRating, meetsCountry };
             var matchCount = matchedList.Count(m => m);
@@ -85,11 +87,11 @@ public class SlotMachineSpinQueryHandler : IRequestHandler<SlotMachineSpinQuery,
 
         var reelResults = new List<SlotReelResultDto>
         {
-            new("Genre", genre ?? "Any"),
-            new("Decade", decade.HasValue ? $"{decade.Value}s" : "Any"),
-            new("Popularity", popularity ?? "Any"),
-            new("Rating", rating ?? "Any"),
-            new("Country", country ?? "Any"),
+            new("Genre", !string.IsNullOrWhiteSpace(request.Genre) ? request.Genre : (genre ?? "Any")),
+            new("Decade", request.Decade.HasValue ? $"{request.Decade.Value}s" : (decade.HasValue ? $"{decade.Value}s" : "Any")),
+            new("Popularity", !string.IsNullOrWhiteSpace(request.Popularity) ? request.Popularity : (popularity ?? "Any")),
+            new("Rating", !string.IsNullOrWhiteSpace(request.Rating) ? request.Rating : (rating ?? "Any")),
+            new("Country", !string.IsNullOrWhiteSpace(request.Country) ? request.Country : (country ?? "Any")),
         };
 
         var matchedReels = selectedItem.MatchedReels.ToList();

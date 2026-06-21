@@ -44,7 +44,16 @@ public class DiscoveryObjective
     public DateTime? StartDate { get; private set; }
     public DateTime? EndDate { get; private set; }
 
+    public int RerollCount { get; private set; }
+
     private DiscoveryObjective() { }
+
+    public void Reroll(string requirementExpression, string description)
+    {
+        RequirementExpression = requirementExpression;
+        Description = description;
+        RerollCount++;
+    }
 
     public DiscoveryObjective(Guid id, Guid userId, int gridSize, int row, int column, string requirementExpression, string description, DateTime? startDate = null, DateTime? endDate = null)
     {

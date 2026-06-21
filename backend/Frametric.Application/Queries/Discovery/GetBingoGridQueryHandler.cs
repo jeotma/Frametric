@@ -128,12 +128,14 @@ public class GetBingoGridQueryHandler : IRequestHandler<GetBingoGridQuery, Bingo
                     o.Column,
                     diaryEntry?.MovieId,
                     diaryEntry?.Movie?.Title,
-                    diaryEntry?.WatchedDate);
+                    diaryEntry?.WatchedDate,
+                    o.RerollCount);
             })
             .ToList();
 
         var firstObjective = objectives.FirstOrDefault();
-        return new BingoGridDto(request.GridSize, squares, firstObjective?.StartDate, firstObjective?.EndDate);
+        var rerollsUsed = objectives.Sum(o => o.RerollCount);
+        return new BingoGridDto(request.GridSize, squares, firstObjective?.StartDate, firstObjective?.EndDate, rerollsUsed);
     }
 
     private static IEnumerable<DiscoveryObjective> BuildDefaultObjectives(Guid userId, int gridSize, DateTime? startDate = null, DateTime? endDate = null)

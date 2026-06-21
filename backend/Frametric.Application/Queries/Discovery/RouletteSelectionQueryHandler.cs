@@ -62,11 +62,14 @@ public class RouletteSelectionQueryHandler : IRequestHandler<RouletteSelectionQu
 
         if (request.WinningThreshold <= 1)
         {
-            // Populate sequence with random candidates so the visual wheel has slices to render
-            int displaySpins = Math.Min(pool.Count, 50);
-            if (displaySpins < 20 && pool.Count > 0) displaySpins = 20; // Ensure a decent amount of slices even for small pools by repeating
+            // Populate sequence first with ALL elements from the pool to guarantee their representation as slices
+            foreach (var movie in pool)
+            {
+                sequence.Add(MapToDto(movie, "Pool option for roulette wheel"));
+            }
 
-            for (int i = 0; i < displaySpins - 1; i++)
+            int targetSpins = Math.Max(20, Math.Min(pool.Count * 2, 50));
+            while (sequence.Count < targetSpins - 1)
             {
                 var filler = pool[Random.Shared.Next(pool.Count)];
                 sequence.Add(MapToDto(filler, "Visual filler for roulette wheel"));
@@ -74,11 +77,27 @@ public class RouletteSelectionQueryHandler : IRequestHandler<RouletteSelectionQu
 
             var selected = pool[Random.Shared.Next(pool.Count)];
             winner = MapToDto(selected, "Roulette selected a random movie from the discovery pool.");
-            sequence.Add(winner);
+            
+            // If the selected winner is not already the last element, add it or replace last element
+            if (sequence.Count >= targetSpins)
+            {
+                sequence[^1] = winner;
+            }
+            else
+            {
+                sequence.Add(winner);
+            }
             return new RouletteRaceResultDto(winner, sequence);
         }
 
         var counts = new Dictionary<Guid, int>();
+        
+        // Add all elements from the pool to the sequence first so the client can extract the full set of slices
+        foreach (var movie in pool)
+        {
+            sequence.Add(MapToDto(movie, "Initial candidate"));
+        }
+
         // Simulate race
         while (true)
         {

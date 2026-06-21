@@ -17,12 +17,14 @@ public record BingoSquareDto(
     int Column,
     Guid? MovieId = null,
     string? MovieTitle = null,
-    DateOnly? WatchedDate = null
+    DateOnly? WatchedDate = null,
+    int RerollCount = 0
 );
 
 public record BingoGridDto(
     int GridSize,
     IReadOnlyList<BingoSquareDto> Squares,
     DateTime? StartDate = null,
-    DateTime? EndDate = null
+    DateTime? EndDate = null,
+    int RerollsUsed = 0
 );
