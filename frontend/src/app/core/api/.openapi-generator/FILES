@@ -3,6 +3,7 @@ README.md
 api.base.service.ts
 api.module.ts
 api/actors.service.ts
+api/admin.service.ts
 api/advanced-analytics.service.ts
 api/analytics.service.ts
 api/api.ts
@@ -32,6 +33,7 @@ model/cinematic-fatigue-expanded-dto.ts
 model/create-custom-list-request.ts
 model/custom-list-dto.ts
 model/dashboard-summary-dto.ts
+model/database-stats-dto.ts
 model/decade-count-dto.ts
 model/dice-roll-request.ts
 model/dice-roll-result-dto.ts
@@ -52,6 +54,7 @@ model/ghost-actor-dto.ts
 model/global-search-result-dto.ts
 model/golden-director-dto.ts
 model/import-history-dto.ts
+model/log-entry-dto.ts
 model/log-movie-watch-request.ts
 model/login-user-request.ts
 model/models.ts
@@ -69,6 +72,8 @@ model/mystery-box-request.ts
 model/preferred-day-dto.ts
 model/prime-time-stats-dto.ts
 model/problem-details.ts
+model/provider-diagnostics-dto.ts
+model/purge-orphan-result-dto.ts
 model/rating-evolution-dto.ts
 model/recommendation-request.ts
 model/recommended-movie-dto.ts
@@ -84,6 +89,7 @@ model/slot-machine-result-dto.ts
 model/slot-reel-result-dto.ts
 model/time-invested-dto.ts
 model/top-bottom-movies-dto.ts
+model/user-dto.ts
 model/watched-movie-stats-dto.ts
 model/watchlist-movie-stats-dto.ts
 model/weekend-warrior-dto.ts

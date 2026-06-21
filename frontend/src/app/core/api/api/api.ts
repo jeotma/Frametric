@@ -1,5 +1,7 @@
 export * from './actors.service';
 import { ActorsService } from './actors.service';
+export * from './admin.service';
+import { AdminService } from './admin.service';
 export * from './advanced-analytics.service';
 import { AdvancedAnalyticsService } from './advanced-analytics.service';
 export * from './analytics.service';
@@ -20,4 +22,4 @@ export * from './recommendations.service';
 import { RecommendationsService } from './recommendations.service';
 export * from './search.service';
 import { SearchService } from './search.service';
-export const APIS = [ActorsService, AdvancedAnalyticsService, AnalyticsService, AuthService, CustomListsService, DirectorsService, DiscoveryService, ImportService, MoviesService, RecommendationsService, SearchService];
+export const APIS = [ActorsService, AdminService, AdvancedAnalyticsService, AnalyticsService, AuthService, CustomListsService, DirectorsService, DiscoveryService, ImportService, MoviesService, RecommendationsService, SearchService];

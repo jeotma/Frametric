@@ -19,5 +19,6 @@ export interface BingoSquareDto {
     movieId?: string | null;
     movieTitle?: string | null;
     watchedDate?: string | null;
+    rerollCount?: number;
 }
 

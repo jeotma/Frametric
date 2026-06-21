@@ -15,5 +15,6 @@ export interface BingoGridDto {
     squares: Array<BingoSquareDto>;
     startDate?: string | null;
     endDate?: string | null;
+    rerollsUsed?: number;
 }
 
