@@ -95,6 +95,14 @@ export class RouletteWheelComponent implements OnChanges, OnInit, OnDestroy {
     const uniqueTitles = new Set<string>();
     if (this.winnerTitle) uniqueTitles.add(this.winnerTitle);
 
+    // First add all sequence movies to guarantee their presence
+    for (const m of this.sequence) {
+      if (m?.title) {
+        uniqueTitles.add(m.title);
+      }
+    }
+
+    // Fallback/fill using sequence backwards or other titles if needed
     for (let i = this.sequence.length - 1; i >= 0; i--) {
       if (this.sequence[i]?.title) {
         uniqueTitles.add(this.sequence[i].title as string);
