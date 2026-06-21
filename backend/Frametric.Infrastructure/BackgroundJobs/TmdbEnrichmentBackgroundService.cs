@@ -23,6 +23,21 @@ public class TmdbEnrichmentBackgroundService : BackgroundService
     {
         _logger.LogInformation("TmdbEnrichmentBackgroundService started. Waiting for triggers...");
 
+        // On application startup, delicately retry processing previously failed or not found movies
+        try
+        {
+            _logger.LogInformation("Startup recovery started. Processing failed or not found movies...");
+            using var scope = _serviceProvider.CreateScope();
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+            // Process up to 50 failed or not found movies on startup
+            var recoveredCount = await mediator.Send(new EnrichFailedMoviesCommand(50), stoppingToken);
+            _logger.LogInformation("Startup recovery finished. Successfully recovered {Count} movies.", recoveredCount);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to run startup recovery for failed/not found movies.");
+        }
+
         // Auto-trigger on startup in case there are movies left pending from a previous session
         _trigger.TriggerEnrichment();
 

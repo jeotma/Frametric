@@ -44,7 +44,7 @@ public class TmdbService : ITmdbService
     public async Task<IEnumerable<GlobalSearchResultDto>> SearchMultiAsync(string query, CancellationToken cancellationToken)
     {
         var url = $"search/multi?query={Uri.EscapeDataString(query)}&language=en-US";
-        var response = await _httpClient.GetFromJsonAsync<TmdbMultiSearchResponse>(url, cancellationToken);
+        var response = await GetWithRetryAsync<TmdbMultiSearchResponse>(url, cancellationToken);
         
         if (response?.Results == null || !response.Results.Any())
             return Enumerable.Empty<GlobalSearchResultDto>();
@@ -71,7 +71,7 @@ public class TmdbService : ITmdbService
         var url = $"search/movie?query={Uri.EscapeDataString(title)}&language=en-US";
         if (year.HasValue) url += $"&year={year.Value}";
 
-        var response = await _httpClient.GetFromJsonAsync<TmdbSearchResponse>(url, cancellationToken);
+        var response = await GetWithRetryAsync<TmdbSearchResponse>(url, cancellationToken);
         if (response?.Results == null || !response.Results.Any()) return null;
 
         var result = requireExactMatch
@@ -90,13 +90,13 @@ public class TmdbService : ITmdbService
 
     public async Task<TmdbMovieResultDto?> GetMovieDetailsByIdAsync(int tmdbId, CancellationToken cancellationToken)
     {
-        var detailsTask = _httpClient.GetFromJsonAsync<TmdbMovieDetails>(
+        var detailsTask = GetWithRetryAsync<TmdbMovieDetails>(
             $"movie/{tmdbId}?append_to_response=credits&language=en-US", cancellationToken);
 
-        var keywordsTask = _httpClient.GetFromJsonAsync<TmdbKeywordsResponse>(
+        var keywordsTask = GetWithRetryAsync<TmdbKeywordsResponse>(
             $"movie/{tmdbId}/keywords", cancellationToken);
 
-        var providersTask = _httpClient.GetFromJsonAsync<TmdbWatchProvidersResponse>(
+        var providersTask = GetWithRetryAsync<TmdbWatchProvidersResponse>(
             $"movie/{tmdbId}/watch/providers", cancellationToken);
 
         try
@@ -156,7 +156,7 @@ public class TmdbService : ITmdbService
         var url = $"search/tv?query={Uri.EscapeDataString(title)}&language=en-US";
         if (year.HasValue) url += $"&first_air_date_year={year.Value}";
 
-        var response = await _httpClient.GetFromJsonAsync<TmdbSearchResponse>(url, cancellationToken);
+        var response = await GetWithRetryAsync<TmdbSearchResponse>(url, cancellationToken);
         if (response?.Results == null || !response.Results.Any()) return null;
 
         var result = requireExactMatch
@@ -170,7 +170,7 @@ public class TmdbService : ITmdbService
 
         if (result == null) return null;
 
-        var details = await _httpClient.GetFromJsonAsync<TmdbTvDetails>(
+        var details = await GetWithRetryAsync<TmdbTvDetails>(
             $"tv/{result.Id}?append_to_response=credits&language=en-US", cancellationToken);
 
         if (details == null) return null;
@@ -212,7 +212,7 @@ public class TmdbService : ITmdbService
             try
             {
                 var url = $"tv/{tvShowId}/season/{s.SeasonNumber}?language=en-US";
-                return await _httpClient.GetFromJsonAsync<TmdbSeasonDetails>(url, cancellationToken);
+                return await GetWithRetryAsync<TmdbSeasonDetails>(url, cancellationToken);
             }
             catch
             {
@@ -340,6 +340,23 @@ public class TmdbService : ITmdbService
         }
 
         return (title, null);
+    }
+    private async Task<T?> GetWithRetryAsync<T>(string url, CancellationToken cancellationToken, int maxRetries = 3)
+    {
+        int delayMs = 1000;
+        for (int i = 0; i < maxRetries; i++)
+        {
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<T>(url, cancellationToken);
+            }
+            catch (HttpRequestException ex) when (i < maxRetries - 1 && (ex.StatusCode == System.Net.HttpStatusCode.BadGateway || ex.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable || ex.StatusCode == System.Net.HttpStatusCode.GatewayTimeout || (int?)ex.StatusCode == 429))
+            {
+                await Task.Delay(delayMs, cancellationToken);
+                delayMs *= 2; // Exponential backoff
+            }
+        }
+        return await _httpClient.GetFromJsonAsync<T>(url, cancellationToken);
     }
 }
 

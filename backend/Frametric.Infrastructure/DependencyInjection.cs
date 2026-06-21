@@ -8,9 +8,11 @@ using Frametric.Infrastructure.Importer;
 using Frametric.Infrastructure.Persistence;
 using Frametric.Infrastructure.Queries;
 using Frametric.Infrastructure.Services;
+using Frametric.Infrastructure.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 
 namespace Frametric.Infrastructure;
 
@@ -86,8 +88,13 @@ public static class DependencyInjection
         services.AddSingleton<Frametric.Infrastructure.BackgroundJobs.TmdbEnrichmentTrigger>();
         services.AddSingleton<ITmdbEnrichmentTrigger>(provider => provider.GetRequiredService<Frametric.Infrastructure.BackgroundJobs.TmdbEnrichmentTrigger>());
 
+        // Diagnostics Logging
+        services.AddSingleton<IDiagnosticsLogContainer, InMemoryDiagnosticsLogContainer>();
+        services.AddSingleton<Microsoft.Extensions.Logging.ILoggerProvider, InMemoryDiagnosticsLoggerProvider>();
+
         services.AddHostedService<Frametric.Infrastructure.BackgroundJobs.TmdbEnrichmentBackgroundService>();
 
         return services;
+
     }
 }
