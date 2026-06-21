@@ -61,6 +61,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-jeotma} -d ${DB_NAME:-frametric}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
@@ -69,12 +74,22 @@ services:
     container_name: frametric-api
     restart: always
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Host=database;Database=${DB_NAME:-frametric};Username=${DB_USER:-jeotma};Password=${DB_PASSWORD};
       - Omdb__ApiKey=${OMDB_API_KEY}
       - Tmdb__BearerToken=${TMDB_BEARER_TOKEN}
+      - JwtSettings__Secret=${JWT_SECRET}
+      - JwtSettings__Issuer=Frametric
+      - JwtSettings__Audience=FrametricApp
+      - JwtSettings__ExpiryMinutes=1440
+      - SmtpSettings__Host=smtp.resend.com
+      - SmtpSettings__Port=465
+      - SmtpSettings__Username=resend
+      - SmtpSettings__Password=${RESEND_API_KEY}
+      - SmtpSettings__From=onboarding@resend.dev
     ports:
       - "8080:8080"
 
@@ -98,7 +113,14 @@ volumes:
    sudo systemctl enable --now docker
    ```
 
-3. Copy the project files to the VM and create a `.env` file containing the environment secrets (`DB_PASSWORD`, `OMDB_API_KEY`, `TMDB_BEARER_TOKEN`).
+3. Copy the project files to the VM and create a `.env` file containing the environment secrets:
+   ```env
+   DB_PASSWORD=your_secure_password
+   OMDB_API_KEY=your_omdb_key
+   TMDB_BEARER_TOKEN=your_tmdb_token
+   JWT_SECRET=your_long_random_jwt_secret_key
+   RESEND_API_KEY=re_your_resend_api_key
+   ```
 4. Start the stack:
 
    ```bash

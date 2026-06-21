@@ -18,7 +18,7 @@ graph TD
 | Component | Provider | Reason for Choice & Limits |
 | :--- | :--- | :--- |
 | **Relational Database** | **Neon** | Serverless Postgres database with 0.5 GB storage. Automatically scales to zero (sleeps) after 5-10 minutes of inactivity. Wakes up in ~1-2 seconds on the next query. |
-| **Backend API** | **Render** | Free containerized Web Service (using Docker). Auto-sleeps after 15 minutes of inactivity (causing a 50+ second cold start on wake). |
+| **Backend API** | **Render** | Free containerized Web Service (using Docker). Auto-sleeps after 15 minutes of inactivity (prevented via external Ping service). |
 | **Frontend Client** | **Cloudflare Pages** | Static Web App hosting. Truly unlimited bandwidth on the free tier, global CDN edge, and zero cold starts. |
 | **CI/CD Automation** | **GitHub Actions** | Built-in free build runs (2,000 minutes/month) to automate testing and build validations. |
 
@@ -90,18 +90,39 @@ ENTRYPOINT ["dotnet", "Frametric.Api.dll"]
    - `ConnectionStrings__DefaultConnection`: *[Your Neon PostgreSQL Connection String]*
    - `Omdb__ApiKey`: *[Your OMDB API Key]*
    - `Tmdb__BearerToken`: *[Your TMDB token]*
+   - `JwtSettings__Secret`: *[A long secure random string]*
+   - `JwtSettings__Issuer`: `Frametric`
+   - `JwtSettings__Audience`: `FrametricApp`
+   - `JwtSettings__ExpiryMinutes`: `1440`
+   - `SmtpSettings__Host`: `smtp.resend.com`
+   - `SmtpSettings__Port`: `465`
+   - `SmtpSettings__Username`: `resend`
+   - `SmtpSettings__Password`: *[Your Resend API Key]*
+   - `SmtpSettings__From`: `onboarding@resend.dev` *(or your verified Resend domain)*
 4. Deploy the service. Render will automatically build the image and expose a public HTTPS URL (e.g. `https://frametric-api.onrender.com`).
 
 ---
 
-## 4. Step 3: Frontend Build & Cloudflare Pages Deployment
+## 4. Step 3: Prevent Render Sleep (UptimeRobot)
+
+Because Frametric relies on background workers (Channels) to synchronize TMDB data, we must prevent Render's 15-minute inactivity sleep to ensure large imports complete successfully.
+
+1. Create a free account on **UptimeRobot** (or cron-job.org).
+2. Create a new HTTP Monitor.
+3. Target the API Health endpoint: `https://frametric-api.onrender.com/api/v1/health`
+4. Set the ping interval to **14 minutes**.
+
+---
+
+## 5. Step 4: Frontend Build & Cloudflare Pages Deployment
 
 Deploy the Angular 19+ client as a lightning-fast Static Single Page Application (SPA).
 
 ### Configuration Adjustments
 
-To prevent 404 errors when reloading subpages in a client-side routed Angular SPA, output a `_redirects` file to the static build directory (`dist/frametric/browser`):
+To prevent 404 errors when reloading subpages in a client-side routed Angular SPA, output a `_redirects` file into your `public/` directory so Angular copies it automatically during build:
 
+1. Create a file `frontend/public/_redirects` with the following content:
 ```text
 /* /index.html 200
 ```
@@ -126,11 +147,11 @@ To prevent 404 errors when reloading subpages in a client-side routed Angular SP
 
 ---
 
-## 5. Step 4: CORS Configuration & Security Settings
+## 6. Step 5: CORS Configuration & Security Settings
 
-To allow the Cloudflare Pages frontend to communicate with the Render API, configure the CORS policy in the C# backend.
+To allow the Cloudflare Pages frontend to communicate with the Render API, configure the CORS policy dynamically.
 
-Go to `backend/Frametric.Api/Program.cs` and configure:
+Ensure `backend/Frametric.Api/Program.cs` loads origins from an environment variable (e.g., `Cors__AllowedOrigins=https://frametric.pages.dev`).
 
 ```csharp
 // Frametric — Cinematic Analytics Platform
@@ -152,7 +173,7 @@ app.UseCors("ProductionCorsPolicy");
 
 ---
 
-## 6. Step 5: Database Migrations Automation
+## 7. Step 6: Database Migrations Automation
 
 To automatically apply migrations on startup, configure the application entrypoint to run migrations at launch:
 
