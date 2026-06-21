@@ -36,4 +36,14 @@ public class UserApplication : IUserApplication
     {
         return await _mediator.Send(new RefreshTokenCommand(refreshToken), cancellationToken);
     }
+
+    public async Task<bool> ForgotPasswordAsync(string email, CancellationToken cancellationToken)
+    {
+        return await _mediator.Send(new ForgotPasswordCommand(email), cancellationToken);
+    }
+
+    public async Task<bool> ResetPasswordAsync(string email, string token, string newPassword, CancellationToken cancellationToken)
+    {
+        return await _mediator.Send(new ResetPasswordCommand(email, token, newPassword), cancellationToken);
+    }
 }

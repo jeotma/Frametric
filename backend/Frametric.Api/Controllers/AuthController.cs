@@ -73,4 +73,28 @@ public class AuthController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
+    {
+        await _userApplication.ForgotPasswordAsync(request.Email, cancellationToken);
+        // Always return OK to prevent email enumeration
+        return Ok(new { message = "If the email is registered, a password reset link has been sent." });
+    }
+
+    [HttpPost("reset-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _userApplication.ResetPasswordAsync(request.Email, request.Token, request.NewPassword, cancellationToken);
+        if (!result)
+        {
+            return BadRequest(new { message = "Invalid or expired reset token." });
+        }
+        
+        return Ok(new { message = "Password has been successfully reset." });
+    }
 }

@@ -7,6 +7,7 @@
 // (at your option) any later version.
 
 using Frametric.Application.Interfaces;
+using Frametric.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,10 +24,12 @@ public record UnlogMovieWatchCommand(Guid UserId, Guid MovieId, Guid DiaryEntryI
 public class UnlogMovieWatchCommandHandler : IRequestHandler<UnlogMovieWatchCommand, bool>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICacheService _cacheService;
 
-    public UnlogMovieWatchCommandHandler(IApplicationDbContext context)
+    public UnlogMovieWatchCommandHandler(IApplicationDbContext context, ICacheService cacheService)
     {
         _context = context;
+        _cacheService = cacheService;
     }
 
     public async Task<bool> Handle(UnlogMovieWatchCommand request, CancellationToken cancellationToken)
@@ -64,6 +67,11 @@ public class UnlogMovieWatchCommandHandler : IRequestHandler<UnlogMovieWatchComm
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        // Invalidate analytics caches
+        _cacheService.RemoveByPrefix($"WrappedSummary_{request.UserId}");
+        _cacheService.RemoveByPrefix($"WatchedMovies_{request.UserId}");
+
         return true;
     }
 }

@@ -9,6 +9,8 @@ public class User
     public string Email { get; private set; } = null!;
     public string PasswordHash { get; private set; } = null!;
     public UserRole Role { get; private set; }
+    public string? PasswordResetToken { get; private set; }
+    public DateTime? PasswordResetTokenExpiry { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
     // Navigation properties
@@ -31,6 +33,19 @@ public class User
     public void PromoteToAdmin()
     {
         Role = UserRole.Admin;
+    }
+
+    public void SetPasswordResetToken(string token, DateTime expiry)
+    {
+        PasswordResetToken = token;
+        PasswordResetTokenExpiry = expiry;
+    }
+
+    public void UpdatePassword(string newPasswordHash)
+    {
+        PasswordHash = newPasswordHash;
+        PasswordResetToken = null;
+        PasswordResetTokenExpiry = null;
     }
 }
 

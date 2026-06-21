@@ -1,4 +1,5 @@
 using Frametric.Application.DTOs.Analytics;
+using Frametric.Application.Interfaces;
 using Frametric.Application.Interfaces.Analytics;
 using MediatR;
 
@@ -9,11 +10,22 @@ public record GetWatchedMoviesQuery(Guid UserId, AnalyticsFilterDto Filter) : IR
 public class GetWatchedMoviesQueryHandler : IRequestHandler<GetWatchedMoviesQuery, IEnumerable<WatchedMovieStatsDto>>
 {
     private readonly IWatchedBasicQueries _queries;
-    public GetWatchedMoviesQueryHandler(IWatchedBasicQueries queries) => _queries = queries;
+    private readonly ICacheService _cacheService;
+
+    public GetWatchedMoviesQueryHandler(IWatchedBasicQueries queries, ICacheService cacheService)
+    {
+        _queries = queries;
+        _cacheService = cacheService;
+    }
 
     public async Task<IEnumerable<WatchedMovieStatsDto>> Handle(GetWatchedMoviesQuery request, CancellationToken ct)
     {
-        return await _queries.GetMoviesAsync(request.UserId, request.Filter, ct);
+        string cacheKey = $"WatchedMovies_{request.UserId}_{request.Filter.GetHashCode()}";
+        return await _cacheService.GetOrCreateAsync(
+            cacheKey,
+            async () => await _queries.GetMoviesAsync(request.UserId, request.Filter, ct),
+            TimeSpan.FromMinutes(10)
+        );
     }
 }
 

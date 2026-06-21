@@ -300,7 +300,8 @@ public class CommandHandlerTests : IDisposable
         }
 
         using var actContext = CreateContext();
-        var handler = new LogMovieWatchCommandHandler(actContext);
+        var mockCache = new Mock<ICacheService>();
+        var handler = new LogMovieWatchCommandHandler(actContext, mockCache.Object);
         var command = new LogMovieWatchCommand(userId, movieId, DateOnly.FromDateTime(DateTime.UtcNow), 4.5, false);
 
         // Act

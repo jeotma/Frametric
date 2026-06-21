@@ -40,6 +40,9 @@ public static class DependencyInjection
             services.AddDistributedMemoryCache();
         }
         
+        services.AddMemoryCache();
+        services.AddSingleton<ICacheService, MemoryCacheService>();
+
         services.AddScoped<ILetterboxdImporter, LetterboxdZipImporter>();
 
         // Register Dapper DbConnectionFactory
@@ -93,6 +96,8 @@ public static class DependencyInjection
         services.AddSingleton<Microsoft.Extensions.Logging.ILoggerProvider, InMemoryDiagnosticsLoggerProvider>();
 
         services.AddHostedService<Frametric.Infrastructure.BackgroundJobs.TmdbEnrichmentBackgroundService>();
+
+        services.AddScoped<IEmailService, SmtpEmailService>();
 
         return services;
 

@@ -9,8 +9,22 @@
 using Frametric.Api.Extensions;
 using Frametric.Application;
 using Frametric.Infrastructure;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
+
+try
+{
+    Log.Information("Starting Frametric API up");
+    var builder = WebApplication.CreateBuilder(args);
+
+    builder.Host.UseSerilog((context, services, configuration) => configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .WriteTo.Console());
 
 // Add services to the container.
 builder.Services.AddControllers()
@@ -28,7 +42,12 @@ builder.Services.AddPresentationOpenApi();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+// Add Health Checks
+builder.Services.AddFrametricHealthChecks(builder.Configuration);
+
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -46,4 +65,15 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapFrametricHealthChecks();
+
 app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application start-up failed");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
