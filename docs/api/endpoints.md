@@ -376,3 +376,119 @@ Requires authentication.
   - Returns only local results if a local match exists.
   - Falls back to TMDB results when no local results are found.
   - For persons who are both an actor and a director, the entity type is `Director / Actor` and both `actorId` and `directorId` are populated separately.
+
+---
+
+## 10. Discovery (`/api/v1/discovery`)
+
+Requires authentication.
+
+### **POST** `/api/v1/discovery/roulette`
+
+- **Description**: Selects a random movie from the discovery pool with absolute randomness. Supports optional persistence threshold mode where a movie must appear multiple times before being selected.
+- **Request body**: `RouletteRequest` (`Scope`, `PersistenceThreshold?`, `CustomSourceIds?`, `CustomSourceTitles?`)
+- **Responses**:
+  - `200 OK`: Returns `SelectionResultDto`.
+  - `400 BadRequest`: Pool empty or missing custom collection IDs.
+
+### **POST** `/api/v1/discovery/dice`
+
+- **Description**: Rolls one or more cinematic dice (Quality, Rarity, Risk, Complexity, Exploration) to determine the characteristics of the recommended film. Each die maps to analytical constraints (rating, popularity, runtime) that filter the pool.
+- **Request body**: `DiceRollRequest` (`Scope`, `DiceTypes?`, `CustomSourceIds?`, `CustomSourceTitles?`)
+- **Responses**:
+  - `200 OK`: Returns `DiceRollResultDto` with per-die results and optional special event.
+  - `400 BadRequest`: Pool empty.
+
+### **POST** `/api/v1/discovery/slot-machine`
+
+- **Description**: Spins 5 reels (Genre, Decade, Director, Duration, Country) to build a search combination. Null reels are randomly resolved from available pool data. Special jackpot combinations trigger premium rewards.
+- **Request body**: `SlotMachineRequest` (`Scope`, `Genre?`, `Decade?`, `Director?`, `Duration?`, `Country?`, `CustomSourceIds?`, `CustomSourceTitles?`)
+- **Responses**:
+  - `200 OK`: Returns `SlotMachineResultDto` with reel results and jackpot flag.
+  - `400 BadRequest`: Pool empty.
+
+### **POST** `/api/v1/discovery/mystery-box`
+
+- **Description**: Generates a set of hidden movie boxes for the user to choose from. Supports variant modes: Standard, Thematic (shared genre), Premium (top-rated), FullReveal (ranked), and Strategy (diverse genres with hints).
+- **Request body**: `MysteryBoxRequest` (`Scope`, `Variant`, `BoxCount`, `CustomSourceIds?`, `CustomSourceTitles?`)
+- **Responses**:
+  - `200 OK`: Returns `MysteryBoxDto` with box IDs, variant, and optional hints.
+  - `400 BadRequest`: Pool empty.
+
+### **GET** `/api/v1/discovery/mystery-box/{boxId}/reveal`
+
+- **Description**: Reveals the movie inside a specific mystery box by its movie ID.
+- **Parameters**:
+  - `boxId` (`Guid` in route)
+- **Responses**:
+  - `200 OK`: Returns `SelectionResultDto` with full movie details.
+  - `400 BadRequest`: Movie not found.
+
+### **POST** `/api/v1/discovery/bingo`
+
+- **Description**: Returns the user's bingo grid with objectives and completion status. Creates default objectives when none exist or if request asks for a new board. Evaluates diary entries to automatically mark squares as completed.
+- **Request Body**: `BingoRequest` (`GridSize`, `Scope`, `CustomSourceIds?`, `CustomSourceTitles?`, `ExcludeWatched`, `DurationDays?`)
+- **Responses**:
+  - `200 OK`: Returns `BingoGridDto` with grid size, square states, and rerolls details.
+
+### **POST** `/api/v1/discovery/bingo/reroll/{objectiveId}`
+
+- **Description**: Rerolls a single uncompleted bingo square's objective, replacing it with a new random objective from the pool if the user has rerolls remaining.
+- **Parameters**:
+  - `objectiveId` (`Guid` in route)
+- **Responses**:
+  - `200 OK`: Returns the updated `BingoGridDto`.
+  - `400 BadRequest`: If the objective is already completed, the user has exceeded their grid-size reroll limit, or the objective does not exist.
+
+---
+
+## 11. Administration & Configuration (`/api/Admin`)
+
+Requires authentication. Restricted to users with the `Admin` role.
+
+### **GET** `/api/Admin/users`
+- **Description**: Lists all registered users on the platform.
+- **Responses**:
+  - `200 OK`: Returns an array of `UserDto` (`id`, `username`, `email`, `role`).
+
+### **POST** `/api/Admin/users/{userId}/promote`
+- **Description**: Promotes a standard user to an Admin.
+- **Parameters**:
+  - `userId` (`Guid` in route)
+- **Responses**:
+  - `200 OK`: Promotion successful.
+  - `404 NotFound`: User not found.
+
+### **GET** `/api/Admin/diagnostics/database`
+- **Description**: Retrieves aggregate library statistics (Counts of users, movies by enrichment status, TV shows, genres, directors, actors, and diary entries).
+- **Responses**:
+  - `200 OK`: Returns `DatabaseStatsDto`.
+
+### **GET** `/api/Admin/diagnostics/providers`
+- **Description**: Pings external API metadata providers (TMDB and OMDb) as well as the local Frametric backend & database connection, returning latency and health validation states.
+- **Responses**:
+  - `200 OK`: Returns `ProviderDiagnosticsDto` (including local database health status).
+
+### **GET** `/api/Admin/diagnostics/logs`
+- **Description**: Retrieves the last 50 warning or error logs recorded in the in-memory ring buffer.
+- **Responses**:
+  - `200 OK`: Returns an array of `LogEntryDto`.
+
+### **POST** `/api/Admin/maintenance/purge-orphans`
+- **Description**: Deletes genres, directors, and actors that do not have any associated movies.
+- **Responses**:
+  - `200 OK`: Returns `PurgeOrphanResultDto` with count of deleted rows.
+
+### **POST** `/api/Admin/maintenance/clear-cache`
+- **Description**: Clears the system-wide recommendations and metadata caches.
+- **Responses**:
+  - `200 OK`: Cache cleared.
+
+### **POST** `/api/Admin/enrich/retry-failed`
+- **Description**: Manually triggers TMDB metadata enrichment for failed or not found movies.
+- **Query Parameters**:
+  - `resetPermanentlyFailed` (`bool`, default: `false`) - Force retrying movies that previously failed startup recovery.
+  - `batchSize` (`int`, default: `50`) - Max movies to process in this run.
+- **Responses**:
+  - `200 OK`: Returns count of successfully enriched movies.
+

@@ -1,0 +1,45 @@
+<div class="slot-machine-wrapper">
+  <div class="slot-cabinet">
+    <!-- Cabinet Header with Lights -->
+    <div class="cabinet-header">
+      <div class="hud-label logo-text">CINEMATIC SLOTS</div>
+      <div class="status-lights">
+        <span class="light red" [class.active]="isSpinning"></span>
+        <span class="light gold" [class.active]="isSpinning"></span>
+        <span class="light emerald" [class.active]="!isSpinning && result"></span>
+      </div>
+    </div>
+
+    <!-- The Reels Visor Container -->
+    <div class="reels-visor">
+      <div class="visor-center-guide"></div>
+      <div class="slots-container">
+        <div class="reel-box" *ngFor="let reel of genericReels; let i = index" #reelBox>
+          <div class="reel-label-overlay hud-data">
+            <span class="hud-label">{{ currentLabels[i] }}</span>
+          </div>
+          
+          <div class="reel-viewport">
+            <!-- 3 Copies of values for a seamless vertical strip -->
+            <div class="reel-strip">
+              <div class="reel-item" *ngFor="let val of reel.values">{{ val }}</div>
+              <div class="reel-item" *ngFor="let val of reel.values">{{ val }}</div>
+              <div class="reel-item" *ngFor="let val of reel.values">{{ val }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pivotable Lever -->
+  <div class="lever-container" (click)="pullLever()" [class.pulled]="isSpinning" [class.clickable]="!isSpinning">
+    <div class="lever-slot">
+      <div class="lever-track"></div>
+    </div>
+    <div class="lever-handle">
+      <div class="lever-arm"></div>
+      <div class="lever-knob"></div>
+    </div>
+  </div>
+</div>

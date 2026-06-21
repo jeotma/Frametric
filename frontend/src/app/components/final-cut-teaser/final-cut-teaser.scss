@@ -2,12 +2,12 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
 .cinematic-teaser-card {
-  padding: 40px;
+  padding: 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -34,13 +34,13 @@
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.15em;
-  color: var(--accent-purple);
+  color: var(--accent-silver);
   text-transform: uppercase;
 }
 
 .teaser-poster-mock {
-  width: 320px;
-  height: 180px;
+  width: 560px;
+  height: 315px;
   border-radius: var(--border-radius-md);
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: 
@@ -56,19 +56,19 @@
 
   &:hover {
     transform: scale(1.02);
-    border-color: var(--accent-purple);
-    box-shadow: 0 0 30px rgba(139, 92, 246, 0.25);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
 
     .poster-overlay {
-      background: rgba(139, 92, 246, 0.2);
+      background: rgba(255, 255, 255, 0.2);
       transform: scale(1.1);
     }
   }
 }
 
 .poster-overlay {
-  width: 54px;
-  height: 54px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(4px);
@@ -79,9 +79,9 @@
   transition: var(--transition-smooth);
 
   .play-icon {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     color: #ffffff;
-    padding-left: 2px;
+    padding-left: 4px;
   }
 }
 
@@ -192,7 +192,7 @@
 
   h3 {
     font-family: var(--font-display);
-    font-size: 1.2rem;
+    font-size: 1.6rem;
     font-weight: 600;
     line-height: 1.4;
     margin: 0;
@@ -201,7 +201,7 @@
   }
 
   .highlight {
-    color: var(--accent-cyan);
+    color: var(--accent-sepia);
   }
 }
 

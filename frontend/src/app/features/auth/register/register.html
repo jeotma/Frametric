@@ -6,7 +6,7 @@
     <div class="scanlines"></div>
   </div>
 
-  <div class="auth-card glass-card animate-slide-up">
+  <div class="auth-card crosshair-bracket animate-slide-up">
     <div class="brand">
       <div class="brand-icon">
         <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -27,7 +27,7 @@
     </div>
 
     <div class="auth-header">
-      <h2>Create your account</h2>
+      <h2>BACKSTAGE PASS</h2>
       @let taglineEE = 'auth-tagline' | easterEgg:'ui';
       @if (taglineEE) {
         <p [class]="taglineEE.className" [attr.data-tooltip]="taglineEE.tooltip">{{ taglineEE.text }}</p>
@@ -121,7 +121,7 @@
         }
       </div>
 
-      <button type="submit" class="btn-primary animate-stagger-fade" style="--i: 4" id="register-submit" [disabled]="isLoading()" [class.loading]="isLoading()">
+      <button type="submit" class="btn-cta animate-stagger-fade" style="--i: 4" id="register-submit" [disabled]="isLoading()" [class.loading]="isLoading()">
         @if (isLoading()) {
           <span class="spinner"></span>
           {{ loadingMessage() }}

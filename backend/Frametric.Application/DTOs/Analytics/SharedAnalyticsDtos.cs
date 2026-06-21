@@ -33,7 +33,10 @@ public record PreferredDayDto(string DayOfWeek, int WatchCount);
 public record GenreStreakDto(string GenreName, int StreakLength, DateTime StartDate, DateTime EndDate);
 public record RatingEvolutionDto(int Month, double AverageRating);
 public record LanguageDiversityDto(string Language, int Count);
-public record CastingPairDto(string Actor1Name, string Actor2Name, int CollaborationCount);
+public record CastingPairDto(string Actor1Name, string Actor2Name, int CollaborationCount, string? Actor1ProfilePath = null, string? Actor2ProfilePath = null)
+{
+    public CastingPairDto(string actor1Name, string actor2Name, int collaborationCount) : this(actor1Name, actor2Name, collaborationCount, null, null) {}
+}
 public record EraBreakdownDto(string EraName, int Count);
 public record GenreProportionDto(string GenreName, int WatchedCount, int PendingCount);
 public record GoldenDirectorDto(string DirectorName, double AverageRatingInHistory, int PendingMoviesCount);
@@ -81,7 +84,10 @@ public record DavidAndGoliathDto(
 );
 
 // For The Best Rookies: actors/directors new to the user this year
-public record RookieDto(string Name, int MoviesWatchedThisYear, double AverageRating);
+public record RookieDto(string Name, int MoviesWatchedThisYear, double AverageRating, string? ProfilePath = null)
+{
+    public RookieDto(string name, int moviesWatchedThisYear, double averageRating) : this(name, moviesWatchedThisYear, averageRating, null) {}
+}
 public class BestRookiesDto
 {
     public IEnumerable<RookieDto> NewDirectors { get; set; } = new List<RookieDto>();
@@ -98,7 +104,10 @@ public class BestRookiesDto
 public record GenreWithRatingDto(string GenreName, int Count, double AverageRating);
 
 // For Dynamic Duos & Perfect Pairs: director-actor collaborations
-public record DirectorActorPairDto(string DirectorName, string ActorName, int CollaborationCount);
+public record DirectorActorPairDto(string DirectorName, string ActorName, int CollaborationCount, string? DirectorProfilePath = null, string? ActorProfilePath = null)
+{
+    public DirectorActorPairDto(string directorName, string actorName, int collaborationCount) : this(directorName, actorName, collaborationCount, null, null) {}
+}
 
 // For The Prime Time Blockbuster: expanded stats on peak habits
 public record MonthActivityCountDto(int Month, string MonthName, int WatchCount);

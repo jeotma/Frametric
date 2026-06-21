@@ -14,5 +14,7 @@ export interface ActorCountDto {
     count?: number;
     averageRating?: number;
     watchedCount?: number;
+    id?: string | null;
+    profilePath?: string | null;
 }
 

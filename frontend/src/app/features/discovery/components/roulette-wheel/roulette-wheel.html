@@ -1,0 +1,80 @@
+<div class="roulette-container" (click)="onWheelClick()" [class.clickable]="!isSpinning">
+  <!-- Outer metallic ring / film reel container -->
+  <div class="wheel-wrapper">
+    <svg class="roulette-svg" viewBox="0 0 400 400">
+      <defs>
+        <!-- Gradients for realistic metallic textures -->
+        <radialGradient id="metallic-grad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#2c2c2e" />
+          <stop offset="85%" stop-color="#111111" />
+          <stop offset="100%" stop-color="#000000" />
+        </radialGradient>
+        <radialGradient id="center-hub-grad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="var(--accent-sepia)" />
+          <stop offset="60%" stop-color="#111111" />
+          <stop offset="100%" stop-color="#000000" />
+        </radialGradient>
+        <linearGradient id="metallic-shine" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35" />
+          <stop offset="35%" stop-color="#ffffff" stop-opacity="0.05" />
+          <stop offset="50%" stop-color="#000000" stop-opacity="0.6" />
+          <stop offset="65%" stop-color="#ffffff" stop-opacity="0.0" />
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0.2" />
+        </linearGradient>
+      </defs>
+
+      <!-- Outer Frame (Film Reel outer ring) -->
+      <circle cx="200" cy="200" r="195" fill="none" stroke="var(--border-color)" stroke-width="4" />
+      <circle cx="200" cy="200" r="190" fill="url(#metallic-grad)" stroke="rgba(255,255,255,0.08)" stroke-width="6" />
+      
+      <!-- Film Sprocket Holes (Dash array on a circle) -->
+      <circle cx="200" cy="200" r="182" fill="none" stroke="var(--accent-silver)" stroke-width="6" stroke-dasharray="8, 12" opacity="0.3" />
+
+      <!-- Rotating Wheel Group -->
+      <g class="wheel-rotating-group" #wheelGroup [style.transform]="'rotate(' + currentRotation + 'deg)'" [style.transition]="transitionStyle" style="transform-origin: 200px 200px;">
+        <!-- Wheel Background base circle -->
+        <circle cx="200" cy="200" r="176" fill="#0a0a0a" />
+
+        <!-- Sectors -->
+        <path *ngFor="let path of sectorPaths; let i = index" 
+              [attr.d]="path" 
+              [attr.fill]="colors[i % colors.length]"
+              stroke="rgba(0, 0, 0, 0.4)" 
+              stroke-width="1" />
+
+        <!-- Sector Labels -->
+        <g *ngFor="let slice of slices; let i = index"
+           [style.transform]="'rotate(' + ((i * sliceAngle) + (sliceAngle / 2)) + 'deg)'"
+           style="transform-origin: 200px 200px;">
+          <!-- Line pointing outward to divide sectors visually -->
+          <line x1="200" y1="200" x2="376" y2="200" stroke="rgba(0, 0, 0, 0.2)" stroke-width="1.5" />
+          
+          <!-- Text aligned inside the sector -->
+          <text x="362" y="204" 
+                text-anchor="end" 
+                class="slice-text"
+                [attr.font-size]="getFontSize()"
+                fill="var(--text-primary)">
+            {{ truncateTitle(slice) }}
+          </text>
+        </g>
+      </g>
+
+      <!-- Static overlay for cinematic metallic reflection/specular highlight -->
+      <circle #shineOverlay cx="200" cy="200" r="176" fill="url(#metallic-shine)" pointer-events="none" style="mix-blend-mode: overlay; transform-origin: 200px 200px;" />
+
+      <!-- Central Hub (Projector lens center) -->
+      <circle cx="200" cy="200" r="36" fill="url(#center-hub-grad)" stroke="var(--border-color)" stroke-width="3" />
+      <circle cx="200" cy="200" r="28" fill="#111" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1" />
+      <circle cx="200" cy="200" r="12" fill="var(--bg-primary)" stroke="var(--accent-sepia)" stroke-width="1.5" />
+      <!-- Central lens glow flare -->
+      <circle cx="196" cy="196" r="4" fill="rgba(255, 255, 255, 0.6)" filter="blur(1px)" />
+
+      <!-- Static Outer Tick Indicator / Pointer on the right pointing left -->
+      <g class="pointer-group" #pointerGroup>
+        <path d="M 372 200 L 398 188 L 398 212 Z" fill="var(--accent-sepia)" stroke="#000" stroke-width="1" />
+        <circle cx="390" cy="200" r="3" fill="var(--text-primary)" />
+      </g>
+    </svg>
+  </div>
+</div>

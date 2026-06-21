@@ -1,6 +1,17 @@
-<aside class="sidebar glass-panel">
+<aside class="sidebar">
   <div class="logo-area">
-    <div class="logo-icon"></div>
+    <div class="logo-icon">
+      <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true">
+        <rect x="10" y="10" width="14" height="100" rx="3" fill="currentColor"/>
+        <rect x="13" y="22" width="8" height="3" rx="1" fill="#121620"/>
+        <rect x="13" y="58" width="8" height="3" rx="1" fill="#121620"/>
+        <rect x="13" y="94" width="8" height="3" rx="1" fill="#121620"/>
+        <rect x="24" y="86" width="38" height="14" rx="3" fill="currentColor" opacity="0.6"/>
+        <rect x="24" y="60" width="56" height="14" rx="3" fill="currentColor" opacity="0.8"/>
+        <rect x="24" y="34" width="76" height="14" rx="3" fill="currentColor"/>
+        <path d="M66,18 L90,18 L78,34 L54,34 Z" fill="currentColor"/>
+      </svg>
+    </div>
     <span class="logo-text">Frametric</span>
     <span class="logo-version">v1.2</span>
   </div>
@@ -10,7 +21,7 @@
       routerLink="/dashboard"
       routerLinkActive="active"
       #rla="routerLinkActive"
-      class="nav-item"
+      class="nav-item tooltip-container"
       [attr.aria-current]="rla.isActive ? 'page' : null"
     >
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -19,15 +30,15 @@
         <rect x="14" y="12" width="7" height="9" rx="1" />
         <rect x="3" y="16" width="7" height="5" rx="1" />
       </svg>
-      <span>Dashboard</span>
-      <span class="glow-dot"></span>
+      <span>DOSSIER</span>
+      <span class="tooltip-text">Your complete cinematic profile and viewing overview.</span>
     </a>
 
     <a 
       routerLink="/imports"
       routerLinkActive="active"
       #rla="routerLinkActive"
-      class="nav-item"
+      class="nav-item tooltip-container"
       [attr.aria-current]="rla.isActive ? 'page' : null"
     >
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -35,15 +46,15 @@
         <polyline points="17 8 12 3 7 8" />
         <line x1="12" y1="3" x2="12" y2="15" />
       </svg>
-      <span>Import Center</span>
-      <span class="glow-dot"></span>
+      <span>ARCHIVE</span>
+      <span class="tooltip-text">Import, manage and preserve your viewing data.</span>
     </a>
 
     <a 
       routerLink="/final-cut-teaser"
       routerLinkActive="active"
       #rla="routerLinkActive"
-      class="nav-item nav-item-wrapped"
+      class="nav-item tooltip-container"
       [attr.aria-current]="rla.isActive ? 'page' : null"
     >
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -51,15 +62,15 @@
         <polyline points="2 17 12 22 22 17" />
         <polyline points="2 12 12 17 22 12" />
       </svg>
-      <span class="wrapped-text">Final Cut</span>
-      <span class="glow-dot"></span>
+      <span>THE FINAL CUT</span>
+      <span class="tooltip-text">Your annual cinematic retrospective — data transformed into a narrative slideshow.</span>
     </a>
 
     <a 
       routerLink="/stats"
       routerLinkActive="active"
       #rla="routerLinkActive"
-      class="nav-item"
+      class="nav-item tooltip-container"
       [attr.aria-current]="rla.isActive ? 'page' : null"
     >
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -67,15 +78,15 @@
         <path d="M12 20V4" />
         <path d="M6 20v-6" />
       </svg>
-      <span>Advanced Stats</span>
-      <span class="glow-dot"></span>
+      <span>DEEP STATS</span>
+      <span class="tooltip-text">Technical reports, trends and advanced viewing analytics.</span>
     </a>
 
     <a 
       routerLink="/recommendations"
       routerLinkActive="active"
       #rla="routerLinkActive"
-      class="nav-item"
+      class="nav-item tooltip-container"
       [attr.aria-current]="rla.isActive ? 'page' : null"
     >
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -83,22 +94,54 @@
         <path d="M9 18h6" />
         <path d="M10 22h4" />
       </svg>
-      <span>Recommendations</span>
-      <span class="glow-dot"></span>
+      <span>NEXT SCREENING</span>
+      <span class="tooltip-text">Personalized recommendations for your next watch.</span>
+    </a>
+
+    <a
+      routerLink="/discovery"
+      routerLinkActive="active"
+      #rla="routerLinkActive"
+      class="nav-item tooltip-container"
+      [attr.aria-current]="rla.isActive ? 'page' : null"
+    >
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z" />
+      </svg>
+      <span>DISCOVERY</span>
+      <span class="tooltip-text">Unexpected insights, challenges and experimental ways to explore your film data.</span>
+    </a>
+
+    <a
+      *ngIf="auth.isAdmin()"
+      routerLink="/admin"
+      routerLinkActive="active"
+      #rla="routerLinkActive"
+      class="nav-item tooltip-container"
+      [attr.aria-current]="rla.isActive ? 'page' : null"
+    >
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+      </svg>
+      <span>CONTROL PANEL</span>
+      <span class="tooltip-text">System settings, databases, connection checks and user controls.</span>
     </a>
   </nav>
 
-    <div class="user-profile-wrapper" style="margin-top: auto; position: relative; margin-bottom: 16px;">
-    <div class="user-profile glass-panel" tabindex="0" role="button" (click)="toggleUserMenu()" (keydown.enter)="toggleUserMenu()" [attr.aria-expanded]="showUserMenu()" style="margin-top: 0; cursor: pointer; transition: background 0.2s;">
+
+  <div *ngIf="auth.isAuthenticated()" class="user-profile-wrapper" style="margin-top: auto; position: relative; margin-bottom: 16px;">
+    <div class="user-profile" tabindex="0" role="button" (click)="toggleUserMenu()" (keydown.enter)="toggleUserMenu()" [attr.aria-expanded]="showUserMenu()" style="margin-top: 0; cursor: pointer; transition: background 0.2s;">
       <div class="avatar">{{ initials() }}</div>
       <div class="user-info">
-        <span class="username">{{ auth.currentUser()?.username || 'User' }}</span>
+        <span class="username">{{ auth.currentUser()?.username }}</span>
         <span class="role">Cinemaphile Pro</span>
       </div>
     </div>
     
-    <div *ngIf="showUserMenu()" class="user-menu glass-panel animate-fade-in" role="menu" style="position: absolute; bottom: 100%; left: 0; right: 0; margin-bottom: 8px; padding: 8px; z-index: 20;">
-      <button (click)="logout()" role="menuitem" class="btn btn-secondary" style="width: 100%; justify-content: flex-start; border: none; color: var(--accent-rose); background: transparent;">
+    <div *ngIf="showUserMenu()" class="user-menu viewfinder-box animate-fade-in" role="menu" style="position: absolute; bottom: 100%; left: 0; right: 0; margin-bottom: 8px; padding: 8px; z-index: 20;">
+      <button (click)="logout()" role="menuitem" class="btn btn-secondary" style="width: 100%; justify-content: flex-start; border: none; color: var(--accent-record); background: transparent;">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;" aria-hidden="true">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
         <polyline points="16 17 21 12 16 7"></polyline>

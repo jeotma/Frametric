@@ -10,13 +10,13 @@
 
 
 export interface GlobalSearchResultDto { 
-    localId: string | null;
-    tmdbId: number | null;
-    entityType: string;
-    titleOrName: string;
-    releaseYear: number | null;
-    imageUrl: string | null;
-    isLocal: boolean;
+    localId?: string | null;
+    tmdbId?: number | null;
+    entityType?: string;
+    titleOrName?: string;
+    releaseYear?: number | null;
+    imageUrl?: string | null;
+    isLocal?: boolean;
     actorId?: string | null;
     directorId?: string | null;
 }

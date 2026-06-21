@@ -7,14 +7,15 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="slide-content decade-bg">
+    <div class="slide-content slide-bg-silver">
+      <div class="act-label">ACT II · SCENE 7 · THE DECADES</div>
       <h2 class="slide-title" style="font-size: 2rem;">A journey through time</h2>
       <p class="subtitle">Your favorite cinematic era.</p>
       
       <div class="timeline" *ngIf="sortedDecades.length > 0">
         <div class="timeline-item main-era">
           <span class="decade">{{ sortedDecades[0].decade }}s</span>
-          <span class="movies">{{ sortedDecades[0].count }} movies</span>
+          <span class="movies" style="font-family: var(--font-mono)">{{ sortedDecades[0].count }} movies</span>
         </div>
         
         <div class="other-eras" *ngIf="sortedDecades.length > 1">
@@ -23,16 +24,13 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
             <div class="bar-container">
               <div class="bar" [style.width.%]="(era.count! / sortedDecades[0].count!) * 100"></div>
             </div>
-            <span class="c">{{ era.count }}</span>
+            <span class="c" style="font-family: var(--font-mono)">{{ era.count }}</span>
           </div>
         </div>
       </div>
     </div>
   `,
   styles: [`
-    .decade-bg {
-      background: radial-gradient(circle at center, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
-    }
     .subtitle {
       color: var(--text-secondary);
       margin-bottom: 40px;

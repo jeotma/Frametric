@@ -1,33 +1,47 @@
-// Frametric Design System — SCSS Variables Partial
+// Frametric Design System — Cinematic Analytics
 // Maps CSS custom properties to SCSS variables for use in component styles
 
-$font-display: 'Outfit', sans-serif;
-$font-body:    'Inter', sans-serif;
+// Typography: Data (Mono) vs Narrative (Serif)
+$font-display: 'Playfair Display', 'Cinzel', serif; // The Story
+$font-body:    'Geist', 'Helvetica Neue', sans-serif; // Neutral body
+$font-mono:    'Courier Prime', 'JetBrains Mono', monospace; // The Raw Data
+$font-notes:   'Playfair Display', serif; // For italic marginalia
 
-$bg-base:      #0a0c10;
-$bg-secondary: #121620;
-$bg-tertiary:  #1a1f2e;
+// Color Palette: The Dark Room
+$bg-base:        #000000; // True OLED Black
+$bg-secondary:   #0a0a0a; // Deep Charcoal
+$bg-tertiary:    #111111; // Darker Silver Nitrate
 
-$text-primary:   #f8fafc;
-$text-secondary: #94a3b8;
-$text-muted:     #64748b;
+// Surface hierarchy — spatial depth
+$surface-base:    #000000;
+$surface-elevated: #0a0a0a;
+$surface-floating: #151515;
 
-$accent-purple:  #c084fc;
-$accent-indigo:  #818cf8;
-$accent-cyan:    #06b6d4;
-$accent-emerald: #10b981;
-$accent-rose:    #f43f5e;
+// Text
+$text-primary:   #ffffff; // Clapperboard White
+$text-secondary: #a3a3a3; // Silver
+$text-muted:     #737373; // Dark Silver
 
-$border-color: rgba(255, 255, 255, 0.08);
-$border-glow:  rgba(192, 132, 252, 0.2);
+// Cinematic Accents
+$accent-silver:  #d4d4d8;
+$accent-sepia:   #e2ba64; // Classic Film Tone (Golden)
+$accent-record:  #e50914; // Record/Action Red
+$accent-emerald: #10b981; // Success/Good take
 
-$glass-bg:     rgba(18, 22, 32, 0.7);
-$glass-blur:   16px;
-$glass-border: rgba(255, 255, 255, 0.06);
+// Structural Borders
+$border-color: rgba(255, 255, 255, 0.15); // Sharper borders
+$border-glow:  rgba(255, 255, 255, 0.05); // Subtle ambient
 
-$radius-sm: 8px;
-$radius-md: 14px;
-$radius-lg: 24px;
+// Textures & Overlays (No glassmorphism)
+$overlay-bg:     rgba(0, 0, 0, 0.85); // Solid darkening, no blur
+$glass-border:   rgba(255, 255, 255, 0.1);
 
+// Sharp Shapes (No friendly SaaS curves)
+$radius-sm: 0px; // Sharp
+$radius-md: 2px; // Barely rounded
+$radius-lg: 2px; // Keep it technical
+
+// Motion
 $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-$transition-fast: all 0.15s ease-out;
+$transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-snap: all 0.1s cubic-bezier(0.0, 0, 0.2, 1); // Fast mechanical snap

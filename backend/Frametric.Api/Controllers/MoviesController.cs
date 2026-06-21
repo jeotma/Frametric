@@ -7,6 +7,8 @@
 // (at your option) any later version.
 
 using Frametric.Application.Commands.EntityDetails;
+using Frametric.Application.Commands.Movies;
+using Frametric.Application.DTOs.Analytics;
 using Frametric.Application.DTOs.EntityDetails;
 using Frametric.Application.Interfaces;
 using Frametric.Application.Queries.EntityDetails;
@@ -40,6 +42,17 @@ public class MoviesController : ControllerBase
 
         var result = await _mediator.Send(new GetMovieDetailsQuery(userId.Value, id), cancellationToken);
         if (result == null) return NotFound();
+
+        return Ok(result);
+    }
+
+    [HttpPost("enrich-from-tmdb")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<MovieSimpleDto>> EnrichFromTmdb([FromBody] EnrichMovieRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new EnrichSpecificMovieCommand(request.TmdbId), cancellationToken);
+        if (result == null) return NotFound("Movie not found or is a TV show.");
 
         return Ok(result);
     }
@@ -78,4 +91,9 @@ public class LogMovieWatchRequest
     public DateOnly DateWatched { get; set; }
     public double? Rating { get; set; }
     public bool IsRewatch { get; set; }
+}
+
+public class EnrichMovieRequest
+{
+    public int TmdbId { get; set; }
 }

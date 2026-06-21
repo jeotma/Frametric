@@ -125,7 +125,8 @@
   width: 100%;
   height: 100%;
   z-index: 60;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 /* Global Slide Classes */
@@ -139,14 +140,18 @@
   align-items: center;
   text-align: center;
   animation: fadeZoomIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  pointer-events: none;
   overflow: hidden;
 }
 
-::ng-deep .slide-content::before,
+::ng-deep .slide-content::before {
+  content: '';
+  flex: 0.2; /* Less space at top to shift content upward */
+  min-height: 0;
+}
+
 ::ng-deep .slide-content::after {
   content: '';
-  flex: 1;
+  flex: 1; /* More space at bottom */
   min-height: 0;
 }
 
@@ -161,17 +166,15 @@
   font-weight: 800;
   margin-bottom: 16px;
   letter-spacing: -0.03em;
-  background: linear-gradient(to right, #fff, #a78bfa);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
 }
 
 ::ng-deep .slide-value {
   font-size: 5.5rem;
   font-weight: 900;
-  color: var(--accent-purple);
-  text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  text-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
   margin: 20px 0;
 }
 
@@ -183,11 +186,12 @@
 }
 
 ::ng-deep .act-label {
-  font-size: 0.95rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.15em;
   color: var(--text-muted);
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 16px;
 }
 
@@ -207,4 +211,33 @@
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+::ng-deep .timecode {
+  position: absolute;
+  bottom: 24px;
+  right: 32px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.05em;
+  z-index: 10;
+  pointer-events: none;
+}
+
+::ng-deep .slide-content.slide-bg-emerald {
+  background: radial-gradient(ellipse at 30% 40%, rgba(16, 185, 129, 0.15) 0%, transparent 60%);
+}
+
+::ng-deep .slide-content.slide-bg-sepia {
+  background: radial-gradient(ellipse at 50% 30%, rgba(226, 186, 100, 0.15) 0%, transparent 60%);
+}
+
+::ng-deep .slide-content.slide-bg-record {
+  background: radial-gradient(ellipse at 70% 50%, rgba(229, 9, 20, 0.15) 0%, transparent 60%);
+}
+
+::ng-deep .slide-content.slide-bg-silver {
+  background: radial-gradient(ellipse at 50% 40%, rgba(212, 212, 216, 0.22) 0%, transparent 60%);
 }

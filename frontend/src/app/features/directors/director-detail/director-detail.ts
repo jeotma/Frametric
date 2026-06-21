@@ -30,12 +30,12 @@ export class DirectorDetailComponent implements OnInit {
 
   get watchedDirectedMovies() {
     const dir = this.director();
-    return dir ? dir.movies.filter(m => m.isWatched) : [];
+    return dir && dir.movies ? dir.movies.filter(m => m.isWatched) : [];
   }
 
   get unwatchedDirectedMovies() {
     const dir = this.director();
-    return dir ? dir.movies.filter(m => !m.isWatched) : [];
+    return dir && dir.movies ? dir.movies.filter(m => !m.isWatched) : [];
   }
 
   get watchedActingMovies() {
@@ -51,7 +51,7 @@ export class DirectorDetailComponent implements OnInit {
   get muralMovies() {
     const dir = this.director();
     if (!dir) return [];
-    const allMovies = [...dir.movies];
+    const allMovies = [...(dir.movies || [])];
     if (dir.actorMovies) {
       allMovies.push(...dir.actorMovies);
     }

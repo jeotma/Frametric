@@ -6,8 +6,8 @@ import { CommonModule, DecimalPipe } from '@angular/common';
   standalone: true,
   imports: [CommonModule, DecimalPipe],
   template: `
-    <div class="slide-content gems-bg">
-      <div class="act-label">Act III · The Deep Cuts</div>
+    <div class="slide-content slide-bg-sepia">
+      <div class="act-label">ACT III · SCENE 12 · HIDDEN GEMS</div>
       <h2 class="slide-title">Obscure Masterpieces.</h2>
       <p class="slide-subtitle">The hidden gems you unearthed that most people missed.</p>
       <p class="slide-explainer">The road less traveled. Your favorite obscure and niche discoveries.</p>
@@ -16,13 +16,19 @@ import { CommonModule, DecimalPipe } from '@angular/common';
         <div *ngFor="let g of topGems; let i = index" class="gem-card">
           <div class="poster-wrap">
             <img *ngIf="g.posterPath" [src]="posterUrl(g.posterPath)" [alt]="g.title" class="poster-img">
-            <div class="poster-fallback" *ngIf="!g.posterPath">💎</div>
+            <div class="poster-fallback" *ngIf="!g.posterPath">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="rgba(255,255,255,0.2)" stroke="none" class="fallback-icon"><path d="M12.16 3h-.32L9.21 8.25h5.58zm4.3 5.25h5.16L19 3h-2.54zm-8.92 0H2.38L4.54 3h2.54zM12 21.33L4.25 10.5h15.5z"/></svg>
+            </div>
           </div>
           <div class="gem-info">
             <span class="gem-title">{{ g.title }}</span>
-            <span class="gem-year">{{ g.releaseYear }}</span>
+            <span class="gem-year" style="font-family: var(--font-mono)">{{ g.releaseYear }}</span>
             <div class="gem-meta">
-              <span class="gem-rating" title="Ratings imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">⭐ {{ g.rating | number:'1.1-1' }} / 10 ℹ️</span>
+              <span class="gem-rating" data-tooltip="Your ratings, imported from Letterboxd (scale 1-5) have been multiplied by 2 to align with the application's 10-point scale.">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="star-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                {{ g.rating | number:'1.1-1' }} / 10
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="info-icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              </span>
               <span class="gem-popularity">Low Popularity Index</span>
             </div>
           </div>
@@ -41,20 +47,17 @@ import { CommonModule, DecimalPipe } from '@angular/common';
       max-width: 600px;
       text-align: center;
     }
-    .gems-bg {
-      background: radial-gradient(ellipse at 40% 70%, rgba(45, 212, 191, 0.08) 0%, transparent 55%);
-    }
     .gems-list {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 24px;
       width: 100%;
-      max-width: 600px;
+      max-width: 800px;
     }
     .gem-card {
       display: flex;
-      gap: 20px;
-      padding: 16px;
+      gap: 24px;
+      padding: 24px;
       border-radius: 20px;
       border: 1px solid rgba(255,255,255,0.06);
       background: rgba(255,255,255,0.02);
@@ -62,7 +65,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
       align-items: center;
     }
     .poster-wrap {
-      width: 64px;
+      width: 80px;
       aspect-ratio: 2/3;
       border-radius: 8px;
       overflow: hidden;
@@ -74,12 +77,21 @@ import { CommonModule, DecimalPipe } from '@angular/common';
     }
     .poster-img { width: 100%; height: 100%; object-fit: cover; }
     .poster-fallback { font-size: 1.8rem; }
-    .gem-info { display: flex; flex-direction: column; gap: 4px; }
-    .gem-title { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
-    .gem-year { font-size: 0.85rem; color: var(--text-muted); }
-    .gem-meta { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
-    .gem-rating { font-size: 0.85rem; color: #fbbf24; font-weight: 600; }
-    .gem-popularity { font-size: 0.75rem; color: #2dd4bf; text-transform: uppercase; letter-spacing: 0.1em; }
+    .gem-info { display: flex; flex-direction: column; gap: 8px; }
+    .gem-title { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); }
+    .gem-year { font-size: 1rem; color: var(--text-muted); }
+    .gem-meta { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+    .gem-rating { 
+      font-size: 1rem; 
+      color: #fbbf24; 
+      font-weight: 600; 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+      font-family: var(--font-mono);
+    }
+    .info-icon { opacity: 0.5; margin-left: 2px; }
+    .gem-popularity { font-size: 0.85rem; color: #2dd4bf; text-transform: uppercase; letter-spacing: 0.1em; }
     .no-data { color: var(--text-muted); }
   `]
 })

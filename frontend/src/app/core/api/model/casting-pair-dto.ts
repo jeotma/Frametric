@@ -10,8 +10,10 @@
 
 
 export interface CastingPairDto { 
-    actor1Name: string;
-    actor2Name: string;
-    collaborationCount: number;
+    actor1Name?: string;
+    actor2Name?: string;
+    collaborationCount?: number;
+    actor1ProfilePath?: string | null;
+    actor2ProfilePath?: string | null;
 }
 

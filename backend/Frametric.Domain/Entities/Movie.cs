@@ -111,4 +111,14 @@ public class Movie
         EnrichmentStatus = EnrichmentStatus.NotFound;
     }
 
+    public void MarkEnrichmentPermanentlyFailed()
+    {
+        EnrichmentStatus = EnrichmentStatus.PermanentlyFailed;
+    }
+
+    public void ResetToPending()
+    {
+        EnrichmentStatus = EnrichmentStatus.Pending;
+    }
 }
+

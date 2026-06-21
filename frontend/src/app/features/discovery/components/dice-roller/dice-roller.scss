@@ -1,0 +1,315 @@
+// Frametric — Cinematic Analytics Platform
+// Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.dice-container {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 24px;
+}
+
+.die-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 130px;
+  min-height: 240px;
+  position: relative;
+  background: rgba(10, 10, 10, 0.45);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px 12px 12px 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+              border-color 0.4s ease,
+              box-shadow 0.4s ease;
+
+  &.clickable {
+    cursor: pointer;
+    
+    &:hover:not(.rolling) {
+      transform: translateY(-6px);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 12px 30px rgba(255, 255, 255, 0.05);
+      
+      .scene {
+        filter: drop-shadow(0 6px 12px rgba(255, 255, 255, 0.1));
+      }
+    }
+  }
+
+  &.settled {
+    animation: die-land 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  }
+
+  // Active settled glow matching the material accent color
+  &.die-0.settled {
+    border-color: #b8bcc4;
+    box-shadow: 0 0 18px rgba(184, 188, 196, 0.2), inset 0 0 10px rgba(184, 188, 196, 0.06);
+  }
+  &.die-1.settled {
+    border-color: #e50914;
+    box-shadow: 0 0 18px rgba(229, 9, 20, 0.25), inset 0 0 10px rgba(229, 9, 20, 0.08);
+  }
+  &.die-2.settled {
+    border-color: var(--accent-sepia);
+    box-shadow: 0 0 18px rgba(226, 186, 100, 0.2), inset 0 0 10px rgba(226, 186, 100, 0.07);
+  }
+  &.die-3.settled {
+    border-color: #10b981;
+    box-shadow: 0 0 18px rgba(16, 185, 129, 0.2), inset 0 0 10px rgba(16, 185, 129, 0.07);
+  }
+  &.die-4.settled {
+    border-color: #c9a227;
+    box-shadow: 0 0 18px rgba(201, 162, 39, 0.25), inset 0 0 10px rgba(201, 162, 39, 0.08);
+  }
+
+  &.critical-roll {
+    border-color: var(--accent-sepia) !important;
+    background: rgba(226, 186, 100, 0.05) !important;
+    animation: crit-pulse 2s infinite ease-in-out !important;
+    
+    .die-result-box {
+      border-color: var(--accent-sepia);
+    }
+  }
+
+  &.fumble {
+    border-color: var(--accent-record) !important;
+    background: rgba(229, 9, 20, 0.05) !important;
+    animation: fumble-pulse 2s infinite ease-in-out !important;
+
+    .die-result-box {
+      border-color: var(--accent-record);
+    }
+  }
+}
+
+.die-header {
+  width: 100%;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.die-title {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.scene {
+  width: 76px;
+  height: 76px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+  transition: filter 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.die-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+
+  polygon {
+    transition: filter 0.3s ease, fill 0.3s ease;
+  }
+}
+
+.die-value-text {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  fill: var(--text-muted);
+  font-size: 1.4rem;
+  user-select: none;
+  pointer-events: none;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  transition: fill 0.3s ease;
+
+  &.glowing {
+    fill: var(--text-primary);
+  }
+}
+
+/* Bottom Pocket / Highlighted Result Box */
+.die-result-box {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 10px 6px;
+  margin-top: 14px;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.4s ease, border-color 0.4s ease;
+
+  &.settled {
+    background: rgba(0, 0, 0, 0.7);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.die-result-value {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  line-height: 1.1;
+  transition: color 0.3s ease;
+
+  &.glowing {
+    // Override color inside settled box per accent
+    .die-0 & { color: #d4d4d8; text-shadow: 0 0 8px rgba(184, 188, 196, 0.5); }
+    .die-1 & { color: #ff4d5a; text-shadow: 0 0 8px rgba(229, 9, 20, 0.5); }
+    .die-2 & { color: var(--accent-sepia); text-shadow: 0 0 8px rgba(226, 186, 100, 0.4); }
+    .die-3 & { color: #5eead4; text-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+    .die-4 & { color: #f5e27a; text-shadow: 0 0 8px rgba(201, 162, 39, 0.5); }
+  }
+}
+
+.die-result-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-top: 4px;
+  text-align: center;
+  opacity: 0.3;
+  transform: scale(0.95);
+  transition: opacity 0.4s ease, transform 0.4s ease, color 0.4s ease;
+
+  &.visible {
+    opacity: 1;
+    transform: scale(1);
+    
+    .die-0 & { color: #b8bcc4; }
+    .die-1 & { color: #ff4d5a; }
+    .die-2 & { color: var(--accent-sepia); }
+    .die-3 & { color: #5eead4; }
+    .die-4 & { color: #f5e27a; }
+  }
+}
+
+/* Facet Shimmer Effect on rolling */
+.die-wrapper.rolling svg polygon {
+  animation: facet-shimmer 0.3s infinite alternate ease-in-out;
+
+  &:nth-child(2) { animation-delay: 0.08s; }
+  &:nth-child(3) { animation-delay: 0.16s; }
+}
+
+@keyframes facet-shimmer {
+  0% { filter: brightness(0.5) contrast(1.2); }
+  100% { filter: brightness(1.5) contrast(0.8); }
+}
+
+/* Custom 2D Tumbling & Bouncing Animations */
+.die-wrapper.die-0.rolling .scene {
+  animation: tumble-d3 0.45s infinite ease-in-out;
+}
+.die-wrapper.die-1.rolling .scene {
+  animation: tumble-d4 0.5s infinite ease-in-out;
+}
+.die-wrapper.die-2.rolling .scene {
+  animation: tumble-d6 0.55s infinite ease-in-out;
+}
+.die-wrapper.die-3.rolling .scene {
+  animation: tumble-d12 0.6s infinite ease-in-out;
+}
+.die-wrapper.die-4.rolling .scene {
+  animation: tumble-d20 0.65s infinite ease-in-out;
+}
+
+@keyframes tumble-d3 {
+  0% { transform: translateY(0) rotateZ(0deg) rotateX(10deg) rotateY(-10deg) scale(1); filter: blur(0px); }
+  25% { transform: translateY(-18px) rotateZ(180deg) rotateX(35deg) rotateY(20deg) scale(1.1) skewX(2deg); filter: blur(1px); }
+  50% { transform: translateY(-30px) rotateZ(360deg) rotateX(-20deg) rotateY(-35deg) scale(1.15) skewX(-2deg); filter: blur(1.5px); }
+  75% { transform: translateY(-14px) rotateZ(540deg) rotateX(30deg) rotateY(-15deg) scale(1.05) skewX(1deg); filter: blur(1px); }
+  100% { transform: translateY(0) rotateZ(720deg) rotateX(10deg) rotateY(-10deg) scale(1); filter: blur(0px); }
+}
+
+@keyframes tumble-d4 {
+  0% { transform: translateY(0) rotateZ(0deg) rotateX(-15deg) rotateY(15deg) scale(1); filter: blur(0px); }
+  25% { transform: translateY(-24px) rotateZ(-180deg) rotateX(35deg) rotateY(-30deg) scale(1.12) skewY(-3deg); filter: blur(1.2px); }
+  50% { transform: translateY(-36px) rotateZ(-360deg) rotateX(-35deg) rotateY(35deg) scale(1.18) skewY(3deg); filter: blur(1.8px); }
+  75% { transform: translateY(-16px) rotateZ(-540deg) rotateX(20deg) rotateY(-10deg) scale(1.08) skewY(-1deg); filter: blur(1.2px); }
+  100% { transform: translateY(0) rotateZ(-720deg) rotateX(-15deg) rotateY(15deg) scale(1); filter: blur(0px); }
+}
+
+@keyframes tumble-d6 {
+  0% { transform: translateY(0) rotateZ(0deg) rotateX(15deg) rotateY(-15deg) scale(1); filter: blur(0px); }
+  25% { transform: translateY(-20px) rotateZ(160deg) rotateX(-30deg) rotateY(30deg) scale(1.08) skewX(-3deg); filter: blur(0.8px); }
+  50% { transform: translateY(-32px) rotateZ(320deg) rotateX(30deg) rotateY(-30deg) scale(1.14) skewX(3deg); filter: blur(1.4px); }
+  75% { transform: translateY(-15px) rotateZ(480deg) rotateX(-15deg) rotateY(15deg) scale(1.04) skewX(-1deg); filter: blur(0.8px); }
+  100% { transform: translateY(0) rotateZ(640deg) rotateX(15deg) rotateY(-15deg) scale(1); filter: blur(0px); }
+}
+
+@keyframes tumble-d12 {
+  0% { transform: translateY(0) rotateZ(0deg) rotateX(10deg) rotateY(10deg) scale(1); filter: blur(0px); }
+  25% { transform: translateY(-26px) rotateZ(-200deg) rotateX(-35deg) rotateY(35deg) scale(1.15) skewY(3deg); filter: blur(1.5px); }
+  50% { transform: translateY(-40px) rotateZ(-400deg) rotateX(35deg) rotateY(-35deg) scale(1.22) skewY(-3deg); filter: blur(2px); }
+  75% { transform: translateY(-18px) rotateZ(-600deg) rotateX(-15deg) rotateY(15deg) scale(1.08) skewY(1deg); filter: blur(1.5px); }
+  100% { transform: translateY(0) rotateZ(-800deg) rotateX(10deg) rotateY(10deg) scale(1); filter: blur(0px); }
+}
+
+@keyframes tumble-d20 {
+  0% { transform: translateY(0) rotateZ(0deg) rotateX(-10deg) rotateY(-15deg) scale(1); filter: blur(0px); }
+  25% { transform: translateY(-30px) rotateZ(240deg) rotateX(35deg) rotateY(35deg) scale(1.18) skewX(4deg); filter: blur(1.8px); }
+  50% { transform: translateY(-45px) rotateZ(480deg) rotateX(-35deg) rotateY(-35deg) scale(1.28) skewX(-4deg); filter: blur(2.5px); }
+  75% { transform: translateY(-22px) rotateZ(720deg) rotateX(20deg) rotateY(20deg) scale(1.1) skewX(2deg); filter: blur(1.8px); }
+  100% { transform: translateY(0) rotateZ(960deg) rotateX(-10deg) rotateY(-15deg) scale(1); filter: blur(0px); }
+}
+
+/* Glowing polygon highlights on stops depending on die material */
+.die-wrapper.die-0:not(.rolling) polygon { filter: drop-shadow(0 0 5px rgba(184, 188, 196, 0.35)); }
+.die-wrapper.die-1:not(.rolling) polygon { filter: drop-shadow(0 0 6px rgba(229, 9, 20, 0.4)); }
+.die-wrapper.die-2:not(.rolling) polygon { filter: drop-shadow(0 0 5px rgba(196, 154, 90, 0.35)); }
+.die-wrapper.die-3:not(.rolling) polygon { filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.4)); }
+.die-wrapper.die-4:not(.rolling) polygon { filter: drop-shadow(0 0 6px rgba(201, 162, 39, 0.45)); }
+
+@keyframes die-land {
+  0% { transform: translateY(-25px) scaleY(1.15) scaleX(0.85) rotate(-5deg); }
+  35% { transform: translateY(0) scaleY(0.78) scaleX(1.22) rotate(4deg); } /* squash */
+  65% { transform: translateY(-10px) scaleY(1.08) scaleX(0.92) rotate(-2deg); } /* rebound */
+  85% { transform: translateY(0) scaleY(0.96) scaleX(1.04) rotate(1deg); }
+  100% { transform: translateY(0) scale(1) rotate(0deg); }
+}
+
+@keyframes crit-pulse {
+  0% { box-shadow: 0 0 10px rgba(226, 186, 100, 0.15), inset 0 0 6px rgba(226, 186, 100, 0.05); }
+  50% { box-shadow: 0 0 22px rgba(226, 186, 100, 0.5), inset 0 0 12px rgba(226, 186, 100, 0.2); }
+  100% { box-shadow: 0 0 10px rgba(226, 186, 100, 0.15), inset 0 0 6px rgba(226, 186, 100, 0.05); }
+}
+
+@keyframes fumble-pulse {
+  0% { box-shadow: 0 0 10px rgba(229, 9, 20, 0.15), inset 0 0 6px rgba(229, 9, 20, 0.05); }
+  50% { box-shadow: 0 0 22px rgba(229, 9, 20, 0.5), inset 0 0 12px rgba(229, 9, 20, 0.2); }
+  100% { box-shadow: 0 0 10px rgba(229, 9, 20, 0.15), inset 0 0 6px rgba(229, 9, 20, 0.05); }
+}

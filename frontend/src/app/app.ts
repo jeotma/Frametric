@@ -1,5 +1,5 @@
-import { Component, signal, inject } from '@angular/core';
-import { RouterOutlet, Router } from '@angular/router';
+import { Component, signal, inject, ViewChild, ElementRef } from '@angular/core';
+import { RouterOutlet, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 // Standalone Child Components Import
@@ -7,11 +7,13 @@ import { SidebarComponent } from './components/sidebar/sidebar';
 import { AuthService } from './core/services/auth.service';
 import { SearchService, GlobalSearchResultDto } from './core/api';
 import { slugify } from './core/utils/slugify';
+import { ModalService } from './core/services/modal.service';
 
 @Component({
   selector: 'app-root',
   imports: [
     RouterOutlet, 
+    RouterLink,
     CommonModule, 
     SidebarComponent
   ],
@@ -22,6 +24,36 @@ export class App {
   protected readonly title = signal('Frametric');
   
   public auth = inject(AuthService);
+  public modalService = inject(ModalService);
+
+  constructor() {
+    // Defensive cleanup — reset any leftover easter egg effects from bfcache or stale SPA state
+    document.body.style.filter = '';
+    document.body.style.transform = '';
+    document.body.style.transition = '';
+
+    // bfcache: Chrome restores page state including inline body styles
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted) {
+        document.body.style.filter = '';
+        document.body.style.transform = '';
+        document.body.style.transition = '';
+      }
+    });
+  }
+
+  get isAuthPage(): boolean {
+    const url = this.router.url;
+    return url.includes('/login') || url.includes('/register');
+  }
+
+  // Easter egg reactive state — replaces direct document.body.style manipulation
+  protected readonly bodyFilter = signal<string | null>(null);
+  protected readonly bodyTransform = signal<string | null>(null);
+  protected readonly showRosebudSled = signal(false);
+  protected readonly showRaptorPeek = signal(false);
+
+  @ViewChild('easterEggContainer', { read: ElementRef }) easterEggContainer!: ElementRef<HTMLElement>;
 
   // Dashboard mock stats
   public stats = signal({
@@ -37,6 +69,7 @@ export class App {
   public isSearching = signal(false);
   public searchResults = signal<GlobalSearchResultDto[]>([]);
   public showSearchDropdown = signal(false);
+  public isTopbarExpanded = signal(false);
   public currentSearchEasterEgg = signal<{ name: string; desc: string } | null>(null);
 
   private searchTimeout: any;
@@ -77,9 +110,25 @@ export class App {
     }, 400); // 400ms debounce
   }
 
+  @ViewChild('searchInput') searchInputEl!: ElementRef<HTMLInputElement>;
+
+  expandTopbar() {
+    this.isTopbarExpanded.set(true);
+    setTimeout(() => {
+      if (this.searchInputEl) {
+        this.searchInputEl.nativeElement.focus();
+      }
+    }, 50);
+  }
+
   closeSearch() {
     setTimeout(() => {
       this.showSearchDropdown.set(false);
+      
+      const input = this.searchInputEl?.nativeElement;
+      if (!input || input.value.trim().length === 0) {
+        this.isTopbarExpanded.set(false);
+      }
     }, 200);
   }
 
@@ -116,27 +165,20 @@ export class App {
       }, durationMs);
     };
 
-    // 1. "rosebud" — 5% trigger rate
+    // 1. "rosebud" — 35% trigger rate
     if (value === 'rosebud' && Math.random() < 0.35) {
       setEasterEggIndicator('Rosebud Sled', 'You unlocked the legendary Citizen Kane sepia sled easter egg! How cool is that?', 15000);
-      const body = document.body;
-      body.style.transition = 'filter 1s ease';
-      body.style.filter = 'sepia(1) contrast(1.1) brightness(0.9)';
-      
-      // Spawn a pixelated sled element
-      const sled = document.createElement('div');
-      sled.className = 'rosebud-sled';
-      sled.innerText = '🛷 ROSEBUD';
-      document.body.appendChild(sled);
+      this.bodyFilter.set('sepia(1) contrast(1.1) brightness(0.9)');
+      this.showRosebudSled.set(true);
 
       setTimeout(() => {
-        body.style.filter = '';
-        sled.remove();
+        this.bodyFilter.set(null);
+        this.showRosebudSled.set(false);
         input.value = '';
       }, 2000);
     }
 
-    // 2. "malkovich malkovich" — 5% trigger rate
+    // 2. "malkovich malkovich" — 35% trigger rate
     if (value === 'malkovich malkovich' && Math.random() < 0.35) {
       setEasterEggIndicator('Malkovich Mode', 'Malkovich Malkovich Malkovich. Everything is Malkovich!', 15000);
       const titles = document.querySelectorAll('.movie-title, .meta-row span, .bar-label, h3');
@@ -154,55 +196,53 @@ export class App {
       }, 2500);
     }
 
-    // 3. "memento" or "tenet" — 5% trigger rate
+    // 3. "memento" or "tenet" — 35% trigger rate
     if ((value === 'memento' || value === 'tenet') && Math.random() < 0.35) {
       setEasterEggIndicator('Temporal Inversion', 'You flipped the layout! A nod to Christopher Nolan\'s backwards timeline paradoxes.', 15000);
-      const body = document.body;
-      body.style.transition = 'transform 1.5s ease';
-      body.style.transform = 'scaleX(-1)';
-      
+      this.bodyTransform.set('scaleX(-1)');
+
       setTimeout(() => {
-        body.style.transform = '';
+        this.bodyTransform.set(null);
         input.value = '';
       }, 2500);
     }
 
-    // 4. "matrix" — 5% trigger rate
+    // 4. "matrix" — 35% trigger rate
     if (value === 'matrix' && Math.random() < 0.35) {
       setEasterEggIndicator('Matrix Code Rain', 'Down the rabbit hole you go! Unlocked falling digital rain animation.', 15000);
-      const matrixRain = document.createElement('div');
-      matrixRain.className = 'matrix-rain';
-      for (let i = 0; i < 50; i++) {
-        const drop = document.createElement('span');
-        drop.innerText = '0110100101101110011001010110110101100001';
-        drop.style.left = `${Math.random() * 100}vw`;
-        drop.style.animationDelay = `${Math.random() * 0.8}s`;
-        drop.style.fontSize = `${Math.random() * 12 + 10}px`;
-        matrixRain.appendChild(drop);
-      }
-      document.body.appendChild(matrixRain);
+      const container = this.easterEggContainer?.nativeElement;
+      if (container) {
+        const matrixRain = document.createElement('div');
+        matrixRain.className = 'matrix-rain';
+        for (let i = 0; i < 50; i++) {
+          const drop = document.createElement('span');
+          drop.innerText = '0110100101101110011001010110110101100001';
+          drop.style.left = `${Math.random() * 100}vw`;
+          drop.style.animationDelay = `${Math.random() * 0.8}s`;
+          drop.style.fontSize = `${Math.random() * 12 + 10}px`;
+          matrixRain.appendChild(drop);
+        }
+        container.appendChild(matrixRain);
 
-      setTimeout(() => {
-        matrixRain.remove();
-        input.value = '';
-      }, 4000);
+        setTimeout(() => {
+          matrixRain.remove();
+          input.value = '';
+        }, 4000);
+      }
     }
 
-    // 5. "clever girl" — 5% trigger rate
+    // 5. "jurassic park" or "jurassic world" — 35% trigger rate
     if ((value === 'jurassic park' || value === 'jurassic world') && Math.random() < 0.35) {
       setEasterEggIndicator('Jurassic Surprise', 'Clever Girl! Unlocked the raptor peek-a-boo.', 15000);
-      const dino = document.createElement('div');
-      dino.className = 'raptor-peek';
-      dino.innerText = '🦖 Clever girl...';
-      document.body.appendChild(dino);
+      this.showRaptorPeek.set(true);
 
       setTimeout(() => {
-        dino.remove();
+        this.showRaptorPeek.set(false);
         input.value = '';
       }, 2000);
     }
 
-    // 6. "there is no spoon" — 5% trigger rate
+    // 6. "there is no spoon" — 35% trigger rate
     if (value === 'there is no spoon' && Math.random() < 0.35) {
       setEasterEggIndicator('Bending Search Box', 'You bent the search input box! Indeed, there is no spoon.', 15000);
       const searchBox = document.querySelector('.search-box') as HTMLElement;

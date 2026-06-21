@@ -1,7 +1,9 @@
 <div class="wrapped-showcase animate-slide-up">
-  <div class="card-glow glow-purple glass-card cinematic-teaser-card">
+  <div class="card-glow glow-purple cinematic-teaser-card">
+    <div class="viewfinder-box" style="position: absolute; inset: 0; pointer-events: none; padding: 0; border: none; z-index: 10;"></div>
     <span class="teaser-tag">CINEMATIC PREVIEW</span>
-    <h2>The {{ username() }}'s Cut</h2>
+    <h2 *ngIf="username()">The {{ username() }}'s Cut</h2>
+    <h2 *ngIf="!username()">The Final Cut</h2>
     <p>Relive your year through the art of filmmaking. We analyzed every frame, genre, and director you encountered along the year.</p>
     
     <div class="teaser-poster-mock" (click)="togglePromo()" style="cursor: pointer;">
@@ -36,22 +38,19 @@
     </div>
 
     <div style="margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 16px;">
-      <select (change)="onYearChange($event)" class="glass-select" style="width: 120px; text-align: center;">
-        <option value="global" [selected]="selectedYear() === 'global'">All-Time</option>
-        <option *ngFor="let y of availableYears" [value]="y" [selected]="y === selectedYear()">{{ y }}</option>
-      </select>
-      <button [routerLink]="['/final-cut', selectedYear()]" class="btn btn-primary btn-lg">
+      <app-cinematic-select [options]="yearOptions()" [ngModel]="selectedYear()" (ngModelChange)="onYearChange($event)"></app-cinematic-select>
+      <button (click)="goToFinalCut()" class="btn btn-cta btn-lg">
         <span>Begin Cinematic Slideshow</span>
       </button>
     </div>
   </div>
 
   <div class="features-grid">
-    <div class="glass-card feature-item-card">
+    <div class="crosshair-bracket feature-item-card">
       <h4>Audio-visual Slideshow</h4>
       <p>Mobile-first immersive slides presenting your directors, genres, and top movies with custom animations.</p>
     </div>
-    <div class="glass-card feature-item-card">
+    <div class="crosshair-bracket feature-item-card">
       <h4>Shareable Infographics</h4>
       <p>Generate aesthetic, downloadable summary cards to share directly on social media networks.</p>
     </div>

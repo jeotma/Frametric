@@ -1,7 +1,9 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
+
   // Public routes
   {
     path: 'login',
@@ -13,16 +15,21 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth/register/register').then(m => m.RegisterComponent),
   },
-  // Protected shell
+  // Protected shell (Now accessible to guests)
   {
     path: '',
-    canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
         path: 'dashboard',
         loadComponent: () => import('./components/dashboard/dashboard').then(m => m.DashboardComponent)
       },
+      {
+        path: 'admin',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/admin-panel.component').then(m => m.AdminPanelComponent)
+      },
+
       {
         path: 'final-cut-teaser',
         loadComponent: () => import('./components/final-cut-teaser/final-cut-teaser').then(m => m.FinalCutTeaserComponent)
@@ -42,6 +49,10 @@ export const routes: Routes = [
       {
         path: 'recommendations',
         loadComponent: () => import('./features/recommendations/recommendations').then(m => m.RecommendationsComponent)
+      },
+      {
+        path: 'discovery',
+        loadComponent: () => import('./features/discovery/discovery').then(m => m.DiscoveryComponent)
       },
       {
         path: 'movies/:id',

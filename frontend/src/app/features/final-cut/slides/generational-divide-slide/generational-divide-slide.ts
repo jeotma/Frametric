@@ -6,8 +6,8 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="slide-content gen-bg">
-      <div class="act-label">Act II · The Cast & Crew</div>
+    <div class="slide-content slide-bg-silver">
+      <div class="act-label">ACT II · SCENE 11 · THE GENERATIONAL DIVIDE</div>
       <h2 class="slide-title">The Generational Divide.</h2>
       <p class="slide-subtitle">Which era of cinema did you call home?</p>
       <p class="slide-explainer">Time traveling through cinema. How your watches spanned the decades.</p>
@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
           <div class="decade-bar-wrap">
             <div class="decade-bar" [style.width.%]="barWidth(d.count)" [style.background]="barColor(i)"></div>
           </div>
-          <span class="decade-count">{{ d.count }}</span>
+          <span class="decade-count" style="font-family: var(--font-mono)">{{ d.count }}</span>
         </div>
       </div>
 
@@ -28,6 +28,7 @@ import { CommonModule } from '@angular/common';
       </div>
 
       <p class="no-data" *ngIf="!topDecades.length">No decade data available.</p>
+      <div class="timecode">TC 01:10:45:21</div>
     </div>
   `,
   styles: [`
@@ -38,9 +39,6 @@ import { CommonModule } from '@angular/common';
       font-style: italic;
       max-width: 600px;
       text-align: center;
-    }
-    .gen-bg {
-      background: radial-gradient(ellipse at 40% 50%, rgba(251, 191, 36, 0.08) 0%, transparent 60%);
     }
     .decades-viz {
       display: flex;
@@ -100,7 +98,7 @@ export class GenerationalDivideSlideComponent {
   @Input() decades: any[] = [];
   @Input() era: any;
 
-  private COLORS = ['#a78bfa','#60a5fa','#34d399','#fbbf24','#fb7185','#2dd4bf','#f472b6','#818cf8'];
+  private COLORS = ['var(--accent-silver)','#60a5fa','#34d399','#fbbf24','#fb7185','#2dd4bf','#f472b6','#818cf8'];
 
   get topDecades(): any[] {
     return (this.decades ?? []).sort((a, b) => b.count - a.count).slice(0, 7);

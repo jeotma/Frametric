@@ -2,6 +2,8 @@ using Frametric.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+using Frametric.Domain.Enums;
+
 namespace Frametric.Infrastructure.Persistence.Configurations;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
@@ -13,6 +15,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.Username).IsRequired().HasMaxLength(150);
         builder.Property(u => u.Email).IsRequired().HasMaxLength(255);
         builder.Property(u => u.PasswordHash).IsRequired();
+        builder.Property(u => u.Role).HasConversion<string>().HasMaxLength(50).IsRequired();
+
 
         builder.HasIndex(u => u.Username).IsUnique();
         builder.HasIndex(u => u.Email).IsUnique();

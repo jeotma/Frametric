@@ -4,6 +4,94 @@ All notable changes to **Frametric** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.3] — 2026-06-21
+
+### Added
+
+- **Dice Match Calibration HUD Banner**: A contextual status banner now appears below the dice after a roll, indicating the precision of the match: Perfect Match → Approximate → Deviated → Extended → Maximum Deviation → Calibration Fault. Color and text intensity scale with how much the constraints had to be relaxed, without exposing the word "fallback" to the user.
+- **Dynamic Constraint Relaxation**: The dice roll backend now iterates through constraints in a round-robin sequence (Quality → Popularity → Duration → Genre) when no exact match is found, incrementing a `matchDistance` counter returned to the frontend to drive the calibration HUD.
+- **Personalized D20 Genre Ordering**: The Genre die now queries the user's all-time watch history and assigns higher die values to genres the user watches most (value 19 = most-watched genre, value 20 = Wildcard unchanged). Falls back to static alphabetical ordering for users without history.
+- **Per-Material SVG Dice Visuals**: Each die now has a distinct visual material identity rendered via unique SVG gradient definitions: D3 = Polished Metal (silver-steel), D4 = Ruby Gem (deep red), D6 = Worn Leather (warm sepia), D12 = Emerald Mineral (translucent green), D20 = Legendary Gold (metallic warm gold).
+
+### Changed
+
+- **Dice Types Renamed**: Dice types re-mapped to their cinematic purpose — D3 = Duration (≤90m / 91–149m / ≥150m), D4 = Popularity (Blockbuster / Mainstream / Niche / Hidden Gem), D6 = Risk, D12 = Quality (12 tiers from Terrible to Absolute Cinema), D20 = Genre.
+- **D20 Tooltip Updated**: Tooltip now explains that values 1–19 reflect the user's own genre preferences ordered by watch history, with value 20 as Wildcard.
+- **Dice Tooltips Corrected**: All five dice tooltips updated to reflect the new dice role definitions and accurate range descriptions.
+
+### Fixed
+
+- **Fumble/Critical Die Names**: The in-game fumble and critical roll status messages were displaying stale die names (`Quality (D3)`, `Rarity (D4)`, etc.). Now correctly shows `Duration (D3)`, `Popularity (D4)`, `Risk (D6)`, `Quality (D12)`, `Genre (D20)`.
+- **`matchDistance` API Sync**: Regenerated the OpenAPI client after adding `MatchDistance` to `DiceRollResultDto`, resolving a TypeScript compilation error (`TS2339: Property 'matchDistance' does not exist on type 'DiceRollResultDto'`).
+
+## [1.5.2] — 2026-06-20
+
+### Added
+
+- **Admin Configuration Panel**: Introduced a dedicated administration panel (`/admin`) for users with the `Admin` role to manage system operations, view logs, check provider status, and trigger database maintenance.
+- **Backend & Database Health Diagnostics**: Added a self-diagnostic latency check for the Frametric Backend and PostgreSQL database, showing connection status and DB ping times in the API Health tab.
+- **User Search Filter**: Integrated a responsive search box in the User Management tab, allowing admins to dynamically filter the registered user list by username or email address.
+- **Bingo Reroll Feature**: Added ability to reroll uncompleted bingo squares (limit: 1 for 3x3, 2 for 4x4, 3 for 5x5) with persistent count tracking, UI tooltips, and remaining rerolls indicator.
+
+### Changed
+
+- **Custom Selection IDs**: Modified Roulette, Dice, Slots, Mystery Box, and Bingo discovery components to pass both custom selection titles and unique entity Guid IDs.
+
+### Fixed
+
+- **Dice Roller Repeated Spin**: Fixed dice roller state locking after the first roll by correctly resetting rolling, settled, and special event variables.
+- **Slot Machine Genre Override**: Replaced manual text input with a predefined list of movie genres using a cinematic dropdown component.
+- **Movie Detail Page TMDB Loading**: Resolved loading failure on unreleased/TMDB-only detail pages by automatically calling TMDB movie enrichment when a numeric TMDB ID is requested.
+
+## [1.5.1] — 2026-06-13
+
+Discovery suite: visual and interaction overhaul with polyhedral dice and comprehensive filtering.
+
+### Added
+
+- **Polyhedral Dice System**: Redesigned the dice rollers to use unique polyhedral SVG silhouettes matching D3, D4, D6, D12, and D20 dice types.
+- **Unified Winner Details**: Standardized detailed winner cards across all minigames featuring brand-approved gradients and direct clickable router links to movie detail pages.
+
+### Changed
+
+- **Discovery Visual Overhaul**: Completely redesigned the Discovery page layout to be wider (increased max-width to 1450px) and more immersive, adding slowly pulsing ambient projector light leaks and glassmorphic configuration controls (HUD) with aligned dimensions.
+- **SVG-Based Roulette Wheel**: Replaced the flat CSS-gradient wheel with an interactive SVG movie-reel design featuring realistic sprocket holes, dynamic sector math, auto-scaling and truncated text, and pointer tick vibrations. Scaled container size to 550px, made sector colors more vibrant, and corrected the right pointer indicator to point inward.
+- **Roulette Spin Physics**: Increased spin speed/count (18-23 spins) and duration (7000ms) with a custom long-tail deceleration curve (`cubic-bezier(0.05, 0.9, 0.1, 1)`) for a smooth, gradual stop.
+- **Cylindrical 3D Slot Machine**: Overhauled the slot reels with a metallic cabinet, status lights, curved visor reflections, and continuous scrolling animations. Built an interactive 3D lever that pivots down when pulled.
+- **Mystery Canisters Grid**: Reconstructed the mystery boxes as retro metallic film canisters. Accentuating reveals with violent shaking animations, 3D flying popped lids, and blinding glow poster emergence transitions.
+- **Dice Logic Bounds**: Re-mapped the backend `DiceRollQueryHandler` boundaries, labels, and constraints to support the D3, D4, D6, D12, and D20 polyhedral layout.
+
+### Fixed
+
+- **Exclude Watched Filter**: Resolved an issue where watched films were still appearing by checking `WatchedMovies`, `DiaryEntries`, and `MovieRatings` tables in `DiscoveryQueriesImpl`.
+- **Slot Reel Stop Bug**: Fixed an Angular `ngOnChanges` state deadlock preventing reels from executing stops on response.
+- **Mystery Box State Persistence**: Fixed box-open states leaking between reloads by resetting internal flags on new box queries.
+
+## [1.5.0] — 2026-06-07
+
+Discovery suite: gamified interactive selection systems.
+
+### Added
+
+- **Roulette**: Random movie selection with optional persistence threshold mode where a movie must appear multiple times before selection.
+- **Dice System**: Five cinematic dice types (Quality, Rarity, Risk, Complexity, Exploration) that determine recommendation characteristics via analytical constraints with critical/fumble events.
+- **Slot Machine**: Five-reel search combination system (Genre, Decade, Director, Duration, Country) with random resolution of null reels and jackpot detection for premium matches.
+- **Mystery Box**: Hidden movie selection with Standard, Thematic, Premium, FullReveal, and Strategy variants; individual box reveal endpoint.
+- **Cinematic Bingo**: Long-term cinephile objectives grid (3×3/4×4/5×5) with automatic diary-based tracking via `DiscoveryObjective` entities and `DiscoveryObjectiveEvaluator`.
+- **Discovery API Endpoints**: `POST /discovery/roulette`, `POST /discovery/dice`, `POST /discovery/slot-machine`, `POST /discovery/mystery-box`, `GET /discovery/mystery-box/{boxId}/reveal`, `GET /discovery/bingo`.
+- **Discovery Documentation**: Section 10 (Discovery) added to `docs/api/endpoints.md`.
+- **Unit Tests**: 25 new tests covering `DiscoveryObjectiveEvaluator`, `RouletteSelectionQueryHandler`, `MysteryBoxGenerationQueryHandler`, `DiceRollQueryHandler`, and `SlotMachineSpinQueryHandler`.
+
+### Changed
+
+- **Final Cut Aesthetics**: Replaced emojis with SVG icons across all slides, optimized layout sizing/margins for readability, and aligned background gradients/highlights with the official color palette (e.g., replacing purple with record red).
+- **Visual Identity Rules**: Added strict SVG-only icon requirements, explicit color palette hex definitions, and the "Cinematic Data as Narrative" philosophical design rules to `AGENTS.md`.
+
+### Fixed
+
+- **Cinematic Selects**: Resolved type binding errors in dynamic select components in the stats view.
+- **Visual Stacking Issues**: Eliminated rounded corners on posters to seamlessly integrate with sharp crosshair frames and fixed z-index overlapping hiding the top-left bracket.
+
 ## [1.4.0] — 2026-06-06
 
 Major analytics expansion: Advanced Statistics page, entity detail page redesigns, UI accessibility overhaul, and search navigation fixes.
@@ -107,11 +195,7 @@ TMDB profile photo enrichment for actors and directors.
 - **Migration `AddProfilePathToPeople`**: Adds the `ProfilePath` column to both `Actors` and `Directors` tables.
 - **TmdbService update**: Credits response now maps `profile_path` for cast and crew members.
 
----
-
 Integrated probability-based pop culture & cinephile easter eggs across the platform features.
-
-### Added
 
 - **Dynamic Easter Egg Service**: Introduced `EasterEggService` and `EasterEggPipe` in the frontend client to dynamically inject pop culture references, cinephile jokes, and meme badges based on statistics and movie criteria.
 - **Loading Screen Memes**: Added randomized pop-culture/cinephile loading phrases to auth flows and analytics loading states.

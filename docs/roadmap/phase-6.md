@@ -1,5 +1,7 @@
 # Roadmap: Phase 6 (Heuristic Decision & Interactive Selection Systems)
 
+> **Status:** ✅ **COMPLETED** (v1.4.0)
+
 This phase expands the cinematic platform by implementing a gamified interactive selection engine and a decision-fatigue mitigation suite. All subsystems operate under a clean architecture approach, utilizing strong typing and granular control over data scopes.
 
 Each system answers a distinct question within the user's decision process:
@@ -31,7 +33,7 @@ public enum DiscoveryDataSourceScope
 {
     WatchlistOnly,     // Restricted to the user's local watchlist
     DatabaseOnly,      // Queries the global enriched catalog (TMDB)
-    CustomCollection,  // Based on a list of IDs (Custom List) provided on-demand
+    CustomCollection,  // Based on a list of IDs (Custom List) extracted from a provided list of titles for movies on-demand
     Hybrid             // Weighted combination of local and global sources
 }
 

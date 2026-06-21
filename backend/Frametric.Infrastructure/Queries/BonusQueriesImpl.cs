@@ -129,7 +129,7 @@ public class BonusQueriesImpl : IBonusQueries
             DailyCounts AS (
                 SELECT fw.""WatchDate"", 
                        CAST(COUNT(DISTINCT fw.""MovieId"") AS INTEGER) AS MoviesWatched, 
-                       CAST(AVG(mr.""Score"") AS DOUBLE PRECISION) AS DailyAvgRating
+                       CAST((AVG(mr.""Score"") * 2) AS DOUBLE PRECISION) AS DailyAvgRating
                 FROM FilteredWatched fw
                 LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = fw.""MovieId"" AND mr.""UserId"" = @userId
                 GROUP BY fw.""WatchDate""
@@ -449,7 +449,8 @@ public class BonusQueriesImpl : IBonusQueries
             )
             SELECT dr.""Name"" AS Name,
                    CAST(COUNT(DISTINCT de.""MovieId"") AS INTEGER) AS MoviesWatchedThisYear,
-                   CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
+                   CAST(COALESCE((AVG(mr.""Score"") * 2), 0) AS DOUBLE PRECISION) AS AverageRating,
+                   dr.""ProfilePath"" AS ProfilePath
             FROM Rookies r
             JOIN ""Directors"" dr ON r.DirId = dr.""Id""
             JOIN ""MovieDirector"" md ON r.DirId = md.""DirectorsId""
@@ -458,7 +459,7 @@ public class BonusQueriesImpl : IBonusQueries
                 (CAST(@year AS INTEGER) IS NULL AND de.""WatchedDate"" >= CURRENT_DATE - INTERVAL '1 year')
             )
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = de.""MovieId"" AND mr.""UserId"" = @userId
-            GROUP BY dr.""Name""
+            GROUP BY dr.""Name"", dr.""ProfilePath""
             ORDER BY MoviesWatchedThisYear DESC, AverageRating DESC
             LIMIT 5";
 
@@ -496,7 +497,8 @@ public class BonusQueriesImpl : IBonusQueries
             )
             SELECT a.""Name"" AS Name,
                    CAST(COUNT(DISTINCT de.""MovieId"") AS INTEGER) AS MoviesWatchedThisYear,
-                   CAST(COALESCE(AVG(mr.""Score""), 0) AS DOUBLE PRECISION) AS AverageRating
+                   CAST(COALESCE((AVG(mr.""Score"") * 2), 0) AS DOUBLE PRECISION) AS AverageRating,
+                   a.""ProfilePath"" AS ProfilePath
             FROM Rookies r
             JOIN ""Actors"" a ON r.ActId = a.""Id""
             JOIN ""MovieActor"" ma ON r.ActId = ma.""ActorsId""
@@ -505,7 +507,7 @@ public class BonusQueriesImpl : IBonusQueries
                 (CAST(@year AS INTEGER) IS NULL AND de.""WatchedDate"" >= CURRENT_DATE - INTERVAL '1 year')
             )
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = de.""MovieId"" AND mr.""UserId"" = @userId
-            GROUP BY a.""Name""
+            GROUP BY a.""Name"", a.""ProfilePath""
             ORDER BY MoviesWatchedThisYear DESC, AverageRating DESC
             LIMIT 5";
 

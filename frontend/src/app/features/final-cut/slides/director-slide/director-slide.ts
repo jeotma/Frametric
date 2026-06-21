@@ -7,12 +7,13 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="slide-content director-bg" *ngIf="data.topDirectors && data.topDirectors.length > 0">
+    <div class="slide-content slide-bg-silver" *ngIf="data.topDirectors && data.topDirectors.length > 0">
+      <div class="act-label">ACT II · SCENE 8 · THE DIRECTORS</div>
       <h2 class="slide-title" style="font-size: 2rem;">Your visionary of the year</h2>
       <div class="visionary-card">
         <div class="card-inner">
           <div class="name">{{ data.topDirectors[0].directorName }}</div>
-          <div class="count">{{ data.topDirectors[0].count }} films</div>
+          <div class="count" style="font-family: var(--font-mono)">{{ data.topDirectors[0].count }} films</div>
         </div>
       </div>
 
@@ -25,9 +26,6 @@ import { WrappedSummaryDto } from '../../../../core/api/model/wrapped-summary-dt
     </div>
   `,
   styles: [`
-    .director-bg {
-      background: radial-gradient(circle at bottom left, rgba(234, 179, 8, 0.15) 0%, transparent 60%);
-    }
     .visionary-card {
       margin-top: 40px;
       padding: 4px;
