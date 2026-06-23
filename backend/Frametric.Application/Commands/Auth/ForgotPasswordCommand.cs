@@ -5,13 +5,6 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// Frametric — Cinematic Analytics Platform
-// Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
 
 using Frametric.Application.Interfaces;
 using MediatR;
@@ -51,7 +44,7 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
         await _context.SaveChangesAsync(cancellationToken);
 
         // Ideally this should come from a frontend config
-        var resetLink = $"https://frametric.pages.dev/auth/reset-password?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(user.Email)}";
+        var resetLink = $"https://frametric.pages.dev/reset-password?token={token}&email={email}";
         
         await _emailService.SendPasswordResetEmailAsync(user.Email, resetLink, cancellationToken);
 
