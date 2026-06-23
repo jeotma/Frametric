@@ -65,7 +65,18 @@ export class RegisterComponent {
   togglePassword() { this.showPassword.update(v => !v); }
 
   submit() {
-    if (this.form.invalid || this.isLoading()) return;
+    if (this.form.invalid || this.isLoading()) {
+      if (this.form.invalid) {
+        console.warn('[Register] Form invalid. Errors:', this.form.errors);
+        Object.keys(this.form.controls).forEach(key => {
+          const control = this.form.get(key);
+          if (control?.errors) {
+            console.warn(`[Register] Field "${key}" errors:`, control.errors, 'value:', control.value);
+          }
+        });
+      }
+      return;
+    }
     this.errorMessage.set(null);
     this.isLoading.set(true);
     const customMsg = this._easterEgg.getLoadingMessage();

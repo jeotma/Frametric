@@ -484,7 +484,7 @@
 
       <!-- SINGLE METRIC VIEW -->
       <ng-container *ngIf="currentQuery().type === 'single' && isSingle(resultData())">
-        <div class="hero-card animate-scale-in" [class.hero-profile]="resultData().profilePath">
+        <div class="hero-card animate-scale-in" [class.hero-profile]="resultData().profilePath" [class.hero-movie]="resultData().posterPath">
           <ng-container *ngIf="!hasNoData(resultData())">
             <div class="hero-profile-header" *ngIf="resultData().profilePath">
               <div class="hero-profile-img-wrap">
@@ -492,8 +492,14 @@
               </div>
               <h2 class="hero-title hero-title-with-img">{{ resultData().name }}</h2>
             </div>
+            <div class="hero-movie-header" *ngIf="resultData().posterPath">
+              <div class="hero-movie-img-wrap">
+                <img [src]="'https://image.tmdb.org/t/p/w185' + resultData().posterPath" [alt]="resultData().title" class="hero-movie-img" />
+              </div>
+              <h2 class="hero-title hero-title-with-img">{{ resultData().title }}</h2>
+            </div>
             <h2 class="hero-title"
-              *ngIf="!resultData().profilePath && (resultData().name || resultData().title || resultData().genreName || resultData().directorName || resultData().actorName || resultData().eraName)">
+              *ngIf="!resultData().profilePath && !resultData().posterPath && (resultData().name || resultData().title || resultData().genreName || resultData().directorName || resultData().actorName || resultData().eraName)">
               {{ resultData().name || resultData().title || resultData().genreName || resultData().directorName ||
               resultData().actorName || resultData().eraName }}
             </h2>
@@ -534,6 +540,20 @@
                 <span class="value unrated-text" *ngIf="resultData().averageRating === 0">N/A</span>
                 <span class="label">Avg Rating</span>
               </div>
+              <div class="stat-box" *ngIf="resultData().rating !== undefined && resultData().rating !== null && resultData().averageRating === undefined">
+                <span class="value" *ngIf="resultData().rating > 0">
+                  <svg class="stat-icon star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg> {{ (resultData().rating * 2) | number:'1.1-2' }}
+                </span>
+                <span class="value unrated-text" *ngIf="resultData().rating === 0">N/A</span>
+                <span class="label">Rating</span>
+              </div>
+              <div class="stat-box" *ngIf="resultData().runtimeMinutes !== undefined">
+                <span class="value">{{ resultData().runtimeMinutes }}<span class="unit">m</span></span>
+                <span class="label">Runtime</span>
+              </div>
               <div class="stat-box" *ngIf="resultData().actorName">
                 <span class="value">{{ resultData().actorName }}</span>
                 <span class="label">Actor</span>
@@ -550,6 +570,12 @@
                 [routerLink]="['/actors', resultData().entityId, slugify(resultData().name)]"
                 class="btn-outline profile-link-btn">
                 View Full Profile →
+              </a>
+            </div>
+            <div class="hero-movie-actions" *ngIf="resultData().title">
+              <a *ngIf="resultData().id" [routerLink]="['/movies', resultData().id, slugify(resultData().title)]"
+                class="btn-outline profile-link-btn">
+                View Movie →
               </a>
             </div>
           </ng-container>
@@ -614,7 +640,7 @@
                 </div>
               </div>
               <div class="bar-label">
-                {{ item.dayOfWeek || item.month || item.genreName || item.durationCategory || item.eraName ||
+                {{ item.monthName || item.dayOfWeek || item.month || item.genreName || item.durationCategory || item.eraName ||
                 item.decade || 'Item' }}
               </div>
             </div>
