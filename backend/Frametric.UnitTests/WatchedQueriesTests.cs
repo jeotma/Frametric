@@ -255,7 +255,7 @@ public class WatchedQueriesTests
         // Arrange
         var preferredDays = new[]
         {
-            new { DayOfWeek = "Friday", WatchCount = 20 }
+            new { DayOfWeek = "Friday", Count = 20 }
         };
         var reader = CreateDataReader(preferredDays);
         SetupDb(reader);

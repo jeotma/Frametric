@@ -255,9 +255,14 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             joinSql = @"JOIN ""MovieGenre"" mg ON m.""Id"" = mg.""MoviesId"" JOIN ""Genres"" f ON mg.""GenresId"" = f.""Id""";
             whereSql = @"f.""Name"" ILIKE @filterNamePattern";
         }
+        else if (filterType.Equals("Actor", StringComparison.OrdinalIgnoreCase))
+        {
+            joinSql = @"JOIN ""MovieActor"" ma ON m.""Id"" = ma.""MoviesId"" JOIN ""Actors"" f ON ma.""ActorsId"" = f.""Id""";
+            whereSql = @"f.""Name"" ILIKE @filterNamePattern";
+        }
         else
         {
-            throw new ArgumentException("FilterType must be Director or Genre");
+            throw new ArgumentException("FilterType must be Director, Genre, or Actor");
         }
 
         string sql = $@"
@@ -307,7 +312,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 {filterBuilder.BuildJoins()}
                 WHERE 1=1 {filterBuilder.BuildWhereClause()}
             )
-            SELECT TRIM(TO_CHAR(""WatchDate"", 'Day')) AS DayOfWeek, CAST(COUNT(*) AS INTEGER) AS WatchCount
+            SELECT TRIM(TO_CHAR(""WatchDate"", 'Day')) AS DayOfWeek, CAST(COUNT(*) AS INTEGER) AS Count
             FROM FilteredWatched
             GROUP BY DayOfWeek, EXTRACT(ISODOW FROM ""WatchDate"")
             ORDER BY EXTRACT(ISODOW FROM ""WatchDate"") ASC";
@@ -538,7 +543,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         parameters.Add("userId", userId);
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "\"MovieRatings\"", "DateRated", isMoviesJoined: false);
         string sql = $@"
-            SELECT CAST(EXTRACT(MONTH FROM ""DateRated"") AS INTEGER) AS Month, CAST((AVG(""Score"") * 2) AS DOUBLE PRECISION) AS AverageRating
+            SELECT CAST(EXTRACT(MONTH FROM ""DateRated"") AS INTEGER) AS Month, MIN(TO_CHAR(""DateRated"", 'Month')) AS MonthName, CAST((AVG(""Score"") * 2) AS DOUBLE PRECISION) AS AverageRating
             FROM ""MovieRatings""
             
             {filterBuilder.BuildJoins()}
@@ -556,16 +561,29 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "d", "WatchedDate", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "WatchedDate", isMoviesJoined: false);
         string sql = $@"
-            WITH WatchedActors AS (
-                SELECT d.""Id"" AS ""WatchId"", d.""MovieId"", ma.""ActorsId""
-                FROM ""DiaryEntries"" d
-                JOIN ""MovieActor"" ma ON d.""MovieId"" = ma.""MoviesId""
-                
-            {filterBuilder.BuildJoins()}
-            WHERE d.""UserId"" = @userId 
-            {filterBuilder.BuildWhereClause()}
+            WITH AllWatched AS (
+                SELECT ""MovieId""
+                FROM ""DiaryEntries""
+                WHERE ""UserId"" = @userId
+
+                UNION ALL
+
+                SELECT ""MovieId""
+                FROM ""WatchedMovies"" wm
+                WHERE wm.""UserId"" = @userId
+                AND NOT EXISTS (
+                    SELECT 1 FROM ""DiaryEntries"" d2
+                    WHERE d2.""UserId"" = wm.""UserId"" AND d2.""MovieId"" = wm.""MovieId""
+                )
+            ),
+            WatchedActors AS (
+                SELECT w.""MovieId"", ma.""ActorsId""
+                FROM AllWatched w
+                JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
+                {filterBuilder.BuildJoins()}
+                WHERE 1=1 {filterBuilder.BuildWhereClause()}
             )
             SELECT 
                 a1.""Name"" AS Actor1Name, 
@@ -574,7 +592,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 a1.""ProfilePath"" AS Actor1ProfilePath,
                 a2.""ProfilePath"" AS Actor2ProfilePath
             FROM WatchedActors w1
-            JOIN WatchedActors w2 ON w1.""WatchId"" = w2.""WatchId"" AND w1.""ActorsId"" < w2.""ActorsId""
+            JOIN WatchedActors w2 ON w1.""MovieId"" = w2.""MovieId"" AND w1.""ActorsId"" < w2.""ActorsId""
             JOIN ""Actors"" a1 ON w1.""ActorsId"" = a1.""Id""
             JOIN ""Actors"" a2 ON w2.""ActorsId"" = a2.""Id""
             

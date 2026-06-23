@@ -55,9 +55,12 @@ public class TimeInvestedDto
     }
 }
 public record CollectionProgressDto(string CollectionName, int WatchedCount, int TotalCount, double ProgressPercentage);
-public record PreferredDayDto(string DayOfWeek, int WatchCount);
+public record PreferredDayDto(string DayOfWeek, int Count);
 public record GenreStreakDto(string GenreName, int StreakLength, DateTime StartDate, DateTime EndDate);
-public record RatingEvolutionDto(int Month, double AverageRating);
+public record RatingEvolutionDto(int Month, double AverageRating, string? MonthName = null)
+{
+    public RatingEvolutionDto(int month, double averageRating) : this(month, averageRating, null) {}
+}
 public record LanguageDiversityDto(string Language, int Count);
 public record CastingPairDto(string Actor1Name, string Actor2Name, int CollaborationCount, string? Actor1ProfilePath = null, string? Actor2ProfilePath = null)
 {
