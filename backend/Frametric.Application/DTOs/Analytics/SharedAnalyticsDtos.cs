@@ -1,8 +1,34 @@
 namespace Frametric.Application.DTOs.Analytics;
 
-public record MovieSimpleDto(Guid Id, string Title, int? ReleaseYear, string? PosterPath, bool IsWatched = false, string? Nickname = null)
+public class MovieSimpleDto
 {
-    public MovieSimpleDto(Guid id, string title, int? releaseYear, string? posterPath) : this(id, title, releaseYear, posterPath, false, null) {}
+    public Guid Id { get; set; }
+    public string Title { get; set; } = null!;
+    public int? ReleaseYear { get; set; }
+    public string? PosterPath { get; set; }
+    public bool IsWatched { get; set; }
+    public string? Nickname { get; set; }
+
+    // Dapper requires a parameterless constructor
+    public MovieSimpleDto() { }
+
+    public MovieSimpleDto(Guid id, string title, int? releaseYear, string? posterPath)
+    {
+        Id = id;
+        Title = title;
+        ReleaseYear = releaseYear;
+        PosterPath = posterPath;
+    }
+
+    public MovieSimpleDto(Guid id, string title, int? releaseYear, string? posterPath, bool isWatched, string? nickname = null)
+    {
+        Id = id;
+        Title = title;
+        ReleaseYear = releaseYear;
+        PosterPath = posterPath;
+        IsWatched = isWatched;
+        Nickname = nickname;
+    }
 }
 public record WatchedMovieStatsDto(string Title, int? ReleaseYear, string Director, double Rating, bool Liked, double? CustomAverageRating = null, string? PosterUrl = null);
 public record WatchlistMovieStatsDto(string Title, int? ReleaseYear, string Director, string DateAdded, double? CustomAverageRating = null, string? PosterUrl = null);
