@@ -12,8 +12,16 @@ public static class CorsExtensions
 {
     public static IServiceCollection AddFrontendCors(this IServiceCollection services, IConfiguration configuration)
     {
-        var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() 
-            ?? new[] { "http://localhost:4200" };
+        var corsSection = configuration.GetSection("Cors:AllowedOrigins");
+        var allowedOrigins = corsSection.Get<string[]>();
+
+        if (allowedOrigins is not { Length: > 0 })
+        {
+            var raw = corsSection.Value;
+            allowedOrigins = !string.IsNullOrWhiteSpace(raw)
+                ? raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                : ["http://localhost:4200"];
+        }
 
         services.AddCors(options =>
         {
