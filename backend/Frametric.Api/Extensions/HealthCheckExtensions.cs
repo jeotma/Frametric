@@ -6,6 +6,7 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
+using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -24,7 +25,6 @@ public static class HealthCheckExtensions
 
         services.AddHealthChecks()
             .AddNpgSql(connectionString, name: "Database")
-            // Simple manual check for TMDB token configuration
             .AddCheck("TMDB Configuration", () =>
             {
                 var token = configuration["Tmdb:AccessToken"];
@@ -59,6 +59,55 @@ public static class HealthCheckExtensions
 
                 await JsonSerializer.SerializeAsync(context.Response.Body, response);
             }
+        })
+        .AddEndpointFilter(async (context, next) =>
+        {
+            var httpContext = context.HttpContext;
+            var authHeader = httpContext.Request.Headers.Authorization.ToString();
+
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Basic "))
+            {
+                httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                httpContext.Response.Headers.WWWAuthenticate = "Basic realm=\"Health Check\"";
+                return TypedResults.Empty;
+            }
+
+            var encodedCredentials = authHeader["Basic ".Length..].Trim();
+            string credentials;
+            try
+            {
+                credentials = Encoding.UTF8.GetString(Convert.FromBase64String(encodedCredentials));
+            }
+            catch (FormatException)
+            {
+                httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                httpContext.Response.Headers.WWWAuthenticate = "Basic realm=\"Health Check\"";
+                return TypedResults.Empty;
+            }
+
+            var separatorIndex = credentials.IndexOf(':');
+            if (separatorIndex < 0)
+            {
+                httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                httpContext.Response.Headers.WWWAuthenticate = "Basic realm=\"Health Check\"";
+                return TypedResults.Empty;
+            }
+
+            var username = credentials[..separatorIndex];
+            var password = credentials[(separatorIndex + 1)..];
+
+            var config = httpContext.RequestServices.GetRequiredService<IConfiguration>();
+            var expectedUsername = config["HealthCheck:Username"];
+            var expectedPassword = config["HealthCheck:Password"];
+
+            if (username != expectedUsername || password != expectedPassword)
+            {
+                httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                httpContext.Response.Headers.WWWAuthenticate = "Basic realm=\"Health Check\"";
+                return TypedResults.Empty;
+            }
+
+            return await next(context);
         });
     }
 }
