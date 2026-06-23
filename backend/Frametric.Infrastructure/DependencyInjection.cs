@@ -97,6 +97,11 @@ public static class DependencyInjection
 
         services.AddHostedService<Frametric.Infrastructure.BackgroundJobs.TmdbEnrichmentBackgroundService>();
 
+        // Register User Viewing Profile Service
+        services.AddSingleton<UserViewingProfileService>();
+        services.AddSingleton<IUserViewingProfileService>(sp => sp.GetRequiredService<UserViewingProfileService>());
+        services.AddHostedService(sp => sp.GetRequiredService<UserViewingProfileService>());
+
         services.AddScoped<IEmailService, SmtpEmailService>();
 
         return services;
