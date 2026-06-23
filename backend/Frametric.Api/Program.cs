@@ -104,7 +104,10 @@ app.Use(async (context, next) =>
             {
                 type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
                 title = "An error occurred while processing your request.",
-                status = 500
+                status = 500,
+                detail = ex.Message,
+                exceptionType = ex.GetType().Name,
+                stackTrace = ex.ToString()
             };
 
             await context.Response.WriteAsJsonAsync(problem);
