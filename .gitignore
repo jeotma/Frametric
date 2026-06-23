@@ -67,3 +67,6 @@ portfolio/
 **/TestResults/
 **/coveragereport/
 
+
+# Windows reserved device name (created by curl -o nul on PowerShell)
+nul

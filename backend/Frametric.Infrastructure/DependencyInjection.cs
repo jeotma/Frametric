@@ -102,7 +102,7 @@ public static class DependencyInjection
         services.AddSingleton<IUserViewingProfileService>(sp => sp.GetRequiredService<UserViewingProfileService>());
         services.AddHostedService(sp => sp.GetRequiredService<UserViewingProfileService>());
 
-        services.AddScoped<IEmailService, SmtpEmailService>();
+        services.AddScoped<IEmailService, ResendEmailService>();
 
         return services;
 
