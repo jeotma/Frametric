@@ -53,7 +53,7 @@ public class DiscoveryQueriesImpl : IDiscoveryQueries
         return (await connection.QueryAsync<Guid>(sql, new { titles = normalizedTitles })).ToArray();
     }
 
-    public async Task<IEnumerable<DiscoveryMoviePoolItemDto>> GetDiscoveryPoolAsync(Guid userId, DiscoveryDataSourceScope scope, IEnumerable<Guid>? customSourceIds, bool excludeWatched = true, CancellationToken ct = default)
+    public async Task<IEnumerable<DiscoveryMoviePoolItemDto>> GetDiscoveryPoolAsync(Guid userId, DiscoveryDataSourceScope scope, IEnumerable<Guid>? customSourceIds, bool excludeWatched = true, Guid? partnerUserId = null, CancellationToken ct = default)
     {
         if (scope == DiscoveryDataSourceScope.CustomCollection)
         {
@@ -64,11 +64,63 @@ public class DiscoveryQueriesImpl : IDiscoveryQueries
         }
 
         using var connection = _dbConnectionFactory.CreateConnection();
-        var sql = BuildScopeSql(scope, excludeWatched);
-        
         var currentYear = DateTime.UtcNow.Year;
         var currentDate = DateTime.UtcNow.Date;
-        
+
+        if (scope == DiscoveryDataSourceScope.MergedWatchlists)
+        {
+            if (partnerUserId == null)
+            {
+                return Array.Empty<DiscoveryMoviePoolItemDto>();
+            }
+            const string mergedSql = @"
+                WITH UserMovies AS (
+                    SELECT m.*
+                    FROM ""WatchlistItems"" wl
+                    JOIN ""Movies"" m ON wl.""MovieId"" = m.""Id""
+                    WHERE wl.""UserId"" = @userId
+                      AND m.""EnrichmentStatus"" = 'Completed'
+                      AND m.""ReleaseYear"" > 0
+                    ORDER BY RANDOM()
+                    LIMIT 25
+                ),
+                PartnerMovies AS (
+                    SELECT m.*
+                    FROM ""WatchlistItems"" wl
+                    JOIN ""Movies"" m ON wl.""MovieId"" = m.""Id""
+                    WHERE wl.""UserId"" = @partnerUserId
+                      AND m.""EnrichmentStatus"" = 'Completed'
+                      AND m.""ReleaseYear"" > 0
+                    ORDER BY RANDOM()
+                    LIMIT 25
+                ),
+                MergedPool AS (
+                    SELECT * FROM UserMovies
+                    UNION ALL
+                    SELECT * FROM PartnerMovies
+                )
+                SELECT DISTINCT ON (mp.""Id"")
+                       mp.""Id"" AS MovieId,
+                       mp.""Title"" AS Title,
+                       CAST(mp.""ReleaseYear"" AS INTEGER) AS ReleaseYear,
+                       mp.""RuntimeMinutes"" AS RuntimeMinutes,
+                       mp.""PosterUrl"" AS PosterUrl,
+                       CAST(mp.""TmdbRating"" AS DOUBLE PRECISION) AS TmdbRating,
+                       CAST(mp.""TmdbPopularity"" AS DOUBLE PRECISION) AS TmdbPopularity,
+                       CAST(mp.""CustomAverageRating"" AS DOUBLE PRECISION) AS CustomAverageRating,
+                       (SELECT STRING_AGG(d.""Name"", ',') FROM ""MovieDirector"" md JOIN ""Directors"" d ON md.""DirectorsId"" = d.""Id"" WHERE md.""MoviesId"" = mp.""Id"") AS DirectorName,
+                       (SELECT STRING_AGG(a.""Name"", ',') FROM ""MovieActor"" ma JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id"" WHERE ma.""MoviesId"" = mp.""Id"") AS ActorNames,
+                       (SELECT STRING_AGG(g.""Name"", ',') FROM ""MovieGenre"" mg JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id"" WHERE mg.""MoviesId"" = mp.""Id"") AS Genres,
+                       mp.""Keywords"" AS Keywords,
+                       mp.""Overview"" AS Overview,
+                       mp.""Language"" AS Language,
+                       mp.""Country"" AS Country
+                FROM MergedPool mp
+                ORDER BY mp.""Id"", RANDOM()";
+            return await connection.QueryAsync<DiscoveryMoviePoolItemDto>(mergedSql, new { userId, partnerUserId });
+        }
+
+        var sql = BuildScopeSql(scope, excludeWatched);
         return await connection.QueryAsync<DiscoveryMoviePoolItemDto>(sql, new { userId, customSourceIds, currentYear, currentDate });
     }
 
@@ -144,6 +196,7 @@ public class DiscoveryQueriesImpl : IDiscoveryQueries
                    CAST(vdp."TmdbPopularity" AS DOUBLE PRECISION) AS TmdbPopularity,
                    CAST(vdp."CustomAverageRating" AS DOUBLE PRECISION) AS CustomAverageRating,
                    (SELECT STRING_AGG(d."Name", ',') FROM "MovieDirector" md JOIN "Directors" d ON md."DirectorsId" = d."Id" WHERE md."MoviesId" = vdp."Id") AS DirectorName,
+                   (SELECT STRING_AGG(a."Name", ',') FROM "MovieActor" ma JOIN "Actors" a ON ma."ActorsId" = a."Id" WHERE ma."MoviesId" = vdp."Id") AS ActorNames,
                    (SELECT STRING_AGG(g."Name", ',') FROM "MovieGenre" mg JOIN "Genres" g ON mg."GenresId" = g."Id" WHERE mg."MoviesId" = vdp."Id") AS Genres,
                    vdp."Keywords" AS Keywords,
                    vdp."Overview" AS Overview,
@@ -152,6 +205,14 @@ public class DiscoveryQueriesImpl : IDiscoveryQueries
             FROM ValidDiscoveryPool vdp
             ORDER BY RANDOM()
         """;
+    }
+
+    public async Task<Guid?> GetUserIdByUsernameAsync(string username, CancellationToken ct = default)
+    {
+        using var connection = _dbConnectionFactory.CreateConnection();
+        return await connection.QuerySingleOrDefaultAsync<Guid?>(
+            @"SELECT ""Id"" FROM ""AspNetUsers"" WHERE ""UserName"" = @username",
+            new { username });
     }
 
     public async Task<IEnumerable<string>> GetAvailableCountriesAsync(CancellationToken ct = default)

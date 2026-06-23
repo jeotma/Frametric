@@ -34,6 +34,6 @@ public class ApplicationDependencyInjectionTests
 
         // Strategies
         var strategies = provider.GetServices<IRecommendationStrategy>().ToList();
-        Assert.Equal(8, strategies.Count);
+        Assert.Equal(9, strategies.Count);
     }
 }

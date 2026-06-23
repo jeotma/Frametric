@@ -12,7 +12,7 @@ public enum MysteryBoxVariant
 {
     Standard,
     Thematic,
-    Premium,
-    FullReveal,
+    ActorFocus,
+    DirectorFocus,
     Strategy
 }

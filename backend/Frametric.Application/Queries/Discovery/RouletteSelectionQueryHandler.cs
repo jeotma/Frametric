@@ -51,7 +51,17 @@ public class RouletteSelectionQueryHandler : IRequestHandler<RouletteSelectionQu
             }
         }
 
-        var pool = (await _discoveryQueries.GetDiscoveryPoolAsync(request.UserId, request.Scope, customSourceIds, request.ExcludeWatched, cancellationToken)).ToList();
+        Guid? partnerUserId = null;
+        if (request.Scope == DiscoveryDataSourceScope.MergedWatchlists && !string.IsNullOrWhiteSpace(request.PartnerUsername))
+        {
+            partnerUserId = await _discoveryQueries.GetUserIdByUsernameAsync(request.PartnerUsername, cancellationToken);
+            if (partnerUserId == null)
+            {
+                throw new InvalidOperationException($"User '{request.PartnerUsername}' not found.");
+            }
+        }
+
+        var pool = (await _discoveryQueries.GetDiscoveryPoolAsync(request.UserId, request.Scope, customSourceIds, request.ExcludeWatched, partnerUserId, cancellationToken)).ToList();
         if (!pool.Any())
         {
             throw new InvalidOperationException("No movies are available for roulette selection in the chosen discovery pool.");
@@ -118,11 +128,13 @@ public class RouletteSelectionQueryHandler : IRequestHandler<RouletteSelectionQu
                 break;
             }
             
-            // Safety break in case pool is huge and threshold is high to prevent infinite memory growth
-            if (sequence.Count > 10000)
+            // Safety break: cap at 100 race entries to prevent infinite spinning on the frontend
+            if (sequence.Count > 100 + pool.Count)
             {
-                winner = MapToDto(candidate, "Roulette race hit simulation limit. Selected by sudden death.", request.CustomAliases);
-                sequence[^1] = winner;
+                var leader = counts.MaxBy(kvp => kvp.Value).Key;
+                var leaderMovie = pool.First(m => m.MovieId == leader);
+                winner = MapToDto(leaderMovie, $"Roulette race capped at {100 + pool.Count} entries. Winner by majority.", request.CustomAliases);
+                sequence.Add(winner);
                 break;
             }
         }

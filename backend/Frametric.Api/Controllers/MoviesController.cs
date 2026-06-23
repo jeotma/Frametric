@@ -8,9 +8,11 @@
 
 using Frametric.Application.Commands.EntityDetails;
 using Frametric.Application.Commands.Movies;
+using Frametric.Application.DTOs;
 using Frametric.Application.DTOs.Analytics;
 using Frametric.Application.DTOs.EntityDetails;
 using Frametric.Application.Interfaces;
+using Frametric.Application.Interfaces.EntityDetails;
 using Frametric.Application.Queries.EntityDetails;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -25,11 +27,15 @@ public class MoviesController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ITmdbService _tmdbService;
+    private readonly IEntityDetailsQueries _entityDetailsQueries;
 
-    public MoviesController(IMediator mediator, ICurrentUserService currentUserService)
+    public MoviesController(IMediator mediator, ICurrentUserService currentUserService, ITmdbService tmdbService, IEntityDetailsQueries entityDetailsQueries)
     {
         _mediator = mediator;
         _currentUserService = currentUserService;
+        _tmdbService = tmdbService;
+        _entityDetailsQueries = entityDetailsQueries;
     }
 
     [HttpGet("{id}")]
@@ -44,6 +50,33 @@ public class MoviesController : ControllerBase
         if (result == null) return NotFound();
 
         return Ok(result);
+    }
+
+    [HttpGet("{id}/collection")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<TmdbCollectionResultDto>> GetMovieCollection(Guid id, CancellationToken cancellationToken)
+    {
+        var userId = _currentUserService.UserId;
+        if (userId == null) return Unauthorized("User is not authenticated.");
+
+        var movieCollection = await _mediator.Send(new GetMovieCollectionQuery(userId.Value, id), cancellationToken);
+        if (movieCollection?.TmdbCollectionId == null)
+            return NotFound("Movie is not part of a collection.");
+
+        var collection = await _tmdbService.GetCollectionByIdAsync(movieCollection.TmdbCollectionId.Value, cancellationToken);
+        if (collection == null)
+            return NotFound("Failed to fetch collection data.");
+
+        var existingIds = await _entityDetailsQueries.GetExistingTmdbIdsAsync(collection.Parts.Select(p => p.Id), cancellationToken);
+        var updatedParts = collection.Parts.Select(p => new TmdbCollectionPartDto(
+            p.Id, p.Title, p.ReleaseDate, p.PosterUrl, existingIds.Contains(p.Id)
+        )).ToList();
+
+        return Ok(new TmdbCollectionResultDto(
+            collection.Id, collection.Name, collection.Overview,
+            collection.PosterUrl, collection.BackdropUrl, updatedParts
+        ));
     }
 
     [HttpPost("enrich-from-tmdb")]

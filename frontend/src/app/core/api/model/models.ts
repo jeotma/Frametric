@@ -69,6 +69,7 @@ export * from './slot-machine-request';
 export * from './slot-machine-result-dto';
 export * from './slot-reel-result-dto';
 export * from './time-invested-dto';
+export * from './tmdb-collection-result-dto';
 export * from './top-bottom-movies-dto';
 export * from './user-dto';
 export * from './watched-movie-stats-dto';

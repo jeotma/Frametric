@@ -13,6 +13,7 @@ public class DiscoveryMoviePoolItemDto
     public Guid MovieId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? DirectorName { get; set; }
+    public string? ActorNames { get; set; }
     public int? ReleaseYear { get; set; }
     public int? RuntimeMinutes { get; set; }
     public string? PosterUrl { get; set; }

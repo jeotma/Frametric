@@ -51,20 +51,35 @@ public class MysteryBoxGenerationQueryHandler : IRequestHandler<MysteryBoxGenera
             }
         }
 
-        var pool = (await _discoveryQueries.GetDiscoveryPoolAsync(request.UserId, request.Scope, customSourceIds, request.ExcludeWatched, cancellationToken)).ToList();
+        Guid? partnerUserId = null;
+        if (request.Scope == DiscoveryDataSourceScope.MergedWatchlists && !string.IsNullOrWhiteSpace(request.PartnerUsername))
+        {
+            partnerUserId = await _discoveryQueries.GetUserIdByUsernameAsync(request.PartnerUsername, cancellationToken);
+            if (partnerUserId == null)
+            {
+                throw new InvalidOperationException($"User '{request.PartnerUsername}' not found.");
+            }
+        }
+
+        var pool = (await _discoveryQueries.GetDiscoveryPoolAsync(request.UserId, request.Scope, customSourceIds, request.ExcludeWatched, partnerUserId, cancellationToken)).ToList();
         if (!pool.Any())
         {
             throw new InvalidOperationException("No mystery box candidates are available for the selected discovery pool.");
         }
 
-        var candidates = request.Variant switch
+        string? filterType = null;
+        string? filterValue = null;
+
+        var (candidates, ft, fv) = request.Variant switch
         {
-            MysteryBoxVariant.Thematic => BuildThematicPool(pool),
-            MysteryBoxVariant.Premium => BuildPremiumPool(pool),
-            MysteryBoxVariant.FullReveal => BuildFullRevealPool(pool),
-            MysteryBoxVariant.Strategy => BuildStrategyPool(pool),
-            _ => pool
+            MysteryBoxVariant.Thematic => (BuildThematicPool(pool), null, null),
+            MysteryBoxVariant.ActorFocus => BuildActorFocusPool(pool),
+            MysteryBoxVariant.DirectorFocus => BuildDirectorFocusPool(pool),
+            MysteryBoxVariant.Strategy => (BuildStrategyPool(pool), null, null),
+            _ => (pool, null, null)
         };
+        filterType = ft;
+        filterValue = fv;
 
         var selected = SelectUniqueMovieIds(candidates.ToList(), request.BoxCount).ToList();
         if (!selected.Any())
@@ -84,7 +99,7 @@ public class MysteryBoxGenerationQueryHandler : IRequestHandler<MysteryBoxGenera
             }).ToList();
         }
 
-        return new MysteryBoxDto(boxIds, request.Variant, DateTime.UtcNow, hints);
+        return new MysteryBoxDto(boxIds, request.Variant, DateTime.UtcNow, hints, filterType, filterValue);
     }
 
     private static IEnumerable<DiscoveryMoviePoolItemDto> BuildThematicPool(IEnumerable<DiscoveryMoviePoolItemDto> pool)
@@ -113,27 +128,56 @@ public class MysteryBoxGenerationQueryHandler : IRequestHandler<MysteryBoxGenera
         return themed.Count >= 5 ? themed : pool;
     }
 
-    private static IEnumerable<DiscoveryMoviePoolItemDto> BuildPremiumPool(IEnumerable<DiscoveryMoviePoolItemDto> pool)
+    private static (IEnumerable<DiscoveryMoviePoolItemDto> Pool, string? FilterType, string? FilterValue) BuildActorFocusPool(IEnumerable<DiscoveryMoviePoolItemDto> pool)
     {
-        var scored = pool
-            .Select(item => new
-            {
-                Item = item,
-                Score = (item.CustomAverageRating ?? item.TmdbRating ?? 6.0) * 0.8 + (item.TmdbPopularity ?? 30.0) * 0.2
-            })
-            .OrderByDescending(pair => pair.Score)
+        var actors = pool
+            .Where(item => !string.IsNullOrWhiteSpace(item.ActorNames))
+            .SelectMany(item => item.ActorNames!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Where(actor => !string.IsNullOrWhiteSpace(actor))
+            .GroupBy(actor => actor, StringComparer.OrdinalIgnoreCase)
+            .OrderByDescending(group => group.Count())
+            .Select(group => group.Key)
             .ToList();
 
-        var topCount = Math.Max(5, scored.Count * 40 / 100);
-        return scored.Take(topCount).Select(pair => pair.Item);
+        if (!actors.Any())
+        {
+            return (pool, null, null);
+        }
+
+        var selectedActor = actors[Random.Shared.Next(actors.Count)];
+        var filtered = pool.Where(item =>
+            !string.IsNullOrWhiteSpace(item.ActorNames) &&
+            item.ActorNames!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Any(a => a.Equals(selectedActor, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+
+        return (filtered.Count >= 5 ? filtered : pool, "Actor", selectedActor);
     }
 
-    private static IEnumerable<DiscoveryMoviePoolItemDto> BuildFullRevealPool(IEnumerable<DiscoveryMoviePoolItemDto> pool)
+    private static (IEnumerable<DiscoveryMoviePoolItemDto> Pool, string? FilterType, string? FilterValue) BuildDirectorFocusPool(IEnumerable<DiscoveryMoviePoolItemDto> pool)
     {
-        return pool
-            .OrderByDescending(m => m.CustomAverageRating ?? m.TmdbRating ?? 0)
-            .Take(Math.Max(10, pool.Count() / 2))
+        var directors = pool
+            .Where(item => !string.IsNullOrWhiteSpace(item.DirectorName))
+            .SelectMany(item => item.DirectorName!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Where(director => !string.IsNullOrWhiteSpace(director))
+            .GroupBy(director => director, StringComparer.OrdinalIgnoreCase)
+            .OrderByDescending(group => group.Count())
+            .Select(group => group.Key)
             .ToList();
+
+        if (!directors.Any())
+        {
+            return (pool, null, null);
+        }
+
+        var selectedDirector = directors[Random.Shared.Next(directors.Count)];
+        var filtered = pool.Where(item =>
+            !string.IsNullOrWhiteSpace(item.DirectorName) &&
+            item.DirectorName!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Any(d => d.Equals(selectedDirector, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+
+        return (filtered.Count >= 5 ? filtered : pool, "Director", selectedDirector);
     }
 
     private static IEnumerable<DiscoveryMoviePoolItemDto> BuildStrategyPool(IEnumerable<DiscoveryMoviePoolItemDto> pool)

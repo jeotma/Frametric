@@ -56,6 +56,7 @@ public class GetCinematicRecommendationsQueryHandlerTests
             new HiddenGemsStrategy(),
             new DirectorsTrajectoryStrategy(),
             new BlastFromThePastStrategy(),
+            new OutOfCharacterStrategy(),
             new PureRandomStrategy()
         };
 

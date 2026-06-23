@@ -16,5 +16,6 @@ export interface DiceRollRequest {
     customSourceTitles?: Array<string> | null;
     excludeWatched?: boolean;
     presets?: { [key: string]: number; } | null;
+    partnerUsername?: string | null;
 }
 

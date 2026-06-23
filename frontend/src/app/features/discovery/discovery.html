@@ -357,6 +357,10 @@
         (nicknameMapChange)="onRouletteNicknameMapChange($event)">
       </app-custom-selection-input>
     </div>
+    <div class="merge-watchlists-row" *ngIf="rouletteScope() === 4" style="margin-bottom: 1rem;">
+      <span class="hud-label">PARTNER USERNAME:</span>
+      <input type="text" [(ngModel)]="roulettePartnerUsername" placeholder="Enter partner username" class="glass-select partner-input" />
+    </div>
 
     <div class="roulette-layout">
       <div class="anim-container" style="height: 600px; margin-bottom: 2rem; flex: 1.4; width: 100%;">
@@ -393,6 +397,17 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Race progress + skip button -->
+    <div *ngIf="rouletteThreshold() > 1 && rouletteIsRacing() && rouletteStepCount() > 0" class="roulette-progress animate-fade-in" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 8px;">
+      <span class="hud-data">
+        <span class="hud-label">RACE PROGRESS:</span>
+        <span>{{ rouletteStepCount() }} / {{ rouletteSequenceSig().length - 1 }}</span>
+      </span>
+      <button class="btn btn-secondary" style="font-size: 0.8rem; padding: 4px 12px;" (click)="skipRouletteRace()" [disabled]="rouletteSkipped()">
+        ⏭ Skip to Result
+      </button>
     </div>
 
     <div *ngIf="rouletteWinnerSig() as movie" class="result-card crosshair-bracket animate-slide-up winner-card" style="border-color: var(--accent-sepia); background: rgba(226, 186, 100, 0.03);">
@@ -469,6 +484,10 @@
     <div class="custom-selection-row" *ngIf="mysteryScope() === 2">
       <app-custom-selection-input [(selectedChips)]="mysteryChips"></app-custom-selection-input>
     </div>
+    <div class="merge-watchlists-row" *ngIf="mysteryScope() === 4" style="margin-bottom: 1rem;">
+      <span class="hud-label">PARTNER USERNAME:</span>
+      <input type="text" [(ngModel)]="mysteryPartnerUsername" placeholder="Enter partner username" class="glass-select partner-input" />
+    </div>
 
     <div class="anim-container" style="height: auto; min-height: 250px; padding: 20px 0; margin-bottom: 2rem;">
       <app-mystery-grid
@@ -492,6 +511,14 @@
         </button>
       </div>
       <div class="loading-state" *ngIf="isRevealingOthers()" style="margin-top: 15px;">Revealing other boxes...</div>
+    </div>
+
+    <div *ngIf="mysteryResultSig()?.filterType as ft" class="filter-context-badge crosshair-bracket animate-fade-in" style="margin-bottom: 1rem; padding: 8px 16px; border-color: var(--accent-sepia); background: rgba(226, 186, 100, 0.05); display: inline-flex; align-items: center; gap: 8px;">
+      <svg class="disco-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; color: var(--accent-sepia);">
+        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+      </svg>
+      <span class="hud-label">FOCUS:</span>
+      <span>{{ ft }}: {{ mysteryResultSig()?.filterValue }}</span>
     </div>
 
     <div *ngIf="revealedMovieSig() as movie" class="result-card crosshair-bracket animate-slide-up winner-card" style="border-color: var(--accent-sepia); background: rgba(226, 186, 100, 0.03); margin-top: 1rem;">
@@ -561,9 +588,22 @@
         </ng-container>
         <ng-container *ngIf="diceLoading()">Rolling...</ng-container>
       </button>
+      <div class="control-item">
+        <div class="control-header">
+          <span class="hud-label">SOUND</span>
+        </div>
+        <div class="toggle-container" style="height: 44px; display: flex; align-items: center; gap: 8px;">
+          <span class="hud-data" style="font-size: 0.8rem;">{{ diceMuted() ? '🔇' : '🔊' }}</span>
+          <app-cinematic-toggle [(ngModel)]="diceMuted" [label]="'Mute'"></app-cinematic-toggle>
+        </div>
+      </div>
     </div>
     <div class="custom-selection-row" *ngIf="diceScope() === 2">
       <app-custom-selection-input [(selectedChips)]="diceChips" (selectedChipsChange)="resetDiceState()"></app-custom-selection-input>
+    </div>
+    <div class="merge-watchlists-row" *ngIf="diceScope() === 4" style="margin-bottom: 1rem;">
+      <span class="hud-label">PARTNER USERNAME:</span>
+      <input type="text" [(ngModel)]="dicePartnerUsername" placeholder="Enter partner username" class="glass-select partner-input" />
     </div>
 
     <div class="anim-container" style="height: auto; min-height: 250px; padding: 20px 0; margin-bottom: 2rem;">
@@ -573,6 +613,7 @@
         [settled]="diceSettled()"
         [rolling]="diceRolling()"
         [pendingCriticalChoice]="pendingCriticalChoice()"
+        [muted]="diceMuted()"
         (dieClicked)="onDieClicked($event)">
       </app-dice-roller>
     </div>

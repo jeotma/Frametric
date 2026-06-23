@@ -23,6 +23,7 @@ export class DiceRollerComponent implements OnChanges, OnDestroy {
   @Input() settled: boolean[] = [false, false, false, false, false];
   @Input() rolling: boolean[] = [false, false, false, false, false];
   @Input() pendingCriticalChoice: boolean = false;
+  @Input() muted: boolean = false;
 
   @Output() dieClicked = new EventEmitter<number>();
 
@@ -31,6 +32,7 @@ export class DiceRollerComponent implements OnChanges, OnDestroy {
   
   public displayValues: number[] = [0, 0, 0, 0, 0];
   private intervals: any[] = [null, null, null, null, null];
+  private timeouts: any[] = [null, null, null, null, null];
   private audioCtx: AudioContext | null = null;
 
   public onDieClick(idx: number): void {
@@ -38,6 +40,7 @@ export class DiceRollerComponent implements OnChanges, OnDestroy {
   }
 
   public playClackSound(pitch = 1.0, volume = 0.5): void {
+    if (this.muted) return;
     try {
       if (!this.audioCtx) {
         this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -113,11 +116,23 @@ export class DiceRollerComponent implements OnChanges, OnDestroy {
               this.playClackSound(1.1 + Math.random() * 0.5, 0.15);
             }
           }, 60 + i * 10);
+          // Safety timeout: force stop after 15 seconds
+          this.timeouts[i] = setTimeout(() => {
+            if (this.intervals[i]) {
+              clearInterval(this.intervals[i]);
+              this.intervals[i] = null;
+            }
+            this.displayValues[i] = this.values ? this.values[i] : 1;
+          }, 15000);
         }
       } else {
         if (this.intervals[i]) {
           clearInterval(this.intervals[i]);
           this.intervals[i] = null;
+          if (this.timeouts[i]) {
+            clearTimeout(this.timeouts[i]);
+            this.timeouts[i] = null;
+          }
           // Hard, heavier pitch clack for landing
           const landingPitch = 0.5 + (4 - i) * 0.12;
           this.playClackSound(landingPitch, 0.6);
@@ -132,6 +147,12 @@ export class DiceRollerComponent implements OnChanges, OnDestroy {
       if (interval) {
         clearInterval(interval);
         this.intervals[idx] = null;
+      }
+    });
+    this.timeouts.forEach((t, idx) => {
+      if (t) {
+        clearTimeout(t);
+        this.timeouts[idx] = null;
       }
     });
   }

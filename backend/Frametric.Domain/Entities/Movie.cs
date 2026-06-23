@@ -29,6 +29,8 @@ public class Movie
     public string? Certification { get; private set; }
     public string? StreamingProviders { get; private set; }
     public string? Overview { get; private set; }
+    public int? TmdbCollectionId { get; private set; }
+    public string? TmdbCollectionName { get; private set; }
 
     // Navigation properties
     public ICollection<Genre> Genres { get; private set; } = new List<Genre>();
@@ -72,7 +74,9 @@ public class Movie
         string? boxOffice = null,
         string? certification = null,
         string? streamingProviders = null,
-        string? overview = null)
+        string? overview = null,
+        int? tmdbCollectionId = null,
+        string? tmdbCollectionName = null)
     {
         RuntimeMinutes = runtimeMinutes;
         PosterUrl = posterUrl;
@@ -93,6 +97,8 @@ public class Movie
         Certification = certification;
         StreamingProviders = streamingProviders;
         Overview = overview;
+        TmdbCollectionId = tmdbCollectionId;
+        TmdbCollectionName = tmdbCollectionName;
         
         foreach (var genre in genres) Genres.Add(genre);
         foreach (var director in directors) Directors.Add(director);

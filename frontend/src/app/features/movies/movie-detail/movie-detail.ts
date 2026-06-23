@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MoviesService, MovieDetailsDto } from '../../../core/api';
+import { MoviesService, MovieDetailsDto, TmdbCollectionResultDto } from '../../../core/api';
 import { slugify } from '../../../core/utils/slugify';
 
 @Component({
@@ -28,6 +28,9 @@ export class MovieDetailComponent implements OnInit {
   unloggingEntryId = signal<string | null>(null);
   errorMessage = signal<string | null>(null);
   selectedRating = signal<number>(0);
+  collection = signal<TmdbCollectionResultDto | null>(null);
+  collectionLoading = signal(false);
+  collectionExpanded = signal(false);
 
   logForm = this.fb.group({
     dateWatched: [new Date().toISOString().split('T')[0], Validators.required],
@@ -91,6 +94,35 @@ export class MovieDetailComponent implements OnInit {
         this.errorMessage.set(err?.error?.title || err?.message || 'Failed to load movie details.');
       }
     });
+  }
+
+  loadCollection(): void {
+    const movieId = this.movie()?.id;
+    if (!movieId) return;
+    this.collectionLoading.set(true);
+    this.collectionExpanded.set(true);
+    this.moviesService.apiMoviesGetCollection(movieId).subscribe({
+      next: (data) => {
+        this.collection.set(data);
+        this.collectionLoading.set(false);
+      },
+      error: () => {
+        this.collectionLoading.set(false);
+        this.collection.set(null);
+      }
+    });
+  }
+
+  toggleCollection(): void {
+    if (this.collectionExpanded()) {
+      this.collectionExpanded.set(false);
+      return;
+    }
+    if (!this.collection()) {
+      this.loadCollection();
+    } else {
+      this.collectionExpanded.set(true);
+    }
   }
 
   toggleLogForm() {

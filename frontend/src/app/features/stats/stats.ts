@@ -361,7 +361,7 @@ export class StatsComponent implements OnInit, OnDestroy {
   hasNoData(data: any): boolean {
     if (!data) return true;
     if ('totalMinutes' in data && data.totalMinutes === 0 && data.totalHours === 0) return true;
-    if (data.count === 0 && data.averageRating === undefined && data.totalMinutes === undefined) return true;
+    if (data.count === 0 && data.averageRating === undefined && data.totalMinutes === undefined && data.title === undefined) return true;
     return false;
   }
 

@@ -16,7 +16,9 @@ public record TmdbMovieResultDto(
     string? ReleaseDate = null,
     string? Keywords = null,
     string? StreamingProviders = null,
-    string? Overview = null
+    string? Overview = null,
+    int? TmdbCollectionId = null,
+    string? TmdbCollectionName = null
 )
 {
     public const int DocumentaryGenreId = 99;

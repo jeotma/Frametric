@@ -16,4 +16,5 @@ public interface IEntityDetailsQueries
     Task<ActorDetailsDto?> GetActorDetailsAsync(Guid userId, Guid actorId, CancellationToken cancellationToken);
     Task<DirectorDetailsDto?> GetDirectorDetailsAsync(Guid userId, Guid directorId, CancellationToken cancellationToken);
     Task<IEnumerable<GlobalSearchResultDto>> SearchEntitiesAsync(Guid userId, string query, CancellationToken cancellationToken);
+    Task<HashSet<int>> GetExistingTmdbIdsAsync(IEnumerable<int> tmdbIds, CancellationToken cancellationToken);
 }

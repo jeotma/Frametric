@@ -20,5 +20,7 @@ public record MysteryBoxDto(
     IReadOnlyList<Guid> BoxIds,
     MysteryBoxVariant Variant,
     DateTime GeneratedAt,
-    IReadOnlyList<MysteryBoxHintDto>? Hints = null
+    IReadOnlyList<MysteryBoxHintDto>? Hints = null,
+    string? FilterType = null,
+    string? FilterValue = null
 );

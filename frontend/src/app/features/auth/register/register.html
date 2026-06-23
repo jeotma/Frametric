@@ -104,6 +104,13 @@
             </div>
             <span class="strength-text" [class]="strengthClass">{{ strengthLabel }}</span>
           </div>
+          @if (passwordCtrl.invalid && passwordCtrl.touched) {
+            <span class="field-hint error">
+              @if (passwordCtrl.hasError('required')) { Password is required. }
+              @else if (passwordCtrl.hasError('minlength')) { At least 8 characters. }
+              @else if (passwordCtrl.hasError('pattern')) { Must include uppercase, lowercase, number, and special character. }
+            </span>
+          }
         }
       </div>
 
@@ -116,6 +123,9 @@
           </svg>
           <input id="reg-confirm" [type]="showPassword() ? 'text' : 'password'" formControlName="confirmPassword" placeholder="Repeat password" autocomplete="new-password"/>
         </div>
+        @if (confirmCtrl.touched && confirmCtrl.hasError('required')) {
+          <span class="field-hint error">Please confirm your password.</span>
+        }
         @if (confirmCtrl.touched && form.hasError('passwordMismatch')) {
           <span class="field-hint error">Passwords do not match.</span>
         }

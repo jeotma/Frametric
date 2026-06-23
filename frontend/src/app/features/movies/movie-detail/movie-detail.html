@@ -27,7 +27,34 @@
             </span>
           </div>
 
-          <p class="overview animate-stagger-fade" style="--i: 3">{{ m.overview }}</p>
+          <div *ngIf="m.tmdbCollectionId" class="collection-badge animate-stagger-fade" style="--i: 3; cursor: pointer; margin-bottom: 0.75rem;" (click)="toggleCollection()">
+            <span class="hud-label">SERIES</span>
+            <span>{{ m.tmdbCollectionName }}</span>
+            <span class="chevron" [class.expanded]="collectionExpanded()">▸</span>
+          </div>
+
+          <div *ngIf="collectionExpanded() && m.tmdbCollectionId" class="collection-panel animate-slide-up" style="margin-bottom: 1rem; padding: 1rem; background: var(--surface-floating); border: 1px solid var(--border-color); border-radius: 8px;">
+            <div *ngIf="collectionLoading()" class="loading-state" style="padding: 1rem;">Loading collection...</div>
+            <div *ngIf="collection() as c" class="collection-grid" style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem; letter-spacing: 1px;">
+                {{ c.name }} — {{ c.parts.length }} {{ c.parts.length === 1 ? 'movie' : 'movies' }}
+              </div>
+              <div *ngFor="let part of c.parts" class="collection-part" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; border-radius: 4px; background: var(--bg-secondary);">
+                <img *ngIf="part.posterUrl" [src]="part.posterUrl" style="width: 40px; height: 60px; object-fit: cover; border-radius: 2px;" />
+                <div *ngIf="!part.posterUrl" style="width: 40px; height: 60px; background: var(--bg-tertiary); border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--text-muted);">N/A</div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; font-size: 0.85rem;">{{ part.title }}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-secondary);" *ngIf="part.releaseDate">{{ part.releaseDate.substring(0,4) }}</div>
+                </div>
+                <span *ngIf="part.isInDatabase" class="hud-data" style="font-size: 0.65rem; color: var(--accent-emerald);">IN LIBRARY</span>
+              </div>
+            </div>
+            <div *ngIf="!collectionLoading() && !collection()" style="font-size: 0.8rem; color: var(--text-muted); padding: 0.5rem;">
+              Failed to load collection details.
+            </div>
+          </div>
+
+          <p class="overview animate-stagger-fade" style="--i: 4">{{ m.overview }}</p>
 
           <div class="actions animate-stagger-fade" style="--i: 4; display: flex; gap: 0.75rem;">
             <button class="btn" [class.btn-cta]="!isLogged(m)" [class.btn-secondary]="isLogged(m)" (click)="toggleLogForm()">

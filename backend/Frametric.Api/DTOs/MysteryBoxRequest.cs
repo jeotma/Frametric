@@ -17,5 +17,6 @@ public record MysteryBoxRequest(
     int BoxCount = 5,
     IEnumerable<Guid>? CustomSourceIds = null,
     IEnumerable<string>? CustomSourceTitles = null,
-    bool ExcludeWatched = true
+    bool ExcludeWatched = true,
+    string? PartnerUsername = null
 );
