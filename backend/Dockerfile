@@ -5,16 +5,16 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
 WORKDIR /app
 
 # Copy csproj files and restore dependencies
-COPY backend/*.sln ./backend/
-COPY backend/Frametric.Domain/*.csproj ./backend/Frametric.Domain/
-COPY backend/Frametric.Application/*.csproj ./backend/Frametric.Application/
-COPY backend/Frametric.Infrastructure/*.csproj ./backend/Frametric.Infrastructure/
-COPY backend/Frametric.Api/*.csproj ./backend/Frametric.Api/
-RUN dotnet restore ./backend/Frametric.Api/Frametric.Api.csproj
+COPY *.sln ./
+COPY Frametric.Domain/*.csproj ./Frametric.Domain/
+COPY Frametric.Application/*.csproj ./Frametric.Application/
+COPY Frametric.Infrastructure/*.csproj ./Frametric.Infrastructure/
+COPY Frametric.Api/*.csproj ./Frametric.Api/
+RUN dotnet restore ./Frametric.Api/Frametric.Api.csproj
 
 # Copy everything else and build release
-COPY backend/ ./backend/
-RUN dotnet publish ./backend/Frametric.Api/Frametric.Api.csproj -c Release -o out
+COPY . .
+RUN dotnet publish ./Frametric.Api/Frametric.Api.csproj -c Release -o out
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
