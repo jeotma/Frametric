@@ -76,6 +76,42 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("FrontendPolicy");
 
+// Exception handler: logs the actual error to Serilog and returns a proper JSON response with CORS headers
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Unhandled exception in {Method} {Path}", context.Request.Method, context.Request.Path);
+
+        if (!context.Response.HasStarted)
+        {
+            context.Response.Clear();
+            context.Response.StatusCode = 500;
+            context.Response.ContentType = "application/problem+json; charset=utf-8";
+
+            var origin = context.Request.Headers.Origin.ToString();
+            if (!string.IsNullOrEmpty(origin))
+            {
+                context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+                context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+            }
+
+            var problem = new
+            {
+                type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+                title = "An error occurred while processing your request.",
+                status = 500
+            };
+
+            await context.Response.WriteAsJsonAsync(problem);
+        }
+    }
+});
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

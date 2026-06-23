@@ -70,46 +70,101 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
             return newMovie;
         }
 
+        // Load existing user entries for deduplication
+        var existingDiaryKeys = await _context.DiaryEntries
+            .Where(d => d.UserId == request.UserId)
+            .Select(d => new { d.MovieId, d.WatchedDate })
+            .ToListAsync(cancellationToken);
+        var existingDiarySet = existingDiaryKeys
+            .Select(k => (k.MovieId, k.WatchedDate))
+            .ToHashSet();
+
+        var existingRatingKeys = await _context.MovieRatings
+            .Where(r => r.UserId == request.UserId)
+            .Select(r => new { r.MovieId, r.DateRated })
+            .ToListAsync(cancellationToken);
+        var existingRatingSet = existingRatingKeys
+            .Select(k => (k.MovieId, k.DateRated))
+            .ToHashSet();
+
+        var existingWatchlistIds = await _context.WatchlistItems
+            .Where(w => w.UserId == request.UserId)
+            .Select(w => w.MovieId)
+            .ToListAsync(cancellationToken);
+        var existingWatchlistSet = existingWatchlistIds.ToHashSet();
+
+        var existingLikeIds = await _context.MovieLikes
+            .Where(l => l.UserId == request.UserId)
+            .Select(l => l.MovieId)
+            .ToListAsync(cancellationToken);
+        var existingLikeSet = existingLikeIds.ToHashSet();
+
+        var existingWatchedKeys = await _context.WatchedMovies
+            .Where(w => w.UserId == request.UserId)
+            .Select(w => new { w.MovieId, w.Date })
+            .ToListAsync(cancellationToken);
+        var existingWatchedSet = existingWatchedKeys
+            .Select(k => (k.MovieId, k.Date))
+            .ToHashSet();
+
         // Process Diary
         foreach (var entry in exportData.DiaryEntries)
         {
             var movie = GetOrCreateMovie(entry.Name, entry.Year);
+            var key = (movie.Id, entry.WatchedDate);
+            if (existingDiarySet.Contains(key)) continue;
+
             var normalizedRating = entry.Rating.HasValue ? entry.Rating.Value : (decimal?)null;
             var diaryEntry = new DiaryEntry(Guid.NewGuid(), user.Id, movie.Id, entry.Date, entry.WatchedDate, normalizedRating, entry.Rewatch, entry.Tags, importHistory.Id);
             _context.DiaryEntries.Add(diaryEntry);
+            existingDiarySet.Add(key);
         }
 
         // Process Ratings
         foreach (var rating in exportData.Ratings)
         {
             var movie = GetOrCreateMovie(rating.Name, rating.Year);
+            var key = (movie.Id, rating.Date);
+            if (existingRatingSet.Contains(key)) continue;
+
             var normalizedRating = rating.Rating;
             var movieRating = new MovieRating(Guid.NewGuid(), user.Id, movie.Id, rating.Date, normalizedRating, importHistory.Id);
             _context.MovieRatings.Add(movieRating);
+            existingRatingSet.Add(key);
         }
 
         // Process Watchlist
         foreach (var wItem in exportData.Watchlist)
         {
             var movie = GetOrCreateMovie(wItem.Name, wItem.Year);
+            if (existingWatchlistSet.Contains(movie.Id)) continue;
+
             var watchlistItem = new WatchlistItem(Guid.NewGuid(), user.Id, movie.Id, wItem.Date, importHistory.Id);
             _context.WatchlistItems.Add(watchlistItem);
+            existingWatchlistSet.Add(movie.Id);
         }
 
         // Process Likes
         foreach (var like in exportData.Likes)
         {
             var movie = GetOrCreateMovie(like.Name, like.Year);
+            if (existingLikeSet.Contains(movie.Id)) continue;
+
             var movieLike = new MovieLike(Guid.NewGuid(), user.Id, movie.Id, like.Date, importHistory.Id);
             _context.MovieLikes.Add(movieLike);
+            existingLikeSet.Add(movie.Id);
         }
 
         // Process Watched
         foreach (var watchedItem in exportData.Watched)
         {
             var movie = GetOrCreateMovie(watchedItem.Name, watchedItem.Year);
+            var key = (movie.Id, watchedItem.Date);
+            if (existingWatchedSet.Contains(key)) continue;
+
             var watchedMovie = new WatchedMovie(Guid.NewGuid(), user.Id, movie.Id, watchedItem.Date, importHistory.Id);
             _context.WatchedMovies.Add(watchedMovie);
+            existingWatchedSet.Add(key);
         }
 
         await _context.SaveChangesAsync(cancellationToken);
