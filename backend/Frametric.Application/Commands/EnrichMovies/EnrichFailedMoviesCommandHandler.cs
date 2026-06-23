@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -82,6 +82,27 @@ public class EnrichFailedMoviesCommandHandler : IRequestHandler<EnrichFailedMovi
                     
                     _context.Movies.Remove(movie);
                     Console.WriteLine($"[Recovery Success] Converted failed movie '{movie.Title}' to TV Show.");
+                    recoveredCount++;
+                    continue;
+                }
+
+                // Categorize content and apply whitelist filter (prevent stand-up, wrestling, concerts, sports, etc.)
+                var category = Frametric.Domain.Services.ContentClassifier.DetectCategory(
+                    tmdbData.Genres.Select(g => g.Name),
+                    tmdbData.Genres.Select(g => g.Id),
+                    tmdbData.Keywords,
+                    tmdbData.RuntimeMinutes
+                );
+
+                bool includeInMovieStats = 
+                    category == Frametric.Domain.Enums.ContentCategory.Movie ||
+                    category == Frametric.Domain.Enums.ContentCategory.Documentary ||
+                    category == Frametric.Domain.Enums.ContentCategory.ShortFilm;
+
+                if (!includeInMovieStats)
+                {
+                    _context.Movies.Remove(movie);
+                    Console.WriteLine($"[Recovery Filter] Removed non-movie content '{movie.Title}' (Category: {category})");
                     recoveredCount++;
                     continue;
                 }

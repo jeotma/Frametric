@@ -1,5 +1,9 @@
+using System.Collections.Concurrent;
 using Frametric.Application.Commands.EnrichMovies;
+using Frametric.Application.Interfaces;
+using Frametric.Application.Interfaces.Analytics;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -11,6 +15,7 @@ public class TmdbEnrichmentBackgroundService : BackgroundService
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<TmdbEnrichmentBackgroundService> _logger;
     private readonly TmdbEnrichmentTrigger _trigger;
+    private readonly ConcurrentDictionary<Guid, bool> _triggeredImports = new();
 
     public TmdbEnrichmentBackgroundService(IServiceProvider serviceProvider, ILogger<TmdbEnrichmentBackgroundService> logger, TmdbEnrichmentTrigger trigger)
     {
@@ -58,6 +63,36 @@ public class TmdbEnrichmentBackgroundService : BackgroundService
                     if (enrichedCount > 0)
                     {
                         _logger.LogInformation("Enriched {Count} movies from TMDB.", enrichedCount);
+
+                        var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+                        var profileService = scope.ServiceProvider.GetRequiredService<IUserViewingProfileService>();
+
+                        var enrichingImports = await dbContext.ImportHistories
+                            .Where(ih => ih.Status == "Enriching")
+                            .ToListAsync(stoppingToken);
+
+                        foreach (var import in enrichingImports)
+                        {
+                            if (!_triggeredImports.ContainsKey(import.Id))
+                            {
+                                var totalMovies = await dbContext.WatchedMovies.CountAsync(w => w.ImportHistoryId == import.Id, stoppingToken);
+                                if (totalMovies > 0)
+                                {
+                                    var completedMovies = await dbContext.WatchedMovies
+                                        .Include(w => w.Movie)
+                                        .CountAsync(w => w.ImportHistoryId == import.Id && w.Movie.EnrichmentStatus == Frametric.Domain.Enums.EnrichmentStatus.Completed, stoppingToken);
+                                    
+                                    double progress = (double)completedMovies / totalMovies;
+                                    if (progress >= 0.75)
+                                    {
+                                        _logger.LogInformation("Import {ImportId} crossed 75% completion. Triggering immediate profile rebuild for User {UserId}.", import.Id, import.UserId);
+                                        await profileService.RebuildProfileAsync(import.UserId);
+                                        _triggeredImports.TryAdd(import.Id, true);
+                                    }
+                                }
+                            }
+                        }
+
                         // Sleep for 10 seconds before processing the next batch to respect rate limits
                         await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
                     }
