@@ -14,5 +14,6 @@ export interface RecommendationRequest {
     scope: number;
     quantity: number;
     maxRuntimeMinutes?: number | null;
+    minRuntimeMinutes?: number | null;
 }
 

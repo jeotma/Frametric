@@ -13,10 +13,11 @@ export enum Strategy {
   OppositeMood = 1,
   ComfortZoneDisruptor = 2,
   GuiltyPleasure = 3,
-  CinephileElite = 4,
+  HiddenGems = 4,
   DirectorsTrajectory = 5,
-  RuntimeContext = 6,
-  PureRandom = 7
+  BlastFromThePast = 6,
+  OutOfCharacter = 7,
+  PureRandom = 8
 }
 
 export enum Scope {
@@ -28,7 +29,6 @@ export enum Scope {
 interface StrategyInfo {
   id: Strategy;
   name: string;
-  icon: string;
   description: string;
 }
 
@@ -52,6 +52,7 @@ export class RecommendationsComponent implements OnInit {
   public selectedStrategy = signal<Strategy>(Strategy.RecentMood);
   public selectedScope = signal<Scope>(Scope.Hybrid);
   public selectedQuantity = signal<number>(3);
+  public minRuntime = signal<number>(30);
   public maxRuntime = signal<number>(120);
   public filterByRuntime = signal<boolean>(false);
 
@@ -62,54 +63,50 @@ export class RecommendationsComponent implements OnInit {
   public actionLoading = signal<string | null>(null); // Movie ID of card performing action
   public error = signal<string | null>(null);
 
-  // Strategy list with descriptions
   public strategies: StrategyInfo[] = [
     {
       id: Strategy.RecentMood,
       name: 'Recent Mood',
-      icon: '🧠',
       description: 'Aligns with your recent history. Analyzes genres, runtimes, and eras of your last 10 watches to find similar matches.'
     },
     {
       id: Strategy.OppositeMood,
       name: 'Opposite Mood',
-      icon: '🔄',
       description: 'The perfect palette cleanser. Suggests styles and paces that are the exact mathematical inverse of your recent watches.'
     },
     {
       id: Strategy.ComfortZoneDisruptor,
       name: 'Comfort Disruptor',
-      icon: '🚀',
       description: 'Pushes your boundaries. Selects unwatched genres/eras but anchors them with directors or actors you have rated highly.'
     },
     {
-      id: Strategy.CinephileElite,
-      name: 'Cinephile Elite',
-      icon: '🏆',
-      description: 'Filters for critically acclaimed masterpieces (average score ≥ 8) that have low mainstream popularity.'
+      id: Strategy.HiddenGems,
+      name: 'Hidden Gems',
+      description: 'Finds highly-rated, lesser-known cinematic treasures (average score ≥ 8.0) that have low mainstream popularity.'
     },
     {
       id: Strategy.GuiltyPleasure,
       name: 'Guilty Pleasure',
-      icon: '🍿',
       description: 'Finds obscure, low-popularity movies in sub-genres you historically rate higher than the global average.'
     },
     {
       id: Strategy.DirectorsTrajectory,
       name: 'Director\'s Path',
-      icon: '🎬',
       description: 'Finds unseen works from filmmakers where you have watched at least 2 of their films, organizing them chronologically.'
     },
     {
-      id: Strategy.RuntimeContext,
-      name: 'Runtime Matcher',
-      icon: '⏱️',
-      description: 'Tailors picks to your exact time budget, prioritizing high-tempo pacing and genres for shorter runtimes.'
+      id: Strategy.BlastFromThePast,
+      name: 'Blast From the Past',
+      description: 'Presents highly-rated vintage masterpieces released before 1990 to give you a classic cinema screening.'
+    },
+    {
+      id: Strategy.OutOfCharacter,
+      name: 'Out Of Character',
+      description: 'A challenge to your habits. Actively seeks out prestigious films that perfectly conflict with your established viewing profile.'
     },
     {
       id: Strategy.PureRandom,
       name: 'Pure Chance',
-      icon: '🎲',
       description: 'Pure randomness within the given scope. A completely random selection to let chance guide your night.'
     }
   ];
@@ -122,9 +119,6 @@ export class RecommendationsComponent implements OnInit {
 
   selectStrategy(strat: Strategy) {
     this.selectedStrategy.set(strat);
-    if (strat === Strategy.RuntimeContext) {
-      this.filterByRuntime.set(true);
-    }
   }
 
   selectScope(scope: Scope) {
@@ -148,7 +142,8 @@ export class RecommendationsComponent implements OnInit {
       strategy: this.selectedStrategy(),
       scope: this.selectedScope(),
       quantity: this.selectedQuantity(),
-      maxRuntimeMinutes: this.filterByRuntime() ? this.maxRuntime() : null
+      maxRuntimeMinutes: this.filterByRuntime() ? this.maxRuntime() : null,
+      minRuntimeMinutes: this.filterByRuntime() ? this.minRuntime() : null
     };
 
     // We cast to any because angular client generator typed them as numbers, which perfectly matches the local enums

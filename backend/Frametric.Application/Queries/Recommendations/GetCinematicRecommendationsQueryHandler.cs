@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Frametric.Application.DTOs;
+using Frametric.Application.Interfaces;
 using Frametric.Application.Interfaces.Analytics;
 using Frametric.Domain.Enums;
 using MediatR;
@@ -24,6 +25,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
 {
     private readonly IRecommendationQueries _recommendationQueries;
     private readonly IDistributedCache _cache;
+    private readonly IUserViewingProfileService _profileService;
     private readonly ILogger<GetCinematicRecommendationsQueryHandler> _logger;
     private readonly Dictionary<RecommendationStrategy, IRecommendationStrategy> _strategies;
     public int WellnessCheckProbability { get; set; } = 3;
@@ -31,11 +33,13 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
     public GetCinematicRecommendationsQueryHandler(
         IRecommendationQueries recommendationQueries,
         IDistributedCache cache,
+        IUserViewingProfileService profileService,
         ILogger<GetCinematicRecommendationsQueryHandler> logger,
         IEnumerable<IRecommendationStrategy> strategies)
     {
         _recommendationQueries = recommendationQueries;
         _cache = cache;
+        _profileService = profileService;
         _logger = logger;
         _strategies = strategies.ToDictionary(s => s.Strategy);
     }
@@ -47,7 +51,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
 
         // 1. Fetch data
         var watched = (await _recommendationQueries.GetWatchedMovieDetailsAsync(request.UserId, cancellationToken)).ToList();
-        var candidates = (await _recommendationQueries.GetCandidateMoviesAsync(request.UserId, request.Scope, request.MaxRuntimeMinutes, cancellationToken)).ToList();
+        var candidates = (await _recommendationQueries.GetCandidateMoviesAsync(request.UserId, request.Scope, request.MaxRuntimeMinutes, request.MinRuntimeMinutes, cancellationToken)).ToList();
 
         if (!candidates.Any())
         {
@@ -124,7 +128,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
             if (hasOptedOut == null)
             {
                 // We need to fetch candidates with WatchlistOnly scope to extract the oldest watchlist items
-                var watchlistCandidates = (await _recommendationQueries.GetCandidateMoviesAsync(request.UserId, RecommendationScope.WatchlistOnly, null, cancellationToken))
+                var watchlistCandidates = (await _recommendationQueries.GetCandidateMoviesAsync(request.UserId, RecommendationScope.WatchlistOnly, null, null, cancellationToken))
                     .Where(c => c.WatchlistAddedDate.HasValue)
                     .OrderBy(c => c.WatchlistAddedDate!.Value)
                     .Take(10)
@@ -208,8 +212,198 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
             return hauntingResult;
         }
 
-        var results = strategyEvaluator.Recommend(filteredCandidates, watched, request.Quantity, request.MaxRuntimeMinutes);
-        var finalResults = ApplyEasterEgg(results, filteredCandidates, request.Scope, request.Strategy).ToList();
+        var profile = await _profileService.GetOrCreateProfileAsync(request.UserId);
+
+        // For Hybrid scope, request a larger pool to ensure both watchlist and discover pools
+        // are well-populated before the blending step.
+        int poolSize = request.Scope == RecommendationScope.Hybrid
+            ? Math.Max(100, request.Quantity * 6)
+            : Math.Max(50, request.Quantity * 3);
+        var results = strategyEvaluator.Recommend(filteredCandidates, watched, profile, poolSize, request.MaxRuntimeMinutes);
+
+        // --- Hybrid scope blending ---
+        // For Hybrid scope, intelligently distribute slots between watchlist and discover pool
+        // rather than a naive union. Rules:
+        //   slots = 1 → global best match regardless of source
+        //   slots = 2 → 1 best from watchlist + 1 best from discover
+        //   slots = 3 → 1 best from watchlist + 1 best from discover + 1 global best remaining
+        //   slots ≥ 4 → 50/50 split (ceil watchlist, floor discover for odd numbers)
+        if (request.Scope == RecommendationScope.Hybrid && request.Quantity > 1)
+        {
+            var watchlistIds = new HashSet<Guid>(filteredCandidates
+                .Where(c => c.WatchlistAddedDate.HasValue)
+                .Select(c => c.MovieId));
+
+            var watchlistResults = results.Where(r => watchlistIds.Contains(r.MovieId)).ToList();
+            var discoverResults  = results.Where(r => !watchlistIds.Contains(r.MovieId)).ToList();
+
+            int q = request.Quantity;
+            List<RecommendedMovieDto> blended;
+
+            if (q == 2)
+            {
+                blended = new List<RecommendedMovieDto>();
+                if (watchlistResults.Any())  blended.Add(watchlistResults.First());
+                if (discoverResults.Any())   blended.Add(discoverResults.First());
+                // Fallback: fill remaining from global pool
+                foreach (var r in results)
+                {
+                    if (blended.Count >= q) break;
+                    if (!blended.Any(b => b.MovieId == r.MovieId)) blended.Add(r);
+                }
+            }
+            else if (q == 3)
+            {
+                blended = new List<RecommendedMovieDto>();
+                if (watchlistResults.Any())  blended.Add(watchlistResults.First());
+                if (discoverResults.Any())   blended.Add(discoverResults.First());
+                // Third slot: global best not yet added
+                foreach (var r in results)
+                {
+                    if (blended.Count >= q) break;
+                    if (!blended.Any(b => b.MovieId == r.MovieId)) blended.Add(r);
+                }
+            }
+            else // q >= 4: 50/50
+            {
+                int watchlistSlots = (int)Math.Ceiling(q / 2.0);
+                int discoverSlots  = q - watchlistSlots;
+                blended = new List<RecommendedMovieDto>();
+                blended.AddRange(watchlistResults.Take(watchlistSlots));
+                blended.AddRange(discoverResults.Take(discoverSlots));
+                // Fallback: fill if either pool was too small
+                foreach (var r in results)
+                {
+                    if (blended.Count >= q) break;
+                    if (!blended.Any(b => b.MovieId == r.MovieId)) blended.Add(r);
+                }
+            }
+
+            // Replace results with the blended selection, sorted by match percentage
+            results = blended.OrderByDescending(r => r.MatchPercentage).ToList();
+        }
+
+        if (request.Strategy != RecommendationStrategy.HiddenGems)
+        {
+            // Give slight/small priority to more popular movies by boosting the MatchPercentage based on popularity
+            results = results.Select(r =>
+            {
+                var cand = filteredCandidates.FirstOrDefault(c => c.MovieId == r.MovieId);
+                if (cand != null && cand.TmdbPopularity.HasValue)
+                {
+                    double pop = cand.TmdbPopularity.Value;
+                    double boost = Math.Min(10.0, Math.Log(1 + pop) * 2.0); // caps at 10.0%, log-based scaling
+                    return r with { MatchPercentage = Math.Round(Math.Min(100.0, r.MatchPercentage + boost), 4) };
+                }
+                return r;
+            }).OrderByDescending(r => r.MatchPercentage).ToList();
+        }
+
+        // Prepare popularity tiers/percentiles for non-HiddenGems strategy to ensure tiered (escalonada) popularity
+        var sortedByPop = filteredCandidates.OrderBy(c => c.TmdbPopularity ?? 0.0).ToList();
+        int GetPopTier(CandidateMovieDto cand)
+        {
+            if (!sortedByPop.Any()) return 0;
+            int idx = sortedByPop.FindIndex(c => c.MovieId == cand.MovieId);
+            if (idx == -1) return 0;
+            int tier = (idx * request.Quantity) / sortedByPop.Count;
+            return Math.Clamp(tier, 0, request.Quantity - 1);
+        }
+
+        // Apply Diversification checks:
+        // - No genre should exceed 40% of the total recommended list
+        // - For HiddenGems: At most 60% of either Popular (popularity >= 20.0) or Obscure (popularity < 20.0)
+        // - For other strategies: Tiered popularity (at most 1 movie from each percentile tier)
+        // - At most 40% of Low Rating (rating < 7.0)
+        var diversifiedResults = new List<RecommendedMovieDto>();
+        var genreCounts = new Dictionary<string, int>();
+        var filledTiers = new HashSet<int>();
+        int popularCount = 0;
+        int obscureCount = 0;
+        int lowRatingCount = 0;
+
+        foreach (var recommendation in results)
+        {
+            if (diversifiedResults.Count >= request.Quantity)
+                break;
+
+            var cand = filteredCandidates.FirstOrDefault(c => c.MovieId == recommendation.MovieId);
+            if (cand == null)
+            {
+                diversifiedResults.Add(recommendation);
+                continue;
+            }
+
+            // Check genre constraint
+            var candGenres = (cand.Genres?.Split(',') ?? Array.Empty<string>()).Select(g => g.Trim()).ToList();
+            bool genreViolated = false;
+            foreach (var genre in candGenres)
+            {
+                if (genreCounts.TryGetValue(genre, out int count) && (count + 1) > Math.Max(1, request.Quantity * 0.4))
+                {
+                    genreViolated = true;
+                    break;
+                }
+            }
+            if (genreViolated && diversifiedResults.Count + (results.Count - results.IndexOf(recommendation)) > request.Quantity)
+                continue;
+
+            // Popularity constraint:
+            if (request.Strategy == RecommendationStrategy.HiddenGems)
+            {
+                bool isPopular = (cand.TmdbPopularity ?? 0.0) >= 20.0;
+                if (isPopular && (popularCount + 1) > Math.Max(1, request.Quantity * 0.6) && diversifiedResults.Count + (results.Count - results.IndexOf(recommendation)) > request.Quantity)
+                    continue;
+                if (!isPopular && (obscureCount + 1) > Math.Max(1, request.Quantity * 0.6) && diversifiedResults.Count + (results.Count - results.IndexOf(recommendation)) > request.Quantity)
+                    continue;
+
+                if (isPopular) popularCount++; else obscureCount++;
+            }
+            else
+            {
+                int tier = GetPopTier(cand);
+                if (filledTiers.Contains(tier) && diversifiedResults.Count + (results.Count - results.IndexOf(recommendation)) > request.Quantity)
+                    continue;
+
+                filledTiers.Add(tier);
+            }
+
+            // Check low rating constraint (Rating < 7.0)
+            double rVal = cand.CustomAverageRating ?? cand.TmdbRating ?? 6.0;
+            bool isLowRating = rVal < 7.0;
+            if (isLowRating && (lowRatingCount + 1) > Math.Max(1, request.Quantity * 0.4) && diversifiedResults.Count + (results.Count - results.IndexOf(recommendation)) > request.Quantity)
+                continue;
+
+            // Accept recommendation, update trackers
+            diversifiedResults.Add(recommendation);
+            foreach (var genre in candGenres)
+            {
+                genreCounts[genre] = genreCounts.GetValueOrDefault(genre) + 1;
+            }
+            if (isLowRating) lowRatingCount++;
+        }
+
+        // Fallback to top-scoring recommendations if pool selection failed to meet quantity
+        if (diversifiedResults.Count < request.Quantity)
+        {
+            foreach (var recommendation in results)
+            {
+                if (diversifiedResults.Count >= request.Quantity)
+                    break;
+                if (!diversifiedResults.Any(d => d.MovieId == recommendation.MovieId))
+                {
+                    diversifiedResults.Add(recommendation);
+                }
+            }
+        }
+
+        var finalResults = ApplyEasterEgg(diversifiedResults, filteredCandidates, request.Scope, request.Strategy).ToList();
+
+        // Shuffle non-HiddenGems strategy recommendations so they do not output in strict popularity/match order
+        if (request.Strategy != RecommendationStrategy.HiddenGems)
+        {
+            finalResults = finalResults.OrderBy(_ => Random.Shared.Next()).ToList();
+        }
 
         // 4. Wellness Check Evaluation (Last 7 Days)
         var wellnessCheckKey = $"skip_wellness_check:{request.UserId}";
@@ -368,7 +562,7 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                         {
                             switch (strategy)
                             {
-                                case RecommendationStrategy.CinephileElite:
+                                case RecommendationStrategy.HiddenGems:
                                     if ((candidate.TmdbPopularity ?? 30.0) < 2.0)
                                     {
                                         item = item with
@@ -439,6 +633,13 @@ public class GetCinematicRecommendationsQueryHandler : IRequestHandler<GetCinema
                                     {
                                         RecommendationReason = "Pure chaos selected this. Don't blame us if it's bad.",
                                         EasterEggTooltip = "The RNG gods have spoken. Frametric randomly picked this with zero algorithmic filters applied."
+                                    };
+                                    break;
+                                case RecommendationStrategy.OutOfCharacter:
+                                    item = item with
+                                    {
+                                        RecommendationReason = "I know you're probably not gonna like this, but trust the algorithm just this once.",
+                                        EasterEggTooltip = "This movie is completely out of character for you. Frametric challenges your cinematic stubbornness."
                                     };
                                     break;
                             }

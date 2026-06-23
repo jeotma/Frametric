@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@ public class GuiltyPleasureStrategy : RecommendationStrategyBase
     public override List<RecommendedMovieDto> Recommend(
         List<CandidateMovieDto> candidates,
         List<WatchedMovieDetailDto> watched,
+        UserViewingProfile profile,
         int quantity,
         int? maxRuntime = null)
     {
@@ -61,6 +62,8 @@ public class GuiltyPleasureStrategy : RecommendationStrategyBase
         {
             double score = 15.0;
             var reasons = new List<string>();
+
+            double profileMatch = CalculateProfileMatchScore(c, profile);
 
             // Audience-Critic discrepancy
             double criticRatingSum = 0;
@@ -211,7 +214,8 @@ public class GuiltyPleasureStrategy : RecommendationStrategyBase
             }
 
             double tieBreaker = CalculateTieBreaker(c);
-            double finalScore = Math.Min(99.9, Math.Max(10.0, score)) + tieBreaker;
+            double blendedScore = (score * 0.5) + (profileMatch * 0.5);
+            double finalScore = Math.Min(99.9, Math.Max(10.0, blendedScore)) + tieBreaker;
             double match = Math.Round(finalScore, 0);
 
             string reason = GenerateReason(keywordBonusVal, creatorBonusVal, isInPopularitySweetSpot, isNoAwards, discrepancy, isGenreMatch);

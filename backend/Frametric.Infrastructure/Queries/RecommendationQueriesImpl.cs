@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -39,17 +39,27 @@ public class RecommendationQueriesImpl : IRecommendationQueries
                    (SELECT STRING_AGG(a.""Name"", ',') FROM ""MovieActor"" ma JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id"" WHERE ma.""MoviesId"" = m.""Id"") AS Actors,
                    CAST(mr.""Score"" AS DOUBLE PRECISION) AS UserRating,
                    CAST(COALESCE(de.""WatchedDate"", w.""Date"") AS TIMESTAMP) AS WatchDate,
-                   m.""Keywords""
+                   m.""Keywords"",
+                   CASE WHEN ml.""Id"" IS NOT NULL THEN TRUE ELSE FALSE END AS Liked,
+                   m.""Writers"",
+                   m.""Language"",
+                   m.""Country"",
+                   m.""Awards"",
+                   m.""BoxOffice"",
+                   CAST(COALESCE((SELECT COUNT(*) FROM ""DiaryEntries"" d WHERE d.""MovieId"" = m.""Id"" AND d.""UserId"" = @userId), 1) AS INTEGER) AS DiaryCount,
+                   CASE WHEN (SELECT COUNT(*) FROM ""WatchlistItems"" wl WHERE wl.""MovieId"" = m.""Id"" AND wl.""UserId"" = @userId) > 0 THEN TRUE ELSE FALSE END AS IsWatchlisted,
+                   CASE WHEN (SELECT COUNT(*) FROM ""CustomListItems"" cli JOIN ""CustomLists"" cl ON cli.""CustomListId"" = cl.""Id"" WHERE cli.""MovieId"" = m.""Id"" AND cl.""UserId"" = @userId) > 0 THEN TRUE ELSE FALSE END AS IsInCustomList
             FROM ""WatchedMovies"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             LEFT JOIN ""MovieRatings"" mr ON w.""MovieId"" = mr.""MovieId"" AND mr.""UserId"" = @userId
             LEFT JOIN ""DiaryEntries"" de ON de.""MovieId"" = w.""MovieId"" AND de.""UserId"" = @userId
+            LEFT JOIN ""MovieLikes"" ml ON ml.""MovieId"" = w.""MovieId"" AND ml.""UserId"" = @userId
             WHERE w.""UserId"" = @userId";
 
         return await connection.QueryAsync<WatchedMovieDetailDto>(sql, new { userId });
     }
 
-    public async Task<IEnumerable<CandidateMovieDto>> GetCandidateMoviesAsync(Guid userId, RecommendationScope scope, int? maxRuntimeMinutes, CancellationToken ct = default)
+    public async Task<IEnumerable<CandidateMovieDto>> GetCandidateMoviesAsync(Guid userId, RecommendationScope scope, int? maxRuntimeMinutes, int? minRuntimeMinutes, CancellationToken ct = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
 
@@ -118,6 +128,7 @@ public class RecommendationQueriesImpl : IRecommendationQueries
             )
             AND c.""EnrichmentStatus"" = 'Completed'
             AND (@maxRuntimeMinutes IS NULL OR c.""RuntimeMinutes"" <= @maxRuntimeMinutes)
+            AND c.""RuntimeMinutes"" >= COALESCE(@minRuntimeMinutes, 30)
             AND c.""ReleaseYear"" > 0
             AND (
                 c.""ReleaseYear"" < @currentYear
@@ -126,6 +137,6 @@ public class RecommendationQueriesImpl : IRecommendationQueries
 
         var currentYear = DateTime.UtcNow.Year;
         var currentDate = DateTime.UtcNow.Date;
-        return await connection.QueryAsync<CandidateMovieDto>(sql, new { userId, maxRuntimeMinutes, currentYear, currentDate });
+        return await connection.QueryAsync<CandidateMovieDto>(sql, new { userId, maxRuntimeMinutes, minRuntimeMinutes, currentYear, currentDate });
     }
 }

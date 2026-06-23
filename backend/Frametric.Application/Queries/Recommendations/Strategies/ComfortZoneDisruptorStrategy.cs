@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@ public class ComfortZoneDisruptorStrategy : RecommendationStrategyBase
     public override List<RecommendedMovieDto> Recommend(
         List<CandidateMovieDto> candidates,
         List<WatchedMovieDetailDto> watched,
+        UserViewingProfile profile,
         int quantity,
         int? maxRuntime = null)
     {
@@ -69,6 +70,7 @@ public class ComfortZoneDisruptorStrategy : RecommendationStrategyBase
         return candidates.Select(c =>
         {
             double score = 0;
+            double profileMatch = CalculateProfileMatchScore(c, profile);
 
             // Comfort zone novelty (genres + eras)
             var cGenres = (c.Genres?.Split(',') ?? Array.Empty<string>()).Select(g => g.Trim()).ToList();
@@ -129,7 +131,8 @@ public class ComfortZoneDisruptorStrategy : RecommendationStrategyBase
             }
 
             double tieBreaker = CalculateTieBreaker(c);
-            double finalScore = Math.Min(99.9, Math.Max(10.0, score)) + tieBreaker;
+            double blendedScore = (score * 0.7) + (profileMatch * 0.3); // Strategy score drives disruption, profile helps refine
+            double finalScore = Math.Min(99.9, Math.Max(10.0, blendedScore)) + tieBreaker;
             double match = Math.Round(finalScore, 0);
 
             string reason = GenerateReason(isGenreComfort, isEraComfort, cDecade, anchorType, isForeign);

@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,16 @@ public record WatchedMovieDetailDto(
     string? Actors,
     double? UserRating,
     DateTime WatchDate,
-    string? Keywords = null
+    string? Keywords = null,
+    bool Liked = false,
+    string? Writers = null,
+    string? Language = null,
+    string? Country = null,
+    string? Awards = null,
+    string? BoxOffice = null,
+    int DiaryCount = 1,
+    bool IsWatchlisted = false,
+    bool IsInCustomList = false
 );
 
 public record CandidateMovieDto(
@@ -113,5 +122,5 @@ public record CandidateMovieDto(
 public interface IRecommendationQueries
 {
     Task<IEnumerable<WatchedMovieDetailDto>> GetWatchedMovieDetailsAsync(Guid userId, CancellationToken ct = default);
-    Task<IEnumerable<CandidateMovieDto>> GetCandidateMoviesAsync(Guid userId, RecommendationScope scope, int? maxRuntimeMinutes, CancellationToken ct = default);
+    Task<IEnumerable<CandidateMovieDto>> GetCandidateMoviesAsync(Guid userId, RecommendationScope scope, int? maxRuntimeMinutes, int? minRuntimeMinutes, CancellationToken ct = default);
 }

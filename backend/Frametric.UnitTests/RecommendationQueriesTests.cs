@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -122,7 +122,7 @@ public class RecommendationQueriesTests
         var queries = new RecommendationQueriesImpl(_dbConnectionFactoryMock.Object);
 
         // Act
-        var result = await queries.GetCandidateMoviesAsync(Guid.NewGuid(), scope, 150, CancellationToken.None);
+        var result = await queries.GetCandidateMoviesAsync(Guid.NewGuid(), scope, 150, 30, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
