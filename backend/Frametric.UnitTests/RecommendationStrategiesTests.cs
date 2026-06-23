@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Frametric.Application.DTOs;
 using Frametric.Application.Interfaces.Analytics;
+using Frametric.Application.Queries.Recommendations;
 using Frametric.Application.Queries.Recommendations.Strategies;
 using Frametric.Domain.Enums;
 using Xunit;
@@ -141,7 +142,7 @@ public class RecommendationStrategiesTests
         var strategy = new GuiltyPleasureStrategy();
 
         // Act
-        var results = strategy.Recommend(_standardCandidates, _standardWatched, 3);
+        var results = strategy.Recommend(_standardCandidates, _standardWatched, new UserViewingProfile(), 3);
 
         // Assert
         Assert.NotEmpty(results);
@@ -150,10 +151,10 @@ public class RecommendationStrategiesTests
     }
 
     [Fact]
-    public void CinephileEliteStrategy_ShouldRecommendHighlyRatedForeignOrIndieFilms()
+    public void HiddenGemsStrategy_ShouldRecommendHighlyRatedForeignOrIndieFilms()
     {
         // Arrange
-        var strategy = new CinephileEliteStrategy();
+        var strategy = new HiddenGemsStrategy();
         
         var prestigeCandidates = new List<CandidateMovieDto>
         {
@@ -212,7 +213,7 @@ public class RecommendationStrategiesTests
         };
 
         // Act
-        var results = strategy.Recommend(prestigeCandidates, _standardWatched, 2);
+        var results = strategy.Recommend(prestigeCandidates, _standardWatched, new UserViewingProfile(), 2);
 
         // Assert
         Assert.Single(results);
@@ -230,7 +231,7 @@ public class RecommendationStrategiesTests
         var strategy = new OppositeMoodStrategy();
 
         // Act
-        var results = strategy.Recommend(_standardCandidates, _standardWatched, 3);
+        var results = strategy.Recommend(_standardCandidates, _standardWatched, new UserViewingProfile(), 3);
 
         // Assert
         Assert.NotEmpty(results);
@@ -244,7 +245,7 @@ public class RecommendationStrategiesTests
         var strategy = new ComfortZoneDisruptorStrategy();
 
         // Act
-        var results = strategy.Recommend(_standardCandidates, _standardWatched, 3);
+        var results = strategy.Recommend(_standardCandidates, _standardWatched, new UserViewingProfile(), 3);
 
         // Assert
         Assert.NotEmpty(results);
@@ -260,7 +261,7 @@ public class RecommendationStrategiesTests
         var emptyWatched = new List<WatchedMovieDetailDto>();
 
         // Act
-        var results = strategy.Recommend(_standardCandidates, emptyWatched, 2);
+        var results = strategy.Recommend(_standardCandidates, emptyWatched, new UserViewingProfile(), 2);
 
         // Assert
         Assert.Equal(2, results.Count);
@@ -305,7 +306,7 @@ public class RecommendationStrategiesTests
         };
 
         // Act
-        var results = strategy.Recommend(candidates, _standardWatched, 1);
+        var results = strategy.Recommend(candidates, _standardWatched, new UserViewingProfile(), 1);
 
         var rec = results[0];
         Assert.Equal("Japan", candidates[0].Country);
@@ -314,17 +315,73 @@ public class RecommendationStrategiesTests
     }
 
     [Fact]
-    public void RuntimeContextStrategy_ShouldEnforceRuntimeConstraints()
+    public void BlastFromThePastStrategy_ShouldRecommendOldMoviesWithHighRating()
     {
         // Arrange
-        var strategy = new RuntimeContextStrategy();
+        var strategy = new BlastFromThePastStrategy();
+
+        var vintageCandidates = new List<CandidateMovieDto>
+        {
+            new CandidateMovieDto(
+                MovieId: Guid.NewGuid(),
+                Title: "Classic Masterpiece 1970",
+                ReleaseYear: 1970,
+                RuntimeMinutes: 110,
+                PosterUrl: "/poster.jpg",
+                TmdbRating: 8.5,
+                TmdbPopularity: 15.0,
+                CustomAverageRating: 8.5,
+                Genres: "Drama",
+                Directors: "Classic Director",
+                Actors: "Classic Actor",
+                Keywords: "classic",
+                Awards: "Won 3 Oscars",
+                Writers: "Classic Writer",
+                Language: "en",
+                Country: "USA",
+                BoxOffice: "",
+                Certification: "G",
+                StreamingProviders: "",
+                Overview: "Overview",
+                ImdbRating: 8.5,
+                RottenTomatoesRating: 8.5,
+                MetacriticRating: 8.5,
+                WatchlistAddedDate: null
+            ),
+            new CandidateMovieDto(
+                MovieId: Guid.NewGuid(),
+                Title: "Modern Film 2020",
+                ReleaseYear: 2020,
+                RuntimeMinutes: 100,
+                PosterUrl: "/poster.jpg",
+                TmdbRating: 8.8,
+                TmdbPopularity: 100.0,
+                CustomAverageRating: 8.8,
+                Genres: "Drama",
+                Directors: "Modern Director",
+                Actors: "Modern Actor",
+                Keywords: "modern",
+                Awards: "",
+                Writers: "Modern Writer",
+                Language: "en",
+                Country: "USA",
+                BoxOffice: "",
+                Certification: "PG-13",
+                StreamingProviders: "",
+                Overview: "Overview",
+                ImdbRating: 8.8,
+                RottenTomatoesRating: 8.8,
+                MetacriticRating: 8.8,
+                WatchlistAddedDate: null
+            )
+        };
 
         // Act
-        var results = strategy.Recommend(_standardCandidates, _standardWatched, 3, maxRuntime: 110);
-        
+        var results = strategy.Recommend(vintageCandidates, _standardWatched, new UserViewingProfile(), 2);
+
         // Assert
-        Assert.NotEmpty(results);
-        Assert.NotNull(results.First().RecommendationReason);
+        Assert.Single(results);
+        Assert.Equal("Classic Masterpiece 1970", results.First().Title);
     }
 
     [Fact]
@@ -334,7 +391,7 @@ public class RecommendationStrategiesTests
         var strategy = new DirectorsTrajectoryStrategy();
 
         // Act
-        var results = strategy.Recommend(_standardCandidates, _standardWatched, 3);
+        var results = strategy.Recommend(_standardCandidates, _standardWatched, new UserViewingProfile(), 3);
 
         // Assert
         Assert.NotEmpty(results);
@@ -351,7 +408,7 @@ public class RecommendationStrategiesTests
         var emptyWatched = new List<WatchedMovieDetailDto>();
 
         // Act
-        var results = strategy.Recommend(_standardCandidates, emptyWatched, 2);
+        var results = strategy.Recommend(_standardCandidates, emptyWatched, new UserViewingProfile(), 2);
 
         // Assert
         Assert.Equal(2, results.Count);
@@ -379,7 +436,7 @@ public class RecommendationStrategiesTests
         };
 
         // Act
-        var results = strategy.Recommend(_standardCandidates, watched, 2);
+        var results = strategy.Recommend(_standardCandidates, watched, new UserViewingProfile(), 2);
 
         // Assert
         Assert.NotEmpty(results);

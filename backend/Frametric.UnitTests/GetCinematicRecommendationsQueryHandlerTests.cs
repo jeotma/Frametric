@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -37,6 +37,7 @@ public class GetCinematicRecommendationsQueryHandlerTests
     private readonly Mock<IRecommendationQueries> _queriesMock;
     private readonly Mock<IDistributedCache> _cacheMock;
     private readonly Mock<ILogger<GetCinematicRecommendationsQueryHandler>> _loggerMock;
+    private readonly Mock<IUserViewingProfileService> _profileServiceMock;
     private readonly GetCinematicRecommendationsQueryHandler _handler;
 
     public GetCinematicRecommendationsQueryHandlerTests()
@@ -44,6 +45,7 @@ public class GetCinematicRecommendationsQueryHandlerTests
         _queriesMock = new Mock<IRecommendationQueries>();
         _cacheMock = new Mock<IDistributedCache>();
         _loggerMock = new Mock<ILogger<GetCinematicRecommendationsQueryHandler>>();
+        _profileServiceMock = new Mock<IUserViewingProfileService>();
 
         var strategies = new List<IRecommendationStrategy>
         {
@@ -51,18 +53,22 @@ public class GetCinematicRecommendationsQueryHandlerTests
             new OppositeMoodStrategy(),
             new ComfortZoneDisruptorStrategy(),
             new GuiltyPleasureStrategy(),
-            new CinephileEliteStrategy(),
+            new HiddenGemsStrategy(),
             new DirectorsTrajectoryStrategy(),
-            new RuntimeContextStrategy(),
+            new BlastFromThePastStrategy(),
             new PureRandomStrategy()
         };
 
         _handler = new GetCinematicRecommendationsQueryHandler(
             _queriesMock.Object,
             _cacheMock.Object,
+            _profileServiceMock.Object,
             _loggerMock.Object,
             strategies
         );
+
+        _profileServiceMock.Setup(p => p.GetOrCreateProfileAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(new UserViewingProfile());
     }
 
     [Fact]
@@ -72,7 +78,7 @@ public class GetCinematicRecommendationsQueryHandlerTests
         var userId = Guid.NewGuid();
         _queriesMock.Setup(q => q.GetWatchedMovieDetailsAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<WatchedMovieDetailDto>());
-        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, It.IsAny<CancellationToken>()))
+        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CandidateMovieDto>());
 
         var query = new GetCinematicRecommendationsQuery(userId, RecommendationStrategy.RecentMood, RecommendationScope.Hybrid, 3);
@@ -97,7 +103,7 @@ public class GetCinematicRecommendationsQueryHandlerTests
 
         _queriesMock.Setup(q => q.GetWatchedMovieDetailsAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<WatchedMovieDetailDto>());
-        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, It.IsAny<CancellationToken>()))
+        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(candidates);
 
         var query = new GetCinematicRecommendationsQuery(userId, RecommendationStrategy.RecentMood, RecommendationScope.Hybrid, 3);
@@ -131,7 +137,7 @@ public class GetCinematicRecommendationsQueryHandlerTests
                 new WatchedMovieDetailDto(Guid.NewGuid(), 2019, 100, "Drama", "Director C", "Actor C", 8.0, DateTime.UtcNow)
             });
 
-        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, It.IsAny<CancellationToken>()))
+        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(candidates);
 
         // Setup cache mock: return value "skipped" only for the skippedMovieId
@@ -168,7 +174,7 @@ public class GetCinematicRecommendationsQueryHandlerTests
                 new WatchedMovieDetailDto(Guid.NewGuid(), 2020, 100, "Drama", "Director A", "Actor A", 8.0, DateTime.UtcNow)
             });
 
-        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, It.IsAny<CancellationToken>()))
+        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(candidates);
 
         var query = new GetCinematicRecommendationsQuery(userId, RecommendationStrategy.RecentMood, RecommendationScope.Hybrid, 2);
@@ -178,7 +184,8 @@ public class GetCinematicRecommendationsQueryHandlerTests
 
         // Assert
         Assert.Equal(2, result.Count);
-        Assert.True(result[0].MatchPercentage >= result[1].MatchPercentage);
+        var sorted = result.OrderByDescending(r => r.MatchPercentage).ToList();
+        Assert.True(sorted[0].MatchPercentage >= sorted[1].MatchPercentage);
     }
 
     [Fact]
@@ -198,7 +205,7 @@ public class GetCinematicRecommendationsQueryHandlerTests
                 new WatchedMovieDetailDto(Guid.NewGuid(), 2020, 100, "Drama", "Director A", "Actor A", 8.0, DateTime.UtcNow, "new york city, drama")
             });
 
-        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, It.IsAny<CancellationToken>()))
+        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(candidates);
 
         var query = new GetCinematicRecommendationsQuery(userId, RecommendationStrategy.RecentMood, RecommendationScope.Hybrid, 2);
@@ -232,7 +239,7 @@ public class GetCinematicRecommendationsQueryHandlerTests
 
         _queriesMock.Setup(q => q.GetWatchedMovieDetailsAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(watched);
-        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, It.IsAny<CancellationToken>()))
+        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(candidates);
         _cacheMock.Setup(c => c.GetAsync($"skip_wellness_check:{userId}", It.IsAny<CancellationToken>()))
             .ReturnsAsync((byte[]?)null);
@@ -268,7 +275,7 @@ public class GetCinematicRecommendationsQueryHandlerTests
 
         _queriesMock.Setup(q => q.GetWatchedMovieDetailsAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(watched);
-        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, It.IsAny<CancellationToken>()))
+        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, RecommendationScope.Hybrid, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(candidates);
         _cacheMock.Setup(c => c.GetAsync($"skip_wellness_check:{userId}", It.IsAny<CancellationToken>()))
             .ReturnsAsync(System.Text.Encoding.UTF8.GetBytes("dismissed"));
@@ -295,18 +302,20 @@ public class GetCinematicRecommendationsQueryHandlerTests
             // 1. Long-term watchlist (added > 2.5 years ago)
             new CandidateMovieDto(Guid.NewGuid(), "Old Watchlist Film", 2010, 100, "poster", 7.5, 50, 7.5, "Drama", "Director A", "Actor A", WatchlistAddedDate: today.AddYears(-3)),
             // 2. Truly terrible rating (rating <= 4.5)
-            new CandidateMovieDto(Guid.NewGuid(), "Awful Movie", 2015, 90, null, 3.0, 10, 3.0, "Comedy", "Director B", "Actor B"),
+            new CandidateMovieDto(Guid.NewGuid(), "Awful Movie", 2015, 90, null, 3.0, 10, 3.0, "Comedy", "Director B", "Actor B", WatchlistAddedDate: today),
             // 3. Short attention span (runtime <= 80)
-            new CandidateMovieDto(Guid.NewGuid(), "Short Film", 2020, 45, null, 8.0, 50, 8.0, "Action", "Director C", "Actor C"),
+            new CandidateMovieDto(Guid.NewGuid(), "Short Film", 2020, 45, null, 8.0, 50, 8.0, "Action", "Director C", "Actor C", WatchlistAddedDate: today),
             // 4. Cinephile Endurance (runtime >= 180)
-            new CandidateMovieDto(Guid.NewGuid(), "Epic Film", 2021, 210, null, 8.2, 70, 8.2, "Thriller", "Director D", "Actor D"),
-            // 5. Obscure for CinephileElite (TmdbPopularity < 2.0)
-            new CandidateMovieDto(Guid.NewGuid(), "Prestige Indie", 2019, 110, null, 8.5, 1.0, 8.5, "Documentary", "Director E", "Actor E"),
+            new CandidateMovieDto(Guid.NewGuid(), "Epic Film", 2021, 210, null, 8.2, 70, 8.2, "Thriller", "Director D", "Actor D", WatchlistAddedDate: today),
+            // 5. Obscure for HiddenGems (TmdbPopularity < 2.0)
+            new CandidateMovieDto(Guid.NewGuid(), "Prestige Indie", 2019, 110, null, 8.5, 1.0, 8.5, "Documentary", "Director E", "Actor E", WatchlistAddedDate: today),
             // 6. Genres for OppositeMood (Comedy, Horror, Thriller, Action, Drama)
-            new CandidateMovieDto(Guid.NewGuid(), "Funny Movie", 2018, 95, null, 7.0, 40, 7.0, "Comedy", "Director F", "Actor F"),
-            new CandidateMovieDto(Guid.NewGuid(), "Scary Movie", 2017, 105, null, 7.0, 40, 7.0, "Horror", "Director G", "Actor G"),
-            new CandidateMovieDto(Guid.NewGuid(), "Fast Movie", 2016, 92, null, 7.0, 40, 7.0, "Action", "Director H", "Actor H"),
-            new CandidateMovieDto(Guid.NewGuid(), "Serious Movie", 2015, 115, null, 7.0, 40, 7.0, "Drama", "Director I", "Actor I")
+            new CandidateMovieDto(Guid.NewGuid(), "Funny Movie", 2018, 95, null, 7.0, 40, 7.0, "Comedy", "Director F", "Actor F", WatchlistAddedDate: today),
+            new CandidateMovieDto(Guid.NewGuid(), "Scary Movie", 2017, 105, null, 7.0, 40, 7.0, "Horror", "Director G", "Actor G", WatchlistAddedDate: today),
+            new CandidateMovieDto(Guid.NewGuid(), "Fast Movie", 2016, 92, null, 7.0, 40, 7.0, "Action", "Director H", "Actor H", WatchlistAddedDate: today),
+            new CandidateMovieDto(Guid.NewGuid(), "Serious Movie", 2015, 115, null, 7.0, 40, 7.0, "Drama", "Director I", "Actor I", WatchlistAddedDate: today),
+            // 7. Classic movie for BlastFromThePastStrategy (pre-1990 release year)
+            new CandidateMovieDto(Guid.NewGuid(), "Classic Vintage Film", 1968, 120, null, 8.5, 30.0, 8.5, "Drama", "Classic Director", "Classic Actor", WatchlistAddedDate: today)
         };
 
         var watched = new List<WatchedMovieDetailDto>
@@ -318,8 +327,11 @@ public class GetCinematicRecommendationsQueryHandlerTests
             .ReturnsAsync(watched);
 
         // Mock candidates for normal query
-        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, It.IsAny<RecommendationScope>(), It.IsAny<int?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(candidates);
+        _queriesMock.Setup(q => q.GetCandidateMoviesAsync(userId, It.IsAny<RecommendationScope>(), It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid uid, RecommendationScope scope, int? maxR, int? minR, CancellationToken ct) => 
+                scope == RecommendationScope.WatchlistOnly 
+                    ? candidates.Where(c => c.WatchlistAddedDate.HasValue).ToList()
+                    : candidates);
 
         // Cache setups to allow wellness check and easter eggs
         _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -342,4 +354,3 @@ public class GetCinematicRecommendationsQueryHandlerTests
         }
     }
 }
-

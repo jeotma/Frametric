@@ -6,7 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Frametric.Application.Commands.CustomLists;
 
-public record CreateCustomListCommand(Guid UserId, string Name, List<Guid> MovieIds) : IRequest<CustomListDto>;
+public record CustomListItemInput(Guid MovieId, string? Nickname = null);
+
+public record CreateCustomListCommand(Guid UserId, string Name, List<CustomListItemInput> Items) : IRequest<CustomListDto>;
 
 public class CreateCustomListCommandHandler : IRequestHandler<CreateCustomListCommand, CustomListDto>
 {
@@ -21,12 +23,14 @@ public class CreateCustomListCommandHandler : IRequestHandler<CreateCustomListCo
     {
         var list = new CustomList(Guid.NewGuid(), request.UserId, request.Name, DateTime.UtcNow);
         
-        foreach (var movieId in request.MovieIds.Distinct())
+        var seenIds = new HashSet<Guid>();
+        foreach (var item in request.Items)
         {
-            var exists = await _context.Movies.AnyAsync(m => m.Id == movieId, cancellationToken);
+            if (!seenIds.Add(item.MovieId)) continue;
+            var exists = await _context.Movies.AnyAsync(m => m.Id == item.MovieId, cancellationToken);
             if (exists)
             {
-                list.Items.Add(new CustomListItem(list.Id, movieId, DateTime.UtcNow));
+                list.Items.Add(new CustomListItem(list.Id, item.MovieId, DateTime.UtcNow, item.Nickname));
             }
         }
 
@@ -39,16 +43,20 @@ public class CreateCustomListCommandHandler : IRequestHandler<CreateCustomListCo
             .ThenInclude(i => i.Movie)
             .FirstAsync(c => c.Id == list.Id, cancellationToken);
 
-        return new CustomListDto
-        {
-            Id = createdList.Id,
-            Name = createdList.Name,
-            CreatedAt = createdList.CreatedAt,
-            Movies = createdList.Items.Select(i => new Frametric.Application.DTOs.Analytics.MovieSimpleDto(
-                i.Movie.Id, 
-                i.Movie.Title, 
-                i.Movie.ReleaseYear, 
-                i.Movie.PosterUrl)).ToList()
-        };
+        return MapToDto(createdList);
     }
+
+    internal static CustomListDto MapToDto(CustomList createdList) => new CustomListDto
+    {
+        Id = createdList.Id,
+        Name = createdList.Name,
+        CreatedAt = createdList.CreatedAt,
+        Movies = createdList.Items.Select(i => new Frametric.Application.DTOs.Analytics.MovieSimpleDto(
+            i.Movie.Id, 
+            i.Movie.Title, 
+            i.Movie.ReleaseYear, 
+            i.Movie.PosterUrl,
+            false,
+            i.Nickname)).ToList()
+    };
 }

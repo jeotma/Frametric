@@ -23,11 +23,13 @@ public static class DependencyInjection
         services.AddScoped<IRecommendationStrategy, OppositeMoodStrategy>();
         services.AddScoped<IRecommendationStrategy, ComfortZoneDisruptorStrategy>();
         services.AddScoped<IRecommendationStrategy, GuiltyPleasureStrategy>();
-        services.AddScoped<IRecommendationStrategy, CinephileEliteStrategy>();
+        services.AddScoped<IRecommendationStrategy, HiddenGemsStrategy>();
         services.AddScoped<IRecommendationStrategy, DirectorsTrajectoryStrategy>();
-        services.AddScoped<IRecommendationStrategy, RuntimeContextStrategy>();
+        services.AddScoped<IRecommendationStrategy, BlastFromThePastStrategy>();
         services.AddScoped<IRecommendationStrategy, PureRandomStrategy>();
-        
+        services.AddScoped<IRecommendationStrategy, OutOfCharacterStrategy>();
+
+
         return services;
     }
 }

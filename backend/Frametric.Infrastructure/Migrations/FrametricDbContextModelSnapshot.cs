@@ -28,6 +28,9 @@ namespace Frametric.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("BoardId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Column")
                         .HasColumnType("integer");
 
@@ -128,6 +131,10 @@ namespace Frametric.Infrastructure.Migrations
 
                     b.Property<DateTime>("AddedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Nickname")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.HasKey("CustomListId", "MovieId");
 
@@ -483,6 +490,12 @@ namespace Frametric.Infrastructure.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("PasswordResetToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("PasswordResetTokenExpiry")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Role")
                         .IsRequired()

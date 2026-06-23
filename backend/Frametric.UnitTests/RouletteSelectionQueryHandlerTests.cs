@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -85,5 +85,46 @@ public class RouletteSelectionQueryHandlerTests
         var query = new RouletteSelectionQuery(Guid.NewGuid(), DiscoveryDataSourceScope.DatabaseOnly, 3);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(query, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Handle_ShouldLimitPoolTo50_WhenNonCustomScopeAndPoolSizeIsGreaterThan50()
+    {
+        var pool = CreatePool(60);
+        _discoveryQueriesMock
+            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pool);
+
+        var handler = CreateHandler();
+        var query = new RouletteSelectionQuery(Guid.NewGuid(), DiscoveryDataSourceScope.DatabaseOnly, 1);
+
+        var result = await handler.Handle(query, CancellationToken.None);
+
+        Assert.NotNull(result);
+        // Under WinningThreshold = 1, the spin sequence length should be exactly 50.
+        Assert.Equal(50, result.SpinSequence.Count());
+    }
+
+    [Fact]
+    public async Task Handle_ShouldNotLimitPoolTo50_WhenCustomScopeAndPoolSizeIsGreaterThan50()
+    {
+        var pool = CreatePool(60);
+        _discoveryQueriesMock
+            .Setup(x => x.GetDiscoveryPoolAsync(It.IsAny<Guid>(), It.IsAny<DiscoveryDataSourceScope>(), It.IsAny<IEnumerable<Guid>?>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pool);
+
+        var handler = CreateHandler();
+        // CustomCollection is custom scope
+        var query = new RouletteSelectionQuery(
+            Guid.NewGuid(), 
+            DiscoveryDataSourceScope.CustomCollection, 
+            1, 
+            CustomSourceIds: new[] { Guid.NewGuid() });
+
+        var result = await handler.Handle(query, CancellationToken.None);
+
+        Assert.NotNull(result);
+        // Under WinningThreshold = 1, the spin sequence length should be exactly 60 (unlimited).
+        Assert.Equal(60, result.SpinSequence.Count());
     }
 }

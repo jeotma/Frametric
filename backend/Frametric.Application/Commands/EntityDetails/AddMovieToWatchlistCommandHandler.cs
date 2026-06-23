@@ -7,6 +7,7 @@
 // (at your option) any later version.
 
 using Frametric.Application.Interfaces;
+using Frametric.Application.Interfaces.Analytics;
 using Frametric.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -16,10 +17,12 @@ namespace Frametric.Application.Commands.EntityDetails;
 public class AddMovieToWatchlistCommandHandler : IRequestHandler<AddMovieToWatchlistCommand, bool>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IUserViewingProfileService _profileService;
 
-    public AddMovieToWatchlistCommandHandler(IApplicationDbContext context)
+    public AddMovieToWatchlistCommandHandler(IApplicationDbContext context, IUserViewingProfileService profileService)
     {
         _context = context;
+        _profileService = profileService;
     }
 
     public async Task<bool> Handle(AddMovieToWatchlistCommand request, CancellationToken cancellationToken)
@@ -42,6 +45,9 @@ public class AddMovieToWatchlistCommandHandler : IRequestHandler<AddMovieToWatch
 
         _context.WatchlistItems.Add(watchlistItem);
         await _context.SaveChangesAsync(cancellationToken);
+
+        // Trigger profile rebuild
+        _profileService.ScheduleRebuild(request.UserId);
 
         return true;
     }

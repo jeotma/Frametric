@@ -3,6 +3,7 @@ export * from './actor-details-dto';
 export * from './actor-simple-dto';
 export * from './auth-response-dto';
 export * from './best-rookies-dto';
+export * from './bingo-board-dto';
 export * from './bingo-grid-dto';
 export * from './bingo-request';
 export * from './bingo-square-dto';

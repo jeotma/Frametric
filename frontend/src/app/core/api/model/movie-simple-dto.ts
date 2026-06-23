@@ -15,5 +15,6 @@ export interface MovieSimpleDto {
     releaseYear?: number | null;
     posterPath?: string | null;
     isWatched?: boolean;
+    nickname?: string | null;
 }
 

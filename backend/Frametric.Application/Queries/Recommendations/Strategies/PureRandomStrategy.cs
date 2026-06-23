@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@ public class PureRandomStrategy : RecommendationStrategyBase
     public override List<RecommendedMovieDto> Recommend(
         List<CandidateMovieDto> candidates,
         List<WatchedMovieDetailDto> watched,
+        UserViewingProfile profile,
         int quantity,
         int? maxRuntime = null)
     {
@@ -30,8 +31,9 @@ public class PureRandomStrategy : RecommendationStrategyBase
             .Take(quantity)
             .Select(c =>
             {
+                double profileMatch = CalculateProfileMatchScore(c, profile);
                 double tieBreaker = CalculateTieBreaker(c);
-                double finalScore = 50.0 + tieBreaker;
+                double finalScore = (50.0 * 0.3) + (profileMatch * 0.7) + tieBreaker;
                 double match = Math.Round(finalScore, 0);
                 string reason = GenerateReason();
                 return new RecommendedMovieDto(

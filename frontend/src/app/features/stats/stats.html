@@ -69,14 +69,14 @@
             <line x1="12" y1="16" x2="12" y2="12" />
             <line x1="12" y1="8" x2="12.01" y2="8" />
           </svg>
-          <span class="tooltip-text" style="width: 280px;">Your ratings, imported from Letterboxd (scale 1-5) have been
-            multiplied by 2 to align with the application's 10-point scale.</span>
+          <span class="tooltip-text" style="width: 280px;">Your ratings, imported from Letterboxd (originally scale 1-5) have been
+            multiplied by 2 to align with the application's 10-point scale. Filter matches are evaluated against this 10-point scale.</span>
         </label>
         <div class="rating-inputs">
-          <input type="number" [(ngModel)]="globalFilters.minRating" step="0.5" min="0" max="5" placeholder="Min"
+          <input type="number" [(ngModel)]="globalFilters.minRating" step="0.5" min="0" max="10" placeholder="Min"
             class="form-input mini-input" [disabled]="!isFilterAllowed('minRating')">
           <span>-</span>
-          <input type="number" [(ngModel)]="globalFilters.maxRating" step="0.5" min="0" max="5" placeholder="Max"
+          <input type="number" [(ngModel)]="globalFilters.maxRating" step="0.5" min="0" max="10" placeholder="Max"
             class="form-input mini-input" [disabled]="!isFilterAllowed('maxRating')">
         </div>
       </div>

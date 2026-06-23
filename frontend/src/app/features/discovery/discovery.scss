@@ -97,17 +97,59 @@
 
   .panel-header {
     margin-bottom: 20px;
-    text-align: center;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
 
+    .panel-header-left {
+      text-align: center;
+      flex: 1;
+
+      h2 {
+        margin: 0 0 4px;
+        font-size: 1.4rem;
+      }
+
+      p {
+        color: var(--text-muted);
+        margin: 0;
+        font-size: 0.9rem;
+      }
+    }
+
+    // Backwards compat: panels without panel-header-left still centered
     h2 {
       margin: 0 0 4px;
       font-size: 1.4rem;
+      flex: 1;
+      text-align: center;
     }
 
     p {
       color: var(--text-muted);
       margin: 0;
       font-size: 0.9rem;
+    }
+  }
+
+  .btn-fullscreen {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+
+    &:hover {
+      border-color: var(--accent-sepia);
+      color: var(--accent-sepia);
+      background: rgba(226, 186, 100, 0.06);
     }
   }
 }
@@ -1385,5 +1427,23 @@
     color: var(--text-secondary);
     min-width: 32px;
     text-align: right;
+  }
+}
+
+/* Fullscreen mode for the roulette panel */
+.fullscreen-panel, :fullscreen .panel {
+  background: var(--bg-primary) !important;
+  padding: 2rem !important;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+
+  .roulette-layout {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .anim-container {
+    height: 65vh !important;
   }
 }

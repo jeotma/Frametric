@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -13,6 +13,7 @@ public class CustomListItem
     public Guid CustomListId { get; private set; }
     public Guid MovieId { get; private set; }
     public DateTime AddedAt { get; private set; }
+    public string? Nickname { get; private set; }
 
     // Navigation properties
     public CustomList CustomList { get; private set; } = null!;
@@ -20,10 +21,11 @@ public class CustomListItem
 
     private CustomListItem() { }
 
-    public CustomListItem(Guid customListId, Guid movieId, DateTime addedAt)
+    public CustomListItem(Guid customListId, Guid movieId, DateTime addedAt, string? nickname = null)
     {
         CustomListId = customListId;
         MovieId = movieId;
         AddedAt = addedAt;
+        Nickname = nickname;
     }
 }

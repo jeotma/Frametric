@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -29,6 +29,7 @@ public class DirectorsTrajectoryStrategy : RecommendationStrategyBase
     public override List<RecommendedMovieDto> Recommend(
         List<CandidateMovieDto> candidates,
         List<WatchedMovieDetailDto> watched,
+        UserViewingProfile profile,
         int quantity,
         int? maxRuntime = null)
     {
@@ -53,7 +54,7 @@ public class DirectorsTrajectoryStrategy : RecommendationStrategyBase
             .ThenByDescending(x => x.Avg)
             .ToList();
 
-        var recommendations = GetRecommendationsForDirectors(candidates, watched, tier1Stats, quantity);
+        var recommendations = GetRecommendationsForDirectors(candidates, watched, profile, tier1Stats, quantity);
         if (recommendations.Any())
         {
             return recommendations;
@@ -68,7 +69,7 @@ public class DirectorsTrajectoryStrategy : RecommendationStrategyBase
             .OrderByDescending(x => x.Count)
             .ToList();
 
-        recommendations = GetRecommendationsForDirectors(candidates, watched, tier2Stats, quantity);
+        recommendations = GetRecommendationsForDirectors(candidates, watched, profile, tier2Stats, quantity);
         if (recommendations.Any())
         {
             return recommendations;
@@ -81,6 +82,7 @@ public class DirectorsTrajectoryStrategy : RecommendationStrategyBase
     private List<RecommendedMovieDto> GetRecommendationsForDirectors(
         List<CandidateMovieDto> candidates,
         List<WatchedMovieDetailDto> watched,
+        UserViewingProfile profile,
         List<DirectorStat> stats,
         int quantity)
     {
@@ -119,8 +121,11 @@ public class DirectorsTrajectoryStrategy : RecommendationStrategyBase
                     score += 5.0;
                 }
 
+                double profileMatch = CalculateProfileMatchScore(c, profile);
+                double blendedScore = (score * 0.6) + (profileMatch * 0.4);
+
                 double tieBreaker = CalculateTieBreaker(c);
-                double finalScore = Math.Min(99.9, Math.Max(10.0, score)) + tieBreaker;
+                double finalScore = Math.Min(99.9, Math.Max(10.0, blendedScore)) + tieBreaker;
                 double match = Math.Round(finalScore, 0);
 
                 string reason = GenerateReason(dir, lastWatchedYear, c.ReleaseYear);

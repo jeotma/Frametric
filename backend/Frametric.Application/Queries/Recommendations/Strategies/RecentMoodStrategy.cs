@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -22,10 +22,11 @@ public class RecentMoodStrategy : RecommendationStrategyBase
     public override List<RecommendedMovieDto> Recommend(
         List<CandidateMovieDto> candidates,
         List<WatchedMovieDetailDto> watched,
+        UserViewingProfile profile,
         int quantity,
         int? maxRuntime = null)
     {
-        var recent = watched.OrderByDescending(w => w.WatchDate).Take(15).ToList();
+        var recent = ExtractRecentMovies(watched);
         var latestWatchDate = recent.FirstOrDefault()?.WatchDate ?? DateTime.UtcNow;
         
         var recentGenres = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
@@ -115,6 +116,7 @@ public class RecentMoodStrategy : RecommendationStrategyBase
         return candidates.Select(c =>
         {
             double score = 0;
+            double profileMatch = CalculateProfileMatchScore(c, profile);
 
             // Genre Cosine Similarity
             var cGenres = (c.Genres?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>())
@@ -195,7 +197,8 @@ public class RecentMoodStrategy : RecommendationStrategyBase
             }
 
             double tieBreaker = CalculateTieBreaker(c);
-            double finalScore = Math.Min(99.9, Math.Max(10.0, score)) + tieBreaker;
+            double blendedScore = (score * 0.7) + (profileMatch * 0.3);
+            double finalScore = Math.Min(99.9, Math.Max(10.0, blendedScore)) + tieBreaker;
             double match = Math.Round(finalScore, 0);
             
             string reason = GenerateReason(genreSim, kwSim, hasRuntimeAlignment, alignedDecade, dirOverlap, actOverlap);

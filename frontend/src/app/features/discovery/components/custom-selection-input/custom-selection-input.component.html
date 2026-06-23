@@ -13,14 +13,22 @@
     </div>
     
     <button class="btn-save-list" (click)="openSaveModal()" [disabled]="selectedChips.length === 0">
-      <i class="fa-solid fa-bookmark"></i> Save Current Selection
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+        <polyline points="17 21 17 13 7 13 7 21"/>
+        <polyline points="7 3 7 8 15 8"/>
+      </svg>
+      Save Current Selection
     </button>
   </div>
 
   <!-- Search Input Area -->
   <div class="search-wrapper">
     <div class="input-box">
-      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
       <input type="text" 
              placeholder="Search movies to add... (Max 50)" 
              [value]="searchQuery()" 
@@ -52,9 +60,39 @@
   <div class="chips-container" *ngIf="selectedChips.length > 0">
     <div class="chip" *ngFor="let chip of selectedChips; let i = index">
       <img [src]="chip.posterPath || 'assets/placeholder-poster.png'" alt="Poster">
-      <span class="chip-title">{{chip.title}}</span>
+
+      <!-- Nickname inline editor -->
+      <ng-container *ngIf="editingNicknameIndex() === i; else chipDisplay">
+        <input class="chip-nickname-input"
+               type="text"
+               [value]="editingNicknameValue()"
+               (input)="editingNicknameValue.set($any($event.target).value)"
+               placeholder="Custom name..."
+               (keydown.enter)="confirmEditNickname(i)"
+               (keydown.escape)="cancelEditNickname()"
+               (blur)="confirmEditNickname(i)"
+               autofocus>
+      </ng-container>
+
+      <ng-template #chipDisplay>
+        <div class="chip-title-block">
+          <span class="chip-nickname" *ngIf="getNicknameForChip(chip) as nick">{{ nick }}</span>
+          <span class="chip-title" [class.has-nickname]="!!getNicknameForChip(chip)">{{chip.title}}</span>
+        </div>
+        <!-- Edit alias button -->
+        <button class="chip-alias-btn" (click)="startEditNickname(i)" title="Set custom name">
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </button>
+      </ng-template>
+
       <button class="chip-remove" (click)="removeChip(i)">
-        <i class="fa-solid fa-xmark"></i>
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
       </button>
     </div>
   </div>
@@ -67,6 +105,7 @@
     <div class="save-modal">
       <h3>Save Custom Selection</h3>
       <p>Give a name to your current selection of {{selectedChips.length}} movies.</p>
+      <p class="save-modal-note">Custom aliases will be saved along with the movies.</p>
       <input type="text" placeholder="e.g. 80s Sci-Fi Night" [ngModel]="newListName()" (ngModelChange)="newListName.set($event)" autofocus>
       <div class="modal-actions">
         <button class="btn-cancel" (click)="showSaveModal.set(false)">Cancel</button>

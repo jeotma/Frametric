@@ -39,7 +39,9 @@ public class CustomListsController : ControllerBase
     public async Task<ActionResult<CustomListDto>> CreateList([FromBody] CreateCustomListRequest request, CancellationToken cancellationToken)
     {
         var userId = GetUserIdOrThrow();
-        var result = await _mediator.Send(new CreateCustomListCommand(userId, request.Name, request.MovieIds), cancellationToken);
+        var result = await _mediator.Send(new CreateCustomListCommand(userId, request.Name, request.Items
+            .Select(i => new Frametric.Application.Commands.CustomLists.CustomListItemInput(i.MovieId, i.Nickname))
+            .ToList()), cancellationToken);
         return Ok(result);
     }
 
@@ -65,5 +67,11 @@ public class CustomListsController : ControllerBase
 public class CreateCustomListRequest
 {
     public string Name { get; set; } = string.Empty;
-    public List<Guid> MovieIds { get; set; } = new();
+    public List<CreateCustomListItemRequest> Items { get; set; } = new();
+}
+
+public class CreateCustomListItemRequest
+{
+    public Guid MovieId { get; set; }
+    public string? Nickname { get; set; }
 }

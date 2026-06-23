@@ -34,7 +34,9 @@ public class GetUserCustomListsQueryHandler : IRequestHandler<GetUserCustomLists
                 i.Movie.Id, 
                 i.Movie.Title, 
                 i.Movie.ReleaseYear, 
-                i.Movie.PosterUrl)).ToList()
+                i.Movie.PosterUrl,
+                false,
+                i.Nickname)).ToList()
         }).ToList();
     }
 }

@@ -353,5 +353,44 @@ public class EnrichPendingMoviesCommandHandlerTests : IDisposable
         Assert.Equal(new DateOnly(2008, 7, 18), enriched.ReleaseDate);
         Assert.NotNull(enriched.CustomAverageRating);
     }
+
+    [Fact]
+    public async Task Handle_ShouldDeleteMovie_WhenTmdbReturnsNonMovieContent()
+    {
+        // Arrange
+        var movieId = Guid.NewGuid();
+        using (var context = CreateContext())
+        {
+            var movie = new Movie(movieId, "AEW All Out 2024", 2024, new ExternalReference("letterboxd", "444"));
+            context.Movies.Add(movie);
+            await context.SaveChangesAsync();
+        }
+
+        var tmdbDto = new TmdbMovieResultDto(
+            TmdbId: 99999,
+            RuntimeMinutes: 180,
+            PosterUrl: "/aew.jpg",
+            Genres: new List<TmdbGenreDto> { new TmdbGenreDto(28, "Action") },
+            Directors: new List<TmdbPersonDto>(),
+            Actors: new List<TmdbPersonDto>(),
+            IsTvShow: false,
+            Keywords: "wrestling, professional wrestling"
+        );
+
+        _tmdbServiceMock.Setup(s => s.SearchAndGetMovieDetailsAsync("AEW All Out 2024", 2024, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tmdbDto);
+
+        using var actContext = CreateContext();
+        var handler = new EnrichPendingMoviesCommandHandler(actContext, _tmdbServiceMock.Object, _omdbServiceMock.Object);
+        var command = new EnrichPendingMoviesCommand(10);
+
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(1, result);
+
+    }
 }
+
 

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, computed, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -24,6 +24,7 @@ import { MovieSimpleDto } from '../../core/api/model/movie-simple-dto';
 import { CustomListsService } from '../../core/api/api/custom-lists.service';
 import { CustomListDto } from '../../core/api/model/custom-list-dto';
 import { RouletteRaceResultDto } from '../../core/api/model/roulette-race-result-dto';
+import { BingoBoardDto } from '../../core/api/model/bingo-board-dto';
 
 type DiscoveryTab = 'roulette' | 'dice' | 'slot-machine' | 'mystery-box' | 'bingo';
 
@@ -99,6 +100,9 @@ export class DiscoveryComponent implements OnInit {
   public rawRouletteWinner = signal<SelectionResultDto | null>(null);
   public rouletteLeaderboard = signal<{ rank: number; title: string; count: number }[]>([]);
   public rouletteRaceIndex = 0;
+  public rouletteNicknameMap: Map<string, string> = new Map();
+  public rouletteIsFullscreen = signal<boolean>(false);
+  private roulettePanelEl: HTMLElement | null = null;
 
   // Dice state
   public diceResultSig = signal<DiceRollResultDto | null>(null);
@@ -208,6 +212,10 @@ export class DiscoveryComponent implements OnInit {
   public bingoChips = signal<MovieSimpleDto[]>([]);
   public bingoDurationDays = signal<number | null>(null);
   
+  public bingoBoards = signal<BingoBoardDto[]>([]);
+  public activeBingoBoards = computed(() => this.bingoBoards().filter(b => !b.isCompleted));
+  public completedBingoBoards = computed(() => this.bingoBoards().filter(b => b.isCompleted));
+  
   public bingoDurationOptions = [
     { value: null, label: 'Unlimited' },
     { value: 7, label: '7 Days' },
@@ -294,6 +302,7 @@ export class DiscoveryComponent implements OnInit {
     if (this.auth.isAuthenticated()) {
       this.loadUserLists();
       this.loadAvailableCountries();
+      this.loadBingoBoards();
     }
   }
 
@@ -406,12 +415,23 @@ export class DiscoveryComponent implements OnInit {
     if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
     this.errorMsg.set(null);
     this.rouletteLoading.set(true);
+
+    // Build custom aliases dict (Guid -> alias) for custom scope
+    let customAliases: { [key: string]: string } | undefined = undefined;
+    if (this.rouletteScope() === 2 && this.rouletteNicknameMap.size > 0) {
+      customAliases = {};
+      this.rouletteNicknameMap.forEach((alias, id) => {
+        customAliases![id] = alias;
+      });
+    }
+
     this.discoveryService.apiV1DiscoveryRoulettePost({
       scope: this.rouletteScope() as any,
       winningThreshold: this.rouletteThreshold() > 1 ? this.rouletteThreshold() : 1,
       excludeWatched: this.rouletteExcludeWatched(),
       customSourceIds: this.rouletteScope() === 2 ? this.getChipsIds(this.rouletteChips()) : undefined,
-      customSourceTitles: this.rouletteScope() === 2 ? this.getChipsTitles(this.rouletteChips()) : undefined
+      customSourceTitles: this.rouletteScope() === 2 ? this.getChipsTitles(this.rouletteChips()) : undefined,
+      customAliases: customAliases
     }).subscribe({ 
       next: (r: RouletteRaceResultDto) => {
         this.rouletteLoading.set(false);
@@ -453,26 +473,6 @@ export class DiscoveryComponent implements OnInit {
     const currentRoll = seq[this.rouletteRaceIndex];
     this.rouletteWinnerTitleSig.set(currentRoll.title || '');
 
-    // Update leaderboard counts up to this roll
-    const counts: Record<string, number> = {};
-    for (let i = 0; i <= this.rouletteRaceIndex; i++) {
-      const title = seq[i].title || 'Unknown';
-      counts[title] = (counts[title] || 0) + 1;
-    }
-
-    // Convert to sorted leaderboard list
-    const list = Object.entries(counts)
-      .map(([title, count]) => ({ title, count }))
-      .sort((a, b) => b.count - a.count || a.title.localeCompare(b.title));
-
-    const rankedList = list.map((item, idx) => ({
-      rank: idx + 1,
-      title: item.title,
-      count: item.count
-    }));
-
-    this.rouletteLeaderboard.set(rankedList);
-
     // Trigger rouletteIsRacing to true for the first step, or trigger a re-spin
     if (this.rouletteRaceIndex === 0) {
       this.rouletteIsRacing.set(true);
@@ -483,12 +483,34 @@ export class DiscoveryComponent implements OnInit {
     const seq = this.rouletteSequenceSig();
     const isThresholdRace = this.rouletteThreshold() > 1;
 
+    if (isThresholdRace) {
+      // Update leaderboard counts up to this completed roll
+      const counts: Record<string, number> = {};
+      for (let i = 0; i <= this.rouletteRaceIndex; i++) {
+        const title = seq[i].title || 'Unknown';
+        counts[title] = (counts[title] || 0) + 1;
+      }
+
+      // Convert to sorted leaderboard list
+      const list = Object.entries(counts)
+        .map(([title, count]) => ({ title, count }))
+        .sort((a, b) => b.count - a.count || a.title.localeCompare(b.title));
+
+      const rankedList = list.map((item, idx) => ({
+        rank: idx + 1,
+        title: item.title,
+        count: item.count
+      }));
+
+      this.rouletteLeaderboard.set(rankedList);
+    }
+
     if (isThresholdRace && this.rouletteRaceIndex < seq.length - 1) {
       // Staggered delay for the user to read leaderboard and then do next spin
       setTimeout(() => {
         this.rouletteRaceIndex++;
         this.runNextRouletteRaceStep();
-      }, 1000);
+      }, 1800);
     } else {
       // Race finished! Show the final winner
       this.rouletteIsRacing.set(false);
@@ -790,23 +812,25 @@ export class DiscoveryComponent implements OnInit {
     this.discoveryService.apiV1DiscoverySlotMachinePost({
       scope: this.slotScope() as any,
       genre: this.slotGenreLocked() && this.slotGenre() ? this.slotGenre() : null,
-      decade: this.slotDecadeLocked() ? this.slotDecadeVal() : null,
-      popularity: this.slotPopularityLocked() && this.slotPopularity() ? this.slotPopularity() : null,
-      rating: this.slotRatingLocked() && this.slotRating() ? this.slotRating() : null,
+      decade: this.slotDecadeLocked() && this.slotDecadeVal() !== null ? this.slotDecadeVal() : null,
+      popularity: this.slotPopularityLocked() && this.slotPopularity() ? this.slotPopularity() as any : null,
+      rating: this.slotRatingLocked() && this.slotRating() ? this.slotRating() as any : null,
       country: this.slotCountryLocked() && this.slotCountry() ? this.slotCountry() : null,
       excludeWatched: this.slotExcludeWatched(),
       customSourceIds: this.slotScope() === 2 ? this.getChipsIds(this.slotChips()) : undefined,
       customSourceTitles: this.slotScope() === 2 ? this.getChipsTitles(this.slotChips()) : undefined
-    }).subscribe({ 
-        next: r => {
-          this.slotResultSig.set(r);
-        }, 
-        error: e => {
-          this.slotLoading.set(false);
-          this.slotIsSpinning.set(false);
-          this.errorMsg.set(e.error?.error || 'Slot machine failed');
-        } 
-      });
+    }).subscribe({
+      next: r => {
+        this.slotResultSig.set(r);
+        this.slotLoading.set(false);
+        // Let the SlotReelsComponent handle the spinning animation and call onSlotFinished()
+      },
+      error: e => {
+        this.slotLoading.set(false);
+        this.slotIsSpinning.set(false);
+        this.errorMsg.set(e.error?.error || 'Slot machine failed');
+      }
+    });
   }
 
   public onSlotFinished(): void {
@@ -903,10 +927,69 @@ export class DiscoveryComponent implements OnInit {
       excludeWatched: this.bingoExcludeWatched(),
       customSourceIds: this.bingoScope() === 2 ? this.getChipsIds(this.bingoChips()) : undefined,
       customSourceTitles: this.bingoScope() === 2 ? this.getChipsTitles(this.bingoChips()) : undefined,
-      durationDays: newBoard ? (this.bingoDurationDays() ?? undefined) : undefined
+      durationDays: newBoard ? (this.bingoDurationDays() !== null ? this.bingoDurationDays()! : -1) : undefined
     })
       .pipe(finalize(() => this.bingoLoading.set(false)))
-      .subscribe({ next: (r: any) => this.bingoResultSig.set(r), error: (e: any) => this.errorMsg.set(e.error?.error || 'Bingo load failed') });
+      .subscribe({
+        next: (r: any) => {
+          this.bingoResultSig.set(r);
+          this.loadBingoBoards();
+        },
+        error: (e: any) => this.errorMsg.set(e.error?.error || 'Bingo load failed')
+      });
+  }
+
+  public loadBingoBoards(): void {
+    if (!this.auth.isAuthenticated()) return;
+    this.discoveryService.apiV1DiscoveryBingoBoardsGet().subscribe({
+      next: (boards) => {
+        this.bingoBoards.set(boards || []);
+      },
+      error: (e) => {
+        console.warn('Failed to load user bingo boards.', e);
+      }
+    });
+  }
+
+  public loadSpecificBingoBoard(boardId: string): void {
+    if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
+    this.errorMsg.set(null);
+    this.bingoLoading.set(true);
+    this.discoveryService.apiV1DiscoveryBingoPost({
+      gridSize: this.bingoGridSize(),
+      scope: this.bingoScope() as any,
+      excludeWatched: this.bingoExcludeWatched(),
+      boardId: boardId
+    })
+      .pipe(finalize(() => this.bingoLoading.set(false)))
+      .subscribe({
+        next: (r: any) => {
+          this.bingoResultSig.set(r);
+          if (r.gridSize) {
+            this.bingoGridSize.set(r.gridSize);
+          }
+        },
+        error: (e: any) => this.errorMsg.set(e.error?.error || 'Failed to load specific board')
+      });
+  }
+
+  public deleteBingoBoard(boardId: string): void {
+    if (!this.auth.isAuthenticated()) return;
+    if (!confirm('Are you sure you want to delete this bingo board? All progress on this board will be lost.')) return;
+    this.bingoLoading.set(true);
+    this.discoveryService.apiV1DiscoveryBingoBoardsBoardIdDelete(boardId)
+      .pipe(finalize(() => this.bingoLoading.set(false)))
+      .subscribe({
+        next: () => {
+          if (this.bingoResultSig()?.boardId === boardId) {
+            this.bingoResultSig.set(null);
+          }
+          this.loadBingoBoards();
+        },
+        error: (e) => {
+          this.errorMsg.set(e.error?.error || 'Failed to delete bingo board');
+        }
+      });
   }
 
   public rerollBingoObjective(objectiveId: string): void {
@@ -933,7 +1016,27 @@ export class DiscoveryComponent implements OnInit {
     return item.objectiveId ?? item.boxId ?? '';
   }
 
+  public trackByBoardId(_: number, item: BingoBoardDto): string {
+    return item.boardId ?? '';
+  }
+
   public trackByToast(_: number, toast: ToastCustomListWinner): string {
     return `${toast.listId}-${toast.movieId}`;
+  }
+
+  public onRouletteNicknameMapChange(map: Map<string, string>): void {
+    this.rouletteNicknameMap = map;
+  }
+
+  public toggleRouletteFullscreen(panelEl: HTMLElement): void {
+    if (!document.fullscreenElement) {
+      panelEl.requestFullscreen().then(() => {
+        this.rouletteIsFullscreen.set(true);
+      }).catch(err => console.warn('Fullscreen error:', err));
+    } else {
+      document.exitFullscreen().then(() => {
+        this.rouletteIsFullscreen.set(false);
+      });
+    }
   }
 }

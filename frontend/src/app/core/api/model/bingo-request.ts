@@ -16,5 +16,6 @@ export interface BingoRequest {
     customSourceTitles?: Array<string> | null;
     excludeWatched?: boolean;
     durationDays?: number | null;
+    boardId?: string | null;
 }
 

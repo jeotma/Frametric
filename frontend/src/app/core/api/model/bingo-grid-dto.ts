@@ -11,6 +11,7 @@ import { BingoSquareDto } from './bingo-square-dto';
 
 
 export interface BingoGridDto { 
+    boardId: string;
     gridSize: number;
     squares: Array<BingoSquareDto>;
     startDate?: string | null;

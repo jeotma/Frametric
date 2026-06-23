@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -52,7 +52,8 @@ public class RecommendationsController : ControllerBase
             request.Strategy,
             request.Scope,
             request.Quantity,
-            request.MaxRuntimeMinutes
+            request.MaxRuntimeMinutes,
+            request.MinRuntimeMinutes
         );
 
         var result = await _mediator.Send(query, cancellationToken);

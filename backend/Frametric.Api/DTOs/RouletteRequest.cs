@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,5 +16,6 @@ public record RouletteRequest(
     int WinningThreshold = 1,
     IEnumerable<Guid>? CustomSourceIds = null,
     IEnumerable<string>? CustomSourceTitles = null,
-    bool ExcludeWatched = true
+    bool ExcludeWatched = true,
+    Dictionary<Guid, string>? CustomAliases = null
 );

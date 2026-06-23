@@ -428,6 +428,10 @@ export class StatsComponent implements OnInit, OnDestroy {
       return this.currentQuery()?.id?.includes('watchlist') ? 'Pending Count' : 'Watched Count';
     }
 
+    if (name === 'customAverageRating') {
+      return 'Custom Rating';
+    }
+
     if (name.toLowerCase().includes('rating')) {
       return 'Your Rating';
     }
