@@ -128,10 +128,10 @@
       </div>
       <div class="action-buttons-group" style="display: flex; gap: 0.5rem; align-items: flex-end;">
         <button class="btn btn-secondary crosshair-bracket action-btn" (click)="loadBingo(false)" [disabled]="bingoLoading()" style="height: 44px; display: flex; align-items: center; justify-content: center; padding: 0 1.5rem;">
-          {{ bingoLoading() ? 'LOADING...' : 'REFRESH' }}
+          {{ bingoLoading() ? 'LOADING...' : 'LOAD LAST ACTIVE' }}
         </button>
         <button class="btn btn-primary crosshair-bracket action-btn" (click)="loadBingo(true)" [disabled]="bingoLoading()" style="height: 44px; display: flex; align-items: center; justify-content: center; padding: 0 1.5rem;">
-          {{ bingoLoading() ? 'INITIATING...' : 'NEW BOARD' }}
+          {{ bingoLoading() ? 'GENERATING...' : 'NEW BOARD' }}
         </button>
       </div>
     </div>
@@ -195,27 +195,115 @@
         </div>
       </div>
     </div>
+
+    <!-- Saved Challenges Section -->
+    <div class="saved-boards-section viewfinder-box" style="margin-top: 2rem; padding: 1.5rem; background: var(--surface-floating); border: 1px solid var(--border-color); border-radius: 4px;">
+      <h3 style="font-size: 1.1rem; letter-spacing: 2px; color: var(--accent-silver); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; font-family:'Outfit', sans-serif;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 1.2rem; height: 1.2rem;">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/>
+          <polyline points="7 3 7 8 15 8"/>
+        </svg>
+        SAVED CHALLENGES
+      </h3>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- Active Boards Column -->
+        <div>
+          <h4 style="font-size: 0.9rem; color: var(--accent-sepia); letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; margin-bottom: 1rem; font-family:'Outfit', sans-serif;">
+            IN PROGRESS ({{ activeBingoBoards().length }})
+          </h4>
+          <p *ngIf="activeBingoBoards().length === 0" style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">No active boards in progress.</p>
+          <div *ngIf="activeBingoBoards().length > 0" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div *ngFor="let board of activeBingoBoards(); trackBy: trackByBoardId" class="board-card" [class.current-active]="bingoResultSig()?.boardId === board.boardId" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; transition: all 0.2s ease;">
+              <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                <span style="font-size: 0.85rem; font-weight: bold; color: var(--text-primary);">
+                  {{ board.gridSize }}x{{ board.gridSize }} Grid
+                  <span *ngIf="bingoResultSig()?.boardId === board.boardId" style="font-size: 0.75rem; color: var(--accent-emerald); margin-left: 0.5rem; font-weight: normal;">[Active]</span>
+                </span>
+                <span style="font-size: 0.75rem; color: var(--text-secondary);">
+                  Created: {{ board.createdAt | date:'shortDate' }} | Progress: {{ board.completedSquares }}/{{ board.totalSquares }}
+                </span>
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-sm" (click)="loadSpecificBingoBoard(board.boardId)" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--border-color);">
+                  Load
+                </button>
+                <button class="btn btn-sm" (click)="deleteBingoBoard(board.boardId)" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; background: rgba(229, 9, 20, 0.1); color: var(--accent-record); border: 1px solid rgba(229, 9, 20, 0.3);">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Completed Boards Column -->
+        <div>
+          <h4 style="font-size: 0.9rem; color: var(--accent-emerald); letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; margin-bottom: 1rem; font-family:'Outfit', sans-serif;">
+            COMPLETED ({{ completedBingoBoards().length }})
+          </h4>
+          <p *ngIf="completedBingoBoards().length === 0" style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">No completed boards yet. Fill a grid to complete a board!</p>
+          <div *ngIf="completedBingoBoards().length > 0" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div *ngFor="let board of completedBingoBoards(); trackBy: trackByBoardId" class="board-card" [class.current-active]="bingoResultSig()?.boardId === board.boardId" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px;">
+              <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                <span style="font-size: 0.85rem; font-weight: bold; color: var(--accent-emerald);">
+                  {{ board.gridSize }}x{{ board.gridSize }} Grid
+                  <span *ngIf="bingoResultSig()?.boardId === board.boardId" style="font-size: 0.75rem; color: var(--accent-emerald); margin-left: 0.5rem; font-weight: normal;">[Active]</span>
+                </span>
+                <span style="font-size: 0.75rem; color: var(--text-secondary);">
+                  Created: {{ board.createdAt | date:'shortDate' }} | Finished!
+                </span>
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-sm" (click)="loadSpecificBingoBoard(board.boardId)" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--border-color);">
+                  Load
+                </button>
+                <button class="btn btn-sm" (click)="deleteBingoBoard(board.boardId)" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; background: rgba(229, 9, 20, 0.1); color: var(--accent-record); border: 1px solid rgba(229, 9, 20, 0.3);">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Roulette Panel -->
-  <div *ngIf="activeTab() === 'roulette'" class="panel viewfinder-box animate-fade-in">
+  <div *ngIf="activeTab() === 'roulette'" class="panel viewfinder-box animate-fade-in" #roulettePanel [class.fullscreen-panel]="rouletteIsFullscreen()">
     <div class="panel-header">
-      <h2>
-        <svg class="heading-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <circle cx="12" cy="12" r="10" />
-          <circle cx="12" cy="12" r="2" />
-          <line x1="12" y1="4" x2="12" y2="8" />
-          <line x1="12" y1="16" x2="12" y2="20" />
-          <line x1="4" y1="12" x2="8" y2="12" />
-          <line x1="16" y1="12" x2="20" y2="12" />
-          <line x1="5.5" y1="5.5" x2="8.5" y2="8.5" />
-          <line x1="15.5" y1="15.5" x2="18.5" y2="18.5" />
-          <line x1="5.5" y1="18.5" x2="8.5" y2="15.5" />
-          <line x1="15.5" y1="8.5" x2="18.5" y2="5.5" />
+      <div class="panel-header-left">
+        <h2>
+          <svg class="heading-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="2" />
+            <line x1="12" y1="4" x2="12" y2="8" />
+            <line x1="12" y1="16" x2="12" y2="20" />
+            <line x1="4" y1="12" x2="8" y2="12" />
+            <line x1="16" y1="12" x2="20" y2="12" />
+            <line x1="5.5" y1="5.5" x2="8.5" y2="8.5" />
+            <line x1="15.5" y1="15.5" x2="18.5" y2="18.5" />
+            <line x1="5.5" y1="18.5" x2="8.5" y2="15.5" />
+            <line x1="15.5" y1="8.5" x2="18.5" y2="5.5" />
+          </svg>
+          Selection Roulette
+        </h2>
+        <p>Pure random selection from the discovery pool.</p>
+      </div>
+      <button class="btn-fullscreen" (click)="toggleRouletteFullscreen(roulettePanel)" [title]="rouletteIsFullscreen() ? 'Exit Fullscreen' : 'Enter Fullscreen'">
+        <svg *ngIf="!rouletteIsFullscreen()" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+          <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+          <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+          <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
         </svg>
-        Selection Roulette
-      </h2>
-      <p>Pure random selection from the discovery pool.</p>
+        <svg *ngIf="rouletteIsFullscreen()" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M8 3v3a2 2 0 0 1-2 2H3"/>
+          <path d="M21 8h-3a2 2 0 0 1-2-2V3"/>
+          <path d="M3 16h3a2 2 0 0 1 2 2v3"/>
+          <path d="M16 21v-3a2 2 0 0 1 2-2h3"/>
+        </svg>
+      </button>
     </div>
     <div class="dashboard-controls-row hud-data">
       <div class="control-item">
@@ -264,7 +352,10 @@
       </button>
     </div>
     <div class="custom-selection-row" *ngIf="rouletteScope() === 2">
-      <app-custom-selection-input [(selectedChips)]="rouletteChips"></app-custom-selection-input>
+      <app-custom-selection-input
+        [(selectedChips)]="rouletteChips"
+        (nicknameMapChange)="onRouletteNicknameMapChange($event)">
+      </app-custom-selection-input>
     </div>
 
     <div class="roulette-layout">
@@ -709,7 +800,7 @@
               <span class="hud-data">[{{ sr.releaseYear }}]</span>
             </h3>
             <p class="director-note">Dir. {{ sr.directorName }}</p>
-            <p class="meta hud-data"><span class="hud-label">MECH:</span> {{ sr.selectionMechanismMetadata }}</p>
+            <p *ngIf="sr.overview" class="meta hud-data" style="margin-top: 8px; line-height: 1.4;"><span class="hud-label">SYNOPSIS:</span> {{ sr.overview.length > 180 ? (sr.overview | slice:0:180) + '...' : sr.overview }}</p>
             <p *ngIf="sr.runtimeMinutes" class="hud-data"><span class="hud-label">LEN:</span> {{ sr.runtimeMinutes }}M</p>
           </div>
         </div>

@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -6,7 +6,6 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-using System.Collections.Generic;
 using Frametric.Application.DTOs.Discovery;
 using Frametric.Domain.Enums;
 using MediatR;
@@ -19,5 +18,6 @@ public record RouletteSelectionQuery(
     int WinningThreshold = 1,
     IEnumerable<Guid>? CustomSourceIds = null,
     IEnumerable<string>? CustomSourceTitles = null,
-    bool ExcludeWatched = true
+    bool ExcludeWatched = true,
+    Dictionary<Guid, string>? CustomAliases = null
 ) : IRequest<RouletteRaceResultDto>;

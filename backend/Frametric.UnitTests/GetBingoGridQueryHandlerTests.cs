@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -79,6 +79,7 @@ public class GetBingoGridQueryHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         var movieId = Guid.NewGuid();
         var diaryEntryId = Guid.NewGuid();
+        var boardId = Guid.NewGuid();
 
         using (var context = CreateContext())
         {
@@ -108,6 +109,7 @@ public class GetBingoGridQueryHandlerTests : IDisposable
             var objective = new DiscoveryObjective(
                 Guid.NewGuid(),
                 userId,
+                boardId,
                 3, // GridSize
                 1, // Row
                 1, // Column

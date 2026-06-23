@@ -26,11 +26,19 @@ export class CustomSelectionInputComponent {
   @Input() selectedChips: MovieSimpleDto[] = [];
   @Output() selectedChipsChange = new EventEmitter<MovieSimpleDto[]>();
 
+  /** Map of movieId -> custom alias/nickname. Emitted alongside chips so parent can pass to API. */
+  public nicknameMap: Map<string, string> = new Map();
+  @Output() nicknameMapChange = new EventEmitter<Map<string, string>>();
+
   public searchQuery = signal<string>('');
   public searchResults = signal<GlobalSearchResultDto[]>([]);
   public isSearching = signal<boolean>(false);
   public showDropdown = signal<boolean>(false);
   public enrichLoadingId = signal<number | null>(null);
+
+  /** Track which chip is being edited for its nickname */
+  public editingNicknameIndex = signal<number | null>(null);
+  public editingNicknameValue = signal<string>('');
 
   public savedLists = signal<CustomListDto[]>([]);
   public showSaveModal = signal<boolean>(false);
@@ -117,8 +125,47 @@ export class CustomSelectionInputComponent {
   }
 
   public removeChip(index: number): void {
+    const chip = this.selectedChips[index];
+    if (chip?.id) {
+      this.nicknameMap.delete(chip.id);
+      this.nicknameMapChange.emit(new Map(this.nicknameMap));
+    }
     this.selectedChips = this.selectedChips.filter((_, i) => i !== index);
     this.selectedChipsChange.emit(this.selectedChips);
+    if (this.editingNicknameIndex() === index) {
+      this.editingNicknameIndex.set(null);
+    }
+  }
+
+  // --- Nickname editing ---
+
+  public startEditNickname(index: number): void {
+    const chip = this.selectedChips[index];
+    const existing = chip?.id ? (this.nicknameMap.get(chip.id) ?? chip.nickname ?? '') : '';
+    this.editingNicknameIndex.set(index);
+    this.editingNicknameValue.set(existing);
+  }
+
+  public confirmEditNickname(index: number): void {
+    const chip = this.selectedChips[index];
+    if (!chip?.id) { this.editingNicknameIndex.set(null); return; }
+    const val = this.editingNicknameValue().trim();
+    if (val) {
+      this.nicknameMap.set(chip.id, val);
+    } else {
+      this.nicknameMap.delete(chip.id);
+    }
+    this.nicknameMapChange.emit(new Map(this.nicknameMap));
+    this.editingNicknameIndex.set(null);
+  }
+
+  public cancelEditNickname(): void {
+    this.editingNicknameIndex.set(null);
+  }
+
+  public getNicknameForChip(chip: MovieSimpleDto): string | null {
+    if (!chip.id) return null;
+    return this.nicknameMap.get(chip.id) ?? chip.nickname ?? null;
   }
 
   private clearSearch(): void {
@@ -139,7 +186,15 @@ export class CustomSelectionInputComponent {
   public loadList(list: CustomListDto): void {
     if (list.movies) {
       this.selectedChips = [...list.movies].slice(0, 50);
+      // Restore nicknames from saved list
+      this.nicknameMap = new Map();
+      for (const m of this.selectedChips) {
+        if (m.id && m.nickname) {
+          this.nicknameMap.set(m.id, m.nickname);
+        }
+      }
       this.selectedChipsChange.emit(this.selectedChips);
+      this.nicknameMapChange.emit(new Map(this.nicknameMap));
     }
   }
 
@@ -152,10 +207,17 @@ export class CustomSelectionInputComponent {
   public saveCurrentList(): void {
     if (!this.newListName().trim() || this.selectedChips.length === 0) return;
 
+    const items = this.selectedChips
+      .filter(c => !!c.id)
+      .map(c => ({
+        movieId: c.id!,
+        nickname: c.id ? (this.nicknameMap.get(c.id) ?? null) : null
+      }));
+
     this.customListsService.apiV1CustomListsPost({
       name: this.newListName(),
-      movieIds: this.selectedChips.map(c => c.id!).filter(id => !!id)
-    }).subscribe({
+      items: items
+    } as any).subscribe({
       next: (newList) => {
         this.savedLists.update(lists => [newList, ...lists]);
         this.showSaveModal.set(false);

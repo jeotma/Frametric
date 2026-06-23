@@ -7,28 +7,16 @@
 // (at your option) any later version.
 
 using System;
-using System.Collections.Generic;
 
 namespace Frametric.Application.DTOs.Discovery;
 
-public record BingoSquareDto(
-    Guid ObjectiveId,
-    string Description,
-    bool IsCompleted,
-    DateTime? CompletionDate,
-    int Row,
-    int Column,
-    Guid? MovieId = null,
-    string? MovieTitle = null,
-    DateOnly? WatchedDate = null,
-    int RerollCount = 0
-);
-
-public record BingoGridDto(
+public record BingoBoardDto(
     Guid BoardId,
     int GridSize,
-    IReadOnlyList<BingoSquareDto> Squares,
-    DateTime? StartDate = null,
-    DateTime? EndDate = null,
-    int RerollsUsed = 0
+    DateTime? StartDate,
+    DateTime? EndDate,
+    bool IsCompleted,
+    int CompletedSquares,
+    int TotalSquares,
+    DateTime CreatedAt
 );

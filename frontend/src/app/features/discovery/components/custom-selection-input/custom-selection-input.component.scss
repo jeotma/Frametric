@@ -251,11 +251,71 @@
 
     .chip-title {
       font-size: 0.85rem;
-      color: var(--text-primary);
-      max-width: 150px;
+      color: var(--text-secondary);
+      max-width: 130px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+
+      &.has-nickname {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        text-decoration: line-through;
+        text-decoration-color: rgba(255,255,255,0.2);
+        max-width: 100px;
+      }
+    }
+
+    .chip-title-block {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1px;
+      max-width: 150px;
+    }
+
+    .chip-nickname {
+      font-size: 0.85rem;
+      color: var(--accent-sepia);
+      font-weight: 500;
+      max-width: 130px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chip-nickname-input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--accent-sepia);
+      color: var(--accent-sepia);
+      font-size: 0.85rem;
+      font-family: inherit;
+      outline: none;
+      width: 110px;
+      padding: 1px 2px;
+      caret-color: var(--accent-sepia);
+
+      &::placeholder {
+        color: var(--text-muted);
+      }
+    }
+
+    .chip-alias-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 0.15rem;
+      transition: color 0.2s ease;
+      flex-shrink: 0;
+
+      &:hover {
+        color: var(--accent-sepia);
+      }
     }
 
     .chip-remove {
@@ -314,7 +374,13 @@
     p {
       color: var(--text-secondary);
       font-size: 0.9rem;
-      margin: 0 0 1.5rem 0;
+      margin: 0 0 1rem 0;
+
+      &.save-modal-note {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+      }
     }
 
     input {

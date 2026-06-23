@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -57,6 +57,11 @@ public class RouletteSelectionQueryHandler : IRequestHandler<RouletteSelectionQu
             throw new InvalidOperationException("No movies are available for roulette selection in the chosen discovery pool.");
         }
 
+        if (request.Scope != DiscoveryDataSourceScope.CustomCollection && pool.Count > 50)
+        {
+            pool = pool.OrderBy(_ => Random.Shared.Next()).Take(50).ToList();
+        }
+
         var sequence = new List<SelectionResultDto>();
         SelectionResultDto? winner = null;
 
@@ -65,18 +70,18 @@ public class RouletteSelectionQueryHandler : IRequestHandler<RouletteSelectionQu
             // Populate sequence first with ALL elements from the pool to guarantee their representation as slices
             foreach (var movie in pool)
             {
-                sequence.Add(MapToDto(movie, "Pool option for roulette wheel"));
+                sequence.Add(MapToDto(movie, "Pool option for roulette wheel", request.CustomAliases));
             }
 
             int targetSpins = Math.Max(20, Math.Min(pool.Count * 2, 50));
             while (sequence.Count < targetSpins - 1)
             {
                 var filler = pool[Random.Shared.Next(pool.Count)];
-                sequence.Add(MapToDto(filler, "Visual filler for roulette wheel"));
+                sequence.Add(MapToDto(filler, "Visual filler for roulette wheel", request.CustomAliases));
             }
 
             var selected = pool[Random.Shared.Next(pool.Count)];
-            winner = MapToDto(selected, "Roulette selected a random movie from the discovery pool.");
+            winner = MapToDto(selected, "Roulette selected a random movie from the discovery pool.", request.CustomAliases);
             
             // If the selected winner is not already the last element, add it or replace last element
             if (sequence.Count >= targetSpins)
@@ -95,20 +100,20 @@ public class RouletteSelectionQueryHandler : IRequestHandler<RouletteSelectionQu
         // Add all elements from the pool to the sequence first so the client can extract the full set of slices
         foreach (var movie in pool)
         {
-            sequence.Add(MapToDto(movie, "Initial candidate"));
+            sequence.Add(MapToDto(movie, "Initial candidate", request.CustomAliases));
         }
 
         // Simulate race
         while (true)
         {
             var candidate = pool[Random.Shared.Next(pool.Count)];
-            var dto = MapToDto(candidate, $"Roulette race in progress. Winning threshold: {request.WinningThreshold}");
+            var dto = MapToDto(candidate, $"Roulette race in progress. Winning threshold: {request.WinningThreshold}", request.CustomAliases);
             sequence.Add(dto);
 
             counts[candidate.MovieId] = counts.TryGetValue(candidate.MovieId, out var c) ? c + 1 : 1;
             if (counts[candidate.MovieId] >= request.WinningThreshold)
             {
-                winner = MapToDto(candidate, $"Roulette consensus threshold {request.WinningThreshold} reached.");
+                winner = MapToDto(candidate, $"Roulette consensus threshold {request.WinningThreshold} reached.", request.CustomAliases);
                 sequence[^1] = winner;
                 break;
             }
@@ -116,7 +121,7 @@ public class RouletteSelectionQueryHandler : IRequestHandler<RouletteSelectionQu
             // Safety break in case pool is huge and threshold is high to prevent infinite memory growth
             if (sequence.Count > 10000)
             {
-                winner = MapToDto(candidate, "Roulette race hit simulation limit. Selected by sudden death.");
+                winner = MapToDto(candidate, "Roulette race hit simulation limit. Selected by sudden death.", request.CustomAliases);
                 sequence[^1] = winner;
                 break;
             }
@@ -125,14 +130,20 @@ public class RouletteSelectionQueryHandler : IRequestHandler<RouletteSelectionQu
         return new RouletteRaceResultDto(winner, sequence);
     }
 
-    private SelectionResultDto MapToDto(DiscoveryMoviePoolItemDto selected, string metadata) =>
-        new SelectionResultDto(
+    private SelectionResultDto MapToDto(DiscoveryMoviePoolItemDto selected, string metadata, Dictionary<Guid, string>? aliases = null)
+    {
+        var displayTitle = (aliases != null && aliases.TryGetValue(selected.MovieId, out var alias) && !string.IsNullOrWhiteSpace(alias))
+            ? alias
+            : selected.Title;
+
+        return new SelectionResultDto(
             selected.MovieId,
-            selected.Title,
+            displayTitle,
             selected.DirectorName ?? "Unknown",
             selected.ReleaseYear ?? 0,
             metadata,
             selected.PosterUrl,
             selected.RuntimeMinutes,
             selected.Overview);
+    }
 }

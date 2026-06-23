@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -7,6 +7,7 @@
 // (at your option) any later version.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Frametric.Api.DTOs;
@@ -50,7 +51,8 @@ public class DiscoveryController : ControllerBase
             request.WinningThreshold,
             request.CustomSourceIds,
             request.CustomSourceTitles,
-            request.ExcludeWatched);
+            request.ExcludeWatched,
+            request.CustomAliases);
 
         try
         {
@@ -161,8 +163,25 @@ public class DiscoveryController : ControllerBase
             request.CustomSourceIds, 
             request.CustomSourceTitles, 
             request.ExcludeWatched,
-            request.DurationDays);
+            request.DurationDays,
+            request.BoardId);
         var result = await _mediator.Send(query, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("bingo/boards")]
+    public async Task<ActionResult<IEnumerable<BingoBoardDto>>> GetBingoBoards(CancellationToken cancellationToken)
+    {
+        var query = new GetUserBingoBoardsQuery(GetUserIdOrThrow());
+        var result = await _mediator.Send(query, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpDelete("bingo/boards/{boardId}")]
+    public async Task<ActionResult<bool>> DeleteBingoBoard(Guid boardId, CancellationToken cancellationToken)
+    {
+        var command = new DeleteBingoBoardCommand(GetUserIdOrThrow(), boardId);
+        var result = await _mediator.Send(command, cancellationToken);
         return Ok(result);
     }
 

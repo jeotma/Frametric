@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -19,6 +19,9 @@ public class DiscoveryObjective
 
     [Required]
     public Guid UserId { get; private set; }
+
+    [Required]
+    public Guid BoardId { get; private set; }
 
     [Required]
     public int GridSize { get; private set; }
@@ -55,10 +58,11 @@ public class DiscoveryObjective
         RerollCount++;
     }
 
-    public DiscoveryObjective(Guid id, Guid userId, int gridSize, int row, int column, string requirementExpression, string description, DateTime? startDate = null, DateTime? endDate = null)
+    public DiscoveryObjective(Guid id, Guid userId, Guid boardId, int gridSize, int row, int column, string requirementExpression, string description, DateTime? startDate = null, DateTime? endDate = null)
     {
         Id = id;
         UserId = userId;
+        BoardId = boardId;
         GridSize = gridSize;
         Row = row;
         Column = column;

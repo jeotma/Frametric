@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -36,29 +36,79 @@ public class GetBingoGridQueryHandler : IRequestHandler<GetBingoGridQuery, Bingo
     {
         _logger.LogInformation("Retrieving bingo grid for user {UserId} with size {GridSize}", request.UserId, request.GridSize);
 
-        var objectives = await _dbContext.DiscoveryObjectives
-            .Where(o => o.UserId == request.UserId && o.GridSize == request.GridSize)
-            .ToListAsync(cancellationToken);
+        List<DiscoveryObjective> objectives;
 
-        // If DurationDays is specified or no board exists, generate a new one with the corresponding active period
-        if (request.DurationDays.HasValue || !objectives.Any())
+        if (request.BoardId.HasValue)
         {
-            if (objectives.Any())
+            // Load specific board
+            objectives = await _dbContext.DiscoveryObjectives
+                .Where(o => o.UserId == request.UserId && o.BoardId == request.BoardId.Value)
+                .ToListAsync(cancellationToken);
+        }
+        else
+        {
+            // Fetch all objectives for the user
+            var allObjectives = await _dbContext.DiscoveryObjectives
+                .Where(o => o.UserId == request.UserId && o.GridSize == request.GridSize)
+                .ToListAsync(cancellationToken);
+
+            if (request.DurationDays.HasValue)
             {
-                _dbContext.DiscoveryObjectives.RemoveRange(objectives);
+                // Generate a new board explicitly
+                Guid newBoardId = Guid.NewGuid();
+                DateTime? startDate = DateTime.UtcNow;
+                DateTime? endDate = request.DurationDays.Value > 0
+                    ? DateTime.UtcNow.AddDays(request.DurationDays.Value)
+                    : null;
+
+                objectives = BuildDefaultObjectives(request.UserId, newBoardId, request.GridSize, startDate, endDate).ToList();
+                foreach (var objective in objectives)
+                {
+                    _dbContext.DiscoveryObjectives.Add(objective);
+                }
+
                 await _dbContext.SaveChangesAsync(cancellationToken);
             }
-
-            DateTime? startDate = request.DurationDays.HasValue ? DateTime.UtcNow : null;
-            DateTime? endDate = request.DurationDays.HasValue ? DateTime.UtcNow.AddDays(request.DurationDays.Value) : null;
-
-            objectives = BuildDefaultObjectives(request.UserId, request.GridSize, startDate, endDate).ToList();
-            foreach (var objective in objectives)
+            else if (allObjectives.Any())
             {
-                _dbContext.DiscoveryObjectives.Add(objective);
-            }
+                // Load the most recent active (unfinished) board, or fallback to the most recent board overall
+                var grouped = allObjectives.GroupBy(o => o.BoardId).Select(g => new
+                {
+                    BoardId = g.Key,
+                    IsCompleted = g.All(o => o.IsAchieved),
+                    StartDate = g.Max(o => o.StartDate ?? DateTime.MinValue)
+                }).ToList();
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+                var activeBoard = grouped.Where(g => !g.IsCompleted).OrderByDescending(g => g.StartDate).FirstOrDefault()
+                    ?? grouped.OrderByDescending(g => g.StartDate).FirstOrDefault();
+
+                if (activeBoard != null)
+                {
+                    objectives = allObjectives.Where(o => o.BoardId == activeBoard.BoardId).ToList();
+                }
+                else
+                {
+                    // Fallback to building a default board if grouping failed
+                    Guid newBoardId = Guid.NewGuid();
+                    objectives = BuildDefaultObjectives(request.UserId, newBoardId, request.GridSize, null, null).ToList();
+                    foreach (var objective in objectives)
+                    {
+                        _dbContext.DiscoveryObjectives.Add(objective);
+                    }
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+                }
+            }
+            else
+            {
+                // No boards exist at all, generate first board
+                Guid newBoardId = Guid.NewGuid();
+                objectives = BuildDefaultObjectives(request.UserId, newBoardId, request.GridSize, null, null).ToList();
+                foreach (var objective in objectives)
+                {
+                    _dbContext.DiscoveryObjectives.Add(objective);
+                }
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
         }
 
         var watchedEntries = await _dbContext.DiaryEntries
@@ -135,10 +185,12 @@ public class GetBingoGridQueryHandler : IRequestHandler<GetBingoGridQuery, Bingo
 
         var firstObjective = objectives.FirstOrDefault();
         var rerollsUsed = objectives.Sum(o => o.RerollCount);
-        return new BingoGridDto(request.GridSize, squares, firstObjective?.StartDate, firstObjective?.EndDate, rerollsUsed);
+        Guid finalBoardId = firstObjective?.BoardId ?? Guid.Empty;
+        
+        return new BingoGridDto(finalBoardId, request.GridSize, squares, firstObjective?.StartDate, firstObjective?.EndDate, rerollsUsed);
     }
 
-    private static IEnumerable<DiscoveryObjective> BuildDefaultObjectives(Guid userId, int gridSize, DateTime? startDate = null, DateTime? endDate = null)
+    private static IEnumerable<DiscoveryObjective> BuildDefaultObjectives(Guid userId, Guid boardId, int gridSize, DateTime? startDate = null, DateTime? endDate = null)
     {
         var pool = new List<(string Expression, string Description)>
         {
@@ -221,7 +273,7 @@ public class GetBingoGridQueryHandler : IRequestHandler<GetBingoGridQuery, Bingo
             var row = (index / gridSize) + 1;
             var column = (index % gridSize) + 1;
             var (expression, description) = selected[index];
-            yield return new DiscoveryObjective(Guid.NewGuid(), userId, gridSize, row, column, expression, description, startDate, endDate);
+            yield return new DiscoveryObjective(Guid.NewGuid(), userId, boardId, gridSize, row, column, expression, description, startDate, endDate);
         }
     }
 }
