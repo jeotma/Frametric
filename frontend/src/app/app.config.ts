@@ -7,6 +7,7 @@ import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { BASE_PATH } from './core/api/variables';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
-    { provide: BASE_PATH, useValue: 'http://localhost:5168' },
+    { provide: BASE_PATH, useValue: environment.apiUrl },
     { provide: APP_BASE_HREF, useValue: '/' },
   ],
 };
