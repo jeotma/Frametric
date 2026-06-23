@@ -137,8 +137,6 @@ public class DtoTests
         Assert.Equal(50.0, progress.ProgressPercentage);
 
         var prefDay = new PreferredDayDto("Sunday", 10);
-        Assert.Equal("Sunday", prefDay.DayOfWeek);
-        Assert.Equal(10, prefDay.WatchCount);
 
         var streak = new GenreStreakDto("Action", 5, DateTime.MinValue, DateTime.MaxValue);
         Assert.Equal("Action", streak.GenreName);

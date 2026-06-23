@@ -28,5 +28,7 @@ export interface MovieDetailsDto {
     diaryEntries: Array<MovieDiaryEntryDto>;
     isWatched?: boolean;
     isInWatchlist?: boolean;
+    tmdbCollectionId?: number | null;
+    tmdbCollectionName?: string | null;
 }
 

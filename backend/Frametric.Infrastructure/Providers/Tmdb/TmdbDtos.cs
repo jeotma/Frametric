@@ -54,6 +54,24 @@ public class TmdbMovieDetails
 
     [JsonPropertyName("overview")]
     public string? Overview { get; set; }
+
+    [JsonPropertyName("belongs_to_collection")]
+    public TmdbCollectionBelongs? BelongsToCollection { get; set; }
+}
+
+public class TmdbCollectionBelongs
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("poster_path")]
+    public string? PosterPath { get; set; }
+
+    [JsonPropertyName("backdrop_path")]
+    public string? BackdropPath { get; set; }
 }
 
 public class TmdbGenreItem
@@ -183,6 +201,42 @@ public class TmdbWatchProviderItem
 {
     [JsonPropertyName("provider_name")]
     public string ProviderName { get; set; } = string.Empty;
+}
+
+public class TmdbCollectionDetails
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("overview")]
+    public string? Overview { get; set; }
+
+    [JsonPropertyName("poster_path")]
+    public string? PosterPath { get; set; }
+
+    [JsonPropertyName("backdrop_path")]
+    public string? BackdropPath { get; set; }
+
+    [JsonPropertyName("parts")]
+    public List<TmdbCollectionPart> Parts { get; set; } = new();
+}
+
+public class TmdbCollectionPart
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("title")]
+    public string Title { get; set; } = string.Empty;
+
+    [JsonPropertyName("release_date")]
+    public string? ReleaseDate { get; set; }
+
+    [JsonPropertyName("poster_path")]
+    public string? PosterPath { get; set; }
 }
 
 public class TmdbMultiSearchResponse

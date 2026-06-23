@@ -27,7 +27,9 @@ public record MovieDetailsDto(
     IEnumerable<ActorSimpleDto> Actors,
     IEnumerable<MovieDiaryEntryDto> DiaryEntries,
     bool IsWatched = false,
-    bool IsInWatchlist = false
+    bool IsInWatchlist = false,
+    int? TmdbCollectionId = null,
+    string? TmdbCollectionName = null
 );
 
 public record ActorDetailsDto(

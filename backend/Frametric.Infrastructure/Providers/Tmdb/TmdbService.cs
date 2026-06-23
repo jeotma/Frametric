@@ -41,6 +41,37 @@ public class TmdbService : ITmdbService
         return movieResult;
     }
 
+    public async Task<TmdbCollectionResultDto?> GetCollectionByIdAsync(int collectionId, CancellationToken cancellationToken)
+    {
+        var url = $"collection/{collectionId}?language=en-US";
+        try
+        {
+            var raw = await GetWithRetryAsync<TmdbCollectionDetails>(url, cancellationToken);
+            if (raw == null) return null;
+
+            var posterUrl = !string.IsNullOrEmpty(raw.PosterPath)
+                ? $"https://image.tmdb.org/t/p/w500{raw.PosterPath}"
+                : null;
+            var backdropUrl = !string.IsNullOrEmpty(raw.BackdropPath)
+                ? $"https://image.tmdb.org/t/p/w1280{raw.BackdropPath}"
+                : null;
+
+            var parts = raw.Parts.Select(p =>
+            {
+                var pp = !string.IsNullOrEmpty(p.PosterPath)
+                    ? $"https://image.tmdb.org/t/p/w500{p.PosterPath}"
+                    : null;
+                return new TmdbCollectionPartDto(p.Id, p.Title, p.ReleaseDate, pp, IsInDatabase: false);
+            }).ToList();
+
+            return new TmdbCollectionResultDto(raw.Id, raw.Name, raw.Overview, posterUrl, backdropUrl, parts);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     public async Task<IEnumerable<GlobalSearchResultDto>> SearchMultiAsync(string query, CancellationToken cancellationToken)
     {
         var url = $"search/multi?query={Uri.EscapeDataString(query)}&language=en-US";
@@ -272,7 +303,9 @@ public class TmdbService : ITmdbService
             ReleaseDate: details.ReleaseDate,
             Keywords: keywords,
             StreamingProviders: providers,
-            Overview: details.Overview);
+            Overview: details.Overview,
+            TmdbCollectionId: details.BelongsToCollection?.Id,
+            TmdbCollectionName: details.BelongsToCollection?.Name);
     }
 
     private static TmdbMovieResultDto MapTvDetails(TmdbTvDetails details)

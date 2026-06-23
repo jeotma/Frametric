@@ -44,6 +44,8 @@ public class EntityDetailsQueriesImpl : IEntityDetailsQueries
                 m.""PosterUrl"", 
                 m.""Overview"", 
                 m.""TmdbRating"",
+                m.""TmdbCollectionId"",
+                m.""TmdbCollectionName"",
                 (SELECT r.""Score"" * 2 FROM ""MovieRatings"" r WHERE r.""MovieId"" = m.""Id"" AND r.""UserId"" = @UserId LIMIT 1) AS ""UserAverageScore"",
                 CASE WHEN EXISTS (SELECT 1 FROM ""WatchedMovies"" w WHERE w.""MovieId"" = m.""Id"" AND w.""UserId"" = @UserId) THEN true ELSE false END AS ""IsWatched"",
                 CASE WHEN EXISTS (SELECT 1 FROM ""WatchlistItems"" wl WHERE wl.""MovieId"" = m.""Id"" AND wl.""UserId"" = @UserId) THEN true ELSE false END AS ""IsInWatchlist""
@@ -442,6 +444,22 @@ public class EntityDetailsQueriesImpl : IEntityDetailsQueries
         ";
 
         return await connection.QueryAsync<GlobalSearchResultDto>(sql, new { SearchPattern = searchPattern });
+    }
+
+    public async Task<HashSet<int>> GetExistingTmdbIdsAsync(IEnumerable<int> tmdbIds, CancellationToken cancellationToken)
+    {
+        using var connection = _db.CreateConnection();
+        var ids = tmdbIds.Select(id => id.ToString()).ToArray();
+        if (ids.Length == 0) return new HashSet<int>();
+
+        const string sql = @"
+            SELECT m.""ExternalId""::integer AS TmdbId
+            FROM ""Movies"" m
+            WHERE m.""ExternalSource"" = 'TMDB'
+              AND m.""ExternalId"" = ANY(@TmdbIds)
+        ";
+        var results = await connection.QueryAsync<int>(sql, new { TmdbIds = ids });
+        return new HashSet<int>(results);
     }
 }
 

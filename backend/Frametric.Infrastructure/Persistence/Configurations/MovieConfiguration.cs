@@ -39,6 +39,9 @@ public class MovieConfiguration : IEntityTypeConfiguration<Movie>
         builder.Property(m => m.Certification).HasMaxLength(50);
         builder.Property(m => m.StreamingProviders).HasMaxLength(1000);
         builder.Property(m => m.Overview).HasMaxLength(4000);
+        builder.Property(m => m.TmdbCollectionId);
+        builder.Property(m => m.TmdbCollectionName).HasMaxLength(500);
+        builder.HasIndex(m => m.TmdbCollectionId);
 
         // Many-to-Many relationships
         builder.HasMany(m => m.Genres)

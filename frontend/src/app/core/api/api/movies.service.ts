@@ -23,6 +23,8 @@ import { LogMovieWatchRequest } from '../model/log-movie-watch-request';
 // @ts-ignore
 import { MovieDetailsDto } from '../model/movie-details-dto';
 // @ts-ignore
+import { TmdbCollectionResultDto } from '../model/tmdb-collection-result-dto';
+// @ts-ignore
 import { MovieSimpleDto } from '../model/movie-simple-dto';
 // @ts-ignore
 import { ProblemDetails } from '../model/problem-details';
@@ -423,6 +425,47 @@ export class MoviesService extends BaseService {
         let localVarPath = `/api/Movies/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/watchlist`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    public apiMoviesGetCollection(movieId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<TmdbCollectionResultDto>;
+    public apiMoviesGetCollection(movieId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TmdbCollectionResultDto>>;
+    public apiMoviesGetCollection(movieId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TmdbCollectionResultDto>>;
+    public apiMoviesGetCollection(movieId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (movieId === null || movieId === undefined) {
+            throw new Error('Required parameter movieId was null or undefined when calling apiMoviesGetCollection.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept(['text/plain', 'application/json', 'text/json']);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) responseType_ = 'text';
+            else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) responseType_ = 'json';
+            else responseType_ = 'blob';
+        }
+
+        let localVarPath = `/api/Movies/${this.configuration.encodeParam({name: "movieId", value: movieId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/collection`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<TmdbCollectionResultDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,

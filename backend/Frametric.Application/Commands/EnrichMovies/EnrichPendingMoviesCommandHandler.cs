@@ -235,7 +235,9 @@ public class EnrichPendingMoviesCommandHandler : IRequestHandler<EnrichPendingMo
                     boxOffice: boxOffice,
                     certification: rated,
                     streamingProviders: providers,
-                    overview: overview);
+                    overview: overview,
+                    tmdbCollectionId: tmdbData.TmdbCollectionId,
+                    tmdbCollectionName: tmdbData.TmdbCollectionName);
                 enrichedCount++;
             }
             catch (Exception ex)
