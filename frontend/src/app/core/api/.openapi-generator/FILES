@@ -24,6 +24,7 @@ model/actor-details-dto.ts
 model/actor-simple-dto.ts
 model/auth-response-dto.ts
 model/best-rookies-dto.ts
+model/bingo-board-dto.ts
 model/bingo-grid-dto.ts
 model/bingo-request.ts
 model/bingo-square-dto.ts

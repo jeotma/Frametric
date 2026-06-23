@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -7,7 +7,7 @@
 // (at your option) any later version.
 
 using Frametric.Application.Interfaces;
-using Frametric.Application.Interfaces;
+using Frametric.Application.Interfaces.Analytics;
 using Frametric.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -25,11 +25,13 @@ public class LogMovieWatchCommandHandler : IRequestHandler<LogMovieWatchCommand,
 {
     private readonly IApplicationDbContext _context;
     private readonly ICacheService _cacheService;
+    private readonly IUserViewingProfileService _profileService;
 
-    public LogMovieWatchCommandHandler(IApplicationDbContext context, ICacheService cacheService)
+    public LogMovieWatchCommandHandler(IApplicationDbContext context, ICacheService cacheService, IUserViewingProfileService profileService)
     {
         _context = context;
         _cacheService = cacheService;
+        _profileService = profileService;
     }
 
     public async Task<bool> Handle(LogMovieWatchCommand request, CancellationToken cancellationToken)
@@ -99,6 +101,9 @@ public class LogMovieWatchCommandHandler : IRequestHandler<LogMovieWatchCommand,
         // Invalidate analytics caches
         _cacheService.RemoveByPrefix($"WrappedSummary_{request.UserId}");
         _cacheService.RemoveByPrefix($"WatchedMovies_{request.UserId}");
+
+        // Trigger profile rebuild
+        _profileService.ScheduleRebuild(request.UserId);
 
         return true;
     }

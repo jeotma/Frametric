@@ -301,7 +301,8 @@ public class CommandHandlerTests : IDisposable
 
         using var actContext = CreateContext();
         var mockCache = new Mock<ICacheService>();
-        var handler = new LogMovieWatchCommandHandler(actContext, mockCache.Object);
+        var mockProfileService = new Mock<IUserViewingProfileService>();
+        var handler = new LogMovieWatchCommandHandler(actContext, mockCache.Object, mockProfileService.Object);
         var command = new LogMovieWatchCommand(userId, movieId, DateOnly.FromDateTime(DateTime.UtcNow), 4.5, false);
 
         // Act

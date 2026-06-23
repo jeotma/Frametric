@@ -5805,6 +5805,84 @@
         }
       }
     },
+    "/api/v1/discovery/bingo/boards": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BingoBoardDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BingoBoardDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BingoBoardDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/discovery/bingo/boards/{boardId}": {
+      "delete": {
+        "tags": [
+          "Discovery"
+        ],
+        "parameters": [
+          {
+            "name": "boardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/discovery/bingo/reroll/{objectiveId}": {
       "post": {
         "tags": [
@@ -6702,13 +6780,66 @@
           }
         }
       },
+      "BingoBoardDto": {
+        "required": [
+          "boardId",
+          "gridSize",
+          "startDate",
+          "endDate",
+          "isCompleted",
+          "completedSquares",
+          "totalSquares",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "boardId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "gridSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "completedSquares": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalSquares": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "BingoGridDto": {
         "required": [
+          "boardId",
           "gridSize",
           "squares"
         ],
         "type": "object",
         "properties": {
+          "boardId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "gridSize": {
             "type": "integer",
             "format": "int32"
@@ -6773,6 +6904,12 @@
           "durationDays": {
             "type": "integer",
             "format": "int32",
+            "default": null,
+            "nullable": true
+          },
+          "boardId": {
+            "type": "string",
+            "format": "uuid",
             "default": null,
             "nullable": true
           }
@@ -8212,6 +8349,12 @@
             "format": "int32"
           },
           "maxRuntimeMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "default": null,
+            "nullable": true
+          },
+          "minRuntimeMinutes": {
             "type": "integer",
             "format": "int32",
             "default": null,
