@@ -16,5 +16,6 @@ export interface RouletteRequest {
     customSourceTitles?: Array<string> | null;
     excludeWatched?: boolean;
     customAliases?: { [key: string]: string } | null;
+    partnerUsername?: string | null;
 }
 

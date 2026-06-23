@@ -24,6 +24,7 @@ describe('DiscoveryComponent', () => {
     apiV1DiscoveryMysteryBoxBoxIdRevealGet: () => of({ movieId: '4', title: 'Revealed Movie', directorName: 'Dir', releaseYear: 2023, selectionMechanismMetadata: 'reveal' } as any),
     apiV1DiscoveryBingoPost: (req: any) => of({ gridSize: req?.gridSize ?? 3, squares: [] } as any),
     apiV1DiscoveryAvailableCountriesGet: () => of(['USA', 'UK', 'Spain']),
+    apiV1DiscoveryBingoBoardsGet: () => of([]),
   });
 
   beforeEach(async () => {
@@ -156,6 +157,7 @@ describe('DiscoveryComponent', () => {
         apiV1DiscoveryMysteryBoxBoxIdRevealGet: () => of({ movieId: '4', title: 'OK', directorName: 'Dir', releaseYear: 2023, selectionMechanismMetadata: 'reveal' } as any),
         apiV1DiscoveryBingoPost: (req: any) => of({ gridSize: req?.gridSize ?? 3, squares: [] } as any),
         apiV1DiscoveryAvailableCountriesGet: () => of(['USA', 'UK']),
+        apiV1DiscoveryBingoBoardsGet: () => of([]),
       };
       TestBed.resetTestingModule();
       await TestBed.configureTestingModule({

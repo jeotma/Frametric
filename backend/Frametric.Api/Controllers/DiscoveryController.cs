@@ -52,7 +52,8 @@ public class DiscoveryController : ControllerBase
             request.CustomSourceIds,
             request.CustomSourceTitles,
             request.ExcludeWatched,
-            request.CustomAliases);
+            request.CustomAliases,
+            request.PartnerUsername);
 
         try
         {
@@ -75,7 +76,8 @@ public class DiscoveryController : ControllerBase
             request.BoxCount,
             request.CustomSourceIds,
             request.CustomSourceTitles,
-            request.ExcludeWatched);
+            request.ExcludeWatched,
+            request.PartnerUsername);
 
         try
         {
@@ -98,7 +100,8 @@ public class DiscoveryController : ControllerBase
             request.CustomSourceIds,
             request.CustomSourceTitles,
             request.ExcludeWatched,
-            request.Presets);
+            request.Presets,
+            request.PartnerUsername);
 
         try
         {

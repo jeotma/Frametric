@@ -59,7 +59,16 @@ public class RecommendationQueriesTests
                 Actors = "Leonardo DiCaprio",
                 UserRating = (double?)4.5,
                 WatchDate = DateTime.UtcNow,
-                Keywords = "dream,subconscious"
+                Keywords = "dream,subconscious",
+                Liked = true,
+                Writers = (string?)null,
+                Language = (string?)null,
+                Country = (string?)null,
+                Awards = (string?)null,
+                BoxOffice = (string?)null,
+                DiaryCount = 1,
+                IsWatchlisted = false,
+                IsInCustomList = false
             }
         };
 

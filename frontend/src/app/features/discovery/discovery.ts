@@ -68,12 +68,14 @@ export class DiscoveryComponent implements OnInit {
   public scopeOptions = [
     { value: 0, label: 'Personal Watchlist' },
     { value: 1, label: 'Global Database' },
-    { value: 2, label: 'Custom Selection' }
+    { value: 2, label: 'Custom Selection' },
+    { value: 4, label: 'Merge Watchlists' }
   ];
   public diceScopeOptions = [
     { value: 0, label: 'Personal Watchlist' },
     { value: 1, label: 'Global Database' },
-    { value: 2, label: 'Custom Selection' }
+    { value: 2, label: 'Custom Selection' },
+    { value: 4, label: 'Merge Watchlists' }
   ];
   public bingoGridOptions = [
     { value: 3, label: '3x3 Grid' },
@@ -95,6 +97,7 @@ export class DiscoveryComponent implements OnInit {
   public rouletteThreshold = signal<number>(1);
   public rouletteExcludeWatched = signal<boolean>(true);
   public rouletteChips = signal<MovieSimpleDto[]>([]);
+  public roulettePartnerUsername = signal<string>('');
   public rouletteSequenceSig = signal<MovieSimpleDto[]>([]);
   public rouletteWinnerTitleSig = signal<string | null>(null);
   public rawRouletteWinner = signal<SelectionResultDto | null>(null);
@@ -111,10 +114,12 @@ export class DiscoveryComponent implements OnInit {
   public diceScope = signal<number>(0);
   public diceExcludeWatched = signal<boolean>(true);
   public diceChips = signal<MovieSimpleDto[]>([]);
+  public dicePartnerUsername = signal<string>('');
   public diceValues = signal<number[]>([0, 0, 0, 0, 0]);
   public diceLabels = signal<string[]>(['', '', '', '', '']);
   public diceSettled = signal<boolean[]>([false, false, false, false, false]);
   public diceRolling = signal<boolean[]>([false, false, false, false, false]);
+  public diceMuted = signal(false);
   
   public pendingCriticalChoice = signal<boolean>(false);
   public diceSpecialStatusMsg = signal<string | null>(null);
@@ -199,6 +204,7 @@ export class DiscoveryComponent implements OnInit {
   public selectedBoxId = signal<string | null>(null);
   public mysteryExcludeWatched = signal<boolean>(true);
   public mysteryChips = signal<MovieSimpleDto[]>([]);
+  public mysteryPartnerUsername = signal<string>('');
   public revealedOthersMap = signal<Record<string, SelectionResultDto>>({});
   public isRevealingOthers = signal<boolean>(false);
   public hasRevealedOthers = computed(() => Object.keys(this.revealedOthersMap()).length > 0);
@@ -411,10 +417,15 @@ export class DiscoveryComponent implements OnInit {
     return chips.map(c => c.id!).filter(id => !!id);
   }
 
+  public readonly MAX_ROULETTE_STEPS = 50;
+  public rouletteStepCount = signal(0);
+  public rouletteSkipped = signal(false);
+
   public spellRoulette(): void {
     if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
     this.errorMsg.set(null);
     this.rouletteLoading.set(true);
+    this.rouletteSkipped.set(false);
 
     // Build custom aliases dict (Guid -> alias) for custom scope
     let customAliases: { [key: string]: string } | undefined = undefined;
@@ -431,19 +442,29 @@ export class DiscoveryComponent implements OnInit {
       excludeWatched: this.rouletteExcludeWatched(),
       customSourceIds: this.rouletteScope() === 2 ? this.getChipsIds(this.rouletteChips()) : undefined,
       customSourceTitles: this.rouletteScope() === 2 ? this.getChipsTitles(this.rouletteChips()) : undefined,
-      customAliases: customAliases
+      customAliases: customAliases,
+      partnerUsername: this.rouletteScope() === 4 ? this.roulettePartnerUsername() || null : undefined
     }).subscribe({ 
       next: (r: RouletteRaceResultDto) => {
         this.rouletteLoading.set(false);
         if (!r.spinSequence || r.spinSequence.length === 0) return;
         
         this.rouletteWinnerSig.set(null);
-        this.rouletteSequenceSig.set(r.spinSequence);
         
+        // Truncate sequence to prevent infinite spinning — keep first N + winner
         const winner = r.winner || r.spinSequence[r.spinSequence.length - 1];
+        let seq = r.spinSequence;
+        if (this.rouletteThreshold() > 1 && seq.length > this.MAX_ROULETTE_STEPS) {
+          const poolSlices = seq.filter(s => s.selectionMechanismMetadata === 'Initial candidate');
+          const raceSlices = seq.slice(poolSlices.length, this.MAX_ROULETTE_STEPS - poolSlices.length);
+          seq = [...poolSlices, ...raceSlices, winner];
+        }
+        this.rouletteSequenceSig.set(seq);
+        
         this.rawRouletteWinner.set(winner);
         
         this.rouletteRaceIndex = 0;
+        this.rouletteStepCount.set(0);
         this.rouletteLeaderboard.set([]);
         this.runNextRouletteRaceStep();
       }, 
@@ -452,6 +473,15 @@ export class DiscoveryComponent implements OnInit {
         this.errorMsg.set(e.error?.error || 'Roulette failed');
       } 
     });
+  }
+
+  public skipRouletteRace(): void {
+    this.rouletteSkipped.set(true);
+    const winner = this.rawRouletteWinner();
+    this.rouletteRaceIndex = this.rouletteSequenceSig().length - 1;
+    this.rouletteStepCount.set(this.rouletteRaceIndex);
+    this.rouletteWinnerTitleSig.set(winner?.title || '');
+    this.rouletteIsRacing.set(true);
   }
 
   private runNextRouletteRaceStep(): void {
@@ -472,6 +502,7 @@ export class DiscoveryComponent implements OnInit {
 
     const currentRoll = seq[this.rouletteRaceIndex];
     this.rouletteWinnerTitleSig.set(currentRoll.title || '');
+    this.rouletteStepCount.set(this.rouletteRaceIndex + 1);
 
     // Trigger rouletteIsRacing to true for the first step, or trigger a re-spin
     if (this.rouletteRaceIndex === 0) {
@@ -480,6 +511,17 @@ export class DiscoveryComponent implements OnInit {
   }
 
   public onRouletteFinished(): void {
+    if (this.rouletteSkipped()) {
+      this.rouletteIsRacing.set(false);
+      const winner = this.rawRouletteWinner();
+      if (winner) {
+        this.rouletteWinnerSig.set(winner);
+        this.checkWinnerAgainstLists(winner);
+        this.winnerModalMovie.set(winner);
+      }
+      return;
+    }
+
     const seq = this.rouletteSequenceSig();
     const isThresholdRace = this.rouletteThreshold() > 1;
 
@@ -539,7 +581,8 @@ export class DiscoveryComponent implements OnInit {
       scope: this.diceScope() as any,
       excludeWatched: this.diceExcludeWatched(),
       customSourceIds: this.diceScope() === 2 ? this.getChipsIds(this.diceChips()) : undefined,
-      customSourceTitles: this.diceScope() === 2 ? this.getChipsTitles(this.diceChips()) : undefined
+      customSourceTitles: this.diceScope() === 2 ? this.getChipsTitles(this.diceChips()) : undefined,
+      partnerUsername: this.diceScope() === 4 ? this.dicePartnerUsername() || null : undefined
     }).subscribe({ 
         next: r => {
           this.diceResultSig.set(r);
@@ -604,7 +647,8 @@ export class DiscoveryComponent implements OnInit {
         scope: this.diceScope() as any,
         excludeWatched: this.diceExcludeWatched(),
         customSourceIds: this.diceScope() === 2 ? this.getChipsIds(this.diceChips()) : undefined,
-        customSourceTitles: this.diceScope() === 2 ? this.getChipsTitles(this.diceChips()) : undefined
+        customSourceTitles: this.diceScope() === 2 ? this.getChipsTitles(this.diceChips()) : undefined,
+        partnerUsername: this.diceScope() === 4 ? this.dicePartnerUsername() || null : undefined
       }).subscribe({ 
         next: r => {
           this.diceResultSig.set(r);
@@ -668,7 +712,8 @@ export class DiscoveryComponent implements OnInit {
       excludeWatched: this.diceExcludeWatched(),
       customSourceIds: this.diceScope() === 2 ? this.getChipsIds(this.diceChips()) : undefined,
       customSourceTitles: this.diceScope() === 2 ? this.getChipsTitles(this.diceChips()) : undefined,
-      presets: presets
+      presets: presets,
+      partnerUsername: this.diceScope() === 4 ? this.dicePartnerUsername() || null : undefined
     }).subscribe({
       next: r => {
         this.diceResultSig.set(r);
@@ -855,7 +900,8 @@ export class DiscoveryComponent implements OnInit {
       variant: this.mysteryVariant(),
       excludeWatched: this.mysteryExcludeWatched(),
       customSourceIds: this.mysteryScope() === 2 ? this.getChipsIds(this.mysteryChips()) : undefined,
-      customSourceTitles: this.mysteryScope() === 2 ? this.getChipsTitles(this.mysteryChips()) : undefined
+      customSourceTitles: this.mysteryScope() === 2 ? this.getChipsTitles(this.mysteryChips()) : undefined,
+      partnerUsername: this.mysteryScope() === 4 ? this.mysteryPartnerUsername() || null : undefined
     }).pipe(
       finalize(() => this.mysteryLoading.set(false))
     )

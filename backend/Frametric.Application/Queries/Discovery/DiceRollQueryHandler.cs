@@ -117,7 +117,18 @@ public class DiceRollQueryHandler : IRequestHandler<DiceRollQuery, DiceRollResul
         }).ToList();
 
         var customSourceIds = await ResolveCustomSourceIds(request, cancellationToken);
-        var pool = (await _discoveryQueries.GetDiscoveryPoolAsync(request.UserId, request.Scope, customSourceIds, request.ExcludeWatched, cancellationToken)).ToList();
+
+        Guid? partnerUserId = null;
+        if (request.Scope == DiscoveryDataSourceScope.MergedWatchlists && !string.IsNullOrWhiteSpace(request.PartnerUsername))
+        {
+            partnerUserId = await _discoveryQueries.GetUserIdByUsernameAsync(request.PartnerUsername, cancellationToken);
+            if (partnerUserId == null)
+            {
+                throw new InvalidOperationException($"User '{request.PartnerUsername}' not found.");
+            }
+        }
+
+        var pool = (await _discoveryQueries.GetDiscoveryPoolAsync(request.UserId, request.Scope, customSourceIds, request.ExcludeWatched, partnerUserId, cancellationToken)).ToList();
 
         if (!pool.Any())
         {

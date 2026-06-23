@@ -37,7 +37,7 @@ public class SlotMachineSpinQueryHandler : IRequestHandler<SlotMachineSpinQuery,
         _logger.LogInformation("Executing slot machine spin for user {UserId} with scope {Scope}", request.UserId, request.Scope);
 
         var customSourceIds = await ResolveCustomSourceIds(request, cancellationToken);
-        var pool = (await _discoveryQueries.GetDiscoveryPoolAsync(request.UserId, request.Scope, customSourceIds, request.ExcludeWatched, cancellationToken)).ToList();
+        var pool = (await _discoveryQueries.GetDiscoveryPoolAsync(request.UserId, request.Scope, customSourceIds, request.ExcludeWatched, null, cancellationToken)).ToList();
 
         if (!pool.Any())
         {

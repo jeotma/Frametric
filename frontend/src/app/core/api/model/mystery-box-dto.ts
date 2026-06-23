@@ -15,5 +15,7 @@ export interface MysteryBoxDto {
     variant: number;
     generatedAt: string;
     hints?: Array<MysteryBoxHintDto> | null;
+    filterType?: string | null;
+    filterValue?: string | null;
 }
 

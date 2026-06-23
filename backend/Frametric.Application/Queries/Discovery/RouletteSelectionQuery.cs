@@ -19,5 +19,6 @@ public record RouletteSelectionQuery(
     IEnumerable<Guid>? CustomSourceIds = null,
     IEnumerable<string>? CustomSourceTitles = null,
     bool ExcludeWatched = true,
-    Dictionary<Guid, string>? CustomAliases = null
+    Dictionary<Guid, string>? CustomAliases = null,
+    string? PartnerUsername = null
 ) : IRequest<RouletteRaceResultDto>;

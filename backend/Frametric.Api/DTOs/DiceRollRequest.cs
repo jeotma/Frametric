@@ -18,5 +18,6 @@ public record DiceRollRequest(
     IEnumerable<Guid>? CustomSourceIds = null,
     IEnumerable<string>? CustomSourceTitles = null,
     bool ExcludeWatched = true,
-    IReadOnlyDictionary<DiceType, int>? Presets = null
+    IReadOnlyDictionary<DiceType, int>? Presets = null,
+    string? PartnerUsername = null
 );

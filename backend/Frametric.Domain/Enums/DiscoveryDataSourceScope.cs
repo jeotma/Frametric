@@ -13,5 +13,6 @@ public enum DiscoveryDataSourceScope
     WatchlistOnly,
     DatabaseOnly,
     CustomCollection,
-    Hybrid
+    Hybrid,
+    MergedWatchlists
 }
