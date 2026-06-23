@@ -7,15 +7,16 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { BingoSquareDto } from './bingo-square-dto';
 
 
-export interface BingoGridDto { 
+export interface BingoBoardDto { 
     boardId: string;
     gridSize: number;
-    squares: Array<BingoSquareDto>;
-    startDate?: string | null;
-    endDate?: string | null;
-    rerollsUsed?: number;
+    startDate: string | null;
+    endDate: string | null;
+    isCompleted: boolean;
+    completedSquares: number;
+    totalSquares: number;
+    createdAt: string;
 }
 
