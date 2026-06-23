@@ -37,14 +37,17 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
 
         // Generate a secure random token
         var tokenBytes = RandomNumberGenerator.GetBytes(32);
-        var token = Convert.ToBase64String(tokenBytes);
+        var token = Convert.ToBase64String(tokenBytes)
+            .Replace("+", "-")
+            .Replace("/", "_")
+            .Replace("=", "");
         var expiry = DateTime.UtcNow.AddHours(1);
 
         user.SetPasswordResetToken(token, expiry);
         await _context.SaveChangesAsync(cancellationToken);
 
         // Ideally this should come from a frontend config
-var resetLink = $"https://frametric.pages.dev/reset-password?token={token}&email={user.Email}";
+        var resetLink = $"https://frametric.pages.dev/reset-password?token={token}&email={user.Email}";
         
         await _emailService.SendPasswordResetEmailAsync(user.Email, resetLink, cancellationToken);
 
