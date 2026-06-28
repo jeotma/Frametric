@@ -683,6 +683,8 @@ test.describe('Portfolio Screenshot Generator', () => {
     await page.waitForTimeout(300);
     await selectCinematicOption(page, 1, 'Total Time Invested');
     await page.waitForTimeout(300);
+    await page.locator('input[placeholder="Name"]').fill('Christopher Nolan');
+    await page.waitForTimeout(300);
     await page.locator('.analyze-btn').click();
     await page.waitForSelector('.hero-card', { timeout: 10000 });
     await page.waitForTimeout(600);

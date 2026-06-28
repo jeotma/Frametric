@@ -36,10 +36,10 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
   test.describe('Dashboard Feature', () => {
     test('should show warning banner when there is no successful import', async ({ page }) => {
       // 1. Mock empty import history and empty dashboard BEFORE login navigation (using case-insensitive RegExp)
-      await page.route(/\/api\/import\/history/i, async (route) => {
+      await page.route(/\/api\/(v1\/)?import\/history/i, async (route) => {
         await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) });
       });
-      await page.route(/\/api\/analytics\/dashboard/i, async (route) => {
+      await page.route(/\/api\/(v1\/)?analytics\/dashboard/i, async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -63,14 +63,14 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
 
     test('should show full stats grid when dashboard has data', async ({ page }) => {
       // 1. Mock valid history and stats BEFORE login navigation (using case-insensitive RegExp)
-      await page.route(/\/api\/import\/history/i, async (route) => {
+      await page.route(/\/api\/(v1\/)?import\/history/i, async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify([{ id: '1', fileName: 'data.zip', status: 'Completed' }])
         });
       });
-      await page.route(/\/api\/analytics\/dashboard/i, async (route) => {
+      await page.route(/\/api\/(v1\/)?analytics\/dashboard/i, async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -107,7 +107,7 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
       let uploadCalled = false;
       
       // 1. Setup route mocks before page loading (using case-insensitive RegExp)
-      await page.route(/\/api\/import\/history/i, async (route) => {
+      await page.route(/\/api\/(v1\/)?import\/history/i, async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -116,11 +116,11 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
           ])
         });
       });
-      await page.route(/\/api\/import\/letterboxd/i, async (route) => {
+      await page.route(/\/api\/(v1\/)?import\/letterboxd/i, async (route) => {
         uploadCalled = true;
         await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true }) });
       });
-      await page.route(/\/api\/analytics\/dashboard/i, async (route) => {
+      await page.route(/\/api\/(v1\/)?analytics\/dashboard/i, async (route) => {
         await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
       });
 
@@ -138,7 +138,7 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
 
       // Trigger upload via clicking file dropzone button
       const fileChooserPromise = page.waitForEvent('filechooser');
-      const responsePromise = page.waitForResponse(/\/api\/import\/letterboxd/i);
+      const responsePromise = page.waitForResponse(/\/api\/(v1\/)?import\/letterboxd/i);
       await page.locator('.upload-dropzone button').click();
       const fileChooser = await fileChooserPromise;
       
@@ -156,10 +156,10 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
 
     test('should show error banner when uploading non-zip file', async ({ page }) => {
       // 1. Setup route mocks before page loading (using case-insensitive RegExp)
-      await page.route(/\/api\/import\/history/i, async (route) => {
+      await page.route(/\/api\/(v1\/)?import\/history/i, async (route) => {
         await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) });
       });
-      await page.route(/\/api\/analytics\/dashboard/i, async (route) => {
+      await page.route(/\/api\/(v1\/)?analytics\/dashboard/i, async (route) => {
         await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
       });
 
@@ -188,7 +188,7 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
   test.describe('Final Cut Feature', () => {
     test('should load presentation slides, control slide progression, and close on ESC key', async ({ page }) => {
       // 1. Setup route mocks before page loading (using case-insensitive RegExp)
-      await page.route(/\/api\/analytics\/wrapped/i, async (route) => {
+      await page.route(/\/api\/(v1\/)?analytics\/wrapped/i, async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -204,13 +204,13 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
       const mockEmptyArray = async (route: any) => route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
       const mockEmptyObj = async (route: any) => route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
 
-      await page.route(/\/api\/analytics\/advanced\/final-cut/i, mockEmptyObj);
-      await page.route(/\/api\/analytics\/advanced\/bonus/i, mockEmptyObj);
-      await page.route(/\/api\/analytics\/advanced\/watched/i, mockEmptyArray);
-      await page.route(/\/api\/analytics\/dashboard/i, async (route) => {
+      await page.route(/\/api\/(v1\/)?analytics\/advanced\/final-cut/i, mockEmptyObj);
+      await page.route(/\/api\/(v1\/)?analytics\/advanced\/bonus/i, mockEmptyObj);
+      await page.route(/\/api\/(v1\/)?analytics\/advanced\/watched/i, mockEmptyArray);
+      await page.route(/\/api\/(v1\/)?analytics\/dashboard/i, async (route) => {
         await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
       });
-      await page.route(/\/api\/import\/history/i, async (route) => {
+      await page.route(/\/api\/(v1\/)?import\/history/i, async (route) => {
         await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
       });
 
@@ -284,10 +284,10 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
         await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
       });
 
-      await page.route(/\/api\/analytics\/dashboard/i, async (route) => {
+      await page.route(/\/api\/(v1\/)?analytics\/dashboard/i, async (route) => {
         await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
       });
-      await page.route(/\/api\/import\/history/i, async (route) => {
+      await page.route(/\/api\/(v1\/)?import\/history/i, async (route) => {
         await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
       });
     });

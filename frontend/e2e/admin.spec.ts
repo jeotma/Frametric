@@ -32,7 +32,7 @@ test.describe('Admin Control Panel and Catalog Editing', () => {
 
   test.beforeEach(async ({ page }) => {
     // Mock the statistics and diagnostics API requests
-    await page.route('**/api/v1/Admin/diagnostics/database', async route => {
+    await page.route('**/api/v1/admin/diagnostics/database', async route => {
       await route.fulfill({
         status: 200,
         json: {
@@ -51,7 +51,7 @@ test.describe('Admin Control Panel and Catalog Editing', () => {
       });
     });
 
-    await page.route('**/api/v1/Admin/users', async route => {
+    await page.route('**/api/v1/admin/users', async route => {
       await route.fulfill({
         status: 200,
         json: [

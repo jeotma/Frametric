@@ -122,7 +122,7 @@ test.describe('Advanced Statistics Tests', () => {
         body: JSON.stringify({
           title: 'Modern Era',
           count: 420,
-          averageRating: 2.06 // Will be multiplied by 2 in the template to become 4.12
+          averageRating: 4.12
         })
       });
     });
