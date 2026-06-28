@@ -5,7 +5,7 @@
 [![Platform](https://img.shields.io/badge/.NET-9.0-blueviolet?style=flat-square)](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
 [![Frontend](https://img.shields.io/badge/Angular-19.0-red?style=flat-square)](https://angular.dev)
 
-**Frametric** is a premium cinematic intelligence platform and decision-fatigue mitigation suite. It transforms flat, personal viewing activity archives into rich data analytics, interactive movie detail landscapes, and dynamic slideshow reviews.
+**Frametric** is a cinematic intelligence platform and decision-fatigue mitigation suite. It transforms flat, personal viewing activity archives into rich data analytics, interactive movie detail landscapes, and dynamic slideshow reviews.
 
 * **Live Platform:** [https://frametric.pages.dev](https://frametric.pages.dev)
 * **API Health Endpoint:** `https://frametric-api.onrender.com/api/v1/health`
