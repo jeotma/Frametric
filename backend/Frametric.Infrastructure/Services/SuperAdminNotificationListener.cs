@@ -31,10 +31,15 @@ public class SuperAdminNotificationListener : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        var connectionString = _configuration.GetConnectionString("DefaultConnection");
+        var connectionString = _configuration.GetConnectionString("DirectConnection");
         if (string.IsNullOrWhiteSpace(connectionString))
         {
-            _logger.LogWarning("DefaultConnection is not configured. SuperAdmin DB notification listener will not start.");
+            connectionString = _configuration.GetConnectionString("DefaultConnection");
+        }
+
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            _logger.LogWarning("Neither DirectConnection nor DefaultConnection is configured. SuperAdmin DB notification listener will not start.");
             return;
         }
 
