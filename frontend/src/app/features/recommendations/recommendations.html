@@ -272,7 +272,7 @@
             </div>
           </div>
         }
-        <div class="recommendations-grid" [class.grid-10]="selectedQuantity() === 10">
+        <div class="recommendations-grid" [class.grid-10]="recommendations().length === 10">
           @for (movie of recommendations(); track movie.movieId) {
             <article class="movie-card viewfinder-box animate-stagger-up" style="--i: {{ $index }}" [class.loading]="actionLoading() === movie.movieId" [class.haunted-card]="recommendations().length === 1 && recommendations()[0].easterEggTooltip?.startsWith('Watchlist Haunting')">
               <div class="poster-container">

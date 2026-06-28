@@ -49,7 +49,7 @@
           {{res.isLocal ? 'Library' : 'TMDB'}}
         </div>
         <!-- Enrichment cinematic loader -->
-        <div class="enrich-loader-overlay" *ngIf="enrichLoadingId() === res.tmdbId">
+        <div class="enrich-loader-overlay" *ngIf="enrichLoadingId() !== null && enrichLoadingId() === res.tmdbId">
           <div class="cinematic-loader"></div>
         </div>
       </div>
