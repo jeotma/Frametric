@@ -52,7 +52,7 @@
       </div>
     </div>
 
-    <div *ngIf="summary() as data" class="dashboard-grid">
+    <div *ngIf="hasSuccessfulImport() && summary() as data" class="dashboard-grid">
       <!-- Quick Stats -->
       <section class="stat-cards">
         <div class="stat-card viewfinder-box animate-stagger-fade" style="--i: 0">

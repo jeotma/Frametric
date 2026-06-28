@@ -40,6 +40,19 @@ public class SuperAdminNotificationListener : BackgroundService
 
         _logger.LogInformation("SuperAdmin notification background listener is starting.");
 
+        try
+        {
+            var builder = new NpgsqlConnectionStringBuilder(connectionString)
+            {
+                KeepAlive = 30
+            };
+            connectionString = builder.ToString();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Could not set Npgsql KeepAlive in connection string. Proceeding with default.");
+        }
+
         while (!cancellationToken.IsCancellationRequested)
         {
             try

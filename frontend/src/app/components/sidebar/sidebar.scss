@@ -347,3 +347,56 @@
 .sidebar.pinned .guest-mode {
   padding: 0 14px;
 }
+
+.user-profile-wrapper {
+  margin-top: auto;
+  position: relative;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.user-profile {
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.user-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 12px;
+  right: 12px;
+  margin-bottom: 8px;
+  padding: 8px;
+  z-index: 12000;
+  min-width: 140px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+
+  .btn-secondary {
+    width: 100%;
+    justify-content: flex-start;
+    border: none !important;
+    color: var(--accent-record) !important;
+    background: transparent !important;
+    padding: 8px 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    border-radius: var(--border-radius-sm);
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
+  }
+}
+
+// Positioning adjustment when sidebar is collapsed
+.sidebar:not(.pinned):not(:hover) .user-menu,
+.sidebar.locked-collapsed .user-menu {
+  left: calc(100% + 8px) !important;
+  right: auto !important;
+  bottom: 0 !important;
+  min-width: 160px !important;
+}
