@@ -22,6 +22,15 @@ import { CinematicFatigueExpandedDto } from '../../../../core/services/final-cut
             <span class="slump-sub">Just {{ data.slumpMonthWatchCount }} films that month</span>
           </div>
         </div>
+
+        <div class="slump-card" *ngIf="data.slumpDay">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="slump-icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <div class="slump-info">
+            <span class="slump-value" style="font-family: var(--font-mono)">{{ data.slumpDay }}</span>
+            <span class="slump-label">Your quietest day of the week</span>
+            <span class="slump-sub">Just {{ data.slumpDayWatchCount }} films on that day</span>
+          </div>
+        </div>
       </div>
 
       <p class="no-data" *ngIf="!data">Not enough data for {{ year === 'global' ? 'All-Time' : year }}.</p>
@@ -38,8 +47,8 @@ import { CinematicFatigueExpandedDto } from '../../../../core/services/final-cut
       text-align: center;
     }
     .slump-stats {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 20px;
       width: 100%;
       max-width: 640px;
@@ -47,23 +56,23 @@ import { CinematicFatigueExpandedDto } from '../../../../core/services/final-cut
     .slump-card {
       display: flex;
       align-items: center;
-      gap: 32px;
-      padding: 32px 40px;
+      gap: 24px;
+      padding: 24px 28px;
       border-radius: 24px;
       border: 1px solid rgba(255,255,255,0.05);
       background: rgba(255,255,255,0.025);
       backdrop-filter: blur(12px);
     }
-    .slump-icon { color: rgba(255,255,255,0.4); }
+    .slump-icon { color: rgba(255,255,255,0.4); flex-shrink: 0; }
     .slump-info { display: flex; flex-direction: column; gap: 4px; }
     .slump-value {
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       font-weight: 800;
       color: #94a3b8;
       letter-spacing: -0.02em;
     }
     .slump-label {
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.08em;

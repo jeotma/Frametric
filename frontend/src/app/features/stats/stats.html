@@ -47,21 +47,32 @@
 
       <!-- Unified Filters -->
       <div class="filter-group animate-stagger-fade" style="--i: 2"
-        [class.disabled-group]="!isFilterAllowed('watchYear')">
+        [class.disabled-group]="!isFilterAllowed('watchYear')"
+        [class.has-error]="globalFilters.watchYear && (globalFilters.watchYear < minYear || globalFilters.watchYear > maxYear)">
         <label>Watch Year</label>
         <input type="number" [(ngModel)]="globalFilters.watchYear" placeholder="e.g. 2024"
           class="form-input short-input" [disabled]="!isFilterAllowed('watchYear')">
+        <span class="error-msg-bubble" *ngIf="globalFilters.watchYear && (globalFilters.watchYear < minYear || globalFilters.watchYear > maxYear)">
+          Range: {{ minYear }}-{{ maxYear }}
+        </span>
       </div>
 
       <div class="filter-group animate-stagger-fade" style="--i: 3"
-        [class.disabled-group]="!isFilterAllowed('releaseYear')">
+        [class.disabled-group]="!isFilterAllowed('releaseYear')"
+        [class.has-error]="globalFilters.releaseYear && (globalFilters.releaseYear < minYear || globalFilters.releaseYear > maxYear)">
         <label>Release Year</label>
         <input type="number" [(ngModel)]="globalFilters.releaseYear" placeholder="e.g. 1994"
           class="form-input short-input" [disabled]="!isFilterAllowed('releaseYear')">
+        <span class="error-msg-bubble" *ngIf="globalFilters.releaseYear && (globalFilters.releaseYear < minYear || globalFilters.releaseYear > maxYear)">
+          Range: {{ minYear }}-{{ maxYear }}
+        </span>
       </div>
 
       <div class="filter-group rating-group animate-stagger-fade" style="--i: 4"
-        [class.disabled-group]="!isFilterAllowed('minRating')">
+        [class.disabled-group]="!isFilterAllowed('minRating')"
+        [class.has-error]="(globalFilters.minRating && (globalFilters.minRating < 0 || globalFilters.minRating > 10)) || 
+                           (globalFilters.maxRating && (globalFilters.maxRating < 0 || globalFilters.maxRating > 10)) ||
+                           (globalFilters.minRating && globalFilters.maxRating && globalFilters.minRating > globalFilters.maxRating)">
         <label class="tooltip-container help-cursor">Rating Range <svg class="stat-icon info" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
             aria-hidden="true" style="width: 0.9rem; height: 0.9rem; color: var(--text-muted);">
@@ -79,10 +90,22 @@
           <input type="number" [(ngModel)]="globalFilters.maxRating" step="0.5" min="0" max="10" placeholder="Max"
             class="form-input mini-input" [disabled]="!isFilterAllowed('maxRating')">
         </div>
+        <span class="error-msg-bubble" *ngIf="globalFilters.minRating && (globalFilters.minRating < 0 || globalFilters.minRating > 10)">
+          Range: 0-10
+        </span>
+        <span class="error-msg-bubble" *ngIf="globalFilters.maxRating && (globalFilters.maxRating < 0 || globalFilters.maxRating > 10)">
+          Range: 0-10
+        </span>
+        <span class="error-msg-bubble" *ngIf="globalFilters.minRating && globalFilters.maxRating && globalFilters.minRating > globalFilters.maxRating">
+          Min > Max!
+        </span>
       </div>
 
       <div class="filter-group rating-group animate-stagger-fade" style="--i: 5"
-        [class.disabled-group]="!isFilterAllowed('minCustomRating')">
+        [class.disabled-group]="!isFilterAllowed('minCustomRating')"
+        [class.has-error]="(globalFilters.minCustomRating && (globalFilters.minCustomRating < 0 || globalFilters.minCustomRating > 10)) || 
+                           (globalFilters.maxCustomRating && (globalFilters.maxCustomRating < 0 || globalFilters.maxCustomRating > 10)) ||
+                           (globalFilters.minCustomRating && globalFilters.maxCustomRating && globalFilters.minCustomRating > globalFilters.maxCustomRating)">
         <label class="tooltip-container help-cursor">Custom Rating <svg class="stat-icon info" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
             aria-hidden="true" style="width: 0.9rem; height: 0.9rem; color: var(--text-muted);">
@@ -99,19 +122,44 @@
           <input type="number" [(ngModel)]="globalFilters.maxCustomRating" step="0.1" min="0" max="10" placeholder="Max"
             class="form-input mini-input" [disabled]="!isFilterAllowed('maxCustomRating')">
         </div>
+        <span class="error-msg-bubble" *ngIf="globalFilters.minCustomRating && (globalFilters.minCustomRating < 0 || globalFilters.minCustomRating > 10)">
+          Range: 0-10
+        </span>
+        <span class="error-msg-bubble" *ngIf="globalFilters.maxCustomRating && (globalFilters.maxCustomRating < 0 || globalFilters.maxCustomRating > 10)">
+          Range: 0-10
+        </span>
+        <span class="error-msg-bubble" *ngIf="globalFilters.minCustomRating && globalFilters.maxCustomRating && globalFilters.minCustomRating > globalFilters.maxCustomRating">
+          Min > Max!
+        </span>
       </div>
 
       <div class="filter-group animate-stagger-fade" style="--i: 6" [class.disabled-group]="!isFilterAllowed('actor')">
         <label>Actor</label>
-        <input type="text" [(ngModel)]="globalFilters.actor" placeholder="Name" class="form-input mini-input"
-          [disabled]="!isFilterAllowed('actor')">
+        <div class="autocomplete-wrapper">
+          <input type="text" [ngModel]="globalFilters.actor" (ngModelChange)="onActorInput($event)"
+            (focus)="showActorDropdown.set(true)" (blur)="hideActorDropdownWithDelay()"
+            placeholder="Name" class="form-input mini-input" [disabled]="!isFilterAllowed('actor')">
+          <ul class="autocomplete-suggestions" *ngIf="showActorDropdown() && actorSuggestions().length > 0">
+            <li *ngFor="let suggestion of actorSuggestions()" (mousedown)="selectActor(suggestion)">
+              {{ suggestion }}
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div class="filter-group animate-stagger-fade" style="--i: 7"
         [class.disabled-group]="!isFilterAllowed('director')">
         <label>Director</label>
-        <input type="text" [(ngModel)]="globalFilters.director" placeholder="Name" class="form-input mini-input"
-          [disabled]="!isFilterAllowed('director')">
+        <div class="autocomplete-wrapper">
+          <input type="text" [ngModel]="globalFilters.director" (ngModelChange)="onDirectorInput($event)"
+            (focus)="showDirectorDropdown.set(true)" (blur)="hideDirectorDropdownWithDelay()"
+            placeholder="Name" class="form-input mini-input" [disabled]="!isFilterAllowed('director')">
+          <ul class="autocomplete-suggestions" *ngIf="showDirectorDropdown() && directorSuggestions().length > 0">
+            <li *ngFor="let suggestion of directorSuggestions()" (mousedown)="selectDirector(suggestion)">
+              {{ suggestion }}
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div class="filter-group animate-stagger-fade" style="--i: 8" [class.disabled-group]="!isFilterAllowed('genre')">
@@ -135,7 +183,7 @@
 
       <!-- Action Button -->
       <div class="action-group animate-stagger-fade" style="--i: 9">
-        <button class="btn-cta analyze-btn" (click)="runQuery()" [disabled]="loading()">
+        <button class="btn-cta analyze-btn" (click)="runQuery()" [disabled]="loading() || isQueryFormInvalid()">
           <span *ngIf="!loading()">Analyze</span>
           <span *ngIf="loading()">Crunching...</span>
         </button>
@@ -267,7 +315,7 @@
                               style="width: 0.8rem; height: 0.8rem; color: #f59e0b; margin-right: 2px;">
                               <polygon
                                 points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                            </svg> {{ (item.averageRating * 2) | number:'1.1-2' }}</span>
+                            </svg> {{ item.averageRating | number:'1.1-2' }}</span>
                           <span *ngIf="item.watchedCount > 0" class="profile-meta-chip"><svg class="stat-icon check"
                               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
                               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
@@ -351,7 +399,7 @@
                           <polygon
                             points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                         </svg>
-                        {{ (item[col] * 2) | number:'1.1-2' }}
+                        {{ item[col] | number:'1.1-2' }}
                         <span class="tooltip-text" style="width: 280px;">Your ratings, imported from Letterboxd (scale
                           1-5) have been multiplied by 2 to align with the application's 10-point scale.</span>
                       </span>
@@ -441,7 +489,7 @@
                           <polygon
                             points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                         </svg>
-                        {{ (item[col] * 2) | number:'1.1-2' }}
+                        {{ item[col] | number:'1.1-2' }}
                         <span class="tooltip-text" style="width: 280px;">Your ratings, imported from Letterboxd (scale
                           1-5) have been multiplied by 2 to align with the application's 10-point scale.</span>
                       </span>
@@ -535,7 +583,7 @@
                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polygon
                       points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                  </svg> {{ (resultData().averageRating * 2) | number:'1.1-2' }}
+                  </svg> {{ resultData().averageRating | number:'1.1-2' }}
                 </span>
                 <span class="value unrated-text" *ngIf="resultData().averageRating === 0">N/A</span>
                 <span class="label">Avg Rating</span>
@@ -545,7 +593,7 @@
                   <svg class="stat-icon star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                  </svg> {{ (resultData().rating * 2) | number:'1.1-2' }}
+                  </svg> {{ resultData().rating | number:'1.1-2' }}
                 </span>
                 <span class="value unrated-text" *ngIf="resultData().rating === 0">N/A</span>
                 <span class="label">Rating</span>
@@ -613,15 +661,15 @@
             </div>
           </ng-container>
 
-          <ng-container *ngIf="resultData().averageRatingNormal !== undefined">
+          <ng-container *ngIf="resultData().avgRatingLightDays !== undefined">
             <div class="comp-side">
-              <h3>Normal (1-2)</h3>
-              <span class="comp-val">{{ (resultData().averageRatingNormal * 2) | number:'1.1-2' }}</span>
+              <h3>Light Days (1 film)</h3>
+              <span class="comp-val">{{ resultData().avgRatingLightDays | number:'1.1-2' }}</span>
             </div>
             <div class="comp-vs">VS</div>
             <div class="comp-side">
-              <h3>Binge (3+)</h3>
-              <span class="comp-val">{{ (resultData().averageRatingBinge * 2) | number:'1.1-2' }}</span>
+              <h3>Heavy Days (2+ films)</h3>
+              <span class="comp-val">{{ resultData().avgRatingHeavyDays | number:'1.1-2' }}</span>
             </div>
           </ng-container>
         </div>
@@ -646,20 +694,7 @@
             </div>
           </div>
 
-          <ng-container *ngIf="resultData()[0]?.shortCount !== undefined">
-            <div class="hero-stats-grid mt-4">
-              <div class="stat-box" *ngFor="let item of resultData()">
-                <span class="label">Short (&lt;90m)</span>
-                    <span class="value">{{ item.shortCount }}</span>
-                    <br>
-                    <span class="label">Medium</span>
-                    <span class="value">{{ item.mediumCount }}</span>
-                    <br>
-                    <span class="label">Long (>150m)</span>
-                    <span class="value">{{ item.longCount }}</span>
-              </div>
-            </div>
-          </ng-container>
+
         </div>
       </ng-container>
 

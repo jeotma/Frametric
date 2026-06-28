@@ -107,6 +107,8 @@ export interface CinematicFatigueExpandedDto {
 export interface WeekendWarriorDto {
   weekendWatches: number;
   weekdayWatches: number;
+  weekendAverage: number;
+  weekdayAverage: number;
 }
 
 export interface FinalCutData {
