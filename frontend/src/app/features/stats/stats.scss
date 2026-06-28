@@ -716,14 +716,23 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 0.9rem;
   margin-left: 6px;
   padding: 2px 4px;
   border-radius: 4px;
-  transition: transform 0.2s;
+  transition: transform 0.2s, color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.45);
+  vertical-align: middle;
 
   &:hover {
     transform: scale(1.2) rotate(15deg);
+    color: var(--accent-hover, #ff2e93);
+  }
+
+  svg {
+    display: block;
   }
 }
 
