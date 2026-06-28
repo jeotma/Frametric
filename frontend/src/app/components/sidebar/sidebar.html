@@ -1,4 +1,4 @@
-<aside class="sidebar">
+<aside class="sidebar" [class.pinned]="isPinned()" [class.locked-collapsed]="isLockedCollapsed()" (mouseenter)="isHovered.set(true)" (mouseleave)="isHovered.set(false)">
   <div class="logo-area">
     <div class="logo-icon">
       <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true">
@@ -14,6 +14,24 @@
     </div>
     <span class="logo-text">Frametric</span>
     <span class="logo-version">v1.2</span>
+    <div class="sidebar-controls">
+      <!-- Lock button (Padlock) -->
+      <button class="sidebar-pin-btn" (click)="toggleLock()" [class.active]="isLocked()" [title]="isLocked() ? 'Unlock (Auto-expand on hover)' : 'Lock current size'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 14px; height: 14px;">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" *ngIf="isLocked()"></path>
+          <path d="M7 11V7a5 5 0 0 1 9.9-1" *ngIf="!isLocked()"></path>
+        </svg>
+      </button>
+
+      <!-- Collapse/Expand button (Chevron Arrow) -->
+      <button class="sidebar-pin-btn" (click)="toggleSize()" title="Toggle Sidebar Size">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 14px; height: 14px;">
+          <path d="M15 19l-7-7 7-7" *ngIf="isPinned() || (isHovered() && !isLockedCollapsed())"></path>
+          <path d="M9 5l7 7-7 7" *ngIf="isLockedCollapsed() || (!isPinned() && !isHovered())"></path>
+        </svg>
+      </button>
+    </div>
   </div>
 
   <nav class="nav-menu">
@@ -130,7 +148,6 @@
     </a>
   </nav>
 
-
   <div *ngIf="auth.isAuthenticated()" class="user-profile-wrapper" style="margin-top: auto; position: relative; margin-bottom: 16px;">
     <div class="user-profile" tabindex="0" role="button" (click)="toggleUserMenu()" (keydown.enter)="toggleUserMenu()" [attr.aria-expanded]="showUserMenu()" style="margin-top: 0; cursor: pointer; transition: background 0.2s;">
       <div class="avatar">{{ initials() }}</div>
@@ -150,6 +167,23 @@
         Sign Out
       </button>
     </div>
+  </div>
+
+  <div *ngIf="!auth.isAuthenticated()" class="user-profile-wrapper guest-mode" style="margin-top: auto; position: relative; margin-bottom: 16px;">
+    <a routerLink="/login" class="nav-item login-nav-item tooltip-container" style="display: flex; align-items: center; width: 100%; text-decoration: none;">
+      <div class="avatar guest-avatar" style="background: rgba(255, 255, 255, 0.05); border: 1px dashed rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; color: var(--text-muted);">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+          <polyline points="10 17 15 12 10 7" />
+          <line x1="15" y1="12" x2="3" y2="12" />
+        </svg>
+      </div>
+      <div class="user-info">
+        <span class="username" style="font-weight: 600; color: var(--accent-silver);">SIGN IN</span>
+        <span class="role" style="font-size: 0.7rem; color: var(--text-muted);">Access Account</span>
+      </div>
+      <span class="tooltip-text">Sign in to your Frametric account.</span>
+    </a>
   </div>
 
   <div class="sidebar-footer" style="display: flex; justify-content: center; align-items: center; padding-top: 4px;">

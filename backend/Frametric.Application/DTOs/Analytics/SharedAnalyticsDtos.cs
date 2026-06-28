@@ -71,7 +71,7 @@ public record GenreProportionDto(string GenreName, int WatchedCount, int Pending
 public record GoldenDirectorDto(string DirectorName, double AverageRatingInHistory, int PendingMoviesCount);
 public record DurationBalanceDto(string DurationCategory, int Count);
 public record GhostActorDto(string ActorName, int PendingMoviesCount);
-public record WeekendWarriorDto(int WeekendWatches, int WeekdayWatches);
+public record WeekendWarriorDto(int WeekendWatches, int WeekdayWatches, double WeekendAverage = 0.0, double WeekdayAverage = 0.0);
 public record CinematicFatigueDto(double AvgRatingLightDays, double AvgRatingHeavyDays);
 
 // --- Final Cut Expansion DTOs ---

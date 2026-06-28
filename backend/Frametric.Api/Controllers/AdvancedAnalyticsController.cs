@@ -77,8 +77,14 @@ public class AdvancedAnalyticsController : ControllerBase
         => Ok(await _mediator.Send(new GetDirectorRankingByRatingQuery(GetUserIdOrThrow(), filter)));
 
     [HttpGet("watched/total-time")]
-    public async Task<ActionResult<TimeInvestedDto>> GetTotalTimeByDirectorOrGenre([FromQuery] string filterType, [FromQuery] string filterName, [FromQuery] AnalyticsFilterDto filter)
-        => Ok(await _mediator.Send(new GetTotalTimeByDirectorOrGenreQuery(GetUserIdOrThrow(), filterType, filterName, filter)));
+    public async Task<ActionResult<TimeInvestedDto>> GetTotalTimeByDirectorOrGenre([FromQuery] string filterType, [FromQuery] string? filterName, [FromQuery] AnalyticsFilterDto filter)
+    {
+        if (string.IsNullOrWhiteSpace(filterName))
+        {
+            return Ok(new TimeInvestedDto(filterName ?? "", 0, 0));
+        }
+        return Ok(await _mediator.Send(new GetTotalTimeByDirectorOrGenreQuery(GetUserIdOrThrow(), filterType, filterName, filter)));
+    }
 
     // --- WATCHED CORRELATIONS ---
 

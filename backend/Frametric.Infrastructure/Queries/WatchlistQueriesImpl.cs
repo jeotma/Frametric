@@ -23,7 +23,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
             SELECT m.""Title"", 
                    m.""ReleaseYear"", 
                    (SELECT STRING_AGG(dr.""Name"", ', ') FROM ""MovieDirector"" md JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id"" WHERE md.""MoviesId"" = m.""Id"") AS Director, 
-                   TO_CHAR(w.""DateAdded"", 'FMMonth YYYY') AS DateAdded,
+                   TO_CHAR(CAST(w.""DateAdded"" AS TIMESTAMP), 'FMMonth YYYY') AS DateAdded,
                    m.""CustomAverageRating"",
                    m.""PosterUrl""
             FROM ""WatchlistItems"" w
@@ -44,16 +44,14 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "DateAdded", isMoviesJoined: false);
         string sql = $@"
             WITH UserDirectorRatings AS (
                 SELECT dr.""Id"" AS DirectorId, (AVG(mr.""Score"") * 2) AS AverageRating
                 FROM ""MovieRatings"" mr
                 JOIN ""MovieDirector"" md ON mr.""MovieId"" = md.""MoviesId""
                 JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
-                {filterBuilder.BuildJoins()}
                 WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
-                {filterBuilder.BuildWhereClause()}
                 GROUP BY dr.""Id""
             ),
             WatchedDirectors AS (
@@ -67,13 +65,15 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
                 JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
                 GROUP BY dr.""Id""
             )
-            SELECT dr.""Name"" AS DirectorName, dr.""Name"" AS Name, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(udr.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wd.WatchedCount, 0) AS INTEGER) AS WatchedCount, dr.""Id"" AS Id, dr.""ProfilePath"" AS ProfilePath
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(udr.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wd.WatchedCount, 0) AS INTEGER) AS WatchedCount, dr.""Id"" AS Id, dr.""ProfilePath"" AS ProfilePath
             FROM ""WatchlistItems"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
             LEFT JOIN UserDirectorRatings udr ON dr.""Id"" = udr.DirectorId
             LEFT JOIN WatchedDirectors wd ON dr.""Id"" = wd.DirectorId
+            {filterBuilder.BuildJoins()}
             WHERE w.""UserId"" = @userId
+            {filterBuilder.BuildWhereClause()}
             GROUP BY dr.""Id"", dr.""Name"", dr.""ProfilePath"", udr.AverageRating, wd.WatchedCount
             ORDER BY Count DESC, dr.""Name""";
         return await connection.QueryAsync<DirectorCountDto>(sql, parameters);
@@ -85,19 +85,15 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "DateAdded", isMoviesJoined: false);
         string sql = $@"
             WITH UserActorRatings AS (
                 SELECT a.""Id"" AS ActorId, (AVG(mr.""Score"") * 2) AS AverageRating
                 FROM ""MovieRatings"" mr
                 JOIN ""MovieActor"" ma ON mr.""MovieId"" = ma.""MoviesId""
                 JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
-                
-            {filterBuilder.BuildJoins()}
-            WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
-                
-            {filterBuilder.BuildWhereClause()}
-            GROUP BY a.""Id""
+                WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
+                GROUP BY a.""Id""
             ),
             WatchedActors AS (
                 SELECT a.""Id"" AS ActorId, COUNT(DISTINCT w.""MovieId"") AS WatchedCount
@@ -110,13 +106,15 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
                 JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
                 GROUP BY a.""Id""
             )
-            SELECT a.""Name"" AS ActorName, a.""Name"" AS Name, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(uar.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wa.WatchedCount, 0) AS INTEGER) AS WatchedCount, a.""Id"" AS Id, a.""ProfilePath"" AS ProfilePath
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(uar.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wa.WatchedCount, 0) AS INTEGER) AS WatchedCount, a.""Id"" AS Id, a.""ProfilePath"" AS ProfilePath
             FROM ""WatchlistItems"" w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
             LEFT JOIN UserActorRatings uar ON a.""Id"" = uar.ActorId
             LEFT JOIN WatchedActors wa ON a.""Id"" = wa.ActorId
+            {filterBuilder.BuildJoins()}
             WHERE w.""UserId"" = @userId
+            {filterBuilder.BuildWhereClause()}
             GROUP BY a.""Id"", a.""Name"", a.""ProfilePath"", uar.AverageRating, wa.WatchedCount
             ORDER BY Count DESC, a.""Name""";
         return await connection.QueryAsync<ActorCountDto>(sql, parameters);
@@ -128,26 +126,24 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "DateAdded", isMoviesJoined: false);
         string sql = $@"
             WITH WatchedGenres AS (
                 SELECT g.""Id"" AS GenreId, COUNT(DISTINCT w.""MovieId"") AS WatchedCount
                 FROM ""WatchedMovies"" w
                 JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
                 JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
-                
-            {filterBuilder.BuildJoins()}
-            WHERE w.""UserId"" = @userId
-                
-            {filterBuilder.BuildWhereClause()}
-            GROUP BY g.""Id""
+                WHERE w.""UserId"" = @userId
+                GROUP BY g.""Id""
             )
             SELECT g.""Name"" AS GenreName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(wg.WatchedCount, 0) AS INTEGER) AS WatchedCount
             FROM ""WatchlistItems"" w
             JOIN ""MovieGenre"" mg ON w.""MovieId"" = mg.""MoviesId""
             JOIN ""Genres"" g ON mg.""GenresId"" = g.""Id""
             LEFT JOIN WatchedGenres wg ON g.""Id"" = wg.GenreId
+            {filterBuilder.BuildJoins()}
             WHERE w.""UserId"" = @userId
+            {filterBuilder.BuildWhereClause()}
             GROUP BY g.""Id"", g.""Name"", wg.WatchedCount
             ORDER BY Count DESC, g.""Name""";
         return await connection.QueryAsync<GenreCountDto>(sql, parameters);
@@ -159,7 +155,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "DateAdded", isMoviesJoined: false);
         string sql = $@"
             SELECT CAST(FLOOR(m.""ReleaseYear"" / 10) * 10 AS INTEGER) AS Decade, CAST(COUNT(*) AS INTEGER) AS Count
             FROM ""WatchlistItems"" w
@@ -181,19 +177,15 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "DateAdded", isMoviesJoined: false);
         string sql = $@"
             WITH UserDirectorRatings AS (
                 SELECT dr.""Id"" AS DirectorId, (AVG(mr.""Score"") * 2) AS AverageRating
                 FROM ""MovieRatings"" mr
                 JOIN ""MovieDirector"" md ON mr.""MovieId"" = md.""MoviesId""
                 JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
-                
-            {filterBuilder.BuildJoins()}
-            WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
-                
-            {filterBuilder.BuildWhereClause()}
-            GROUP BY dr.""Id""
+                WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
+                GROUP BY dr.""Id""
             ),
             WatchedDirectors AS (
                 SELECT dr.""Id"" AS DirectorId, COUNT(DISTINCT w.""MovieId"") AS WatchedCount
@@ -203,13 +195,15 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
                 WHERE w.""UserId"" = @userId
                 GROUP BY dr.""Id""
             )
-            SELECT dr.""Name"" AS DirectorName, dr.""Name"" AS Name, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(udr.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wd.WatchedCount, 0) AS INTEGER) AS WatchedCount, dr.""Id"" AS Id, dr.""ProfilePath"" AS ProfilePath
+            SELECT dr.""Name"" AS DirectorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(udr.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wd.WatchedCount, 0) AS INTEGER) AS WatchedCount, dr.""Id"" AS Id, dr.""ProfilePath"" AS ProfilePath
             FROM ""WatchlistItems"" w
             JOIN ""MovieDirector"" md ON w.""MovieId"" = md.""MoviesId""
             JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id""
             LEFT JOIN UserDirectorRatings udr ON dr.""Id"" = udr.DirectorId
             LEFT JOIN WatchedDirectors wd ON dr.""Id"" = wd.DirectorId
+            {filterBuilder.BuildJoins()}
             WHERE w.""UserId"" = @userId
+            {filterBuilder.BuildWhereClause()}
             GROUP BY dr.""Id"", dr.""Name"", dr.""ProfilePath"", udr.AverageRating, wd.WatchedCount
             ORDER BY Count DESC
             LIMIT 1";
@@ -222,19 +216,15 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "DateAdded", isMoviesJoined: false);
         string sql = $@"
             WITH UserActorRatings AS (
                 SELECT a.""Id"" AS ActorId, (AVG(mr.""Score"") * 2) AS AverageRating
                 FROM ""MovieRatings"" mr
                 JOIN ""MovieActor"" ma ON mr.""MovieId"" = ma.""MoviesId""
                 JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
-                
-            {filterBuilder.BuildJoins()}
-            WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
-                
-            {filterBuilder.BuildWhereClause()}
-            GROUP BY a.""Id""
+                WHERE mr.""UserId"" = @userId AND mr.""Score"" IS NOT NULL
+                GROUP BY a.""Id""
             ),
             WatchedActors AS (
                 SELECT a.""Id"" AS ActorId, COUNT(DISTINCT w.""MovieId"") AS WatchedCount
@@ -244,13 +234,15 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
                 WHERE w.""UserId"" = @userId
                 GROUP BY a.""Id""
             )
-            SELECT a.""Name"" AS ActorName, a.""Name"" AS Name, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(uar.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wa.WatchedCount, 0) AS INTEGER) AS WatchedCount, a.""Id"" AS Id, a.""ProfilePath"" AS ProfilePath
+            SELECT a.""Name"" AS ActorName, CAST(COUNT(w.""Id"") AS INTEGER) AS Count, CAST(COALESCE(uar.AverageRating, 0.0) AS DOUBLE PRECISION) AS AverageRating, CAST(COALESCE(wa.WatchedCount, 0) AS INTEGER) AS WatchedCount, a.""Id"" AS Id, a.""ProfilePath"" AS ProfilePath
             FROM ""WatchlistItems"" w
             JOIN ""MovieActor"" ma ON w.""MovieId"" = ma.""MoviesId""
             JOIN ""Actors"" a ON ma.""ActorsId"" = a.""Id""
             LEFT JOIN UserActorRatings uar ON a.""Id"" = uar.ActorId
             LEFT JOIN WatchedActors wa ON a.""Id"" = wa.ActorId
+            {filterBuilder.BuildJoins()}
             WHERE w.""UserId"" = @userId
+            {filterBuilder.BuildWhereClause()}
             GROUP BY a.""Id"", a.""Name"", a.""ProfilePath"", uar.AverageRating, wa.WatchedCount
             ORDER BY Count DESC
             LIMIT 1";
@@ -263,7 +255,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "DateAdded", isMoviesJoined: false);
         string sql = $@"
             SELECT 
                 'Total Watchlist' AS Name,
@@ -285,7 +277,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "DateAdded", isMoviesJoined: false);
         string sql = $@"
             SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath""
             FROM ""WatchlistItems"" w
@@ -345,7 +337,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "DateAdded", isMoviesJoined: false);
         string sql = $@"
             WITH PendingDirectors AS (
                 SELECT DISTINCT dr.""Id"", dr.""Name"", CAST(COUNT(*) AS INTEGER) AS PendingCount
@@ -385,7 +377,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "DateAdded", isMoviesJoined: false);
         string sql = $@"
             SELECT 
                 CASE 
@@ -412,7 +404,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "DateAdded", isMoviesJoined: false);
         string sql = $@"
             SELECT 
                 CASE 
@@ -440,7 +432,7 @@ public class WatchlistQueriesImpl : IWatchlistBasicQueries, IWatchlistAdvancedSt
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "DateAdded", isMoviesJoined: false);
         string sql = $@"
             WITH PendingActors AS (
                 SELECT a.""Id"", a.""Name"", CAST(COUNT(*) AS INTEGER) AS PendingCount

@@ -69,7 +69,7 @@ public class EntityDetailsQueriesImpl : IEntityDetailsQueries
 
             SELECT 
                 d.""Id"", 
-                TO_CHAR(d.""WatchedDate"", 'YYYY-MM-DD') AS ""DateWatched"", 
+                TO_CHAR(CAST(d.""WatchedDate"" AS TIMESTAMP), 'YYYY-MM-DD') AS ""DateWatched"", 
                 d.""IsRewatch"", 
                 CAST(r.""Score"" * 2 AS DOUBLE PRECISION) AS ""Rating""
             FROM ""DiaryEntries"" d

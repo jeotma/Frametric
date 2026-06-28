@@ -17,6 +17,7 @@ using Frametric.Infrastructure.Providers.Omdb;
 using Frametric.Infrastructure.Providers.Tmdb;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -131,7 +132,7 @@ public class ExternalProviderTests
             BaseAddress = new Uri("https://api.themoviedb.org/3/")
         };
 
-        var service = new TmdbService(httpClient);
+        var service = new TmdbService(httpClient, NullLogger<TmdbService>.Instance, Mock.Of<IConfiguration>());
 
         // Act
         var results = (await service.SearchMultiAsync("inception", CancellationToken.None)).ToList();
@@ -239,7 +240,7 @@ public class ExternalProviderTests
         seq.ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(providersJson) });
 
         var httpClient = new HttpClient(handlerMock.Object) { BaseAddress = new Uri("https://api.themoviedb.org/3/") };
-        var service = new TmdbService(httpClient);
+        var service = new TmdbService(httpClient, NullLogger<TmdbService>.Instance, Mock.Of<IConfiguration>());
 
         // Act
         var result = await service.SearchAndGetMovieDetailsAsync("Inception", 2010, CancellationToken.None);
@@ -289,7 +290,7 @@ public class ExternalProviderTests
         seq.ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(seasonDetailsJson) });
 
         var httpClient = new HttpClient(handlerMock.Object) { BaseAddress = new Uri("https://api.themoviedb.org/3/") };
-        var service = new TmdbService(httpClient);
+        var service = new TmdbService(httpClient, NullLogger<TmdbService>.Instance, Mock.Of<IConfiguration>());
 
         // Act
         var result = await service.SearchAndGetMovieDetailsAsync("Euphoria: Trouble Don't Last Always", 2019, CancellationToken.None);
@@ -320,7 +321,7 @@ public class ExternalProviderTests
             });
 
         var httpClient = new HttpClient(handlerMock.Object) { BaseAddress = new Uri("https://api.themoviedb.org/3/") };
-        var service = new TmdbService(httpClient);
+        var service = new TmdbService(httpClient, NullLogger<TmdbService>.Instance, Mock.Of<IConfiguration>());
 
         // Act
         var results = await service.SearchMultiAsync("nonexistent", CancellationToken.None);

@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { AnalyticsService, DashboardSummaryDto, ImportService } from '../../core/api';
 import { AuthService } from '../../core/services/auth.service';
 import { ModalService } from '../../core/services/modal.service';
@@ -12,11 +13,12 @@ import { ModalService } from '../../core/services/modal.service';
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.scss']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   private analyticsService = inject(AnalyticsService);
   private importService = inject(ImportService);
   public auth = inject(AuthService);
   public modalService = inject(ModalService);
+  private destroy$ = new Subject<void>();
 
   summary = signal<DashboardSummaryDto | null>(null);
   isLoading = signal(true);
@@ -30,7 +32,7 @@ export class DashboardComponent implements OnInit {
     }
 
     // 1. Fetch dashboard stats
-    this.analyticsService.apiAnalyticsDashboardGet().subscribe({
+    this.analyticsService.apiAnalyticsDashboardGet().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data: DashboardSummaryDto) => {
         this.summary.set(data);
         this.isLoading.set(false);
@@ -43,7 +45,7 @@ export class DashboardComponent implements OnInit {
     });
 
     // 2. Check if we have at least one successful import in history
-    this.importService.apiImportHistoryGet().subscribe({
+    this.importService.apiImportHistoryGet().pipe(takeUntil(this.destroy$)).subscribe({
       next: (history) => {
         const hasValid = history.some(item => item.status === 'Completed' || item.status === 'Enriching');
         this.hasSuccessfulImport.set(hasValid);
@@ -52,6 +54,11 @@ export class DashboardComponent implements OnInit {
         console.error('Failed to fetch import history', err);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   formatWatchtime(minutes: number | undefined): string {

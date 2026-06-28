@@ -12,7 +12,6 @@ using System.Globalization;
 using System.Linq;
 using System.IO;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,12 +26,14 @@ public class OmdbService : IOmdbService
     private readonly HttpClient _httpClient;
     private readonly string? _apiKey;
     private readonly ILogger<OmdbService> _logger;
+    private readonly string _cacheDirectory;
 
     public OmdbService(HttpClient httpClient, IConfiguration configuration, ILogger<OmdbService> logger)
     {
         _httpClient = httpClient;
         _logger = logger;
         _apiKey = configuration["Omdb:ApiKey"] ?? configuration["Omdb:Apikey"]; // Support case variations
+        _cacheDirectory = Path.Combine(Directory.GetCurrentDirectory(), configuration["Omdb:CacheDirectory"] ?? "omdb_cache");
     }
 
     public async Task<OmdbRatingsDto?> GetMovieRatingsAsync(string imdbId, CancellationToken cancellationToken)
@@ -48,12 +49,11 @@ public class OmdbService : IOmdbService
             return null;
         }
 
-        var cacheDir = Path.Combine(Directory.GetCurrentDirectory(), "omdb_cache");
-        if (!Directory.Exists(cacheDir))
+        if (!Directory.Exists(_cacheDirectory))
         {
             try
             {
-                Directory.CreateDirectory(cacheDir);
+                Directory.CreateDirectory(_cacheDirectory);
             }
             catch (Exception ex)
             {
@@ -61,7 +61,7 @@ public class OmdbService : IOmdbService
             }
         }
 
-        var cacheFile = Path.Combine(cacheDir, $"{imdbId}.json");
+        var cacheFile = Path.Combine(_cacheDirectory, $"{imdbId}.json");
         if (File.Exists(cacheFile))
         {
             try

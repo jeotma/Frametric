@@ -9,6 +9,9 @@ import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { BASE_PATH } from './core/api/variables';
 import { environment } from '../environments/environment';
 
+import { RouteReuseStrategy } from '@angular/router';
+import { CustomRouteReuseStrategy } from './core/strategies/custom-route-reuse.strategy';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
@@ -17,5 +20,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     { provide: BASE_PATH, useValue: environment.apiUrl },
     { provide: APP_BASE_HREF, useValue: '/' },
+    { provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }
   ],
 };

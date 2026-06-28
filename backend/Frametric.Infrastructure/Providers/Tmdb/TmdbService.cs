@@ -2,16 +2,22 @@ using System.Net.Http.Json;
 using Frametric.Application.DTOs;
 using Frametric.Application.DTOs.EntityDetails;
 using Frametric.Application.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Frametric.Infrastructure.Providers.Tmdb;
 
 public class TmdbService : ITmdbService
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<TmdbService> _logger;
+    private readonly string _defaultLanguage;
 
-    public TmdbService(HttpClient httpClient)
+    public TmdbService(HttpClient httpClient, ILogger<TmdbService> logger, IConfiguration configuration)
     {
         _httpClient = httpClient;
+        _logger = logger;
+        _defaultLanguage = configuration["Tmdb:Language"] ?? "en-US";
     }
 
     public async Task<TmdbMovieResultDto?> SearchAndGetMovieDetailsAsync(string title, int? year, CancellationToken cancellationToken)
@@ -43,7 +49,7 @@ public class TmdbService : ITmdbService
 
     public async Task<TmdbCollectionResultDto?> GetCollectionByIdAsync(int collectionId, CancellationToken cancellationToken)
     {
-        var url = $"collection/{collectionId}?language=en-US";
+        var url = $"collection/{collectionId}?language={_defaultLanguage}";
         try
         {
             var raw = await GetWithRetryAsync<TmdbCollectionDetails>(url, cancellationToken);
@@ -74,7 +80,7 @@ public class TmdbService : ITmdbService
 
     public async Task<IEnumerable<GlobalSearchResultDto>> SearchMultiAsync(string query, CancellationToken cancellationToken)
     {
-        var url = $"search/multi?query={Uri.EscapeDataString(query)}&language=en-US";
+        var url = $"search/multi?query={Uri.EscapeDataString(query)}&language={_defaultLanguage}";
         var response = await GetWithRetryAsync<TmdbMultiSearchResponse>(url, cancellationToken);
         
         if (response?.Results == null || !response.Results.Any())
@@ -99,7 +105,7 @@ public class TmdbService : ITmdbService
 
     private async Task<TmdbMovieResultDto?> TrySearchMovieAsync(string title, int? year, CancellationToken cancellationToken, bool requireExactMatch = false)
     {
-        var url = $"search/movie?query={Uri.EscapeDataString(title)}&language=en-US";
+        var url = $"search/movie?query={Uri.EscapeDataString(title)}&language={_defaultLanguage}";
         if (year.HasValue) url += $"&year={year.Value}";
 
         var response = await GetWithRetryAsync<TmdbSearchResponse>(url, cancellationToken);
@@ -121,44 +127,33 @@ public class TmdbService : ITmdbService
 
     public async Task<TmdbMovieResultDto?> GetMovieDetailsByIdAsync(int tmdbId, CancellationToken cancellationToken)
     {
-        var detailsTask = GetWithRetryAsync<TmdbMovieDetails>(
-            $"movie/{tmdbId}?append_to_response=credits&language=en-US", cancellationToken);
+        var details = await GetWithRetryAsync<TmdbMovieDetails>(
+            $"movie/{tmdbId}?append_to_response=credits&language={_defaultLanguage}", cancellationToken);
 
-        var keywordsTask = GetWithRetryAsync<TmdbKeywordsResponse>(
-            $"movie/{tmdbId}/keywords", cancellationToken);
-
-        var providersTask = GetWithRetryAsync<TmdbWatchProvidersResponse>(
-            $"movie/{tmdbId}/watch/providers", cancellationToken);
-
-        try
-        {
-            await Task.WhenAll(detailsTask, keywordsTask, providersTask);
-        }
-        catch
-        {
-            // Fallback: if keywords or providers fail, ensure detailsTask is still awaited or let it bubble up
-        }
-
-        var details = await detailsTask;
         if (details == null) return null;
 
-        // Parse keywords
+        // Parse keywords (best-effort)
         string? keywords = null;
         try
         {
-            var keywordsResp = await keywordsTask;
+            var keywordsResp = await GetWithRetryAsync<TmdbKeywordsResponse>(
+                $"movie/{tmdbId}/keywords", cancellationToken);
             if (keywordsResp?.Keywords != null && keywordsResp.Keywords.Any())
             {
                 keywords = string.Join(";", keywordsResp.Keywords.Select(k => k.Name));
             }
         }
-        catch { /* ignore keywords failure */ }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch keywords for TMDB movie {TmdbId}", tmdbId);
+        }
 
-        // Parse providers
+        // Parse providers (best-effort)
         string? providers = null;
         try
         {
-            var providersResp = await providersTask;
+            var providersResp = await GetWithRetryAsync<TmdbWatchProvidersResponse>(
+                $"movie/{tmdbId}/watch/providers", cancellationToken);
             if (providersResp?.Results != null)
             {
                 List<TmdbWatchProviderItem>? providersList = null;
@@ -177,14 +172,17 @@ public class TmdbService : ITmdbService
                 }
             }
         }
-        catch { /* ignore providers failure */ }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch watch providers for TMDB movie {TmdbId}", tmdbId);
+        }
 
         return MapMovieDetails(details, keywords, providers);
     }
 
     private async Task<TmdbMovieResultDto?> TrySearchTvAsync(string title, int? year, CancellationToken cancellationToken, string? subtitle = null, bool requireExactMatch = false)
     {
-        var url = $"search/tv?query={Uri.EscapeDataString(title)}&language=en-US";
+        var url = $"search/tv?query={Uri.EscapeDataString(title)}&language={_defaultLanguage}";
         if (year.HasValue) url += $"&first_air_date_year={year.Value}";
 
         var response = await GetWithRetryAsync<TmdbSearchResponse>(url, cancellationToken);
@@ -202,7 +200,7 @@ public class TmdbService : ITmdbService
         if (result == null) return null;
 
         var details = await GetWithRetryAsync<TmdbTvDetails>(
-            $"tv/{result.Id}?append_to_response=credits&language=en-US", cancellationToken);
+            $"tv/{result.Id}?append_to_response=credits&language={_defaultLanguage}", cancellationToken);
 
         if (details == null) return null;
 
@@ -242,11 +240,12 @@ public class TmdbService : ITmdbService
         {
             try
             {
-                var url = $"tv/{tvShowId}/season/{s.SeasonNumber}?language=en-US";
+                var url = $"tv/{tvShowId}/season/{s.SeasonNumber}?language={_defaultLanguage}";
                 return await GetWithRetryAsync<TmdbSeasonDetails>(url, cancellationToken);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Failed to fetch season {SeasonNumber} for TV show {TvShowId}", s.SeasonNumber, tvShowId);
                 return null;
             }
         });

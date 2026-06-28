@@ -84,7 +84,7 @@ public static class DependencyInjection
 
         services.AddHttpClient<IOmdbService, Frametric.Infrastructure.Providers.Omdb.OmdbService>(client =>
         {
-            client.BaseAddress = new Uri("http://www.omdbapi.com/");
+            client.BaseAddress = new Uri("https://www.omdbapi.com/");
             client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         });
 
@@ -103,6 +103,7 @@ public static class DependencyInjection
         services.AddHostedService(sp => sp.GetRequiredService<UserViewingProfileService>());
 
         services.AddScoped<IEmailService, ResendEmailService>();
+        services.AddHostedService<SuperAdminNotificationListener>();
 
         return services;
 

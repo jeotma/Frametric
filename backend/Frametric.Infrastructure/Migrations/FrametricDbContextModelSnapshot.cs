@@ -205,6 +205,39 @@ namespace Frametric.Infrastructure.Migrations
                     b.ToTable("Directors");
                 });
 
+            modelBuilder.Entity("Frametric.Domain.Entities.EntityRevision", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ChangedBy")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("StateJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EntityType", "EntityId");
+
+                    b.ToTable("EntityRevisions");
+                });
+
             modelBuilder.Entity("Frametric.Domain.Entities.Genre", b =>
                 {
                     b.Property<Guid>("Id")
@@ -488,6 +521,18 @@ namespace Frametric.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("CanAddUsers")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanDeleteUsers")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanManageCatalog")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanPromoteToAdmin")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -510,6 +555,9 @@ namespace Frametric.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<bool>("SuperAdminNotificationSent")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Username")
                         .IsRequired()

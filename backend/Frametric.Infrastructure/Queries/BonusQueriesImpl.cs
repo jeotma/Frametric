@@ -17,6 +17,25 @@ public class BonusQueriesImpl : IBonusQueries
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
+        
+        DateTime? startDate = null;
+        DateTime? endDate = null;
+        if (filter.WatchYear.HasValue)
+        {
+            int year = filter.WatchYear.Value;
+            startDate = new DateTime(year, 1, 1);
+            if (year == DateTime.Today.Year)
+            {
+                endDate = DateTime.Today;
+            }
+            else
+            {
+                endDate = new DateTime(year, 12, 31);
+            }
+        }
+        parameters.Add("startDate", startDate);
+        parameters.Add("endDate", endDate);
+
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "WatchDate", isMoviesJoined: false);
         string sql = $@"
             WITH AllWatched AS (
@@ -46,11 +65,44 @@ public class BonusQueriesImpl : IBonusQueries
                     CAST(COUNT(*) AS INTEGER) AS Count
                 FROM FilteredWatched
                 GROUP BY DayType
+            ),
+            DateBounds AS (
+                SELECT 
+                    COALESCE(
+                        @startDate::date, 
+                        (SELECT MIN(""WatchDate"") FROM FilteredWatched), 
+                        DATE '2025-01-01'
+                    ) AS MinDate,
+                    COALESCE(
+                        @endDate::date, 
+                        (SELECT MAX(""WatchDate"") FROM FilteredWatched), 
+                        DATE '2025-12-31'
+                    ) AS MaxDate
+            ),
+            Calendar AS (
+                SELECT (generate_series(MinDate::timestamp, MaxDate::timestamp, '1 day'::interval))::date AS CalDate
+                FROM DateBounds
+            ),
+            CalendarCounts AS (
+                SELECT 
+                    CASE WHEN EXTRACT(ISODOW FROM CalDate) >= 6 THEN 'Weekend' ELSE 'Weekday' END AS DayType,
+                    CAST(COUNT(*) AS INTEGER) AS DaysCount
+                FROM Calendar
+                GROUP BY DayType
             )
             SELECT 
-                COALESCE(MAX(CASE WHEN DayType = 'Weekend' THEN Count END), 0) AS WeekendWatches,
-                COALESCE(MAX(CASE WHEN DayType = 'Weekday' THEN Count END), 0) AS WeekdayWatches
-            FROM Categorized";
+                COALESCE((SELECT Count FROM Categorized WHERE DayType = 'Weekend'), 0) AS WeekendWatches,
+                COALESCE((SELECT Count FROM Categorized WHERE DayType = 'Weekday'), 0) AS WeekdayWatches,
+                COALESCE(
+                    CAST((SELECT Count FROM Categorized WHERE DayType = 'Weekend') AS DOUBLE PRECISION) / 
+                    NULLIF((SELECT DaysCount FROM CalendarCounts WHERE DayType = 'Weekend'), 0), 
+                    0.0
+                ) AS WeekendAverage,
+                COALESCE(
+                    CAST((SELECT Count FROM Categorized WHERE DayType = 'Weekday') AS DOUBLE PRECISION) / 
+                    NULLIF((SELECT DaysCount FROM CalendarCounts WHERE DayType = 'Weekday'), 0), 
+                    0.0
+                ) AS WeekdayAverage";
         return await connection.QuerySingleOrDefaultAsync<WeekendWarriorDto>(sql, parameters);
     }
 
@@ -82,7 +134,7 @@ public class BonusQueriesImpl : IBonusQueries
         
         var parameters = new DynamicParameters();
         parameters.Add("userId", userId);
-        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
+        var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "DateAdded", isMoviesJoined: false);
         string sql = $@"
             SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS ""PosterPath""
             FROM ""WatchlistItems"" w
@@ -135,12 +187,12 @@ public class BonusQueriesImpl : IBonusQueries
                 GROUP BY fw.""WatchDate""
             ),
             ByDay AS (
-                SELECT TRIM(TO_CHAR(""WatchDate"", 'Day')) AS DayName, EXTRACT(ISODOW FROM ""WatchDate"") AS DowNum, CAST(COUNT(*) AS INTEGER) AS Cnt
+                SELECT TRIM(TO_CHAR(CAST(""WatchDate"" AS TIMESTAMP), 'Day')) AS DayName, EXTRACT(ISODOW FROM ""WatchDate"") AS DowNum, CAST(COUNT(*) AS INTEGER) AS Cnt
                 FROM FilteredWatched
                 GROUP BY DayName, DowNum
             ),
             ByMonth AS (
-                SELECT TRIM(TO_CHAR(""WatchDate"", 'Month')) AS MonthName, EXTRACT(MONTH FROM ""WatchDate"") AS MonthNum, CAST(COUNT(*) AS INTEGER) AS Cnt
+                SELECT TRIM(TO_CHAR(CAST(""WatchDate"" AS TIMESTAMP), 'Month')) AS MonthName, EXTRACT(MONTH FROM ""WatchDate"") AS MonthNum, CAST(COUNT(*) AS INTEGER) AS Cnt
                 FROM FilteredWatched
                 GROUP BY MonthName, MonthNum
             )

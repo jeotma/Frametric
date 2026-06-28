@@ -7,7 +7,7 @@
     <app-sidebar></app-sidebar>
 
     <!-- Main Content Frame -->
-    <main class="main-content">
+    <main class="main-content" [class.sidebar-pinned]="isSidebarPinned()">
       <header class="top-bar" [class.expanded]="isTopbarExpanded()">
         <div class="search-wrapper" style="display: flex; align-items: center; position: relative;">
           <div class="search-box" (click)="expandTopbar()">

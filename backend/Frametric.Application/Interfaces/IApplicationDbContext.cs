@@ -21,6 +21,7 @@ public interface IApplicationDbContext
     DbSet<CustomList> CustomLists { get; }
     DbSet<CustomListItem> CustomListItems { get; }
     DbSet<Frametric.Domain.Discovery.Entities.DiscoveryObjective> DiscoveryObjectives { get; }
+    DbSet<EntityRevision> EntityRevisions { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

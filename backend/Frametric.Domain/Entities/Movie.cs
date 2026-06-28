@@ -126,5 +126,14 @@ public class Movie
     {
         EnrichmentStatus = EnrichmentStatus.Pending;
     }
+
+    public void UpdateMetadata(string title, string? overview, int? releaseYear, int? runtimeMinutes)
+    {
+        if (string.IsNullOrWhiteSpace(title)) throw new ArgumentException("Title cannot be empty.", nameof(title));
+        Title = title;
+        Overview = overview;
+        ReleaseYear = releaseYear;
+        RuntimeMinutes = runtimeMinutes;
+    }
 }
 

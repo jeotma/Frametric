@@ -23,7 +23,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             SELECT m.""Title"", 
                    m.""ReleaseYear"", 
                    (SELECT STRING_AGG(dr.""Name"", ', ') FROM ""MovieDirector"" md JOIN ""Directors"" dr ON md.""DirectorsId"" = dr.""Id"" WHERE md.""MoviesId"" = m.""Id"") AS Director, 
-                   CAST(COALESCE(MAX(mr2.""Score""), 0) AS DOUBLE PRECISION) AS Rating, 
+                   CAST(COALESCE(MAX(mr2.""Score""), 0) * 2 AS DOUBLE PRECISION) AS Rating, 
                    CAST(CASE WHEN COUNT(ml.""Id"") > 0 THEN 1 ELSE 0 END AS BOOLEAN) AS Liked,
                    m.""CustomAverageRating"",
                    m.""PosterUrl""
@@ -277,7 +277,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
             FROM ""WatchedMovies"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             {joinSql}
-            WHERE {whereSql}";
+            WHERE w.""UserId"" = @userId AND {whereSql}";
 
         return await connection.QuerySingleOrDefaultAsync<TimeInvestedDto>(sql, new { userId, filterNamePattern = $"%{filterName}%", filterName });
     }
@@ -312,7 +312,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 {filterBuilder.BuildJoins()}
                 WHERE 1=1 {filterBuilder.BuildWhereClause()}
             )
-            SELECT TRIM(TO_CHAR(""WatchDate"", 'Day')) AS DayOfWeek, CAST(COUNT(*) AS INTEGER) AS Count
+            SELECT TRIM(TO_CHAR(CAST(""WatchDate"" AS TIMESTAMP), 'Day')) AS DayOfWeek, CAST(COUNT(*) AS INTEGER) AS Count
             FROM FilteredWatched
             GROUP BY DayOfWeek, EXTRACT(ISODOW FROM ""WatchDate"")
             ORDER BY EXTRACT(ISODOW FROM ""WatchDate"") ASC";
@@ -390,7 +390,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
         string sql = $@"
             SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS PosterPath,
-                   m.""RuntimeMinutes"", CAST(mr.""Score"" AS DOUBLE PRECISION) AS Rating
+                   m.""RuntimeMinutes"", CAST(mr.""Score"" * 2 AS DOUBLE PRECISION) AS Rating
             FROM ""WatchedMovies"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = m.""Id"" AND mr.""UserId"" = @userId
@@ -413,7 +413,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "Date", isMoviesJoined: false);
         string sql = $@"
             SELECT m.""Id"", m.""Title"", m.""ReleaseYear"", m.""PosterUrl"" AS PosterPath,
-                   m.""RuntimeMinutes"", CAST(mr.""Score"" AS DOUBLE PRECISION) AS Rating
+                   m.""RuntimeMinutes"", CAST(mr.""Score"" * 2 AS DOUBLE PRECISION) AS Rating
             FROM ""WatchedMovies"" w
             JOIN ""Movies"" m ON w.""MovieId"" = m.""Id""
             LEFT JOIN ""MovieRatings"" mr ON mr.""MovieId"" = m.""Id"" AND mr.""UserId"" = @userId
@@ -488,12 +488,12 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
                 WHERE 1=1 {filterBuilder.BuildWhereClause()}
             ),
             ByDay AS (
-                SELECT TRIM(TO_CHAR(""WatchDate"", 'Day')) AS DayName, EXTRACT(ISODOW FROM ""WatchDate"") AS DowNum, CAST(COUNT(*) AS INTEGER) AS Cnt
+                SELECT TRIM(TO_CHAR(CAST(""WatchDate"" AS TIMESTAMP), 'Day')) AS DayName, EXTRACT(ISODOW FROM ""WatchDate"") AS DowNum, CAST(COUNT(*) AS INTEGER) AS Cnt
                 FROM FilteredWatched
                 GROUP BY DayName, DowNum
             ),
             ByMonth AS (
-                SELECT TO_CHAR(""WatchDate"", 'Month') AS MonthName, EXTRACT(MONTH FROM ""WatchDate"") AS MonthNum, CAST(COUNT(*) AS INTEGER) AS Cnt
+                SELECT TO_CHAR(CAST(""WatchDate"" AS TIMESTAMP), 'Month') AS MonthName, EXTRACT(MONTH FROM ""WatchDate"") AS MonthNum, CAST(COUNT(*) AS INTEGER) AS Cnt
                 FROM FilteredWatched
                 GROUP BY MonthName, MonthNum
             )
@@ -543,7 +543,7 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         parameters.Add("userId", userId);
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "\"MovieRatings\"", "DateRated", isMoviesJoined: false);
         string sql = $@"
-            SELECT CAST(EXTRACT(MONTH FROM ""DateRated"") AS INTEGER) AS Month, MIN(TO_CHAR(""DateRated"", 'Month')) AS MonthName, CAST((AVG(""Score"") * 2) AS DOUBLE PRECISION) AS AverageRating
+            SELECT CAST(EXTRACT(MONTH FROM ""DateRated"") AS INTEGER) AS Month, CAST((AVG(""Score"") * 2) AS DOUBLE PRECISION) AS AverageRating, MIN(TO_CHAR(CAST(""DateRated"" AS TIMESTAMP), 'Month')) AS MonthName
             FROM ""MovieRatings""
             
             {filterBuilder.BuildJoins()}
@@ -564,13 +564,13 @@ public class WatchedQueriesImpl : IWatchedBasicQueries, IWatchedAdvancedStatsQue
         var filterBuilder = new SqlFilterBuilder(filter, parameters, "m", "w", "WatchedDate", isMoviesJoined: false);
         string sql = $@"
             WITH AllWatched AS (
-                SELECT ""MovieId""
+                SELECT ""MovieId"", CAST(""WatchedDate"" AS DATE) AS ""WatchedDate""
                 FROM ""DiaryEntries""
                 WHERE ""UserId"" = @userId
 
                 UNION ALL
 
-                SELECT ""MovieId""
+                SELECT ""MovieId"", CAST(""Date"" AS DATE) AS ""WatchedDate""
                 FROM ""WatchedMovies"" wm
                 WHERE wm.""UserId"" = @userId
                 AND NOT EXISTS (

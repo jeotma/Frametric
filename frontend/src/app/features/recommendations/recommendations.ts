@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { RecommendationsService } from '../../core/api/api/recommendations.service';
 import { RecommendationRequest, RecommendedMovieDto } from '../../core/api';
-import { finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { ModalService } from '../../core/services/modal.service';
 
@@ -42,11 +43,12 @@ import { slugify } from '../../core/utils/slugify';
   templateUrl: './recommendations.html',
   styleUrl: './recommendations.scss'
 })
-export class RecommendationsComponent implements OnInit {
+export class RecommendationsComponent implements OnInit, OnDestroy {
   protected readonly slugify = slugify;
   private recoService = inject(RecommendationsService);
   public auth = inject(AuthService);
   public modalService = inject(ModalService);
+  private destroy$ = new Subject<void>();
 
   // Form State
   public selectedStrategy = signal<Strategy>(Strategy.RecentMood);
@@ -148,7 +150,7 @@ export class RecommendationsComponent implements OnInit {
 
     // We cast to any because angular client generator typed them as numbers, which perfectly matches the local enums
     this.recoService.apiV1RecommendationsGeneratePost(requestPayload as any)
-      .pipe(finalize(() => this.loading.set(false)))
+      .pipe(takeUntil(this.destroy$), finalize(() => this.loading.set(false)))
       .subscribe({
         next: (res) => {
           this.recommendations.set(res || []);
@@ -170,7 +172,7 @@ export class RecommendationsComponent implements OnInit {
     this.actionLoading.set(movieId);
     
     this.recoService.apiV1RecommendationsSkipMovieIdPost(movieId)
-      .pipe(finalize(() => this.actionLoading.set(null)))
+      .pipe(takeUntil(this.destroy$), finalize(() => this.actionLoading.set(null)))
       .subscribe({
         next: () => {
           // Remove movie from local list
@@ -195,6 +197,7 @@ export class RecommendationsComponent implements OnInit {
 
   disableHaunting() {
     this.recoService.apiV1RecommendationsSkipHauntingPost()
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           // Instantly refresh recommendations to remove the haunting card
@@ -208,6 +211,7 @@ export class RecommendationsComponent implements OnInit {
 
   dismissWellness() {
     this.recoService.apiV1RecommendationsDismissWellnessPost()
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.wellnessMessage.set(null);
@@ -216,5 +220,10 @@ export class RecommendationsComponent implements OnInit {
           console.error('Failed to dismiss wellness check', err);
         }
       });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
