@@ -323,7 +323,7 @@ test.describe('Dashboard, Import, and Final Cut Tests', () => {
 
       // Verify the range input appears
       const rangeInput = page.locator('.range-slider');
-      await expect(rangeInput).toBeVisible();
+      await expect(rangeInput.first()).toBeVisible();
 
       // Trigger generating recommendations again with new settings
       const requestPromise = page.waitForRequest(req => 
