@@ -140,6 +140,9 @@ export class DiceRollerComponent implements OnChanges, OnDestroy {
         this.displayValues[i] = this.values ? this.values[i] : 0;
       }
     }
+    if (this.settled && this.settled.every(s => s)) {
+      this.clearAllIntervals();
+    }
   }
 
   private clearAllIntervals(): void {

@@ -34,5 +34,19 @@ Frametric is designed as a Modular Monolith. The following modules exist within 
 
 ## 7. Infrastructure
 
-**Responsibility:** Contains EF Core DbContext, Dapper Repositories, CsvHelper logic, external IO operations, TMDB API Client integration, and Background Job orchestration (Hangfire/Quartz) for metadata enrichment.
-**Boundaries:** Implements interfaces defined in the Application layer. It is the outermost layer
+**Responsibility:** Contains EF Core DbContext, Dapper Repositories, CsvHelper logic, external IO operations, TMDB API Client integration, and Background Job orchestration (using `System.Threading.Channels` and custom hosted services) for metadata enrichment and user viewing profile rebuilding.
+**Boundaries:** Implements interfaces defined in the Application layer. It is the outermost layer.
+
+---
+
+## 8. Discovery
+
+**Responsibility:** Orchestrates gamified cinematic exploration features (Roulette, Mystery Box, Dice Roll, Slot Machine, Bingo Board, available countries).
+**Boundaries:** Communicates via Application layer queries and commands, interacting with user records and watchlist/diary items.
+
+---
+
+## 9. Administration & Diagnostics
+
+**Responsibility:** Provides system monitoring, database statistics, external API diagnostic checks, a log ring buffer, and database cleanups (orphan purges, cache flushing, manual TMDB re-enrichment).
+**Boundaries:** Restricts access to users in the Admin role and provides diagnostics for backend modules.

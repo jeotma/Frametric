@@ -18,5 +18,6 @@ export interface BingoBoardDto {
     completedSquares: number;
     totalSquares: number;
     createdAt: string;
+    completedOnTime?: boolean;
 }
 

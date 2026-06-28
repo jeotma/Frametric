@@ -55,28 +55,28 @@ public class LetterboxdZipImporter : ILetterboxdImporter
         {
             if (MatchEntry(entry.FullName, "diary.csv"))
             {
-                diaryDtos.AddRange(await ParseCsvAsync<DiaryCsvRecord, DiaryCsvRecordMap>(entry, cancellationToken)
-                    .ContinueWith(t => t.Result.Select(MapToDto), cancellationToken));
+                var diaryRecords = await ParseCsvAsync<DiaryCsvRecord, DiaryCsvRecordMap>(entry, cancellationToken);
+                diaryDtos.AddRange(diaryRecords.Select(MapToDto));
             }
             else if (MatchEntry(entry.FullName, "ratings.csv"))
             {
-                ratingDtos.AddRange(await ParseCsvAsync<RatingCsvRecord, RatingCsvRecordMap>(entry, cancellationToken)
-                    .ContinueWith(t => t.Result.Select(MapToDto), cancellationToken));
+                var ratingRecords = await ParseCsvAsync<RatingCsvRecord, RatingCsvRecordMap>(entry, cancellationToken);
+                ratingDtos.AddRange(ratingRecords.Select(MapToDto));
             }
             else if (MatchEntry(entry.FullName, "watchlist.csv"))
             {
-                watchlistDtos.AddRange(await ParseCsvAsync<WatchlistCsvRecord, WatchlistCsvRecordMap>(entry, cancellationToken)
-                    .ContinueWith(t => t.Result.Select(MapToDto), cancellationToken));
+                var watchlistRecords = await ParseCsvAsync<WatchlistCsvRecord, WatchlistCsvRecordMap>(entry, cancellationToken);
+                watchlistDtos.AddRange(watchlistRecords.Select(MapToDto));
             }
             else if (MatchEntry(entry.FullName, "likes/films.csv"))
             {
-                likeDtos.AddRange(await ParseCsvAsync<LikeCsvRecord, LikeCsvRecordMap>(entry, cancellationToken)
-                    .ContinueWith(t => t.Result.Select(MapToDto), cancellationToken));
+                var likeRecords = await ParseCsvAsync<LikeCsvRecord, LikeCsvRecordMap>(entry, cancellationToken);
+                likeDtos.AddRange(likeRecords.Select(MapToDto));
             }
             else if (MatchEntry(entry.FullName, "watched.csv"))
             {
-                watchedDtos.AddRange(await ParseCsvAsync<WatchedCsvRecord, WatchedCsvRecordMap>(entry, cancellationToken)
-                    .ContinueWith(t => t.Result.Select(MapToDto), cancellationToken));
+                var watchedRecords = await ParseCsvAsync<WatchedCsvRecord, WatchedCsvRecordMap>(entry, cancellationToken);
+                watchedDtos.AddRange(watchedRecords.Select(MapToDto));
             }
         }
 

@@ -4,6 +4,7 @@ using Frametric.Application.Interfaces;
 using Frametric.Application.Interfaces.Analytics;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,13 +16,21 @@ public class TmdbEnrichmentBackgroundService : BackgroundService
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<TmdbEnrichmentBackgroundService> _logger;
     private readonly TmdbEnrichmentTrigger _trigger;
+    private readonly int _batchSize;
+    private readonly int _startupRecoveryBatchSize;
+    private readonly int _delayBetweenBatchesSeconds;
+    private readonly int _retryDelaySeconds;
     private readonly ConcurrentDictionary<Guid, bool> _triggeredImports = new();
 
-    public TmdbEnrichmentBackgroundService(IServiceProvider serviceProvider, ILogger<TmdbEnrichmentBackgroundService> logger, TmdbEnrichmentTrigger trigger)
+    public TmdbEnrichmentBackgroundService(IServiceProvider serviceProvider, ILogger<TmdbEnrichmentBackgroundService> logger, TmdbEnrichmentTrigger trigger, IConfiguration configuration)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
         _trigger = trigger;
+        _batchSize = configuration.GetValue<int>("TmdbEnrichment:BatchSize", 20);
+        _startupRecoveryBatchSize = configuration.GetValue<int>("TmdbEnrichment:StartupRecoveryBatchSize", 50);
+        _delayBetweenBatchesSeconds = configuration.GetValue<int>("TmdbEnrichment:DelayBetweenBatchesSeconds", 10);
+        _retryDelaySeconds = configuration.GetValue<int>("TmdbEnrichment:RetryDelaySeconds", 30);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,7 +44,7 @@ public class TmdbEnrichmentBackgroundService : BackgroundService
             using var scope = _serviceProvider.CreateScope();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
             // Process up to 50 failed or not found movies on startup
-            var recoveredCount = await mediator.Send(new EnrichFailedMoviesCommand(50), stoppingToken);
+            var recoveredCount = await mediator.Send(new EnrichFailedMoviesCommand(_startupRecoveryBatchSize), stoppingToken);
             _logger.LogInformation("Startup recovery finished. Successfully recovered {Count} movies.", recoveredCount);
         }
         catch (Exception ex)
@@ -46,7 +55,7 @@ public class TmdbEnrichmentBackgroundService : BackgroundService
         // Auto-trigger on startup in case there are movies left pending from a previous session
         _trigger.TriggerEnrichment();
 
-        await foreach (var _ in _trigger.ReadAllAsync(stoppingToken))
+        await foreach (var _triggerSignal in _trigger.ReadAllAsync(stoppingToken))
         {
             _logger.LogInformation("Enrichment triggered. Processing pending movies...");
             
@@ -57,8 +66,7 @@ public class TmdbEnrichmentBackgroundService : BackgroundService
                     using var scope = _serviceProvider.CreateScope();
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-                    var batchSize = 20;
-                    var enrichedCount = await mediator.Send(new EnrichPendingMoviesCommand(batchSize), stoppingToken);
+                    var enrichedCount = await mediator.Send(new EnrichPendingMoviesCommand(_batchSize), stoppingToken);
 
                     if (enrichedCount > 0)
                     {
@@ -70,6 +78,16 @@ public class TmdbEnrichmentBackgroundService : BackgroundService
                         var enrichingImports = await dbContext.ImportHistories
                             .Where(ih => ih.Status == "Enriching")
                             .ToListAsync(stoppingToken);
+
+                        var enrichingIds = enrichingImports.Select(i => i.Id).ToHashSet();
+                        // Clean up tracked imports that are no longer enriching
+                        foreach (var key in _triggeredImports.Keys)
+                        {
+                            if (!enrichingIds.Contains(key))
+                            {
+                                _triggeredImports.TryRemove(key, out _);
+                            }
+                        }
 
                         foreach (var import in enrichingImports)
                         {
@@ -93,8 +111,8 @@ public class TmdbEnrichmentBackgroundService : BackgroundService
                             }
                         }
 
-                        // Sleep for 10 seconds before processing the next batch to respect rate limits
-                        await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+                        // Sleep before processing the next batch to respect rate limits
+                        await Task.Delay(TimeSpan.FromSeconds(_delayBetweenBatchesSeconds), stoppingToken);
                     }
                     else
                     {
@@ -118,7 +136,7 @@ public class TmdbEnrichmentBackgroundService : BackgroundService
                         _logger.LogError(ex, "An error occurred executing TmdbEnrichmentBackgroundService.");
                         try 
                         {
-                            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); // Wait before retrying on error
+                            await Task.Delay(TimeSpan.FromSeconds(_retryDelaySeconds), stoppingToken); // Wait before retrying on error
                         }
                         catch (OperationCanceledException) { break; }
                     }

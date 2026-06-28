@@ -219,7 +219,7 @@ export class FinalCutComponent implements OnInit, OnDestroy {
   }
 
   public includesRewatches(slideIndex: number): boolean {
-    const uniqueSlides = [5, 6, 7, 9, 10, 12, 15, 16, 18, 19];
+    const uniqueSlides = [5, 9, 10, 12, 15, 16, 18, 19];
     return !uniqueSlides.includes(slideIndex);
   }
 

@@ -48,7 +48,7 @@ export class AuthService extends BaseService {
     }
 
     /**
-     * @endpoint post /api/Auth/forgot-password
+     * @endpoint post /api/v1/Auth/forgot-password
      * @param forgotPasswordRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -103,7 +103,7 @@ export class AuthService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Auth/forgot-password`;
+        let localVarPath = `/api/v1/Auth/forgot-password`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
@@ -120,7 +120,7 @@ export class AuthService extends BaseService {
     }
 
     /**
-     * @endpoint post /api/Auth/login
+     * @endpoint post /api/v1/Auth/login
      * @param loginUserRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -175,7 +175,7 @@ export class AuthService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Auth/login`;
+        let localVarPath = `/api/v1/Auth/login`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<AuthResponseDto>('post', `${basePath}${localVarPath}`,
             {
@@ -192,7 +192,7 @@ export class AuthService extends BaseService {
     }
 
     /**
-     * @endpoint post /api/Auth/refresh
+     * @endpoint post /api/v1/Auth/refresh
      * @param refreshTokenRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -247,7 +247,7 @@ export class AuthService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Auth/refresh`;
+        let localVarPath = `/api/v1/Auth/refresh`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<AuthResponseDto>('post', `${basePath}${localVarPath}`,
             {
@@ -264,7 +264,7 @@ export class AuthService extends BaseService {
     }
 
     /**
-     * @endpoint post /api/Auth/reset-password
+     * @endpoint post /api/v1/Auth/reset-password
      * @param resetPasswordRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -319,7 +319,7 @@ export class AuthService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Auth/reset-password`;
+        let localVarPath = `/api/v1/Auth/reset-password`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
@@ -336,7 +336,7 @@ export class AuthService extends BaseService {
     }
 
     /**
-     * @endpoint post /api/Auth/signup
+     * @endpoint post /api/v1/Auth/signup
      * @param registerUserRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -391,7 +391,7 @@ export class AuthService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Auth/signup`;
+        let localVarPath = `/api/v1/Auth/signup`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<string>('post', `${basePath}${localVarPath}`,
             {

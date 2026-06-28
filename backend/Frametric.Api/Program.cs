@@ -28,6 +28,7 @@ try
         .WriteTo.Console());
 
 // Add services to the container.
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

@@ -1,6 +1,7 @@
-﻿import { Component, inject, OnInit, signal } from '@angular/core';
+﻿import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { finalize } from 'rxjs';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MoviesService, MovieDetailsDto, TmdbCollectionResultDto } from '../../../core/api';
@@ -13,13 +14,14 @@ import { slugify } from '../../../core/utils/slugify';
   templateUrl: './movie-detail.html',
   styleUrl: './movie-detail.scss'
 })
-export class MovieDetailComponent implements OnInit {
+export class MovieDetailComponent implements OnInit, OnDestroy {
   public isTogglingWatchlist = signal<boolean>(false);
   protected readonly slugify = slugify;
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private moviesService = inject(MoviesService);
   private fb = inject(FormBuilder);
+  private destroy$ = new Subject<void>();
 
   movie = signal<MovieDetailsDto | null>(null);
   isLoading = signal(true);
@@ -47,7 +49,7 @@ export class MovieDetailComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const id = params.get('id');
       if (id) {
         this.isLoading.set(true);
@@ -65,7 +67,7 @@ export class MovieDetailComponent implements OnInit {
         this.errorMessage.set('Invalid movie identifier.');
         return;
       }
-      this.moviesService.apiMoviesEnrichFromTmdbPost({ tmdbId }).subscribe({
+      this.moviesService.apiMoviesEnrichFromTmdbPost({ tmdbId }).pipe(takeUntil(this.destroy$)).subscribe({
         next: (enrichedMovie) => {
           if (enrichedMovie && enrichedMovie.id) {
             this.router.navigate(['/movies', enrichedMovie.id], { replaceUrl: true }).then(() => {
@@ -84,7 +86,7 @@ export class MovieDetailComponent implements OnInit {
       return;
     }
 
-    this.moviesService.apiMoviesIdGet(id).subscribe({
+    this.moviesService.apiMoviesIdGet(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.movie.set(data);
         this.isLoading.set(false);
@@ -101,7 +103,7 @@ export class MovieDetailComponent implements OnInit {
     if (!movieId) return;
     this.collectionLoading.set(true);
     this.collectionExpanded.set(true);
-    this.moviesService.apiMoviesGetCollection(movieId).subscribe({
+    this.moviesService.apiMoviesGetCollection(movieId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.collection.set(data);
         this.collectionLoading.set(false);
@@ -144,7 +146,7 @@ export class MovieDetailComponent implements OnInit {
 
     this.isLogging.set(true);
     this.errorMessage.set(null);
-    this.moviesService.apiMoviesIdLogPost(id, request as any).subscribe({
+    this.moviesService.apiMoviesIdLogPost(id, request as any).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isLogging.set(false);
         this.showLogForm.set(false);
@@ -165,7 +167,7 @@ export class MovieDetailComponent implements OnInit {
 
     this.unloggingEntryId.set(entryId);
     this.errorMessage.set(null);
-    this.moviesService.apiMoviesIdLogEntryIdDelete(id, entryId).subscribe({
+    this.moviesService.apiMoviesIdLogEntryIdDelete(id, entryId).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.unloggingEntryId.set(null);
         this.loadMovie(id);
@@ -189,7 +191,7 @@ export class MovieDetailComponent implements OnInit {
 
     if (isCurrentlyInWatchlist) {
       this.moviesService.apiMoviesIdWatchlistDelete(movieId)
-        .pipe(finalize(() => this.isTogglingWatchlist.set(false)))
+        .pipe(takeUntil(this.destroy$), finalize(() => this.isTogglingWatchlist.set(false)))
         .subscribe({
           next: () => {
             this.movie.update(m => m ? { ...m, isInWatchlist: false } : null);
@@ -201,7 +203,7 @@ export class MovieDetailComponent implements OnInit {
         });
     } else {
       this.moviesService.apiMoviesIdWatchlistPost(movieId)
-        .pipe(finalize(() => this.isTogglingWatchlist.set(false)))
+        .pipe(takeUntil(this.destroy$), finalize(() => this.isTogglingWatchlist.set(false)))
         .subscribe({
           next: () => {
             this.movie.update(m => m ? { ...m, isInWatchlist: true } : null);
@@ -212,6 +214,11 @@ export class MovieDetailComponent implements OnInit {
           }
         });
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
 

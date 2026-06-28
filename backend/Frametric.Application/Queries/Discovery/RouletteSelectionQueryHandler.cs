@@ -102,16 +102,20 @@ public class RouletteSelectionQueryHandler : IRequestHandler<RouletteSelectionQu
             {
                 sequence.Add(winner);
             }
-            return new RouletteRaceResultDto(winner, sequence);
+            return new RouletteRaceResultDto(winner, sequence, new[] { winner });
         }
 
         var counts = new Dictionary<Guid, int>();
+        var winners = new List<SelectionResultDto>();
+        var winnerIds = new HashSet<Guid>();
         
         // Add all elements from the pool to the sequence first so the client can extract the full set of slices
         foreach (var movie in pool)
         {
             sequence.Add(MapToDto(movie, "Initial candidate", request.CustomAliases));
         }
+
+        int targetWinnerCount = request.AllowMultipleWinners ? Math.Max(1, request.WinnerCount) : 1;
 
         // Simulate race
         while (true)
@@ -121,25 +125,55 @@ public class RouletteSelectionQueryHandler : IRequestHandler<RouletteSelectionQu
             sequence.Add(dto);
 
             counts[candidate.MovieId] = counts.TryGetValue(candidate.MovieId, out var c) ? c + 1 : 1;
-            if (counts[candidate.MovieId] >= request.WinningThreshold)
+            if (counts[candidate.MovieId] >= request.WinningThreshold && !winnerIds.Contains(candidate.MovieId))
             {
-                winner = MapToDto(candidate, $"Roulette consensus threshold {request.WinningThreshold} reached.", request.CustomAliases);
-                sequence[^1] = winner;
-                break;
+                var stepWinner = MapToDto(candidate, $"Roulette consensus threshold {request.WinningThreshold} reached.", request.CustomAliases);
+                sequence[^1] = stepWinner;
+                
+                winners.Add(stepWinner);
+                winnerIds.Add(candidate.MovieId);
+
+                if (winners.Count >= targetWinnerCount || winnerIds.Count >= pool.Count)
+                {
+                    winner = stepWinner;
+                    break;
+                }
             }
             
-            // Safety break: cap at 100 race entries to prevent infinite spinning on the frontend
-            if (sequence.Count > 100 + pool.Count)
+            // Safety break: cap at 100 * targetWinnerCount race entries to prevent infinite spinning on the frontend
+            if (sequence.Count > 100 * targetWinnerCount + pool.Count)
             {
-                var leader = counts.MaxBy(kvp => kvp.Value).Key;
-                var leaderMovie = pool.First(m => m.MovieId == leader);
-                winner = MapToDto(leaderMovie, $"Roulette race capped at {100 + pool.Count} entries. Winner by majority.", request.CustomAliases);
-                sequence.Add(winner);
+                var leaders = counts
+                    .Where(kvp => !winnerIds.Contains(kvp.Key))
+                    .OrderByDescending(kvp => kvp.Value)
+                    .Select(kvp => kvp.Key)
+                    .Take(targetWinnerCount - winners.Count)
+                    .ToList();
+
+                foreach (var leader in leaders)
+                {
+                    var leaderMovie = pool.First(m => m.MovieId == leader);
+                    var stepWinner = MapToDto(leaderMovie, $"Roulette race capped. Winner by majority.", request.CustomAliases);
+                    sequence.Add(stepWinner);
+                    winners.Add(stepWinner);
+                    winnerIds.Add(leader);
+                }
+
+                if (winners.Any())
+                {
+                    winner = winners.Last();
+                }
+                else
+                {
+                    var defaultWinner = pool.First();
+                    winner = MapToDto(defaultWinner, "Default winner due to capping", request.CustomAliases);
+                    winners.Add(winner);
+                }
                 break;
             }
         }
 
-        return new RouletteRaceResultDto(winner, sequence);
+        return new RouletteRaceResultDto(winner, sequence, winners);
     }
 
     private SelectionResultDto MapToDto(DiscoveryMoviePoolItemDto selected, string metadata, Dictionary<Guid, string>? aliases = null)

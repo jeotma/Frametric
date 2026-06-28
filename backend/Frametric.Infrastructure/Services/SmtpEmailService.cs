@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -24,12 +24,13 @@ public class SmtpEmailService : IEmailService
 
     public Task SendPasswordResetEmailAsync(string toEmail, string resetLink, CancellationToken cancellationToken = default)
     {
-        // For development purposes, log without exposing PII. Replace with real SMTP/SendGrid logic for production.
-        _logger.LogInformation("Password reset requested and email queued for sending.");
-        
-        // Output to local debug console only for testing
-        System.Diagnostics.Debug.WriteLine($"[DEV ONLY] Password reset requested for {toEmail}. Link: {resetLink}");
+        return Task.CompletedTask;
+    }
 
+    public Task SendPromotionNotificationAsync(string promotedUsername, string promotedEmail, string newRole, string promotedBy)
+    {
+        _logger.LogInformation("[DEV ONLY AUDIT] User {Username} promoted to {Role} by {PromotedBy}.", promotedUsername, newRole, promotedBy);
+        System.Diagnostics.Debug.WriteLine($"[DEV ONLY AUDIT] User {promotedUsername} ({promotedEmail}) promoted to {newRole} by {promotedBy}.");
         return Task.CompletedTask;
     }
 }

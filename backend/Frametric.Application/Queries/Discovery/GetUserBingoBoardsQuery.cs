@@ -50,8 +50,7 @@ public class GetUserBingoBoardsQueryHandler : IRequestHandler<GetUserBingoBoards
                 var isCompleted = achieved == total;
                 var sampleObjective = g.First();
                 
-                // Estimate creation timestamp based on StartDate, or default to CompletionDate, or default to MinValue.
-                // We'll use MinValue if none exist, but in practice objectives will have StartDate or CompletionDate or we'll fallback to UtcNow
+                var completedOnTime = isCompleted && (!sampleObjective.EndDate.HasValue || g.All(o => o.CompletionDate.HasValue && o.CompletionDate.Value <= sampleObjective.EndDate.Value));
                 var createdAt = sampleObjective.StartDate ?? DateTime.UtcNow;
 
                 return new BingoBoardDto(
@@ -62,7 +61,8 @@ public class GetUserBingoBoardsQueryHandler : IRequestHandler<GetUserBingoBoards
                     IsCompleted: isCompleted,
                     CompletedSquares: achieved,
                     TotalSquares: total,
-                    CreatedAt: createdAt
+                    CreatedAt: createdAt,
+                    CompletedOnTime: completedOnTime
                 );
             })
             .OrderByDescending(b => b.CreatedAt)

@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -12,5 +12,6 @@ namespace Frametric.Application.DTOs.Discovery;
 
 public record RouletteRaceResultDto(
     SelectionResultDto Winner,
-    IEnumerable<SelectionResultDto> SpinSequence
+    IEnumerable<SelectionResultDto> SpinSequence,
+    IEnumerable<SelectionResultDto>? Winners = null
 );

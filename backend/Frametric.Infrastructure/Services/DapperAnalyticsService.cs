@@ -250,7 +250,7 @@ public class DapperAnalyticsService : IAnalyticsService
         var monthlyList = (await connection.QueryAsync<MonthlyWatchesDto>(monthlySql, parameters)).ToList();
 
         string weeklySql = yearlyWatchesCte + @"
-            SELECT TRIM(TO_CHAR(yw.WatchDate, 'Day')) AS DayOfWeek, CAST(COUNT(*) AS INTEGER) AS Count,
+            SELECT TRIM(TO_CHAR(CAST(yw.WatchDate AS TIMESTAMP), 'Day')) AS DayOfWeek, CAST(COUNT(*) AS INTEGER) AS Count,
                    CAST(EXTRACT(ISODOW FROM yw.WatchDate) AS INTEGER) AS DayIndex
             FROM YearlyWatches yw
             GROUP BY DayOfWeek, DayIndex

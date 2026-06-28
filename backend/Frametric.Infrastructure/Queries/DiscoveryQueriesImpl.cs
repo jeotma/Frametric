@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -211,7 +211,7 @@ public class DiscoveryQueriesImpl : IDiscoveryQueries
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         return await connection.QuerySingleOrDefaultAsync<Guid?>(
-            @"SELECT ""Id"" FROM ""AspNetUsers"" WHERE ""UserName"" = @username",
+            @"SELECT ""Id"" FROM ""Users"" WHERE ""Username"" = @username",
             new { username });
     }
 

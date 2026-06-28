@@ -42,6 +42,15 @@ export class StatsComponent implements OnInit, OnDestroy {
 
   public globalFilters: GlobalFilters = {};
 
+  public readonly minYear = 1888;
+  public readonly maxYear = new Date().getFullYear();
+
+  // Autocomplete state
+  public directorSuggestions = signal<string[]>([]);
+  public actorSuggestions = signal<string[]>([]);
+  public showDirectorDropdown = signal<boolean>(false);
+  public showActorDropdown = signal<boolean>(false);
+
   public queries = STATS_QUERIES;
 
   public categoriesList = computed(() => {
@@ -116,6 +125,111 @@ export class StatsComponent implements OnInit, OnDestroy {
   changePageSize(size: number) {
     this.pageSize.set(size);
     this.currentPage.set(1);
+  }
+
+  onDirectorInput(val: string) {
+    this.globalFilters.director = val;
+    if (!val || val.length < 2) {
+      this.directorSuggestions.set([]);
+      return;
+    }
+    this.searchService.apiSearchGet(val).subscribe({
+      next: (results) => {
+        const matching = results
+          .filter(r => r.entityType === 'Director' || r.entityType === 'Director / Actor')
+          .map(r => r.titleOrName || '')
+          .filter(name => name.length > 0);
+        this.directorSuggestions.set(Array.from(new Set(matching)).slice(0, 5));
+      }
+    });
+  }
+
+  onActorInput(val: string) {
+    this.globalFilters.actor = val;
+    if (!val || val.length < 2) {
+      this.actorSuggestions.set([]);
+      return;
+    }
+    this.searchService.apiSearchGet(val).subscribe({
+      next: (results) => {
+        const matching = results
+          .filter(r => r.entityType === 'Actor' || r.entityType === 'Director / Actor')
+          .map(r => r.titleOrName || '')
+          .filter(name => name.length > 0);
+        this.actorSuggestions.set(Array.from(new Set(matching)).slice(0, 5));
+      }
+    });
+  }
+
+  selectDirector(name: string) {
+    this.globalFilters.director = name;
+    this.directorSuggestions.set([]);
+    this.showDirectorDropdown.set(false);
+  }
+
+  selectActor(name: string) {
+    this.globalFilters.actor = name;
+    this.actorSuggestions.set([]);
+    this.showActorDropdown.set(false);
+  }
+
+  hideActorDropdownWithDelay() {
+    setTimeout(() => this.showActorDropdown.set(false), 200);
+  }
+
+  hideDirectorDropdownWithDelay() {
+    setTimeout(() => this.showDirectorDropdown.set(false), 200);
+  }
+
+  isQueryFormInvalid(): boolean {
+    const q = this.currentQuery();
+    if (!q) return false;
+
+    // 1. Required specific inputs
+    if (q.inputs) {
+      const isInputInvalid = q.inputs.some(input => {
+        if (input.name === 'filterName') {
+          const val = this.querySpecificInputs[input.name];
+          return !val || val.trim().length === 0;
+        }
+        return false;
+      });
+      if (isInputInvalid) return true;
+    }
+
+    // 2. Watch Year & Release Year range check (1888 - Current Year)
+    if (this.globalFilters.watchYear !== undefined && this.globalFilters.watchYear !== null) {
+      if (this.globalFilters.watchYear < this.minYear || this.globalFilters.watchYear > this.maxYear) return true;
+    }
+    if (this.globalFilters.releaseYear !== undefined && this.globalFilters.releaseYear !== null) {
+      if (this.globalFilters.releaseYear < this.minYear || this.globalFilters.releaseYear > this.maxYear) return true;
+    }
+
+    // 3. Rating Range bounds (0 - 10) and relation
+    if (this.globalFilters.minRating !== undefined && this.globalFilters.minRating !== null) {
+      if (this.globalFilters.minRating < 0 || this.globalFilters.minRating > 10) return true;
+    }
+    if (this.globalFilters.maxRating !== undefined && this.globalFilters.maxRating !== null) {
+      if (this.globalFilters.maxRating < 0 || this.globalFilters.maxRating > 10) return true;
+    }
+    if (this.globalFilters.minRating !== undefined && this.globalFilters.minRating !== null &&
+        this.globalFilters.maxRating !== undefined && this.globalFilters.maxRating !== null) {
+      if (this.globalFilters.minRating > this.globalFilters.maxRating) return true;
+    }
+
+    // 4. Custom Rating bounds (0 - 10) and relation
+    if (this.globalFilters.minCustomRating !== undefined && this.globalFilters.minCustomRating !== null) {
+      if (this.globalFilters.minCustomRating < 0 || this.globalFilters.minCustomRating > 10) return true;
+    }
+    if (this.globalFilters.maxCustomRating !== undefined && this.globalFilters.maxCustomRating !== null) {
+      if (this.globalFilters.maxCustomRating < 0 || this.globalFilters.maxCustomRating > 10) return true;
+    }
+    if (this.globalFilters.minCustomRating !== undefined && this.globalFilters.minCustomRating !== null &&
+        this.globalFilters.maxCustomRating !== undefined && this.globalFilters.maxCustomRating !== null) {
+      if (this.globalFilters.minCustomRating > this.globalFilters.maxCustomRating) return true;
+    }
+
+    return false;
   }
 
   ngOnInit() {
@@ -232,7 +346,7 @@ export class StatsComponent implements OnInit, OnDestroy {
               name: detail.name,
               profilePath: detail.profilePath,
               count: detail.watchCount,
-              averageRating: detail.averageRating / 2,
+              averageRating: detail.averageRating,
               totalMinutes: time.totalMinutes,
               totalHours: time.totalHours,
               entityId: detail.id,

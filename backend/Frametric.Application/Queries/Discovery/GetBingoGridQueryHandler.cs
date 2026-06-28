@@ -111,12 +111,6 @@ public class GetBingoGridQueryHandler : IRequestHandler<GetBingoGridQuery, Bingo
             }
         }
 
-        var watchedEntries = await _dbContext.DiaryEntries
-            .Include(entry => entry.Movie)
-                .ThenInclude(movie => movie.Genres)
-            .Where(entry => entry.UserId == request.UserId)
-            .ToListAsync(cancellationToken);
-
         var fulfillingIds = objectives
             .Where(o => o.IsAchieved && o.FulfillingDiaryEntryId.HasValue)
             .Select(o => o.FulfillingDiaryEntryId!.Value)
@@ -127,38 +121,52 @@ public class GetBingoGridQueryHandler : IRequestHandler<GetBingoGridQuery, Bingo
             .Where(entry => fulfillingIds.Contains(entry.Id))
             .ToDictionaryAsync(entry => entry.Id, cancellationToken);
 
-        var usedEntryIds = new HashSet<Guid>(fulfillingIds);
-
-        foreach (var objective in objectives)
+        if (request.AutoEvaluate)
         {
-            if (objective.IsAchieved)
+            var watchedEntries = await _dbContext.DiaryEntries
+                .Include(entry => entry.Movie)
+                    .ThenInclude(movie => movie.Genres)
+                .Where(entry => entry.UserId == request.UserId)
+                .ToListAsync(cancellationToken);
+
+            var usedEntryIds = new HashSet<Guid>(fulfillingIds);
+
+            foreach (var objective in objectives)
             {
-                continue;
+                if (objective.IsAchieved)
+                {
+                    continue;
+                }
+
+                var matchingEntry = watchedEntries.FirstOrDefault(entry => 
+                {
+                    if (usedEntryIds.Contains(entry.Id))
+                        return false;
+
+                    // Only consider diary entries watched within the objective's active period
+                    if (objective.StartDate.HasValue && entry.WatchedDate < DateOnly.FromDateTime(objective.StartDate.Value))
+                        return false;
+                    
+                    // Relax EndDate constraint if the board is expired
+                    if (objective.EndDate.HasValue && DateTime.UtcNow <= objective.EndDate.Value)
+                    {
+                        if (entry.WatchedDate > DateOnly.FromDateTime(objective.EndDate.Value))
+                            return false;
+                    }
+
+                    return DiscoveryObjectiveEvaluator.Matches(objective.RequirementExpression, entry);
+                });
+
+                if (matchingEntry != null)
+                {
+                    objective.MarkAsAchieved(matchingEntry.Id);
+                    fulfillingEntries[matchingEntry.Id] = matchingEntry;
+                    usedEntryIds.Add(matchingEntry.Id);
+                }
             }
 
-            var matchingEntry = watchedEntries.FirstOrDefault(entry => 
-            {
-                if (usedEntryIds.Contains(entry.Id))
-                    return false;
-
-                // Only consider diary entries watched within the objective's active period
-                if (objective.StartDate.HasValue && entry.WatchedDate < DateOnly.FromDateTime(objective.StartDate.Value))
-                    return false;
-                if (objective.EndDate.HasValue && entry.WatchedDate > DateOnly.FromDateTime(objective.EndDate.Value))
-                    return false;
-
-                return DiscoveryObjectiveEvaluator.Matches(objective.RequirementExpression, entry);
-            });
-
-            if (matchingEntry != null)
-            {
-                objective.MarkAsAchieved(matchingEntry.Id);
-                fulfillingEntries[matchingEntry.Id] = matchingEntry;
-                usedEntryIds.Add(matchingEntry.Id);
-            }
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
 
         var squares = objectives
             .OrderBy(o => o.Row)

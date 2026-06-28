@@ -83,4 +83,25 @@ export const STATS_QUERIES: QueryDef[] = [
   { id: 'watchlist_by_era', category: 'Watchlist Insights', name: 'Watchlist by Era', description: 'Pending classic vs modern movies.', type: 'list', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistByEraGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
   { id: 'duration_balance', category: 'Watchlist Insights', name: 'Duration Balance', description: 'Balance between short, medium, and long pending movies.', type: 'chart', allowedFilters: ['releaseYear', 'genre', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistDurationBalanceGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
   { id: 'genre_proportion', category: 'Watchlist Insights', name: 'Genre Proportion', description: 'Watchlist vs Watched genres.', type: 'list', allowedFilters: ['releaseYear', 'director', 'actor'], execute: (adv, _, gf) => adv.apiAnalyticsAdvancedWatchlistGenreProportionGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor) },
+  // --- SPECIAL INSIGHTS (BONUS) ---
+  {
+    id: 'weekend_warrior', category: 'Special Insights', name: 'Weekend Warrior', description: 'Compare watches on weekends vs weekdays.', type: 'comparison',
+    allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'],
+    execute: (adv, _, gf) => adv.apiAnalyticsAdvancedBonusWeekendWarriorGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor)
+  },
+  {
+    id: 'cinematic_fatigue', category: 'Special Insights', name: 'Cinematic Fatigue', description: 'Analyze if watching multiple movies in a single day affects your ratings.', type: 'comparison',
+    allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'],
+    execute: (adv, _, gf) => adv.apiAnalyticsAdvancedBonusCinematicFatigueGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor)
+  },
+  {
+    id: 'hidden_gems', category: 'Special Insights', name: 'Hidden Gems', description: 'High rated classic movies (released >30 years ago) in your watched history.', type: 'list',
+    allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'],
+    execute: (adv, _, gf) => adv.apiAnalyticsAdvancedBonusHiddenGemsGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor)
+  },
+  {
+    id: 'watchlist_graveyard', category: 'Special Insights', name: 'Watchlist Graveyard', description: 'Movies that have been pending in your watchlist the longest.', type: 'list',
+    allowedFilters: ['watchYear', 'releaseYear', 'minRating', 'maxRating', 'minCustomRating', 'maxCustomRating', 'genre', 'director', 'actor'],
+    execute: (adv, _, gf) => adv.apiAnalyticsAdvancedBonusWatchlistGraveyardGet(gf.watchYear, gf.releaseYear, gf.minRating, gf.maxRating, gf.minCustomRating, gf.maxCustomRating, gf.genre, gf.director, gf.actor)
+  }
 ];

@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,8 +23,6 @@ public class SlotMachineSpinQueryHandler : IRequestHandler<SlotMachineSpinQuery,
 {
     private readonly IDiscoveryQueries _discoveryQueries;
     private readonly ILogger<SlotMachineSpinQueryHandler> _logger;
-
-    private static readonly IReadOnlyList<string> DurationLabels = new[] { "< 60 min", "60-90 min", "90-120 min", "120-150 min", "> 150 min" };
 
     public SlotMachineSpinQueryHandler(IDiscoveryQueries discoveryQueries, ILogger<SlotMachineSpinQueryHandler> logger)
     {
@@ -54,22 +52,22 @@ public class SlotMachineSpinQueryHandler : IRequestHandler<SlotMachineSpinQuery,
         var results = pool.Select(movie =>
         {
             var movieGenres = (movie.Genres ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            var meetsGenre = string.IsNullOrWhiteSpace(request.Genre) || movieGenres.Contains(genre, StringComparer.OrdinalIgnoreCase);
+            var meetsGenre = movieGenres.Contains(genre, StringComparer.OrdinalIgnoreCase);
 
             var movieDecade = movie.ReleaseYear.HasValue ? (movie.ReleaseYear.Value / 10) * 10 : 0;
-            var meetsDecade = !request.Decade.HasValue || movieDecade == decade;
+            var meetsDecade = movieDecade == decade;
 
             var pop = movie.TmdbPopularity ?? 0;
             var popClass = pop >= 50 ? "BLOCKBUSTER" : pop >= 20 ? "MAINSTREAM" : pop >= 8 ? "NICHE / CULT" : "HIDDEN GEM";
-            var meetsPopularity = string.IsNullOrWhiteSpace(request.Popularity) || string.Equals(popClass, popularity, StringComparison.OrdinalIgnoreCase);
+            var meetsPopularity = string.Equals(popClass, popularity, StringComparison.OrdinalIgnoreCase);
 
             var rat = movie.CustomAverageRating ?? movie.TmdbRating ?? 0;
             var ratClass = rat >= 8.0 ? "MASTERPIECE" : rat >= 7.0 ? "GREAT" : rat >= 6.0 ? "DECENT" : "UNDERDOG";
-            var meetsRating = string.IsNullOrWhiteSpace(request.Rating) || string.Equals(ratClass, rating, StringComparison.OrdinalIgnoreCase);
+            var meetsRating = string.Equals(ratClass, rating, StringComparison.OrdinalIgnoreCase);
 
             // Handle comma-separated movie countries by splitting and checking matching strings
             var movieCountries = (movie.Country ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            var meetsCountry = string.IsNullOrWhiteSpace(request.Country) || movieCountries.Contains(country, StringComparer.OrdinalIgnoreCase);
+            var meetsCountry = movieCountries.Contains(country, StringComparer.OrdinalIgnoreCase);
 
             var matchedList = new[] { meetsGenre, meetsDecade, meetsPopularity, meetsRating, meetsCountry };
             var matchCount = matchedList.Count(m => m);

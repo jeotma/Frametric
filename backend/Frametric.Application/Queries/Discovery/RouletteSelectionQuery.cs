@@ -20,5 +20,7 @@ public record RouletteSelectionQuery(
     IEnumerable<string>? CustomSourceTitles = null,
     bool ExcludeWatched = true,
     Dictionary<Guid, string>? CustomAliases = null,
-    string? PartnerUsername = null
+    string? PartnerUsername = null,
+    bool AllowMultipleWinners = false,
+    int WinnerCount = 1
 ) : IRequest<RouletteRaceResultDto>;

@@ -1,14 +1,15 @@
-import { Component, inject, signal, OnInit, computed, ElementRef, ViewChild } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, computed, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Subject, forkJoin, Observable } from 'rxjs';
+import { finalize, delay, takeUntil } from 'rxjs/operators';
 import { DiscoveryService } from '../../core/api/api/discovery.service';
 import { SelectionResultDto } from '../../core/api/model/selection-result-dto';
 import { MysteryBoxDto } from '../../core/api/model/mystery-box-dto';
 import { BingoGridDto } from '../../core/api/model/bingo-grid-dto';
 import { DiceRollResultDto } from '../../core/api/model/dice-roll-result-dto';
 import { SlotMachineResultDto } from '../../core/api/model/slot-machine-result-dto';
-import { finalize, delay, forkJoin } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { ModalService } from '../../core/services/modal.service';
 import { CinematicSelectComponent } from '../../components/cinematic-select/cinematic-select.component';
@@ -25,6 +26,7 @@ import { CustomListsService } from '../../core/api/api/custom-lists.service';
 import { CustomListDto } from '../../core/api/model/custom-list-dto';
 import { RouletteRaceResultDto } from '../../core/api/model/roulette-race-result-dto';
 import { BingoBoardDto } from '../../core/api/model/bingo-board-dto';
+import { DiscoveryAudioService } from './services/discovery-audio.service';
 
 type DiscoveryTab = 'roulette' | 'dice' | 'slot-machine' | 'mystery-box' | 'bingo';
 
@@ -48,11 +50,13 @@ type DiscoveryTab = 'roulette' | 'dice' | 'slot-machine' | 'mystery-box' | 'bing
   templateUrl: './discovery.html',
   styleUrl: './discovery.scss'
 })
-export class DiscoveryComponent implements OnInit {
+export class DiscoveryComponent implements OnInit, OnDestroy {
   private discoveryService = inject(DiscoveryService);
   private customListsService = inject(CustomListsService);
   public auth = inject(AuthService);
   public modalService = inject(ModalService);
+  public audioService = inject(DiscoveryAudioService);
+  private destroy$ = new Subject<void>();
 
   public activeTab = signal<DiscoveryTab>('roulette');
   public userCustomLists: CustomListDto[] = [];
@@ -91,6 +95,9 @@ export class DiscoveryComponent implements OnInit {
 
   // Roulette state
   public rouletteWinnerSig = signal<SelectionResultDto | null>(null);
+  public rouletteWinnersSig = signal<SelectionResultDto[]>([]);
+  public rouletteAllowMultipleWinners = signal<boolean>(false);
+  public rouletteWinnerCount = signal<number>(1);
   public rouletteIsRacing = signal(false);
   public rouletteLoading = signal(false);
   public rouletteScope = signal<number>(0);
@@ -101,6 +108,7 @@ export class DiscoveryComponent implements OnInit {
   public rouletteSequenceSig = signal<MovieSimpleDto[]>([]);
   public rouletteWinnerTitleSig = signal<string | null>(null);
   public rawRouletteWinner = signal<SelectionResultDto | null>(null);
+  public rawRouletteWinners = signal<SelectionResultDto[]>([]);
   public rouletteLeaderboard = signal<{ rank: number; title: string; count: number }[]>([]);
   public rouletteRaceIndex = 0;
   public rouletteNicknameMap: Map<string, string> = new Map();
@@ -209,6 +217,52 @@ export class DiscoveryComponent implements OnInit {
   public isRevealingOthers = signal<boolean>(false);
   public hasRevealedOthers = computed(() => Object.keys(this.revealedOthersMap()).length > 0);
 
+  // Custom Confirmation Modal state
+  public showConfirmModal = signal<boolean>(false);
+  public confirmTitle = signal<string>('Confirmation');
+  public confirmMessage = signal<string>('');
+  public confirmOptions = signal<{ label: string; value: string; type: string }[]>([]);
+  private confirmResolveFn: ((value: string) => void) | null = null;
+
+  public showConfirm(title: string, message: string, options: { label: string; value: string; type: string }[]): Promise<string> {
+    this.confirmTitle.set(title);
+    this.confirmMessage.set(message);
+    this.confirmOptions.set(options);
+    this.showConfirmModal.set(true);
+    return new Promise<string>((resolve) => {
+      this.confirmResolveFn = resolve;
+    });
+  }
+
+  public resolveConfirm(value: string): void {
+    this.showConfirmModal.set(false);
+    if (this.confirmResolveFn) {
+      this.confirmResolveFn(value);
+      this.confirmResolveFn = null;
+    }
+  }
+
+  public getSavedBoardIds(): string[] {
+    try {
+      const saved = localStorage.getItem('frametric_saved_bingo_boards');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  public saveBoardId(boardId: string): void {
+    try {
+      const saved = this.getSavedBoardIds();
+      if (!saved.includes(boardId)) {
+        saved.push(boardId);
+        localStorage.setItem('frametric_saved_bingo_boards', JSON.stringify(saved));
+      }
+    } catch (e) {
+      console.warn('Failed to save board ID', e);
+    }
+  }
+
   // Bingo state
   public bingoResultSig = signal<BingoGridDto | null>(null);
   public bingoLoading = signal(false);
@@ -219,8 +273,31 @@ export class DiscoveryComponent implements OnInit {
   public bingoDurationDays = signal<number | null>(null);
   
   public bingoBoards = signal<BingoBoardDto[]>([]);
-  public activeBingoBoards = computed(() => this.bingoBoards().filter(b => !b.isCompleted));
-  public completedBingoBoards = computed(() => this.bingoBoards().filter(b => b.isCompleted));
+  public activeBingoBoards = computed(() => {
+    const now = new Date();
+    return this.bingoBoards().filter(b => 
+      !b.isCompleted && (!b.endDate || new Date(b.endDate) >= now)
+    );
+  });
+  public completedBingoBoards = computed(() => {
+    return this.bingoBoards().filter(b => 
+      b.isCompleted && (b.completedOnTime ?? true)
+    );
+  });
+  public expiredFailedBingoBoards = computed(() => {
+    const now = new Date();
+    return this.bingoBoards().filter(b => 
+      (!b.isCompleted && b.endDate && new Date(b.endDate) < now) ||
+      (b.isCompleted && b.completedOnTime === false)
+    );
+  });
+
+  // Candidate Selection Modal state
+  public showCandidatesModal = signal<boolean>(false);
+  public candidatesLoading = signal<boolean>(false);
+  public candidateSquares = signal<any[]>([]);
+  public selectedObjectiveId: string | null = null;
+  public selectedSquare: any | null = null;
   
   public bingoDurationOptions = [
     { value: null, label: 'Unlimited' },
@@ -294,10 +371,14 @@ export class DiscoveryComponent implements OnInit {
     };
   });
 
-  public winnerModalMovie = signal<any | null>(null);
+  public winnerModalMovies = signal<any[]>([]);
+  public winnerModalMovie = computed(() => {
+    const movies = this.winnerModalMovies();
+    return movies.length === 1 ? movies[0] : null;
+  });
 
   public closeWinnerModal(): void {
-    this.winnerModalMovie.set(null);
+    this.winnerModalMovies.set([]);
   }
 
   public slotCountryOptions = signal<{ value: string; label: string }[]>([
@@ -313,7 +394,7 @@ export class DiscoveryComponent implements OnInit {
   }
 
   private loadAvailableCountries(): void {
-    this.discoveryService.apiV1DiscoveryAvailableCountriesGet().subscribe({
+    this.discoveryService.apiV1DiscoveryAvailableCountriesGet().pipe(takeUntil(this.destroy$)).subscribe({
       next: (countries) => {
         const opts = [
           { value: '', label: 'Any Country' },
@@ -328,7 +409,7 @@ export class DiscoveryComponent implements OnInit {
   }
 
   private loadUserLists(): void {
-    this.customListsService.apiV1CustomListsGet().subscribe({
+    this.customListsService.apiV1CustomListsGet().pipe(takeUntil(this.destroy$)).subscribe({
       next: (lists) => {
         this.userCustomLists = lists;
       },
@@ -375,6 +456,7 @@ export class DiscoveryComponent implements OnInit {
       toast.listId,
       toast.movieId
     ).pipe(
+      takeUntil(this.destroy$),
       finalize(() => {
         this.removingToasts.update(r => {
           const nr = { ...r };
@@ -443,16 +525,20 @@ export class DiscoveryComponent implements OnInit {
       customSourceIds: this.rouletteScope() === 2 ? this.getChipsIds(this.rouletteChips()) : undefined,
       customSourceTitles: this.rouletteScope() === 2 ? this.getChipsTitles(this.rouletteChips()) : undefined,
       customAliases: customAliases,
-      partnerUsername: this.rouletteScope() === 4 ? this.roulettePartnerUsername() || null : undefined
-    }).subscribe({ 
+      partnerUsername: this.rouletteScope() === 4 ? this.roulettePartnerUsername() || null : undefined,
+      allowMultipleWinners: this.rouletteAllowMultipleWinners(),
+      winnerCount: this.rouletteWinnerCount()
+    }).pipe(takeUntil(this.destroy$)).subscribe({ 
       next: (r: RouletteRaceResultDto) => {
         this.rouletteLoading.set(false);
         if (!r.spinSequence || r.spinSequence.length === 0) return;
         
         this.rouletteWinnerSig.set(null);
+        this.rouletteWinnersSig.set([]);
         
         // Truncate sequence to prevent infinite spinning — keep first N + winner
-        const winner = r.winner || r.spinSequence[r.spinSequence.length - 1];
+        const winners = r.winners || (r.winner ? [r.winner] : []);
+        const winner = winners[0] || r.winner || r.spinSequence[r.spinSequence.length - 1];
         let seq = r.spinSequence;
         if (this.rouletteThreshold() > 1 && seq.length > this.MAX_ROULETTE_STEPS) {
           const poolSlices = seq.filter(s => s.selectionMechanismMetadata === 'Initial candidate');
@@ -462,10 +548,12 @@ export class DiscoveryComponent implements OnInit {
         this.rouletteSequenceSig.set(seq);
         
         this.rawRouletteWinner.set(winner);
+        this.rawRouletteWinners.set(winners);
         
         this.rouletteRaceIndex = 0;
         this.rouletteStepCount.set(0);
         this.rouletteLeaderboard.set([]);
+        this.audioService.playLeverPull();
         this.runNextRouletteRaceStep();
       }, 
       error: e => {
@@ -513,11 +601,13 @@ export class DiscoveryComponent implements OnInit {
   public onRouletteFinished(): void {
     if (this.rouletteSkipped()) {
       this.rouletteIsRacing.set(false);
-      const winner = this.rawRouletteWinner();
-      if (winner) {
-        this.rouletteWinnerSig.set(winner);
-        this.checkWinnerAgainstLists(winner);
-        this.winnerModalMovie.set(winner);
+      const winners = this.rawRouletteWinners();
+      if (winners.length > 0) {
+        this.rouletteWinnersSig.set(winners);
+        this.rouletteWinnerSig.set(winners[0]);
+        winners.forEach(w => this.checkWinnerAgainstLists(w));
+        this.winnerModalMovies.set(winners);
+        this.audioService.playSuccess();
       }
       return;
     }
@@ -548,6 +638,9 @@ export class DiscoveryComponent implements OnInit {
     }
 
     if (isThresholdRace && this.rouletteRaceIndex < seq.length - 1) {
+      // Play a tik/clack sound on each intermediate spin
+      this.audioService.playTick(1.0 + (this.rouletteRaceIndex % 5) * 0.05);
+
       // Staggered delay for the user to read leaderboard and then do next spin
       setTimeout(() => {
         this.rouletteRaceIndex++;
@@ -556,11 +649,13 @@ export class DiscoveryComponent implements OnInit {
     } else {
       // Race finished! Show the final winner
       this.rouletteIsRacing.set(false);
-      const winner = this.rawRouletteWinner();
-      if (winner) {
-        this.rouletteWinnerSig.set(winner);
-        this.checkWinnerAgainstLists(winner);
-        this.winnerModalMovie.set(winner);
+      const winners = this.rawRouletteWinners();
+      if (winners.length > 0) {
+        this.rouletteWinnersSig.set(winners);
+        this.rouletteWinnerSig.set(winners[0]);
+        winners.forEach(w => this.checkWinnerAgainstLists(w));
+        this.winnerModalMovies.set(winners);
+        this.audioService.playSuccess();
       }
     }
   }
@@ -583,7 +678,7 @@ export class DiscoveryComponent implements OnInit {
       customSourceIds: this.diceScope() === 2 ? this.getChipsIds(this.diceChips()) : undefined,
       customSourceTitles: this.diceScope() === 2 ? this.getChipsTitles(this.diceChips()) : undefined,
       partnerUsername: this.diceScope() === 4 ? this.dicePartnerUsername() || null : undefined
-    }).subscribe({ 
+    }).pipe(takeUntil(this.destroy$)).subscribe({ 
         next: r => {
           this.diceResultSig.set(r);
           // Staggered stop for all dice
@@ -649,7 +744,7 @@ export class DiscoveryComponent implements OnInit {
         customSourceIds: this.diceScope() === 2 ? this.getChipsIds(this.diceChips()) : undefined,
         customSourceTitles: this.diceScope() === 2 ? this.getChipsTitles(this.diceChips()) : undefined,
         partnerUsername: this.diceScope() === 4 ? this.dicePartnerUsername() || null : undefined
-      }).subscribe({ 
+      }).pipe(takeUntil(this.destroy$)).subscribe({ 
         next: r => {
           this.diceResultSig.set(r);
           this.diceLoading.set(false);
@@ -714,7 +809,7 @@ export class DiscoveryComponent implements OnInit {
       customSourceTitles: this.diceScope() === 2 ? this.getChipsTitles(this.diceChips()) : undefined,
       presets: presets,
       partnerUsername: this.diceScope() === 4 ? this.dicePartnerUsername() || null : undefined
-    }).subscribe({
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: r => {
         this.diceResultSig.set(r);
         this.diceLoading.set(false);
@@ -817,8 +912,10 @@ export class DiscoveryComponent implements OnInit {
 
     // No fumbles/criticals or they are fully resolved, reveal the movie!
     this.diceSpecialStatusMsg.set(null);
+    this.diceRolling.set([false, false, false, false, false]);
+    this.audioService.playSuccess();
     this.checkWinnerAgainstLists(r);
-    this.winnerModalMovie.set(r);
+    this.winnerModalMovies.set([r]);
   }
 
   public get totalLockedSlots(): number {
@@ -864,7 +961,7 @@ export class DiscoveryComponent implements OnInit {
       excludeWatched: this.slotExcludeWatched(),
       customSourceIds: this.slotScope() === 2 ? this.getChipsIds(this.slotChips()) : undefined,
       customSourceTitles: this.slotScope() === 2 ? this.getChipsTitles(this.slotChips()) : undefined
-    }).subscribe({
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: r => {
         this.slotResultSig.set(r);
         this.slotLoading.set(false);
@@ -883,8 +980,9 @@ export class DiscoveryComponent implements OnInit {
     this.slotIsSpinning.set(false);
     const r = this.slotResultSig();
     if (r) {
+      this.audioService.playSuccess();
       this.checkWinnerAgainstLists(r);
-      this.winnerModalMovie.set(r);
+      this.winnerModalMovies.set([r]);
     }
   }
 
@@ -903,6 +1001,7 @@ export class DiscoveryComponent implements OnInit {
       customSourceTitles: this.mysteryScope() === 2 ? this.getChipsTitles(this.mysteryChips()) : undefined,
       partnerUsername: this.mysteryScope() === 4 ? this.mysteryPartnerUsername() || null : undefined
     }).pipe(
+      takeUntil(this.destroy$),
       finalize(() => this.mysteryLoading.set(false))
     )
       .subscribe({ next: r => this.mysteryResultSig.set(r), error: e => this.errorMsg.set(e.error?.error || 'Mystery box failed') });
@@ -913,15 +1012,18 @@ export class DiscoveryComponent implements OnInit {
     this.errorMsg.set(null);
     this.selectedBoxId.set(boxId);
     this.mysteryRevealing.set(true);
-    this.discoveryService.apiV1DiscoveryMysteryBoxBoxIdRevealGet(boxId)
+    this.audioService.playFlip();
+    
+    const movieId = boxId.includes('_') ? boxId.split('_')[1] : boxId;
+    this.discoveryService.apiV1DiscoveryMysteryBoxBoxIdRevealGet(movieId)
       .pipe(
+        takeUntil(this.destroy$),
         delay(1500),
         finalize(() => this.mysteryRevealing.set(false))
       )
       .subscribe({ 
         next: r => {
           this.revealedMovieSig.set(r);
-          // component handles animation
         }, 
         error: e => this.errorMsg.set(e.error?.error || 'Reveal failed') 
       });
@@ -933,17 +1035,23 @@ export class DiscoveryComponent implements OnInit {
     if (!box || !selected) return;
 
     this.isRevealingOthers.set(true);
-    const otherIds = box.boxIds.filter(id => id !== selected);
+    const selectedIndex = selected.includes('_') ? parseInt(selected.split('_')[0], 10) : -1;
     
-    const requests = otherIds.map(id => 
-      this.discoveryService.apiV1DiscoveryMysteryBoxBoxIdRevealGet(id)
-    );
+    const requests = box.boxIds.map((id, index) => {
+      if (index === selectedIndex) return null;
+      return this.discoveryService.apiV1DiscoveryMysteryBoxBoxIdRevealGet(id);
+    });
 
-    forkJoin(requests).subscribe({
+    const nonNullRequests = requests.filter(r => r !== null) as Observable<SelectionResultDto>[];
+
+    forkJoin(nonNullRequests).pipe(takeUntil(this.destroy$)).subscribe({
       next: results => {
         const newMap: Record<string, SelectionResultDto> = {};
-        otherIds.forEach((id, idx) => {
-          newMap[id] = results[idx];
+        let resultIdx = 0;
+        box.boxIds.forEach((id, index) => {
+          if (index !== selectedIndex) {
+            newMap[`${index}_${id}`] = results[resultIdx++];
+          }
         });
         this.revealedOthersMap.set(newMap);
         this.isRevealingOthers.set(false);
@@ -958,13 +1066,60 @@ export class DiscoveryComponent implements OnInit {
   public onMysteryFinished(): void {
     const r = this.revealedMovieSig();
     if (r) {
+      this.audioService.playSuccess();
       this.checkWinnerAgainstLists(r);
-      this.winnerModalMovie.set(r);
+      this.winnerModalMovies.set([r]);
     }
   }
 
   public loadBingo(newBoard: boolean = false): void {
     if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
+
+    const currentBoard = this.bingoResultSig();
+    if (newBoard && currentBoard && currentBoard.boardId) {
+      const savedIds = this.getSavedBoardIds();
+      if (!savedIds.includes(currentBoard.boardId)) {
+        this.showConfirm(
+          'UNSAVED CHALLENGE',
+          'You have an active unsaved bingo board. Would you like to save it before generating a new one, or discard it?',
+          [
+            { label: 'Save & Generate', value: 'save', type: 'primary' },
+            { label: 'Discard & Generate', value: 'discard', type: 'danger' },
+            { label: 'Cancel', value: 'cancel', type: 'secondary' }
+          ]
+        ).then((choice) => {
+          if (choice === 'cancel') return;
+          if (choice === 'save') {
+            this.saveBoardId(currentBoard.boardId);
+            this.executeLoadBingo(true);
+          } else if (choice === 'discard') {
+            this.bingoLoading.set(true);
+            this.discoveryService.apiV1DiscoveryBingoBoardsBoardIdDelete(currentBoard.boardId)
+              .pipe(takeUntil(this.destroy$))
+              .subscribe({
+                next: () => {
+                  this.executeLoadBingo(true);
+                },
+                error: (e) => {
+                  this.bingoLoading.set(false);
+                  this.errorMsg.set(e.error?.error || 'Failed to discard current board');
+                }
+              });
+          }
+        });
+        return;
+      }
+    }
+
+    this.executeLoadBingo(newBoard);
+  }
+
+  public autofillBingo(): void {
+    if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
+    this.executeLoadBingo(false, true);
+  }
+
+  private executeLoadBingo(newBoard: boolean, autoEvaluate: boolean = false): void {
     this.errorMsg.set(null);
     this.bingoLoading.set(true);
     this.discoveryService.apiV1DiscoveryBingoPost({
@@ -973,21 +1128,97 @@ export class DiscoveryComponent implements OnInit {
       excludeWatched: this.bingoExcludeWatched(),
       customSourceIds: this.bingoScope() === 2 ? this.getChipsIds(this.bingoChips()) : undefined,
       customSourceTitles: this.bingoScope() === 2 ? this.getChipsTitles(this.bingoChips()) : undefined,
-      durationDays: newBoard ? (this.bingoDurationDays() !== null ? this.bingoDurationDays()! : -1) : undefined
+      durationDays: newBoard ? (this.bingoDurationDays() !== null ? this.bingoDurationDays()! : -1) : undefined,
+      autoEvaluate: autoEvaluate
     })
-      .pipe(finalize(() => this.bingoLoading.set(false)))
+      .pipe(takeUntil(this.destroy$), finalize(() => this.bingoLoading.set(false)))
       .subscribe({
         next: (r: any) => {
           this.bingoResultSig.set(r);
+          if (!newBoard && r && r.boardId) {
+            this.saveBoardId(r.boardId);
+          }
           this.loadBingoBoards();
         },
         error: (e: any) => this.errorMsg.set(e.error?.error || 'Bingo load failed')
       });
   }
 
+  public openCandidatesModal(square: any): void {
+    if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
+    if (square.isCompleted) return;
+    this.selectedObjectiveId = square.objectiveId;
+    this.selectedSquare = square;
+    this.showCandidatesModal.set(true);
+    this.candidatesLoading.set(true);
+    this.discoveryService.apiV1DiscoveryBingoSquaresCandidatesGet(square.objectiveId)
+      .pipe(takeUntil(this.destroy$), finalize(() => this.candidatesLoading.set(false)))
+      .subscribe({
+        next: (candidates) => {
+          this.candidateSquares.set(candidates || []);
+        },
+        error: (e) => {
+          this.errorMsg.set(e.error?.error || 'Failed to load candidate movies');
+        }
+      });
+  }
+
+  public claimObjective(candidate: any): void {
+    if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
+    if (!this.selectedObjectiveId) return;
+
+    this.showConfirm(
+      'CONFIRM SELECTION',
+      `Once you assign "${candidate.movieTitle}" to this square, it cannot be changed or moved. Do you want to proceed?`,
+      [
+        { label: 'Cancel', value: 'cancel', type: 'secondary' },
+        { label: 'Confirm', value: 'confirm', type: 'primary' }
+      ]
+    ).then((choice) => {
+      if (choice !== 'confirm') return;
+
+      this.bingoLoading.set(true);
+      this.discoveryService.apiV1DiscoveryBingoClaimPost({
+        objectiveId: this.selectedObjectiveId!,
+        diaryEntryId: candidate.diaryEntryId
+      })
+        .pipe(takeUntil(this.destroy$), finalize(() => this.bingoLoading.set(false)))
+        .subscribe({
+          next: (r: any) => {
+            this.bingoResultSig.set(r);
+            this.showCandidatesModal.set(false);
+            this.audioService.playSuccess();
+            this.loadBingoBoards();
+          },
+          error: (e) => {
+            this.errorMsg.set(e.error?.error || 'Failed to claim bingo objective');
+          }
+        });
+    });
+  }
+
+  public get currentDate(): Date {
+    return new Date();
+  }
+
+  public isBoardExpired(endDate: string | Date | null | undefined): boolean {
+    if (!endDate) return false;
+    return new Date(endDate) < new Date();
+  }
+
+  public isSquareCompleted(s: any): boolean {
+    return s.isCompleted;
+  }
+
+  public hasCompletedLateSquare(bingo: any): boolean {
+    if (!bingo || !bingo.endDate) return false;
+    const end = new Date(bingo.endDate);
+    return bingo.squares.some((s: any) => s.completionDate && new Date(s.completionDate) > end);
+  }
+
   public loadBingoBoards(): void {
     if (!this.auth.isAuthenticated()) return;
-    this.discoveryService.apiV1DiscoveryBingoBoardsGet().subscribe({
+    this.discoveryService.apiV1DiscoveryBingoBoardsGet().pipe(takeUntil(this.destroy$)).subscribe({
       next: (boards) => {
         this.bingoBoards.set(boards || []);
       },
@@ -999,6 +1230,7 @@ export class DiscoveryComponent implements OnInit {
 
   public loadSpecificBingoBoard(boardId: string): void {
     if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
+    this.saveBoardId(boardId);
     this.errorMsg.set(null);
     this.bingoLoading.set(true);
     this.discoveryService.apiV1DiscoveryBingoPost({
@@ -1007,7 +1239,7 @@ export class DiscoveryComponent implements OnInit {
       excludeWatched: this.bingoExcludeWatched(),
       boardId: boardId
     })
-      .pipe(finalize(() => this.bingoLoading.set(false)))
+      .pipe(takeUntil(this.destroy$), finalize(() => this.bingoLoading.set(false)))
       .subscribe({
         next: (r: any) => {
           this.bingoResultSig.set(r);
@@ -1021,21 +1253,31 @@ export class DiscoveryComponent implements OnInit {
 
   public deleteBingoBoard(boardId: string): void {
     if (!this.auth.isAuthenticated()) return;
-    if (!confirm('Are you sure you want to delete this bingo board? All progress on this board will be lost.')) return;
-    this.bingoLoading.set(true);
-    this.discoveryService.apiV1DiscoveryBingoBoardsBoardIdDelete(boardId)
-      .pipe(finalize(() => this.bingoLoading.set(false)))
-      .subscribe({
-        next: () => {
-          if (this.bingoResultSig()?.boardId === boardId) {
-            this.bingoResultSig.set(null);
+    this.showConfirm(
+      'DELETE CHALLENGE',
+      'Are you sure you want to delete this bingo board? All progress on this board will be lost.',
+      [
+        { label: 'Cancel', value: 'cancel', type: 'secondary' },
+        { label: 'Delete', value: 'delete', type: 'danger' }
+      ]
+    ).then((choice) => {
+      if (choice !== 'delete') return;
+
+      this.bingoLoading.set(true);
+      this.discoveryService.apiV1DiscoveryBingoBoardsBoardIdDelete(boardId)
+        .pipe(takeUntil(this.destroy$), finalize(() => this.bingoLoading.set(false)))
+        .subscribe({
+          next: () => {
+            if (this.bingoResultSig()?.boardId === boardId) {
+              this.bingoResultSig.set(null);
+            }
+            this.loadBingoBoards();
+          },
+          error: (e) => {
+            this.errorMsg.set(e.error?.error || 'Failed to delete bingo board');
           }
-          this.loadBingoBoards();
-        },
-        error: (e) => {
-          this.errorMsg.set(e.error?.error || 'Failed to delete bingo board');
-        }
-      });
+        });
+    });
   }
 
   public rerollBingoObjective(objectiveId: string): void {
@@ -1043,7 +1285,7 @@ export class DiscoveryComponent implements OnInit {
     this.errorMsg.set(null);
     this.bingoLoading.set(true);
     this.discoveryService.apiV1DiscoveryBingoRerollObjectiveIdPost(objectiveId)
-      .pipe(finalize(() => this.bingoLoading.set(false)))
+      .pipe(takeUntil(this.destroy$), finalize(() => this.bingoLoading.set(false)))
       .subscribe({
         next: (r: BingoGridDto) => {
           this.bingoResultSig.set(r);
@@ -1052,6 +1294,11 @@ export class DiscoveryComponent implements OnInit {
           this.errorMsg.set(e.error?.error || 'Reroll failed');
         }
       });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   public trackByIndex(index: number): number {

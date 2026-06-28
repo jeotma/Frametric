@@ -38,7 +38,7 @@ export class ImportService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/Import/history
+     * @endpoint get /api/v1/Import/history
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -78,7 +78,7 @@ export class ImportService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Import/history`;
+        let localVarPath = `/api/v1/Import/history`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<ImportHistoryDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -94,7 +94,7 @@ export class ImportService extends BaseService {
     }
 
     /**
-     * @endpoint delete /api/Import/{id}
+     * @endpoint delete /api/v1/Import/{id}
      * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -138,7 +138,7 @@ export class ImportService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Import/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/api/v1/Import/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -154,7 +154,7 @@ export class ImportService extends BaseService {
     }
 
     /**
-     * @endpoint post /api/Import/letterboxd
+     * @endpoint post /api/v1/Import/letterboxd
      * @param file 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -217,7 +217,7 @@ export class ImportService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Import/letterboxd`;
+        let localVarPath = `/api/v1/Import/letterboxd`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {

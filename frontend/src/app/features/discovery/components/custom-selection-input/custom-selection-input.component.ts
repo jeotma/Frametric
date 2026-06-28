@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, Output, inject, signal, effect } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnDestroy, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of, finalize, tap } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { SearchService } from '../../../../core/api/api/search.service';
 import { MoviesService } from '../../../../core/api/api/movies.service';
 import { CustomListsService } from '../../../../core/api/api/custom-lists.service';
@@ -17,7 +18,7 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './custom-selection-input.component.html',
   styleUrl: './custom-selection-input.component.scss'
 })
-export class CustomSelectionInputComponent {
+export class CustomSelectionInputComponent implements OnDestroy {
   private searchService = inject(SearchService);
   private moviesService = inject(MoviesService);
   private customListsService = inject(CustomListsService);
@@ -45,6 +46,7 @@ export class CustomSelectionInputComponent {
   public newListName = signal<string>('');
 
   private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
 
   constructor() {
     this.searchSubject.pipe(
@@ -59,7 +61,8 @@ export class CustomSelectionInputComponent {
         return this.searchService.apiSearchGet(query).pipe(
           finalize(() => this.isSearching.set(false))
         );
-      })
+      }),
+      takeUntil(this.destroy$)
     ).subscribe({
       next: (results) => {
         // Filter out non-movies
@@ -75,6 +78,11 @@ export class CustomSelectionInputComponent {
         this.loadSavedLists();
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   public onSearchInput(event: Event): void {
@@ -105,7 +113,7 @@ export class CustomSelectionInputComponent {
     } else if (result.tmdbId) {
       this.enrichLoadingId.set(result.tmdbId);
       this.moviesService.apiMoviesEnrichFromTmdbPost({ tmdbId: result.tmdbId })
-        .pipe(finalize(() => this.enrichLoadingId.set(null)))
+        .pipe(takeUntil(this.destroy$), finalize(() => this.enrichLoadingId.set(null)))
         .subscribe({
           next: (movie) => {
             this.addChip(movie);
@@ -177,7 +185,7 @@ export class CustomSelectionInputComponent {
   // --- Saved Lists Logic ---
 
   private loadSavedLists(): void {
-    this.customListsService.apiV1CustomListsGet().subscribe({
+    this.customListsService.apiV1CustomListsGet().pipe(takeUntil(this.destroy$)).subscribe({
       next: lists => this.savedLists.set(lists),
       error: () => console.error('Failed to load custom lists')
     });
@@ -217,7 +225,7 @@ export class CustomSelectionInputComponent {
     this.customListsService.apiV1CustomListsPost({
       name: this.newListName(),
       items: items
-    } as any).subscribe({
+    } as any).pipe(takeUntil(this.destroy$)).subscribe({
       next: (newList) => {
         this.savedLists.update(lists => [newList, ...lists]);
         this.showSaveModal.set(false);

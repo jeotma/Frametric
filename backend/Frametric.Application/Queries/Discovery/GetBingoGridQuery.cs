@@ -21,5 +21,6 @@ public record GetBingoGridQuery(
     IEnumerable<string>? CustomSourceTitles = null,
     bool ExcludeWatched = true,
     int? DurationDays = null,
-    Guid? BoardId = null
+    Guid? BoardId = null,
+    bool AutoEvaluate = false
 ) : IRequest<BingoGridDto>;

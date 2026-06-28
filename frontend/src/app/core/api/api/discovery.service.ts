@@ -709,4 +709,24 @@ export class DiscoveryService extends BaseService {
         );
     }
 
+    public apiV1DiscoveryBingoClaimPost(body: { objectiveId: string, diaryEntryId: string }): Observable<BingoGridDto> {
+        let localVarHeaders = this.defaultHeaders;
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.post<BingoGridDto>(`${basePath}/api/v1/discovery/bingo/claim`, body, {
+            headers: localVarHeaders,
+            withCredentials
+        });
+    }
+
+    public apiV1DiscoveryBingoSquaresCandidatesGet(objectiveId: string): Observable<Array<any>> {
+        let localVarHeaders = this.defaultHeaders;
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.get<Array<any>>(`${basePath}/api/v1/discovery/bingo/squares/${objectiveId}/candidates`, {
+            headers: localVarHeaders,
+            withCredentials
+        });
+    }
+
 }

@@ -11,7 +11,7 @@
     }
   ],
   "paths": {
-    "/api/Actors/{id}": {
+    "/api/v1/Actors/{id}": {
       "get": {
         "tags": [
           "Actors"
@@ -71,7 +71,7 @@
         }
       }
     },
-    "/api/Admin/users": {
+    "/api/v1/Admin/users": {
       "get": {
         "tags": [
           "Admin"
@@ -109,7 +109,7 @@
         }
       }
     },
-    "/api/Admin/users/{userId}/promote": {
+    "/api/v1/Admin/users/{userId}/promote": {
       "post": {
         "tags": [
           "Admin"
@@ -152,7 +152,7 @@
         }
       }
     },
-    "/api/Admin/diagnostics/database": {
+    "/api/v1/Admin/diagnostics/database": {
       "get": {
         "tags": [
           "Admin"
@@ -181,7 +181,7 @@
         }
       }
     },
-    "/api/Admin/diagnostics/providers": {
+    "/api/v1/Admin/diagnostics/providers": {
       "get": {
         "tags": [
           "Admin"
@@ -210,7 +210,7 @@
         }
       }
     },
-    "/api/Admin/diagnostics/logs": {
+    "/api/v1/Admin/diagnostics/logs": {
       "get": {
         "tags": [
           "Admin"
@@ -248,7 +248,7 @@
         }
       }
     },
-    "/api/Admin/maintenance/purge-orphans": {
+    "/api/v1/Admin/maintenance/purge-orphans": {
       "post": {
         "tags": [
           "Admin"
@@ -277,7 +277,7 @@
         }
       }
     },
-    "/api/Admin/maintenance/clear-cache": {
+    "/api/v1/Admin/maintenance/clear-cache": {
       "post": {
         "tags": [
           "Admin"
@@ -289,7 +289,7 @@
         }
       }
     },
-    "/api/Admin/enrich/retry-failed": {
+    "/api/v1/Admin/enrich/retry-failed": {
       "post": {
         "tags": [
           "Admin"
@@ -340,7 +340,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched": {
+    "/api/v1/analytics/advanced/watched": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -449,7 +449,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched/directors": {
+    "/api/v1/analytics/advanced/watched/directors": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -558,7 +558,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched/actors": {
+    "/api/v1/analytics/advanced/watched/actors": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -667,7 +667,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched/genres": {
+    "/api/v1/analytics/advanced/watched/genres": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -776,7 +776,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched/decades": {
+    "/api/v1/analytics/advanced/watched/decades": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -885,7 +885,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched/most-repeated-actor": {
+    "/api/v1/analytics/advanced/watched/most-repeated-actor": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -985,7 +985,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched/most-watched-director": {
+    "/api/v1/analytics/advanced/watched/most-watched-director": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -1085,7 +1085,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched/predominant-era": {
+    "/api/v1/analytics/advanced/watched/predominant-era": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -1185,7 +1185,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched/director-ranking": {
+    "/api/v1/analytics/advanced/watched/director-ranking": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -1294,7 +1294,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched/total-time": {
+    "/api/v1/analytics/advanced/watched/total-time": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -1408,7 +1408,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched/preferred-day": {
+    "/api/v1/analytics/advanced/watched/preferred-day": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -1517,7 +1517,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched/rating-evolution": {
+    "/api/v1/analytics/advanced/watched/rating-evolution": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -1626,7 +1626,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched/genre-streaks": {
+    "/api/v1/analytics/advanced/watched/genre-streaks": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -1735,7 +1735,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched/longest-movie": {
+    "/api/v1/analytics/advanced/watched/longest-movie": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -1835,7 +1835,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watched/casting-repetitions": {
+    "/api/v1/analytics/advanced/watched/casting-repetitions": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -1944,7 +1944,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist": {
+    "/api/v1/analytics/advanced/watchlist": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -2053,7 +2053,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist/directors": {
+    "/api/v1/analytics/advanced/watchlist/directors": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -2162,7 +2162,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist/actors": {
+    "/api/v1/analytics/advanced/watchlist/actors": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -2271,7 +2271,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist/genres": {
+    "/api/v1/analytics/advanced/watchlist/genres": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -2380,7 +2380,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist/decades": {
+    "/api/v1/analytics/advanced/watchlist/decades": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -2489,7 +2489,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist/most-anticipated-director": {
+    "/api/v1/analytics/advanced/watchlist/most-anticipated-director": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -2589,7 +2589,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist/most-anticipated-actor": {
+    "/api/v1/analytics/advanced/watchlist/most-anticipated-actor": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -2689,7 +2689,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist/total-watchtime": {
+    "/api/v1/analytics/advanced/watchlist/total-watchtime": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -2789,7 +2789,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist/oldest-pending": {
+    "/api/v1/analytics/advanced/watchlist/oldest-pending": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -2889,7 +2889,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist/by-era": {
+    "/api/v1/analytics/advanced/watchlist/by-era": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -2998,7 +2998,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist/ghost-actor": {
+    "/api/v1/analytics/advanced/watchlist/ghost-actor": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -3098,7 +3098,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist/golden-director": {
+    "/api/v1/analytics/advanced/watchlist/golden-director": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -3198,7 +3198,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist/duration-balance": {
+    "/api/v1/analytics/advanced/watchlist/duration-balance": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -3307,7 +3307,7 @@
         }
       }
     },
-    "/api/analytics/advanced/watchlist/genre-proportion": {
+    "/api/v1/analytics/advanced/watchlist/genre-proportion": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -3416,7 +3416,7 @@
         }
       }
     },
-    "/api/analytics/advanced/bonus/weekend-warrior": {
+    "/api/v1/analytics/advanced/bonus/weekend-warrior": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -3516,7 +3516,7 @@
         }
       }
     },
-    "/api/analytics/advanced/bonus/hidden-gems": {
+    "/api/v1/analytics/advanced/bonus/hidden-gems": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -3625,7 +3625,7 @@
         }
       }
     },
-    "/api/analytics/advanced/bonus/watchlist-graveyard": {
+    "/api/v1/analytics/advanced/bonus/watchlist-graveyard": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -3734,7 +3734,7 @@
         }
       }
     },
-    "/api/analytics/advanced/bonus/cinematic-fatigue": {
+    "/api/v1/analytics/advanced/bonus/cinematic-fatigue": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -3834,7 +3834,7 @@
         }
       }
     },
-    "/api/analytics/advanced/final-cut/bookends": {
+    "/api/v1/analytics/advanced/final-cut/bookends": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -3934,7 +3934,7 @@
         }
       }
     },
-    "/api/analytics/advanced/final-cut/monthly-extremes": {
+    "/api/v1/analytics/advanced/final-cut/monthly-extremes": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -4051,7 +4051,7 @@
         }
       }
     },
-    "/api/analytics/advanced/final-cut/top-bottom-rated": {
+    "/api/v1/analytics/advanced/final-cut/top-bottom-rated": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -4151,7 +4151,7 @@
         }
       }
     },
-    "/api/analytics/advanced/final-cut/most-rewatched": {
+    "/api/v1/analytics/advanced/final-cut/most-rewatched": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -4251,7 +4251,7 @@
         }
       }
     },
-    "/api/analytics/advanced/final-cut/best-rookies": {
+    "/api/v1/analytics/advanced/final-cut/best-rookies": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -4351,7 +4351,7 @@
         }
       }
     },
-    "/api/analytics/advanced/final-cut/prime-time": {
+    "/api/v1/analytics/advanced/final-cut/prime-time": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -4451,7 +4451,7 @@
         }
       }
     },
-    "/api/analytics/advanced/final-cut/genre-landscape": {
+    "/api/v1/analytics/advanced/final-cut/genre-landscape": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -4560,7 +4560,7 @@
         }
       }
     },
-    "/api/analytics/advanced/final-cut/shortest-movie": {
+    "/api/v1/analytics/advanced/final-cut/shortest-movie": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -4660,7 +4660,7 @@
         }
       }
     },
-    "/api/analytics/advanced/final-cut/director-actor-pairs": {
+    "/api/v1/analytics/advanced/final-cut/director-actor-pairs": {
       "get": {
         "tags": [
           "AdvancedAnalytics"
@@ -4769,7 +4769,7 @@
         }
       }
     },
-    "/api/Analytics/dashboard": {
+    "/api/v1/Analytics/dashboard": {
       "get": {
         "tags": [
           "Analytics"
@@ -4818,7 +4818,7 @@
         }
       }
     },
-    "/api/Analytics/wrapped": {
+    "/api/v1/Analytics/wrapped": {
       "get": {
         "tags": [
           "Analytics"
@@ -4877,7 +4877,7 @@
         }
       }
     },
-    "/api/Analytics/monthly-activity/{year}": {
+    "/api/v1/Analytics/monthly-activity/{year}": {
       "get": {
         "tags": [
           "Analytics"
@@ -4937,7 +4937,7 @@
         }
       }
     },
-    "/api/Analytics/top-directors": {
+    "/api/v1/Analytics/top-directors": {
       "get": {
         "tags": [
           "Analytics"
@@ -5006,7 +5006,7 @@
         }
       }
     },
-    "/api/Auth/signup": {
+    "/api/v1/Auth/signup": {
       "post": {
         "tags": [
           "Auth"
@@ -5078,7 +5078,7 @@
         }
       }
     },
-    "/api/Auth/login": {
+    "/api/v1/Auth/login": {
       "post": {
         "tags": [
           "Auth"
@@ -5147,7 +5147,7 @@
         }
       }
     },
-    "/api/Auth/refresh": {
+    "/api/v1/Auth/refresh": {
       "post": {
         "tags": [
           "Auth"
@@ -5216,7 +5216,7 @@
         }
       }
     },
-    "/api/Auth/forgot-password": {
+    "/api/v1/Auth/forgot-password": {
       "post": {
         "tags": [
           "Auth"
@@ -5268,7 +5268,7 @@
         }
       }
     },
-    "/api/Auth/reset-password": {
+    "/api/v1/Auth/reset-password": {
       "post": {
         "tags": [
           "Auth"
@@ -5460,7 +5460,7 @@
         }
       }
     },
-    "/api/Directors/{id}": {
+    "/api/v1/Directors/{id}": {
       "get": {
         "tags": [
           "Directors"
@@ -5961,7 +5961,7 @@
         }
       }
     },
-    "/api/Import/letterboxd": {
+    "/api/v1/Import/letterboxd": {
       "post": {
         "tags": [
           "Import"
@@ -6029,7 +6029,7 @@
         }
       }
     },
-    "/api/Import/history": {
+    "/api/v1/Import/history": {
       "get": {
         "tags": [
           "Import"
@@ -6087,7 +6087,7 @@
         }
       }
     },
-    "/api/Import/{id}": {
+    "/api/v1/Import/{id}": {
       "delete": {
         "tags": [
           "Import"
@@ -6150,7 +6150,7 @@
         }
       }
     },
-    "/api/Movies/{id}": {
+    "/api/v1/Movies/{id}": {
       "get": {
         "tags": [
           "Movies"
@@ -6210,7 +6210,67 @@
         }
       }
     },
-    "/api/Movies/enrich-from-tmdb": {
+    "/api/v1/Movies/{id}/collection": {
+      "get": {
+        "tags": [
+          "Movies"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmdbCollectionResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmdbCollectionResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmdbCollectionResultDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/Movies/enrich-from-tmdb": {
       "post": {
         "tags": [
           "Movies"
@@ -6279,7 +6339,7 @@
         }
       }
     },
-    "/api/Movies/{id}/log": {
+    "/api/v1/Movies/{id}/log": {
       "post": {
         "tags": [
           "Movies"
@@ -6342,7 +6402,7 @@
         }
       }
     },
-    "/api/Movies/{id}/log/{entryId}": {
+    "/api/v1/Movies/{id}/log/{entryId}": {
       "delete": {
         "tags": [
           "Movies"
@@ -6394,7 +6454,7 @@
         }
       }
     },
-    "/api/Movies/{id}/watchlist": {
+    "/api/v1/Movies/{id}/watchlist": {
       "post": {
         "tags": [
           "Movies"
@@ -6583,7 +6643,7 @@
         }
       }
     },
-    "/api/Search": {
+    "/api/v1/Search": {
       "get": {
         "tags": [
           "Search"
@@ -7048,17 +7108,29 @@
           }
         }
       },
+      "CreateCustomListItemRequest": {
+        "type": "object",
+        "properties": {
+          "movieId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nickname": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "CreateCustomListRequest": {
         "type": "object",
         "properties": {
           "name": {
             "type": "string"
           },
-          "movieIds": {
+          "items": {
             "type": "array",
             "items": {
-              "type": "string",
-              "format": "uuid"
+              "$ref": "#/components/schemas/CreateCustomListItemRequest"
             }
           }
         }
@@ -7263,6 +7335,11 @@
               "type": "integer",
               "format": "int32"
             },
+            "default": null,
+            "nullable": true
+          },
+          "partnerUsername": {
+            "type": "string",
             "default": null,
             "nullable": true
           }
@@ -8023,6 +8100,17 @@
           "isInWatchlist": {
             "type": "boolean",
             "default": false
+          },
+          "tmdbCollectionId": {
+            "type": "integer",
+            "format": "int32",
+            "default": null,
+            "nullable": true
+          },
+          "tmdbCollectionName": {
+            "type": "string",
+            "default": null,
+            "nullable": true
           }
         }
       },
@@ -8073,6 +8161,10 @@
           },
           "isWatched": {
             "type": "boolean"
+          },
+          "nickname": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -8103,6 +8195,16 @@
             "items": {
               "$ref": "#/components/schemas/MysteryBoxHintDto"
             },
+            "default": null,
+            "nullable": true
+          },
+          "filterType": {
+            "type": "string",
+            "default": null,
+            "nullable": true
+          },
+          "filterValue": {
+            "type": "string",
             "default": null,
             "nullable": true
           }
@@ -8162,6 +8264,11 @@
           "excludeWatched": {
             "type": "boolean",
             "default": true
+          },
+          "partnerUsername": {
+            "type": "string",
+            "default": null,
+            "nullable": true
           }
         }
       },
@@ -8171,14 +8278,14 @@
       "PreferredDayDto": {
         "required": [
           "dayOfWeek",
-          "watchCount"
+          "count"
         ],
         "type": "object",
         "properties": {
           "dayOfWeek": {
             "type": "string"
           },
-          "watchCount": {
+          "count": {
             "type": "integer",
             "format": "int32"
           }
@@ -8314,10 +8421,6 @@
         }
       },
       "RatingEvolutionDto": {
-        "required": [
-          "month",
-          "averageRating"
-        ],
         "type": "object",
         "properties": {
           "month": {
@@ -8327,6 +8430,10 @@
           "averageRating": {
             "type": "number",
             "format": "double"
+          },
+          "monthName": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -8551,6 +8658,19 @@
           "excludeWatched": {
             "type": "boolean",
             "default": true
+          },
+          "customAliases": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "default": null,
+            "nullable": true
+          },
+          "partnerUsername": {
+            "type": "string",
+            "default": null,
+            "nullable": true
           }
         }
       },
@@ -8778,6 +8898,74 @@
           "totalHours": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "TmdbCollectionPartDto": {
+        "required": [
+          "id",
+          "title",
+          "releaseDate",
+          "posterUrl",
+          "isInDatabase"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "releaseDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "posterUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isInDatabase": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TmdbCollectionResultDto": {
+        "required": [
+          "id",
+          "name",
+          "overview",
+          "posterUrl",
+          "backdropUrl",
+          "parts"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "overview": {
+            "type": "string",
+            "nullable": true
+          },
+          "posterUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "backdropUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "parts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TmdbCollectionPartDto"
+            }
           }
         }
       },

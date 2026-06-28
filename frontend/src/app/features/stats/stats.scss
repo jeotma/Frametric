@@ -1021,3 +1021,132 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+
+/* ERROR STYLING */
+.filter-group.has-error {
+  .form-input {
+    border-color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.05) !important;
+  }
+  
+  label {
+    color: #ef4444 !important;
+  }
+}
+
+.error-msg-bubble {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: rgba(220, 38, 38, 0.95);
+  color: white;
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-top: 4px;
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+/* AUTOCOMPLETE SUGGESTIONS VIEWPORT STYLE (NO GLASSMORPHIC) */
+.autocomplete-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.autocomplete-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 8px 0;
+  margin: 4px 0 0 0;
+  list-style: none;
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  
+  li {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--accent-sepia);
+    }
+  }
+}
+
+/* Responsive Styles for Unified Filter Bar in Deep Stats */
+@media (max-width: 1100px) {
+  .filter-row {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px !important;
+    align-items: end !important;
+  }
+  
+  .filter-divider {
+    display: none !important;
+  }
+  
+  .select-group {
+    grid-column: span 3 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .filter-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    align-items: end !important;
+  }
+  
+  .filter-divider {
+    display: none !important;
+  }
+  
+  .select-group {
+    grid-column: span 2 !important;
+  }
+  
+  .filter-group {
+    width: 100% !important;
+    
+    .form-input, select, app-cinematic-select {
+      width: 100% !important;
+    }
+  }
+  
+  .rating-group {
+    grid-column: span 2 !important;
+    
+    .rating-inputs {
+      display: flex !important;
+      width: 100% !important;
+      
+      input {
+        flex: 1 !important;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-row {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .select-group, .rating-group, .filter-group {
+    grid-column: span 1 !important;
+  }
+}

@@ -12,5 +12,7 @@
 export interface WeekendWarriorDto { 
     weekendWatches: number;
     weekdayWatches: number;
+    weekendAverage?: number;
+    weekdayAverage?: number;
 }
 

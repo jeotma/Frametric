@@ -18,5 +18,6 @@ public record BingoBoardDto(
     bool IsCompleted,
     int CompletedSquares,
     int TotalSquares,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    bool CompletedOnTime = true
 );

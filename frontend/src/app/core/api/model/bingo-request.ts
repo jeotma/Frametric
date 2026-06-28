@@ -17,5 +17,6 @@ export interface BingoRequest {
     excludeWatched?: boolean;
     durationDays?: number | null;
     boardId?: string | null;
+    autoEvaluate?: boolean;
 }
 

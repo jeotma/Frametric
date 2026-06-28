@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, signal, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subject, takeUntil } from 'rxjs';
 import { ImportService } from '../../core/api/api/import.service';
 import { ImportHistoryDto } from '../../core/api/model/import-history-dto';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -17,6 +18,7 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
   private importService = inject(ImportService);
   public auth = inject(AuthService);
   public modalService = inject(ModalService);
+  private destroy$ = new Subject<void>();
   
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -40,13 +42,17 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.stopPolling();
     this.clearGatekeeperInterval();
   }
 
   private startPolling() {
     this.pollingInterval = setInterval(() => {
-      this.fetchHistory();
+      if (!this.destroy$.isStopped) {
+        this.fetchHistory();
+      }
     }, 5000);
   }
 
@@ -57,7 +63,7 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
   }
 
   private fetchHistory() {
-    this.importService.apiImportHistoryGet().subscribe({
+    this.importService.apiImportHistoryGet().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => this.history.set(data),
       error: (err) => console.error('Failed to fetch import history', err)
     });
@@ -147,7 +153,7 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
     this.startGatekeeperInterval();
     
     // apiImportLetterboxdPost takes a Blob (File extends Blob)
-    this.importService.apiImportLetterboxdPost(file).subscribe({
+    this.importService.apiImportLetterboxdPost(file).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isUploading.set(false);
         this.clearGatekeeperInterval();
@@ -172,7 +178,7 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.importService.apiImportIdDelete(id).subscribe({
+    this.importService.apiImportIdDelete(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => this.fetchHistory(),
       error: (err) => console.error('Failed to delete import', err)
     });

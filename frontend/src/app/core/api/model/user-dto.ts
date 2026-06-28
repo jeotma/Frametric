@@ -14,5 +14,9 @@ export interface UserDto {
     username: string;
     email: string;
     role: string;
+    canManageCatalog: boolean;
+    canAddUsers: boolean;
+    canDeleteUsers: boolean;
+    canPromoteToAdmin: boolean;
 }
 

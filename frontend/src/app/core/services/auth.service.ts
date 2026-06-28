@@ -28,6 +28,11 @@ export class AuthService {
     return user !== null && this._tokenStorage.isTokenValid() && this._tokenStorage.isAdmin();
   });
 
+  readonly isSuperAdmin = computed(() => {
+    const user = this._currentUser();
+    return user !== null && this._tokenStorage.isTokenValid() && this._tokenStorage.isSuperAdmin();
+  });
+
 
   login(email: string, password: string): Observable<void> {
     return this._apiAuth.apiAuthLoginPost({ email, password }).pipe(

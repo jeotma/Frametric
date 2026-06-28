@@ -48,9 +48,9 @@ User ZIP Upload -> Ingestion Layer -> Normalization Layer -> Persistence Layer -
 ### Database
 
 * **PostgreSQL:** Chosen for its advanced relational performance, heavy aggregation indexing, and native `JSONB` support for schema flexibility.
-* **Redis:** Earmarked as a future distributed caching layer for calculated metrics.
+* **Redis:** Configured as a distributed caching layer (via StackExchange.Redis), falling back to in-memory distributed cache if no connection string is provided.
 
-### Frontend (Angular 19+)
+### Frontend (Angular 21+)
 
 * **Architecture:** Standalone Component Architecture.
 * **State Management:** Signal-based reactive state, keeping global state management minimal.
@@ -137,7 +137,7 @@ CQRS fits efficiently due to the intensive analytical nature of the platform.
 
 ## 8. API & Security Standards
 
-* **Routing:** All endpoints follow global REST versioning standards under `/api/v1/`.
+* **Routing:** Endpoints follow REST standards under `/api/` (or `/api/v1/` for recommendations and discovery modules).
 * **Documentation:** Real-time OpenAPI/Swagger documentation enforced from day one.
 * **Authentication:** Stateless JWT architecture supported by sliding expiration refresh tokens.
 * **Authorization:** Strict role-based validation applied across actions.
@@ -150,7 +150,7 @@ CQRS fits efficiently due to the intensive analytical nature of the platform.
 Frametric implements an in-memory Channel-based background worker pipeline for movie metadata enrichment:
 
 * **Trigger Mechanism**: Signals the background service when imports complete using System.Threading.Channels.
-* **Batch Processing**: Enriches movies asynchronously in batches of 20 with rate-limit delays to respect external APIs (TMDB).
+* **Batch Processing**: Enriches movies asynchronously in batches (default: 20, configured via `TmdbEnrichment:BatchSize`) with rate-limit delays (default: 10s delay, configured via `TmdbEnrichment:DelayBetweenBatchesSeconds`) to respect external APIs (TMDB).
 * **Future Caching & Tasks**: Caching orchestration and periodic database maintenance remain planned for future updates.
 
 ---

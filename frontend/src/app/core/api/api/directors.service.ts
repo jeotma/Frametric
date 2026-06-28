@@ -38,7 +38,7 @@ export class DirectorsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/Directors/{id}
+     * @endpoint get /api/v1/Directors/{id}
      * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -82,7 +82,7 @@ export class DirectorsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Directors/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/api/v1/Directors/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DirectorDetailsDto>('get', `${basePath}${localVarPath}`,
             {

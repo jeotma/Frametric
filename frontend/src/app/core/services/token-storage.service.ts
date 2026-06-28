@@ -91,5 +91,9 @@ export class TokenStorageService {
   isAdmin(): boolean {
     return this.getUserRole() === 'Admin';
   }
+
+  isSuperAdmin(): boolean {
+    return this.getUserRole() === 'SuperAdmin';
+  }
 }
 

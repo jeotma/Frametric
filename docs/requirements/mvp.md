@@ -144,7 +144,7 @@ Endpoints capable of receiving:
 Example:
 
 ```http id="9c0dpx"
-POST /api/v1/imports/letterboxd
+POST /api/import/letterboxd
 ```
 
 ---
@@ -295,10 +295,10 @@ Generate:
 ## Example Endpoints
 
 ```http id="0pq5u8"
-GET /api/v1/wrapped/current
-GET /api/v1/analytics/genres
-GET /api/v1/analytics/year-summary
-GET /api/v1/movies/top-rated
+GET /api/analytics/wrapped?year=2025
+GET /api/analytics/advanced/watched/genres
+GET /api/analytics/dashboard
+GET /api/movies/{id}
 ```
 
 ---
@@ -390,8 +390,8 @@ These are important but not required for MVP completion.
 
 Suggested tools:
 
-* Hangfire
-* Hosted Services
+* System.Threading.Channels (in-memory producer-consumer)
+* Hosted Services (BackgroundService)
 
 ---
 
@@ -539,7 +539,7 @@ The system should:
 
 * Angular
 * Signals
-* Tailwind
+* Vanilla CSS / SCSS (No Tailwind)
 * Typed API clients
 
 ---

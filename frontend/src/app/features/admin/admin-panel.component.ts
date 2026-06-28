@@ -1,18 +1,25 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { AdminService } from '../../core/api/api/admin.service';
+import { CustomAdminService } from '../../core/api/api/custom-admin.service';
+import { SearchService } from '../../core/api/api/search.service';
+import { AuthService } from '../../core/services/auth.service';
 import { DatabaseStatsDto } from '../../core/api/model/database-stats-dto';
 import { ProviderDiagnosticsDto } from '../../core/api/model/provider-diagnostics-dto';
 import { LogEntryDto } from '../../core/api/model/log-entry-dto';
 import { UserDto } from '../../core/api/model/user-dto';
 import { PurgeOrphanResultDto } from '../../core/api/model/purge-orphan-result-dto';
 
-type AdminTab = 'database' | 'providers' | 'users' | 'logs';
+type AdminTab = 'database' | 'providers' | 'users' | 'catalog' | 'logs';
 
 @Component({
   selector: 'app-admin-panel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="admin-container">
       <div class="header-section">
@@ -35,6 +42,9 @@ type AdminTab = 'database' | 'providers' | 'users' | 'logs';
         </button>
         <button [class.active]="activeTab() === 'users'" (click)="setTab('users')">
           User Management
+        </button>
+        <button [class.active]="activeTab() === 'catalog'" (click)="setTab('catalog')">
+          Catalog Editing
         </button>
         <button [class.active]="activeTab() === 'logs'" (click)="setTab('logs')">
           Diagnostic Logs
@@ -219,7 +229,38 @@ type AdminTab = 'database' | 'providers' | 'users' | 'logs';
         <!-- USER MANAGEMENT TAB -->
         <div *ngSwitchCase="'users'" class="tab-pane animate-fade-in">
           <div class="card crosshair-bracket" style="max-width: 100%;">
-            <h2 class="card-title" style="margin-bottom: 16px;">Registered Users</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h2 class="card-title" style="margin: 0;">Registered Users</h2>
+              <button 
+                *ngIf="auth.isSuperAdmin() || auth.currentUser()?.username === 'admin'"
+                class="btn btn-sepia btn-mini"
+                (click)="showAddUserForm.set(!showAddUserForm())">
+                {{ showAddUserForm() ? 'Hide Form' : 'Add New User' }}
+              </button>
+            </div>
+
+            <!-- Add User Form -->
+            <div *ngIf="showAddUserForm()" class="card crosshair-bracket animate-slide-up" style="background: rgba(255, 255, 255, 0.01); border-color: rgba(255, 255, 255, 0.1); margin-bottom: 20px; padding: 20px;">
+              <h3 style="color: var(--accent-sepia); margin-top: 0; margin-bottom: 16px;">Create New User Account</h3>
+              <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <span class="diag-label">Username</span>
+                  <input type="text" class="hud-input" placeholder="USERNAME" [(ngModel)]="createUsername" />
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <span class="diag-label">Email Address</span>
+                  <input type="email" class="hud-input" placeholder="EMAIL" [(ngModel)]="createEmail" />
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <span class="diag-label">Password</span>
+                  <input type="password" class="hud-input" placeholder="PASSWORD" [(ngModel)]="createPassword" />
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-sepia" (click)="createUser()" [disabled]="actionPending()">Create Account</button>
+                  <button class="btn btn-muted" (click)="showAddUserForm.set(false)">Cancel</button>
+                </div>
+              </div>
+            </div>
             
             <div class="search-bar-container">
               <input 
@@ -238,6 +279,7 @@ type AdminTab = 'database' | 'providers' | 'users' | 'logs';
                     <th>Username</th>
                     <th>Email Address</th>
                     <th>Role</th>
+                    <th>Permissions</th>
                     <th style="text-align: right;">Actions</th>
                   </tr>
                 </thead>
@@ -246,24 +288,322 @@ type AdminTab = 'database' | 'providers' | 'users' | 'logs';
                     <td>{{ user.username }}</td>
                     <td>{{ user.email }}</td>
                     <td>
-                      <span class="role-badge" [class.admin]="user.role === 'Admin'">
+                      <span class="role-badge" [class.admin]="user.role === 'Admin' || user.role === 'SuperAdmin'">
                         {{ user.role }}
                       </span>
                     </td>
-                    <td style="text-align: right;">
+                    <td>
+                      <div *ngIf="user.role === 'Admin'" style="display: flex; gap: 16px; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; cursor: pointer;">
+                          <input 
+                            type="checkbox" 
+                            [checked]="user.canManageCatalog" 
+                            (change)="togglePermission(user, 'canManageCatalog')" 
+                            [disabled]="!auth.isSuperAdmin()"
+                          />
+                          Catalog
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; cursor: pointer;">
+                          <input 
+                            type="checkbox" 
+                            [checked]="user.canAddUsers" 
+                            (change)="togglePermission(user, 'canAddUsers')" 
+                            [disabled]="!auth.isSuperAdmin()"
+                          />
+                          Add Users
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; cursor: pointer;">
+                          <input 
+                            type="checkbox" 
+                            [checked]="user.canDeleteUsers" 
+                            (change)="togglePermission(user, 'canDeleteUsers')" 
+                            [disabled]="!auth.isSuperAdmin()"
+                          />
+                          Delete Users
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; cursor: pointer;">
+                          <input 
+                            type="checkbox" 
+                            [checked]="user.canPromoteToAdmin" 
+                            (change)="togglePermission(user, 'canPromoteToAdmin')" 
+                            [disabled]="!auth.isSuperAdmin()"
+                          />
+                          Promote Admins
+                        </label>
+                      </div>
+                      <span *ngIf="user.role === 'SuperAdmin'" class="action-muted" style="color: var(--accent-sepia);">All Privileges (Implicit)</span>
+                     </td>
+                     <td style="text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
+                       <!-- Inspect UVP Action -->
+                       <button 
+                         *ngIf="canInspectUvp()"
+                         class="btn btn-mini btn-sepia"
+                         style="background: var(--accent-emerald); color: #0b0b0b !important; border-color: var(--accent-emerald);"
+                         (click)="inspectUserUvp(user)"
+                         [disabled]="actionPending()">
+                         Inspect UVP
+                       </button>
+                      
+                      <!-- Promote/Demote Actions -->
                       <button 
-                        *ngIf="user.role !== 'Admin'"
+                        *ngIf="user.role === 'User'"
                         class="btn btn-mini btn-sepia"
                         (click)="promoteUser(user.id)"
                         [disabled]="actionPending()">
                         Promote to Admin
                       </button>
-                      <span *ngIf="user.role === 'Admin'" class="action-muted">No Actions Available</span>
+                      <button 
+                        *ngIf="user.role === 'Admin' && auth.isSuperAdmin()"
+                        class="btn btn-mini btn-record"
+                        (click)="demoteUser(user.id)"
+                        [disabled]="actionPending()">
+                        Demote to User
+                      </button>
+                      
+                      <!-- Delete Action -->
+                      <button 
+                        *ngIf="user.role !== 'SuperAdmin' && (auth.isSuperAdmin() || user.role === 'User')"
+                        class="btn btn-mini btn-muted"
+                        style="color: var(--accent-record); border-color: rgba(229, 9, 20, 0.2);"
+                        (click)="deleteUser(user.id)"
+                        [disabled]="actionPending()">
+                        Delete
+                      </button>
+                      
+                      <span *ngIf="user.role === 'SuperAdmin'" class="action-muted">Database Locked</span>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
+
+            <!-- Selected User UVP Section -->
+            <div *ngIf="selectedUser()" class="card crosshair-bracket animate-slide-up" style="margin-top: 24px; padding: 24px; background: rgba(18, 22, 32, 0.95); border: 1px solid var(--accent-sepia); max-width: 100%;">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: var(--accent-sepia); font-family: 'Outfit', sans-serif; letter-spacing: 1px; font-size: 1.1rem; text-transform: uppercase;">
+                  USER VIEWING PROFILE: {{ selectedUser()?.username }}
+                </h3>
+                <button class="btn btn-muted btn-mini" (click)="closeUvp()">Close Profile</button>
+              </div>
+
+              <!-- Loading Profile -->
+              <div *ngIf="loadingUvp()" style="text-align: center; padding: 40px 0;">
+                <div class="spinner-small" style="margin: 0 auto 12px; border-top-color: var(--accent-sepia);"></div>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Reconstructing viewing profile from database...</p>
+              </div>
+
+              <!-- Profile Data -->
+              <div *ngIf="!loadingUvp() && uvpData()" class="uvp-details-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- Stats Summary -->
+                <div class="card crosshair-bracket" style="background: rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.08); padding: 16px;">
+                  <h4 style="color: var(--accent-silver); margin-top: 0; margin-bottom: 16px; border-left: 2px solid var(--accent-sepia); padding-left: 8px; font-size: 0.9rem; letter-spacing: 0.05em; text-transform: uppercase;">Affinities & Metas</h4>
+                  <div class="stats-list">
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
+                      <span style="color: var(--text-muted); font-size: 0.85rem;">Total Movies Watched</span>
+                      <span style="color: var(--text-primary); font-weight: bold;">{{ uvpData().totalWatches }}</span>
+                    </div>
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
+                      <span style="color: var(--text-muted); font-size: 0.85rem;">Average User Rating</span>
+                      <span style="color: var(--accent-amber); font-weight: bold;">{{ uvpData().averageUserRating | number:'1.1-2' }}/10</span>
+                    </div>
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
+                      <span style="color: var(--text-muted); font-size: 0.85rem;">Preferred Film Runtime</span>
+                      <span style="color: var(--text-primary); font-weight: bold;">{{ uvpData().preferredRuntime | number:'1.0-0' }} mins</span>
+                    </div>
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
+                      <span style="color: var(--text-muted); font-size: 0.85rem;">Oscars per Film (Avg)</span>
+                      <span style="color: var(--text-primary); font-weight: bold;">{{ uvpData().averageOscarWins | number:'1.1-2' }} Wins / {{ uvpData().averageOscarNoms | number:'1.1-2' }} Noms</span>
+                    </div>
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0;">
+                      <span style="color: var(--text-muted); font-size: 0.85rem;">Average Box Office Revenue</span>
+                      <span style="color: var(--accent-emerald); font-weight: bold;">&#36;{{ uvpData().averageBoxOffice | number:'1.0-0' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Genres Affinity -->
+                <div class="card crosshair-bracket" style="background: rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.08); padding: 16px;">
+                  <h4 style="color: var(--accent-silver); margin-top: 0; margin-bottom: 16px; border-left: 2px solid var(--accent-sepia); padding-left: 8px; font-size: 0.9rem; letter-spacing: 0.05em; text-transform: uppercase;">Top Genre Affinities</h4>
+                  <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div *ngFor="let g of getTopKeys(uvpData().genres)" style="display: flex; flex-direction: column; gap: 4px;">
+                      <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                        <span style="color: var(--text-primary); font-weight: 500;">{{ g.key }}</span>
+                        <span style="color: var(--text-muted);">Score: {{ g.val | number:'1.1-2' }}</span>
+                      </div>
+                      <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
+                        <div [style.width.%]="getNormalizedWidth(g.val, uvpData().genres)" style="height: 100%; background: var(--accent-sepia); border-radius: 3px;"></div>
+                      </div>
+                    </div>
+                    <p *ngIf="objectKeysCount(uvpData().genres) === 0" style="font-size: 0.85rem; color: var(--text-muted); font-style: italic; margin: 0;">No genre data available.</p>
+                  </div>
+                </div>
+
+                <!-- Top Directors -->
+                <div class="card crosshair-bracket" style="background: rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.08); padding: 16px;">
+                  <h4 style="color: var(--accent-silver); margin-top: 0; margin-bottom: 16px; border-left: 2px solid var(--accent-sepia); padding-left: 8px; font-size: 0.9rem; letter-spacing: 0.05em; text-transform: uppercase;">Top Directors</h4>
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div *ngFor="let d of getTopKeys(uvpData().directors, 5)" style="display: flex; justify-content: space-between; font-size: 0.8rem; border-bottom: 1px dashed rgba(255,255,255,0.03); padding-bottom: 4px;">
+                      <span style="color: var(--text-primary);">{{ d.key }}</span>
+                      <span style="color: var(--accent-silver); font-weight: bold;">{{ d.val | number:'1.1-2' }}</span>
+                    </div>
+                    <p *ngIf="objectKeysCount(uvpData().directors) === 0" style="font-size: 0.85rem; color: var(--text-muted); font-style: italic; margin: 0;">No director affinity data.</p>
+                  </div>
+                </div>
+
+                <!-- Top Actors -->
+                <div class="card crosshair-bracket" style="background: rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.08); padding: 16px;">
+                  <h4 style="color: var(--accent-silver); margin-top: 0; margin-bottom: 16px; border-left: 2px solid var(--accent-sepia); padding-left: 8px; font-size: 0.9rem; letter-spacing: 0.05em; text-transform: uppercase;">Top Actors</h4>
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div *ngFor="let a of getTopKeys(uvpData().actors, 5)" style="display: flex; justify-content: space-between; font-size: 0.8rem; border-bottom: 1px dashed rgba(255,255,255,0.03); padding-bottom: 4px;">
+                      <span style="color: var(--text-primary);">{{ a.key }}</span>
+                      <span style="color: var(--accent-silver); font-weight: bold;">{{ a.val | number:'1.1-2' }}</span>
+                    </div>
+                    <p *ngIf="objectKeysCount(uvpData().actors) === 0" style="font-size: 0.85rem; color: var(--text-muted); font-style: italic; margin: 0;">No actor affinity data.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CATALOG EDITING TAB -->
+        <div *ngSwitchCase="'catalog'" class="tab-pane animate-fade-in">
+          <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 24px; align-items: start;">
+            
+            <!-- Left panel: search and list -->
+            <div class="card crosshair-bracket" style="display: flex; flex-direction: column; gap: 16px;">
+              <h2 class="card-title" style="margin: 0;">Search Catalog</h2>
+              
+              <div style="display: flex; gap: 10px;">
+                <select [ngModel]="catalogSearchType()" (ngModelChange)="catalogSearchType.set($event)" class="glass-select" style="background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px; border-radius: 4px; font-weight: bold;">
+                  <option value="Movie">Movies</option>
+                  <option value="Actor">Actors</option>
+                  <option value="Director">Directors</option>
+                </select>
+                <input 
+                  type="text" 
+                  class="hud-input" 
+                  style="flex: 1;"
+                  placeholder="SEARCH FOR TITLES OR NAMES..." 
+                  [ngModel]="catalogSearchQuery()"
+                  (ngModelChange)="catalogSearchQuery.set($event)"
+                  (keyup.enter)="searchCatalog()"
+                />
+                <button class="btn btn-sepia" (click)="searchCatalog()">Search</button>
+              </div>
+
+              <div class="table-container" style="max-height: 500px; overflow-y: auto;">
+                <table class="hud-table" *ngIf="catalogResults().length > 0">
+                  <thead>
+                    <tr>
+                      <th>Image</th>
+                      <th>Title / Name</th>
+                      <th>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of catalogResults()" (click)="selectEntity(item)" style="cursor: pointer;" [class.selected]="selectedEntity() === item">
+                      <td style="width: 50px;">
+                        <img *ngIf="item.imageUrl" [src]="item.imageUrl" style="width: 40px; aspect-ratio: 2/3; object-fit: cover; border-radius: 2px;" />
+                        <div *ngIf="!item.imageUrl" style="width: 40px; aspect-ratio: 2/3; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-muted);">N/A</div>
+                      </td>
+                      <td style="font-weight: bold; color: var(--text-primary);">{{ item.titleOrName }}</td>
+                      <td class="hud-data" style="font-size: 0.8rem;">
+                        <span *ngIf="item.releaseYear">{{ item.releaseYear }}</span>
+                        <span *ngIf="!item.releaseYear">Local Entity</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div *ngIf="catalogResults().length === 0" style="text-align: center; color: var(--text-muted); padding: 40px 0;">
+                  No local records found matching query.
+                </div>
+              </div>
+            </div>
+
+            <!-- Right panel: edits and revisions -->
+            <div class="card crosshair-bracket" *ngIf="selectedEntity() as entity" style="display: flex; flex-direction: column; gap: 20px;">
+              <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                <span class="diag-label" style="color: var(--accent-sepia);">Selected Record</span>
+                <h2 style="margin: 4px 0 0 0; font-size: 1.5rem;">{{ entity.titleOrName }}</h2>
+              </div>
+
+              <!-- Movie Edit Form -->
+              <div *ngIf="catalogSearchType() === 'Movie'" style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <span class="diag-label">Movie Title</span>
+                  <input type="text" class="hud-input" style="max-width: 100%;" [(ngModel)]="movieTitle" />
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <span class="diag-label">Overview / Synopsis</span>
+                  <textarea class="hud-input" style="max-width: 100%; min-height: 100px; font-family: sans-serif; text-transform: none;" [(ngModel)]="movieOverview"></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span class="diag-label">Release Year</span>
+                    <input type="number" class="hud-input" [(ngModel)]="movieReleaseYear" />
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span class="diag-label">Runtime (Minutes)</span>
+                    <input type="number" class="hud-input" [(ngModel)]="movieRuntimeMinutes" />
+                  </div>
+                </div>
+                <div>
+                  <button class="btn btn-sepia" (click)="updateMovie()" [disabled]="actionPending()">Save Catalog Changes</button>
+                </div>
+              </div>
+
+              <!-- Actor/Director Edit Form -->
+              <div *ngIf="catalogSearchType() !== 'Movie'" style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <span class="diag-label">Name</span>
+                  <input type="text" class="hud-input" style="max-width: 100%;" [(ngModel)]="contributorName" />
+                </div>
+                <div>
+                  <button class="btn btn-sepia" (click)="updateContributor()" [disabled]="actionPending()">Save Catalog Changes</button>
+                </div>
+              </div>
+
+              <!-- Revision History -->
+              <div style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <h3 style="color: var(--accent-sepia); margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                  <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  Revision History (Reversible Backups)
+                </h3>
+                
+                <div class="table-container" style="max-height: 250px; overflow-y: auto;">
+                  <table class="hud-table" style="font-size: 0.8rem;">
+                    <thead>
+                      <tr>
+                        <th>Date (UTC)</th>
+                        <th>Edited By</th>
+                        <th style="text-align: right;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let rev of entityRevisions()">
+                        <td>{{ rev.changedAt | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+                        <td style="font-family: monospace;">{{ rev.changedBy }}</td>
+                        <td style="text-align: right;">
+                          <button class="btn btn-mini btn-muted" (click)="restoreRevision(rev.id)" [disabled]="actionPending()">
+                            Restore State
+                          </button>
+                        </td>
+                      </tr>
+                      <tr *ngIf="entityRevisions().length === 0">
+                        <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px 0;">No edits recorded yet. Backups are created automatically on edit.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="card crosshair-bracket" *ngIf="!selectedEntity()" style="text-align: center; padding: 80px 0; color: var(--text-muted);">
+              Select a search result from the left panel to edit its metadata or review backup revisions.
+            </div>
+
           </div>
         </div>
 
@@ -832,7 +1172,8 @@ type AdminTab = 'database' | 'providers' | 'users' | 'logs';
     }
   `]
 })
-export class AdminPanelComponent implements OnInit {
+export class AdminPanelComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   public activeTab = signal<AdminTab>('database');
   public isLoading = signal<boolean>(false);
   public actionPending = signal<boolean>(false);
@@ -858,15 +1199,86 @@ export class AdminPanelComponent implements OnInit {
     );
   });
 
+  // User Viewing Profile Inspector States
+  public selectedUser = signal<UserDto | null>(null);
+  public loadingUvp = signal<boolean>(false);
+  public uvpData = signal<any | null>(null);
+
+  public inspectUserUvp(user: UserDto): void {
+    this.selectedUser.set(user);
+    this.loadingUvp.set(true);
+    this.uvpData.set(null);
+    
+    this.customAdminService.getUserViewingProfile(user.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.uvpData.set(data);
+          this.loadingUvp.set(false);
+        },
+        error: (err) => {
+          this.handleError(`Failed to fetch viewing profile for ${user.username}`, err);
+          this.loadingUvp.set(false);
+        }
+      });
+  }
+
+  public closeUvp(): void {
+    this.selectedUser.set(null);
+    this.uvpData.set(null);
+  }
+
+  public canInspectUvp(): boolean {
+    if (this.auth.isSuperAdmin()) return true;
+    const currentId = this.auth.currentUser()?.id;
+    if (!currentId) return false;
+    const currentUserInfo = this.users().find(u => u.id === currentId);
+    return !!currentUserInfo && (currentUserInfo.canAddUsers || currentUserInfo.canDeleteUsers);
+  }
+
+  // Helpers for displaying UVP Dictionaries
+  public getTopKeys(dict: Record<string, number> | null | undefined, limit: number = 5): { key: string; val: number }[] {
+    if (!dict) return [];
+    return Object.entries(dict)
+      .map(([key, val]) => ({ key, val }))
+      .sort((a, b) => b.val - a.val)
+      .slice(0, limit);
+  }
+
+  public objectKeysCount(dict: any): number {
+    if (!dict) return 0;
+    return Object.keys(dict).length;
+  }
+
+  public getNormalizedWidth(val: number, dict: Record<string, number> | null | undefined): number {
+    if (!dict) return 0;
+    const values = Object.values(dict);
+    if (values.length === 0) return 0;
+    const max = Math.max(...values);
+    if (max === 0) return 0;
+    return (val / max) * 100;
+  }
+
   public onSearchInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.searchTerm.set(input.value);
   }
 
-  constructor(private adminService: AdminService) {}
+  constructor(
+    private adminService: AdminService,
+    public customAdminService: CustomAdminService,
+    public auth: AuthService,
+    private searchService: SearchService,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
     this.loadTabInfo();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   public setTab(tab: AdminTab): void {
@@ -881,7 +1293,7 @@ export class AdminPanelComponent implements OnInit {
     this.isLoading.set(true);
 
     if (tab === 'database') {
-      this.adminService.apiAdminDiagnosticsDatabaseGet().subscribe({
+      this.adminService.apiAdminDiagnosticsDatabaseGet().pipe(takeUntil(this.destroy$)).subscribe({
         next: (data) => {
           this.stats.set(data);
           this.isLoading.set(false);
@@ -891,7 +1303,7 @@ export class AdminPanelComponent implements OnInit {
     } else if (tab === 'providers') {
       this.loadProviders();
     } else if (tab === 'users') {
-      this.adminService.apiAdminUsersGet().subscribe({
+      this.adminService.apiAdminUsersGet().pipe(takeUntil(this.destroy$)).subscribe({
         next: (data) => {
           this.users.set(data);
           this.isLoading.set(false);
@@ -905,7 +1317,7 @@ export class AdminPanelComponent implements OnInit {
 
   public loadProviders(): void {
     this.isLoading.set(true);
-    this.adminService.apiAdminDiagnosticsProvidersGet().subscribe({
+    this.adminService.apiAdminDiagnosticsProvidersGet().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.diagnostics.set(data);
         this.isLoading.set(false);
@@ -916,7 +1328,7 @@ export class AdminPanelComponent implements OnInit {
 
   public loadLogs(): void {
     this.isLoading.set(true);
-    this.adminService.apiAdminDiagnosticsLogsGet().subscribe({
+    this.adminService.apiAdminDiagnosticsLogsGet().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.logs.set(data);
         this.isLoading.set(false);
@@ -926,20 +1338,17 @@ export class AdminPanelComponent implements OnInit {
   }
 
   public runRetry(resetPermanentlyFailed: boolean): void {
-    console.log('[AdminPanel] runRetry clicked', { resetPermanentlyFailed });
     this.actionPending.set(true);
     this.successMessage.set(null);
     this.errorMessage.set(null);
 
-    this.adminService.apiAdminEnrichRetryFailedPost(resetPermanentlyFailed, 50).subscribe({
+    this.adminService.apiAdminEnrichRetryFailedPost(resetPermanentlyFailed, 50).pipe(takeUntil(this.destroy$)).subscribe({
       next: (recoveredCount) => {
-        console.log('[AdminPanel] runRetry success', { recoveredCount });
         this.actionPending.set(false);
         this.successMessage.set(`Manual enrichment retry complete. Recovered ${recoveredCount} movies.`);
         this.loadTabInfo(); // Refresh stats
       },
       error: (err) => {
-        console.error('[AdminPanel] runRetry error', err);
         this.actionPending.set(false);
         this.handleError('Failed to execute enrichment retry', err);
       }
@@ -947,26 +1356,21 @@ export class AdminPanelComponent implements OnInit {
   }
 
   public purgeOrphans(): void {
-    console.log('[AdminPanel] purgeOrphans clicked');
     if (!confirm('Are you sure you want to delete orphaned actors, directors, and genres? This action is permanent.')) {
-      console.log('[AdminPanel] purgeOrphans cancelled by user');
       return;
     }
 
-    console.log('[AdminPanel] purgeOrphans confirmed, sending request');
     this.actionPending.set(true);
     this.successMessage.set(null);
     this.errorMessage.set(null);
 
-    this.adminService.apiAdminMaintenancePurgeOrphansPost().subscribe({
+    this.adminService.apiAdminMaintenancePurgeOrphansPost().pipe(takeUntil(this.destroy$)).subscribe({
       next: (result: PurgeOrphanResultDto) => {
-        console.log('[AdminPanel] purgeOrphans success', result);
         this.actionPending.set(false);
         this.successMessage.set(`Database cleanup successful. Purged: ${result.purgedGenres} genres, ${result.purgedDirectors} directors, and ${result.purgedActors} actors.`);
         this.loadTabInfo(); // Refresh stats
       },
       error: (err) => {
-        console.error('[AdminPanel] purgeOrphans error', err);
         this.actionPending.set(false);
         this.handleError('Failed to clean database', err);
       }
@@ -974,48 +1378,297 @@ export class AdminPanelComponent implements OnInit {
   }
 
   public clearCache(): void {
-    console.log('[AdminPanel] clearCache clicked');
     this.actionPending.set(true);
     this.successMessage.set(null);
     this.errorMessage.set(null);
 
-    this.adminService.apiAdminMaintenanceClearCachePost().subscribe({
+    this.adminService.apiAdminMaintenanceClearCachePost().pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        console.log('[AdminPanel] clearCache success');
         this.actionPending.set(false);
         this.successMessage.set('System recommendations and metadata cache successfully cleared.');
       },
       error: (err) => {
-        console.error('[AdminPanel] clearCache error', err);
         this.actionPending.set(false);
         this.handleError('Failed to clear system cache', err);
       }
     });
   }
 
+  // Add User Form States
+  public showAddUserForm = signal<boolean>(false);
+  public createUsername = '';
+  public createEmail = '';
+  public createPassword = '';
+
+  // Catalog Edit States
+  public catalogSearchQuery = signal<string>('');
+  public catalogSearchType = signal<'Movie' | 'Actor' | 'Director'>('Movie');
+  public catalogResults = signal<any[]>([]);
+  public selectedEntity = signal<any | null>(null);
+  public entityRevisions = signal<any[]>([]);
+  
+  // Movie edit form
+  public movieTitle = '';
+  public movieOverview = '';
+  public movieReleaseYear = 0;
+  public movieRuntimeMinutes = 0;
+
+  // Actor/Director edit form
+  public contributorName = '';
+
   public promoteUser(userId: string): void {
-    console.log('[AdminPanel] promoteUser clicked', { userId });
     if (!confirm('Are you sure you want to promote this user to Admin?')) {
-      console.log('[AdminPanel] promoteUser cancelled by user');
       return;
     }
 
-    console.log('[AdminPanel] promoteUser confirmed, sending request');
     this.actionPending.set(true);
     this.successMessage.set(null);
     this.errorMessage.set(null);
 
-    this.adminService.apiAdminUsersUserIdPromotePost(userId).subscribe({
+    this.adminService.apiAdminUsersUserIdPromotePost(userId).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        console.log('[AdminPanel] promoteUser success');
         this.actionPending.set(false);
         this.successMessage.set('User successfully promoted to Admin.');
         this.loadTabInfo(); // Refresh users table
       },
       error: (err) => {
-        console.error('[AdminPanel] promoteUser error', err);
         this.actionPending.set(false);
         this.handleError('Failed to promote user', err);
+      }
+    });
+  }
+
+  public demoteUser(userId: string): void {
+    if (!confirm('Are you sure you want to demote this Admin back to standard user?')) {
+      return;
+    }
+
+    this.actionPending.set(true);
+    this.successMessage.set(null);
+    this.errorMessage.set(null);
+
+    this.customAdminService.demoteUser(userId).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.actionPending.set(false);
+        this.successMessage.set('Admin successfully demoted to standard user.');
+        this.loadTabInfo();
+      },
+      error: (err) => {
+        this.actionPending.set(false);
+        this.handleError('Failed to demote user', err);
+      }
+    });
+  }
+
+  public deleteUser(userId: string): void {
+    if (!confirm('Are you sure you want to delete this user permanently? This action is irreversible.')) {
+      return;
+    }
+
+    this.actionPending.set(true);
+    this.successMessage.set(null);
+    this.errorMessage.set(null);
+
+    this.customAdminService.deleteUser(userId).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.actionPending.set(false);
+        this.successMessage.set('User deleted successfully.');
+        this.loadTabInfo();
+      },
+      error: (err) => {
+        this.actionPending.set(false);
+        this.handleError('Failed to delete user', err);
+      }
+    });
+  }
+
+  public createUser(): void {
+    if (!this.createUsername || !this.createEmail || !this.createPassword) {
+      this.errorMessage.set('All fields are required.');
+      return;
+    }
+
+    this.actionPending.set(true);
+    this.successMessage.set(null);
+    this.errorMessage.set(null);
+
+    this.customAdminService.createUser({
+      username: this.createUsername,
+      email: this.createEmail,
+      password: this.createPassword
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.actionPending.set(false);
+        this.successMessage.set('User created successfully.');
+        this.showAddUserForm.set(false);
+        this.createUsername = '';
+        this.createEmail = '';
+        this.createPassword = '';
+        this.loadTabInfo();
+      },
+      error: (err) => {
+        this.actionPending.set(false);
+        this.handleError('Failed to create user', err);
+      }
+    });
+  }
+
+  public togglePermission(user: UserDto, field: string): void {
+    const payload = {
+      canManageCatalog: user.canManageCatalog,
+      canAddUsers: user.canAddUsers,
+      canDeleteUsers: user.canDeleteUsers,
+      canPromoteToAdmin: user.canPromoteToAdmin
+    };
+    (payload as any)[field] = !(payload as any)[field];
+
+    this.actionPending.set(true);
+    this.successMessage.set(null);
+    this.errorMessage.set(null);
+
+    this.customAdminService.updatePermissions(user.id, payload).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.actionPending.set(false);
+        this.successMessage.set('User permissions updated successfully.');
+        this.loadTabInfo();
+      },
+      error: (err) => {
+        this.actionPending.set(false);
+        this.handleError('Failed to update permissions', err);
+      }
+    });
+  }
+
+  public searchCatalog(): void {
+    const query = this.catalogSearchQuery().trim();
+    if (!query) return;
+
+    this.isLoading.set(true);
+    this.selectedEntity.set(null);
+    this.catalogResults.set([]);
+
+    this.searchService.apiSearchGet(query).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (results) => {
+        const type = this.catalogSearchType();
+        const filtered = results.filter(r => r.entityType === type && r.isLocal);
+        this.catalogResults.set(filtered);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.handleError('Search failed', err);
+      }
+    });
+  }
+
+  public selectEntity(item: any): void {
+    const type = this.catalogSearchType();
+    const id = item.localId || item.actorId || item.directorId;
+    if (!id) return;
+
+    this.isLoading.set(true);
+    this.selectedEntity.set(item);
+
+    const route = type === 'Movie' ? '/api/movies/' : type === 'Actor' ? '/api/actors/' : '/api/directors/';
+    this.customAdminService.getRevisions(type, id).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (revs) => {
+        this.entityRevisions.set(revs);
+      }
+    });
+
+    if (type === 'Movie') {
+      this.http.get<any>(route + id).pipe(takeUntil(this.destroy$)).subscribe({
+        next: (movieDetails) => {
+          this.movieTitle = movieDetails.title;
+          this.movieOverview = movieDetails.overview || '';
+          this.movieReleaseYear = movieDetails.releaseYear || 0;
+          this.movieRuntimeMinutes = movieDetails.runtimeMinutes || 0;
+          this.isLoading.set(false);
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.handleError('Failed to load movie details', err);
+        }
+      });
+    } else {
+      this.contributorName = item.titleOrName;
+      this.isLoading.set(false);
+    }
+  }
+
+  public updateMovie(): void {
+    const entity = this.selectedEntity();
+    if (!entity) return;
+
+    const id = entity.localId;
+    this.actionPending.set(true);
+    this.successMessage.set(null);
+    this.errorMessage.set(null);
+
+    this.customAdminService.updateMovie(id, {
+      title: this.movieTitle,
+      overview: this.movieOverview,
+      releaseYear: this.movieReleaseYear,
+      runtimeMinutes: this.movieRuntimeMinutes
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.actionPending.set(false);
+        this.successMessage.set('Movie updated successfully.');
+        this.selectEntity(entity);
+      },
+      error: (err) => {
+        this.actionPending.set(false);
+        this.handleError('Failed to update movie', err);
+      }
+    });
+  }
+
+  public updateContributor(): void {
+    const entity = this.selectedEntity();
+    if (!entity) return;
+
+    const type = this.catalogSearchType();
+    const id = type === 'Actor' ? entity.actorId : entity.directorId;
+    this.actionPending.set(true);
+    this.successMessage.set(null);
+    this.errorMessage.set(null);
+
+    const req = type === 'Actor' 
+      ? this.customAdminService.updateActor(id, { name: this.contributorName })
+      : this.customAdminService.updateDirector(id, { name: this.contributorName });
+
+    req.pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.actionPending.set(false);
+        this.successMessage.set(`${type} updated successfully.`);
+        entity.titleOrName = this.contributorName;
+        this.selectEntity(entity);
+      },
+      error: (err) => {
+        this.actionPending.set(false);
+        this.handleError(`Failed to update ${type}`, err);
+      }
+    });
+  }
+
+  public restoreRevision(revisionId: string): void {
+    if (!confirm('Are you sure you want to restore this revision? The entity state will be reverted.')) {
+      return;
+    }
+
+    this.actionPending.set(true);
+    this.successMessage.set(null);
+    this.errorMessage.set(null);
+
+    this.customAdminService.restoreRevision(revisionId).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.actionPending.set(false);
+        this.successMessage.set('Entity state restored successfully.');
+        this.selectEntity(this.selectedEntity());
+      },
+      error: (err) => {
+        this.actionPending.set(false);
+        this.handleError('Failed to restore revision', err);
       }
     });
   }
@@ -1023,7 +1676,7 @@ export class AdminPanelComponent implements OnInit {
   private handleError(message: string, error: any): void {
     this.isLoading.set(false);
     console.error(message, error);
-    const detail = error?.error?.message ?? error?.message ?? 'Unknown connection error';
+    const detail = error?.error?.message ?? error?.error?.error ?? error?.message ?? 'Unknown connection error';
     this.errorMessage.set(`${message}: ${detail}`);
   }
 }

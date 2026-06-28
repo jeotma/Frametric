@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Frametric.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 [Authorize]
 public class MoviesController : ControllerBase
 {
@@ -80,6 +80,7 @@ public class MoviesController : ControllerBase
     }
 
     [HttpPost("enrich-from-tmdb")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MovieSimpleDto>> EnrichFromTmdb([FromBody] EnrichMovieRequest request, CancellationToken cancellationToken)

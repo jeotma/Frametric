@@ -1,6 +1,6 @@
 # Frontend Architecture
 
-This document describes the structure, state management, and design patterns of the **Frametric Angular Client**.
+This document describes the structure, state management, and design patterns of the **Frametric Angular Client** (built on **Angular 21+**).
 
 ---
 
@@ -22,8 +22,10 @@ app/
  │    └── utils/           # Shared utility functions (slugify, etc.)
  ├── features/             # Lazy-loaded feature domains
  │    ├── actors/          # Actor detail view (/actors/:id/:slug)
+ │    ├── admin/           # Administrative diagnostics, user management, and diagnostics buffer
  │    ├── auth/            # Sign in and Register pages
  │    ├── directors/       # Director detail view (/directors/:id/:slug)
+ │    ├── discovery/       # Gamified movie selection (Roulette, Bingo, Slots, Dice, Mystery Box)
  │    ├── final-cut/       # "The Username's Cut" Spotify Wrapped-style slideshow
  │    ├── movies/          # Movie detail view with manual log/unlog (/movies/:id)
  │    ├── recommendations/ # Cinematic recommendation engine UI
@@ -80,3 +82,10 @@ Authentication is handled via stateless JSON Web Tokens (JWT) with sliding-expir
 ### Token Storage (`token-storage.service.ts`)
 
 - Manages secure storing, retrieving, and clearing of access/refresh tokens in `localStorage`.
+
+---
+
+## 6. Styling System
+
+- **Vanilla CSS & SCSS**: Frametric uses custom Vanilla CSS/SCSS (located in `app.scss` and component-specific stylesheets) to implement its premium cinematic design system, vibrant glassmorphism, and custom animations.
+- **Tailwind CSS**: The codebase does **not** use Tailwind CSS or any utility-first CSS frameworks, relying instead on semantic stylesheets for clean separation of concerns and maximum design flexibility.

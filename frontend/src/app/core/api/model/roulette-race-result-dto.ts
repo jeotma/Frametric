@@ -13,5 +13,6 @@ import { SelectionResultDto } from './selection-result-dto';
 export interface RouletteRaceResultDto { 
     winner: SelectionResultDto;
     spinSequence: Array<SelectionResultDto>;
+    winners?: Array<SelectionResultDto>;
 }
 

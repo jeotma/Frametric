@@ -12,26 +12,26 @@ function expectAndFlush(httpMock: HttpTestingController, urlPrefix: string, data
 }
 
 function flushDefault(httpMock: HttpTestingController): void {
-  expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/prime-time', { peakDay: 'Fri', peakDayCount: 1, peakMonth: 'Oct', peakMonthCount: 1, slumpDay: 'Mon', slumpDayCount: 1, slumpMonth: 'Feb', slumpMonthCount: 1 });
-  expectAndFlush(httpMock, '/api/analytics/advanced/bonus/cinematic-fatigue', { avgRatingLightDays: 7, avgRatingHeavyDays: 6, slumpDay: 'Mon', slumpDayWatchCount: 1, slumpMonth: 'Feb', slumpMonthWatchCount: 1 });
-  expectAndFlush(httpMock, '/api/analytics/advanced/bonus/weekend-warrior', { weekendWatches: 10, weekdayWatches: 20 });
-  expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/genre-landscape', [{ genreName: 'Drama', count: 5, averageRating: 7 }]);
-  expectAndFlush(httpMock, '/api/analytics/advanced/watched/casting-repetitions', []);
-  expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/director-actor-pairs', []);
-  expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/best-rookies', { newDirectors: [], newActors: [] });
-  expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/bookends', {});
-  expectAndFlush(httpMock, '/api/analytics/advanced/watched/longest-movie', { id: 'long', title: 'Long', runtimeMinutes: 200 });
-  expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/shortest-movie', { id: 'short', title: 'Short', runtimeMinutes: 80 });
-  expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/monthly-extremes', []);
-  expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/most-rewatched', { title: 'Rewatch', rewatchCount: 5 });
-  expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/top-bottom-rated', { topRated: [], bottomRated: [] });
-  expectAndFlush(httpMock, '/api/analytics/advanced/bonus/hidden-gems', []);
-  expectAndFlush(httpMock, '/api/analytics/advanced/watched/rating-evolution', []);
-  expectAndFlush(httpMock, '/api/analytics/advanced/watched/genre-streaks', []);
-  expectAndFlush(httpMock, '/api/analytics/advanced/watched/directors', []);
-  expectAndFlush(httpMock, '/api/analytics/advanced/watched/actors', []);
-  expectAndFlush(httpMock, '/api/analytics/advanced/watched/decades', []);
-  expectAndFlush(httpMock, '/api/analytics/advanced/watched/predominant-era', {});
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/prime-time', { peakDay: 'Fri', peakDayCount: 1, peakMonth: 'Oct', peakMonthCount: 1, slumpDay: 'Mon', slumpDayCount: 1, slumpMonth: 'Feb', slumpMonthCount: 1 });
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/bonus/cinematic-fatigue', { avgRatingLightDays: 7, avgRatingHeavyDays: 6, slumpDay: 'Mon', slumpDayWatchCount: 1, slumpMonth: 'Feb', slumpMonthWatchCount: 1 });
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/bonus/weekend-warrior', { weekendWatches: 10, weekdayWatches: 20 });
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/genre-landscape', [{ genreName: 'Drama', count: 5, averageRating: 7 }]);
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/casting-repetitions', []);
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/director-actor-pairs', []);
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/best-rookies', { newDirectors: [], newActors: [] });
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/bookends', {});
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/longest-movie', { id: 'long', title: 'Long', runtimeMinutes: 200 });
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/shortest-movie', { id: 'short', title: 'Short', runtimeMinutes: 80 });
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/monthly-extremes', []);
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/most-rewatched', { title: 'Rewatch', rewatchCount: 5 });
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/top-bottom-rated', { topRated: [], bottomRated: [] });
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/bonus/hidden-gems', []);
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/rating-evolution', []);
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/genre-streaks', []);
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/directors', []);
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/actors', []);
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/decades', []);
+  expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/predominant-era', {});
 }
 
 describe('FinalCutService', () => {
@@ -61,7 +61,7 @@ describe('FinalCutService', () => {
 
       const promise = firstValueFrom(service.loadSummary(2025));
 
-      const req = httpMock.expectOne('/api/analytics/wrapped?year=2025');
+      const req = httpMock.expectOne('/api/v1/analytics/wrapped?year=2025');
       expect(req.request.method).toBe('GET');
       req.flush(mockResponse);
 
@@ -74,7 +74,7 @@ describe('FinalCutService', () => {
 
       const promise = firstValueFrom(service.loadSummary('global'));
 
-      const req = httpMock.expectOne('/api/analytics/wrapped');
+      const req = httpMock.expectOne('/api/v1/analytics/wrapped');
       expect(req.request.method).toBe('GET');
       req.flush(mockResponse);
 
@@ -89,7 +89,7 @@ describe('FinalCutService', () => {
     it('should fire 20 parallel GET requests', async () => {
       const promise = firstValueFrom(service.loadAllData(year));
 
-      const reqs = httpMock.match(ENDPOINT('/api/analytics/advanced/'));
+      const reqs = httpMock.match(ENDPOINT('/api/v1/analytics/advanced/'));
       expect(reqs.length).toBe(20);
       reqs.forEach(r => r.flush({}));
 
@@ -99,27 +99,27 @@ describe('FinalCutService', () => {
     it('should map null arrays to empty arrays', async () => {
       const promise = firstValueFrom(service.loadAllData(year));
 
-      expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/prime-time', { peakDay: 'Fri', peakDayCount: 1, peakMonth: 'Oct', peakMonthCount: 1, slumpDay: 'Mon', slumpDayCount: 1, slumpMonth: 'Feb', slumpMonthCount: 1 });
-      expectAndFlush(httpMock, '/api/analytics/advanced/bonus/cinematic-fatigue', { avgRatingLightDays: 7, avgRatingHeavyDays: 6, slumpDay: 'Mon', slumpDayWatchCount: 1, slumpMonth: 'Feb', slumpMonthWatchCount: 1 });
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/prime-time', { peakDay: 'Fri', peakDayCount: 1, peakMonth: 'Oct', peakMonthCount: 1, slumpDay: 'Mon', slumpDayCount: 1, slumpMonth: 'Feb', slumpMonthCount: 1 });
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/bonus/cinematic-fatigue', { avgRatingLightDays: 7, avgRatingHeavyDays: 6, slumpDay: 'Mon', slumpDayWatchCount: 1, slumpMonth: 'Feb', slumpMonthWatchCount: 1 });
       // All array fields return null to test ?? []
-      expectAndFlush(httpMock, '/api/analytics/advanced/bonus/weekend-warrior', { weekendWatches: 10, weekdayWatches: 20 });
-      expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/genre-landscape', null);
-      expectAndFlush(httpMock, '/api/analytics/advanced/watched/casting-repetitions', null);
-      expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/director-actor-pairs', null);
-      expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/best-rookies', { newDirectors: [], newActors: [] });
-      expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/bookends', {});
-      expectAndFlush(httpMock, '/api/analytics/advanced/watched/longest-movie', { id: 'long', title: 'Long', runtimeMinutes: 200 });
-      expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/shortest-movie', { id: 'short', title: 'Short', runtimeMinutes: 80 });
-      expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/monthly-extremes', null);
-      expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/most-rewatched', { title: 'Rewatch', rewatchCount: 5 });
-      expectAndFlush(httpMock, '/api/analytics/advanced/final-cut/top-bottom-rated', { topRated: [], bottomRated: [] });
-      expectAndFlush(httpMock, '/api/analytics/advanced/bonus/hidden-gems', null);
-      expectAndFlush(httpMock, '/api/analytics/advanced/watched/rating-evolution', null);
-      expectAndFlush(httpMock, '/api/analytics/advanced/watched/genre-streaks', null);
-      expectAndFlush(httpMock, '/api/analytics/advanced/watched/directors', null);
-      expectAndFlush(httpMock, '/api/analytics/advanced/watched/actors', null);
-      expectAndFlush(httpMock, '/api/analytics/advanced/watched/decades', null);
-      expectAndFlush(httpMock, '/api/analytics/advanced/watched/predominant-era', {});
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/bonus/weekend-warrior', { weekendWatches: 10, weekdayWatches: 20 });
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/genre-landscape', null);
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/casting-repetitions', null);
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/director-actor-pairs', null);
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/best-rookies', { newDirectors: [], newActors: [] });
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/bookends', {});
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/longest-movie', { id: 'long', title: 'Long', runtimeMinutes: 200 });
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/shortest-movie', { id: 'short', title: 'Short', runtimeMinutes: 80 });
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/monthly-extremes', null);
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/most-rewatched', { title: 'Rewatch', rewatchCount: 5 });
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/final-cut/top-bottom-rated', { topRated: [], bottomRated: [] });
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/bonus/hidden-gems', null);
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/rating-evolution', null);
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/genre-streaks', null);
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/directors', null);
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/actors', null);
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/decades', null);
+      expectAndFlush(httpMock, '/api/v1/analytics/advanced/watched/predominant-era', {});
 
       const data = await promise;
       expect(data.genreLandscape).toEqual([]);

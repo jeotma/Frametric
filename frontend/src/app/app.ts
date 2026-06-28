@@ -27,9 +27,15 @@ export class App {
   
   public auth = inject(AuthService);
   public modalService = inject(ModalService);
+  public isSidebarPinned = signal<boolean>(localStorage.getItem('frametric_sidebar_state') === 'expanded');
 
   constructor() {
-    // Defensive cleanup — reset any leftover easter egg effects from bfcache or stale SPA state
+    // Listen to sidebar pinning changes
+    window.addEventListener('frametric-sidebar-state-changed', (e: any) => {
+      this.isSidebarPinned.set(e.detail === 'expanded');
+    });
+
+    // Defensive cleanup — reset any leftover easter egg effects from bfcache or SPA state
     document.body.style.filter = '';
     document.body.style.transform = '';
     document.body.style.transition = '';

@@ -1,14 +1,14 @@
 # API Endpoints Specification
 
-This document details the REST API endpoints exposed by the backend services. All endpoints are prefixed with `/api/` (unless specified otherwise) and secured via JWT Bearer authentication (where noted).
+This document details the REST API endpoints exposed by the backend services. Most endpoints are prefixed with `/api/`, while the recommendations and discovery endpoints are prefixed with `/api/v1/`. All endpoints are secured via JWT Bearer authentication (where noted).
 
 ---
 
-## 1. Authentication (`/api/Auth`)
+## 1. Authentication (`/api/v1/auth`)
 
 Authentication endpoints are publicly accessible (`[AllowAnonymous]`).
 
-### **POST** `/api/Auth/signup`
+### **POST** `/api/v1/auth/signup`
 
 - **Description**: Registers a new user.
 - **Request Body**:
@@ -25,7 +25,7 @@ Authentication endpoints are publicly accessible (`[AllowAnonymous]`).
   - `200 OK`: Returns the registered user ID (`Guid`).
   - `400 BadRequest`: If the username or email is already in use or validation fails.
 
-### **POST** `/api/Auth/login`
+### **POST** `/api/v1/auth/login`
 
 - **Description**: Authenticates user credentials and returns tokens.
 - **Request Body**:
@@ -50,7 +50,7 @@ Authentication endpoints are publicly accessible (`[AllowAnonymous]`).
 
   - `400 BadRequest`: If credentials are invalid.
 
-### **POST** `/api/Auth/refresh`
+### **POST** `/api/v1/auth/refresh`
 
 - **Description**: Renews an expired access token using a valid refresh token.
 - **Request Body**:
@@ -65,7 +65,7 @@ Authentication endpoints are publicly accessible (`[AllowAnonymous]`).
   - `200 OK`: Returns a new access token and refresh token.
   - `400 BadRequest`: If the refresh token is expired or invalid.
 
-### **POST** `/api/Auth/forgot-password`
+### **POST** `/api/v1/auth/forgot-password`
 
 - **Description**: Sends a password reset email if the user exists.
 - **Request Body**:
@@ -79,7 +79,7 @@ Authentication endpoints are publicly accessible (`[AllowAnonymous]`).
 - **Responses**:
   - `200 OK`: A reset link was sent (if the email exists).
 
-### **POST** `/api/Auth/reset-password`
+### **POST** `/api/v1/auth/reset-password`
 
 - **Description**: Resets a user's password using the provided token.
 - **Request Body**:
@@ -98,11 +98,11 @@ Authentication endpoints are publicly accessible (`[AllowAnonymous]`).
 
 ---
 
-## 2. Ingestion & Imports (`/api/Import`)
+## 2. Ingestion & Imports (`/api/v1/import`)
 
 All import endpoints require authentication.
 
-### **POST** `/api/Import/letterboxd`
+### **POST** `/api/v1/import/letterboxd`
 
 - **Description**: Accepts a Letterboxd exported `.zip` file, starts parsing, and triggers the asynchronous metadata enrichment task.
 - **Content-Type**: `multipart/form-data`
@@ -121,7 +121,7 @@ All import endpoints require authentication.
 
   - `400 BadRequest`: Missing file, wrong file format (must be `.zip`), or corrupt headers.
 
-### **GET** `/api/Import/history`
+### **GET** `/api/v1/import/history`
 
 - **Description**: Retrieves history of past user imports.
 - **Responses**:
@@ -141,7 +141,7 @@ All import endpoints require authentication.
     ]
     ```
 
-### **DELETE** `/api/Import/{id}`
+### **DELETE** `/api/v1/import/{id}`
 
 - **Description**: Deletes a specific import batch and executes a cascade delete on all associated diary entries, ratings, watchlist items, and likes.
 - **Parameters**:
@@ -152,11 +152,11 @@ All import endpoints require authentication.
 
 ---
 
-## 3. General Analytics (`/api/Analytics`)
+## 3. General Analytics (`/api/v1/analytics`)
 
 Requires authentication.
 
-### **GET** `/api/Analytics/dashboard`
+### **GET** `/api/v1/analytics/dashboard`
 
 - **Description**: General metrics dashboard summary.
 - **Responses**:
@@ -171,7 +171,7 @@ Requires authentication.
     }
     ```
 
-### **GET** `/api/Analytics/wrapped`
+### **GET** `/api/v1/analytics/wrapped`
 
 - **Description**: Generates the Spotify Wrapped style yearly summary.
 - **Query Parameters**:
@@ -179,7 +179,7 @@ Requires authentication.
 - **Responses**:
   - `200 OK`: Returns complex structured stats for the specified year (or all-time if null).
 
-### **GET** `/api/Analytics/monthly-activity/{year}`
+### **GET** `/api/v1/analytics/monthly-activity/{year}`
 
 - **Description**: Histogram of watched movies count per month.
 - **Parameters**:
@@ -187,7 +187,7 @@ Requires authentication.
 - **Responses**:
   - `200 OK`: Array of monthly values.
 
-### **GET** `/api/Analytics/top-directors`
+### **GET** `/api/v1/analytics/top-directors`
 
 - **Description**: Leaderboard of top directors.
 - **Query Parameters**:
@@ -197,11 +197,11 @@ Requires authentication.
 
 ---
 
-## 4. Advanced Analytics (`/api/analytics/advanced`)
+## 4. Advanced Analytics (`/api/v1/analytics/advanced`)
 
 All routes require authentication. Filters are passed via query parameters mapping to `AnalyticsFilterDto` (e.g. `year`, `genre`).
 
-### Category: Watched Metrics (`/api/analytics/advanced/watched/*`)
+### Category: Watched Metrics (`/api/v1/analytics/advanced/watched/*`)
 
 - **GET** `/watched` - Returns full list of watched movies.
 - **GET** `/watched/directors` - Returns directors leaderboard.
@@ -219,7 +219,7 @@ All routes require authentication. Filters are passed via query parameters mappi
 - **GET** `/watched/longest-movie` - Longest watched movie details.
 - **GET** `/watched/casting-repetitions` - Frequently paired actors.
 
-### Category: Watchlist Metrics (`/api/analytics/advanced/watchlist/*`)
+### Category: Watchlist Metrics (`/api/v1/analytics/advanced/watchlist/*`)
 
 - **GET** `/watchlist` - Pending watchlist items list.
 - **GET** `/watchlist/directors` - Leaderboard of directors for movies pending on watchlist.
@@ -236,14 +236,14 @@ All routes require authentication. Filters are passed via query parameters mappi
 - **GET** `/watchlist/duration-balance` - Balance of short vs. long pending films.
 - **GET** `/watchlist/genre-proportion` - Proportional comparison of genres: Watchlist vs. Watched.
 
-### Category: Bonus Metrics (`/api/analytics/advanced/bonus/*`)
+### Category: Bonus Metrics (`/api/v1/analytics/advanced/bonus/*`)
 
 - **GET** `/bonus/weekend-warrior` - Stats on weekend binge behaviors.
 - **GET** `/bonus/hidden-gems` - Movies rated highly by the user that are obscure globally on TMDB.
 - **GET** `/bonus/watchlist-graveyard` - Movies added to the watchlist years ago that remain unwatched.
 - **GET** `/bonus/cinematic-fatigue` - Extended analysis of viewing streaks, drops in scores, or pauses.
 
-### Category: Final Cut Metrics (`/api/analytics/advanced/final-cut/*`)
+### Category: Final Cut Metrics (`/api/v1/analytics/advanced/final-cut/*`)
 
 - **GET** `/final-cut/bookends` - The first and last movie watched in a given period.
 - **GET** `/final-cut/monthly-extremes` - Months with highest/lowest watch volumes or rating averages.
@@ -294,7 +294,7 @@ Requires authentication.
     ]
     ```
 
-### **POST** `/api/v1/recommendations/skip/{movieId}`
+### **POST** `/api/v1/recommendations/skip/{movieid}`
 
 - **Description**: Excludes a movie from future recommendation generation cycles for 24 hours.
 - **Parameters**:
@@ -316,11 +316,11 @@ Requires authentication.
 
 ---
 
-## 6. Movies (`/api/Movies`)
+## 6. Movies (`/api/v1/movies`)
 
 Requires authentication.
 
-### **GET** `/api/Movies/{id}`
+### **GET** `/api/v1/movies/{id}`
 
 - **Description**: Returns full details for a specific movie including directors, actors, genres, and the authenticated user's diary entries and average rating.
 - **Parameters**:
@@ -329,7 +329,7 @@ Requires authentication.
   - `200 OK`: Returns `MovieDetailsDto`.
   - `404 NotFound`: Movie not found.
 
-### **POST** `/api/Movies/{id}/log`
+### **POST** `/api/v1/movies/{id}/log`
 
 - **Description**: Manually logs a watch for the authenticated user. Creates a `DiaryEntry` and a `WatchedMovie` record if it does not already exist. Optionally updates the user's rating.
 - **Parameters**:
@@ -348,7 +348,7 @@ Requires authentication.
   - `200 OK`: Watch logged successfully.
   - `404 NotFound`: Movie not found.
 
-### **DELETE** `/api/Movies/{id}/log/{entryId}`
+### **DELETE** `/api/v1/movies/{id}/log/{entryid}`
 
 - **Description**: Removes a specific diary entry belonging to the authenticated user. If it was the last diary entry for that movie, **all** user associations with the film are purged: the `WatchedMovie` library record, the `MovieRating`, and any `MovieLike`.
 - **Parameters**:
@@ -362,11 +362,11 @@ Requires authentication.
 
 ---
 
-## 7. Directors (`/api/Directors`)
+## 7. Directors (`/api/v1/directors`)
 
 Requires authentication.
 
-### **GET** `/api/Directors/{id}`
+### **GET** `/api/v1/directors/{id}`
 
 - **Description**: Returns full details for a specific director including filmography, watch/like/watchlist counts, and average rating. If the director is also an actor (matched by TMDB ID), acting filmography is also returned with an `isActor` flag.
 - **Parameters**:
@@ -377,11 +377,11 @@ Requires authentication.
 
 ---
 
-## 8. Actors (`/api/Actors`)
+## 8. Actors (`/api/v1/actors`)
 
 Requires authentication.
 
-### **GET** `/api/Actors/{id}`
+### **GET** `/api/v1/actors/{id}`
 
 - **Description**: Returns full details for a specific actor including filmography, watch/like/watchlist counts, and average rating. If the actor is also a director (matched by TMDB ID), directed filmography is also returned with an `isDirector` flag.
 - **Parameters**:
@@ -392,11 +392,11 @@ Requires authentication.
 
 ---
 
-## 9. Search (`/api/Search`)
+## 9. Search (`/api/v1/search`)
 
 Requires authentication.
 
-### **GET** `/api/Search`
+### **GET** `/api/v1/search`
 
 - **Description**: Global search across movies, actors, and directors. Searches are performed against the local database first. If no local results are found, falls back to the TMDB external provider.
 - **Query Parameters**:
@@ -446,7 +446,7 @@ Requires authentication.
   - `200 OK`: Returns `MysteryBoxDto` with box IDs, variant, and optional hints.
   - `400 BadRequest`: Pool empty.
 
-### **GET** `/api/v1/discovery/mystery-box/{boxId}/reveal`
+### **GET** `/api/v1/discovery/mystery-box/{boxid}/reveal`
 
 - **Description**: Reveals the movie inside a specific mystery box by its movie ID.
 - **Parameters**:
@@ -462,7 +462,7 @@ Requires authentication.
 - **Responses**:
   - `200 OK`: Returns `BingoGridDto` with grid size, square states, and rerolls details.
 
-### **POST** `/api/v1/discovery/bingo/reroll/{objectiveId}`
+### **POST** `/api/v1/discovery/bingo/reroll/{objectiveid}`
 
 - **Description**: Rerolls a single uncompleted bingo square's objective, replacing it with a new random objective from the pool if the user has rerolls remaining.
 - **Parameters**:
@@ -473,17 +473,17 @@ Requires authentication.
 
 ---
 
-## 11. Administration & Configuration (`/api/Admin`)
+## 11. Administration & Configuration (`/api/v1/admin`)
 
 Requires authentication. Restricted to users with the `Admin` role.
 
-### **GET** `/api/Admin/users`
+### **GET** `/api/v1/admin/users`
 
 - **Description**: Lists all registered users on the platform.
 - **Responses**:
   - `200 OK`: Returns an array of `UserDto` (`id`, `username`, `email`, `role`).
 
-### **POST** `/api/Admin/users/{userId}/promote`
+### **POST** `/api/v1/admin/users/{userid}/promote`
 
 - **Description**: Promotes a standard user to an Admin.
 - **Parameters**:
@@ -492,37 +492,37 @@ Requires authentication. Restricted to users with the `Admin` role.
   - `200 OK`: Promotion successful.
   - `404 NotFound`: User not found.
 
-### **GET** `/api/Admin/diagnostics/database`
+### **GET** `/api/v1/admin/diagnostics/database`
 
 - **Description**: Retrieves aggregate library statistics (Counts of users, movies by enrichment status, TV shows, genres, directors, actors, and diary entries).
 - **Responses**:
   - `200 OK`: Returns `DatabaseStatsDto`.
 
-### **GET** `/api/Admin/diagnostics/providers`
+### **GET** `/api/v1/admin/diagnostics/providers`
 
 - **Description**: Pings external API metadata providers (TMDB and OMDb) as well as the local Frametric backend & database connection, returning latency and health validation states.
 - **Responses**:
   - `200 OK`: Returns `ProviderDiagnosticsDto` (including local database health status).
 
-### **GET** `/api/Admin/diagnostics/logs`
+### **GET** `/api/v1/admin/diagnostics/logs`
 
 - **Description**: Retrieves the last 50 warning or error logs recorded in the in-memory ring buffer.
 - **Responses**:
   - `200 OK`: Returns an array of `LogEntryDto`.
 
-### **POST** `/api/Admin/maintenance/purge-orphans`
+### **POST** `/api/v1/admin/maintenance/purge-orphans`
 
 - **Description**: Deletes genres, directors, and actors that do not have any associated movies.
 - **Responses**:
   - `200 OK`: Returns `PurgeOrphanResultDto` with count of deleted rows.
 
-### **POST** `/api/Admin/maintenance/clear-cache`
+### **POST** `/api/v1/admin/maintenance/clear-cache`
 
-- **Description**: Clears the system-wide recommendations and metadata caches.
+- **Description**: Clears the system-wide recommendations and metadata caches. Clears the in-memory cache and, if a Redis connection is configured, flushes the Redis database.
 - **Responses**:
   - `200 OK`: Cache cleared.
 
-### **POST** `/api/Admin/enrich/retry-failed`
+### **POST** `/api/v1/admin/enrich/retry-failed`
 
 - **Description**: Manually triggers TMDB metadata enrichment for failed or not found movies.
 - **Query Parameters**:
@@ -530,3 +530,18 @@ Requires authentication. Restricted to users with the `Admin` role.
   - `batchSize` (`int`, default: `50`) - Max movies to process in this run.
 - **Responses**:
   - `200 OK`: Returns count of successfully enriched movies.
+
+### **POST** `/api/movies/enrich-from-tmdb`
+
+- **Description**: Manually triggers TMDB metadata enrichment for a specific movie by its TMDB ID. Restricted to users with the `Admin` role.
+- **Request Body**:
+
+  ```json
+  {
+    "tmdbId": 0
+  }
+  ```
+
+- **Responses**:
+  - `200 OK`: Returns the enriched movie details.
+  - `404 NotFound`: Movie not found or is a TV show.

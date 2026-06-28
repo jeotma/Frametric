@@ -9,6 +9,11 @@ public class User
     public string Email { get; private set; } = null!;
     public string PasswordHash { get; private set; } = null!;
     public UserRole Role { get; private set; }
+    public bool CanManageCatalog { get; private set; }
+    public bool CanAddUsers { get; private set; }
+    public bool CanDeleteUsers { get; private set; }
+    public bool CanPromoteToAdmin { get; private set; }
+    public bool SuperAdminNotificationSent { get; private set; }
     public string? PasswordResetToken { get; private set; }
     public DateTime? PasswordResetTokenExpiry { get; private set; }
     public DateTime CreatedAt { get; private set; }
@@ -33,6 +38,34 @@ public class User
     public void PromoteToAdmin()
     {
         Role = UserRole.Admin;
+    }
+
+    public void DemoteToUser()
+    {
+        Role = UserRole.User;
+        // Strip permissions on demotion
+        CanManageCatalog = false;
+        CanAddUsers = false;
+        CanDeleteUsers = false;
+        CanPromoteToAdmin = false;
+    }
+
+    public void UpdatePermissions(bool canManageCatalog, bool canAddUsers, bool canDeleteUsers, bool canPromoteToAdmin)
+    {
+        CanManageCatalog = canManageCatalog;
+        CanAddUsers = canAddUsers;
+        CanDeleteUsers = canDeleteUsers;
+        CanPromoteToAdmin = canPromoteToAdmin;
+    }
+
+    public void SetSuperAdminNotificationSent(bool sent)
+    {
+        SuperAdminNotificationSent = sent;
+    }
+
+    public void UpdateRole(UserRole newRole)
+    {
+        Role = newRole;
     }
 
     public void SetPasswordResetToken(string token, DateTime expiry)
