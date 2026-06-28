@@ -30,6 +30,19 @@ import { DiscoveryAudioService } from './services/discovery-audio.service';
 
 type DiscoveryTab = 'roulette' | 'dice' | 'slot-machine' | 'mystery-box' | 'bingo';
 
+const diceTypeMap: Record<string | number, number> = {
+  'Duration': 0,
+  'Popularity': 1,
+  'Risk': 2,
+  'Quality': 3,
+  'Genre': 4,
+  0: 0,
+  1: 1,
+  2: 2,
+  3: 3,
+  4: 4
+};
+
 @Component({
   selector: 'app-discovery',
   standalone: true,
@@ -131,6 +144,8 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
   
   public pendingCriticalChoice = signal<boolean>(false);
   public diceSpecialStatusMsg = signal<string | null>(null);
+  public fumbledDieIdx = signal<number | null>(null);
+  public rerolledDieIdx = signal<number | null>(null);
   public hasAutomaticFumbleRerolled = false;
 
   // Slot Machine state
@@ -684,7 +699,7 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
           // Staggered stop for all dice
           let delayAcc = 1000;
           r.diceResults.forEach((d) => {
-            const idx = d.diceType;
+            const idx = diceTypeMap[d.diceType];
             setTimeout(() => {
               this.diceRolling.update(arr => { const na = [...arr]; na[idx] = false; return na; });
               this.diceValues.update(arr => { const na = [...arr]; na[idx] = d.rollValue; return na; });
@@ -750,7 +765,7 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
           this.diceLoading.set(false);
 
           // Get the outcome for the clicked die
-          const d = r.diceResults.find(res => res.diceType === idx);
+          const d = r.diceResults.find(res => diceTypeMap[res.diceType] === idx);
           if (d) {
             // Let it roll for at least 1s total to feel organic
             setTimeout(() => {
@@ -772,7 +787,7 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
     } else {
       // We already have the result, roll and reveal just this one!
       this.diceRolling.update(arr => { const na = [...arr]; na[idx] = true; return na; });
-      const d = this.diceResultSig()?.diceResults.find(res => res.diceType === idx);
+      const d = this.diceResultSig()?.diceResults.find(res => diceTypeMap[res.diceType] === idx);
       if (d) {
         setTimeout(() => {
           this.diceRolling.update(arr => { const na = [...arr]; na[idx] = false; return na; });
@@ -797,7 +812,8 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
     // Build presets dictionary mapping all OTHER dice to their current values
     const presets: Record<string, number> = {};
     currentResults.forEach(d => {
-      if (d.diceType !== idx) {
+      const typeNum = diceTypeMap[d.diceType];
+      if (typeNum !== idx) {
         presets[d.diceType.toString()] = d.rollValue;
       }
     });
@@ -814,7 +830,7 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
         this.diceResultSig.set(r);
         this.diceLoading.set(false);
 
-        const d = r.diceResults.find(res => res.diceType === idx);
+        const d = r.diceResults.find(res => diceTypeMap[res.diceType] === idx);
         if (d) {
           setTimeout(() => {
             this.diceRolling.update(arr => { const na = [...arr]; na[idx] = false; return na; });
@@ -848,6 +864,8 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
     this.diceRolling.set([false, false, false, false, false]);
     this.pendingCriticalChoice.set(false);
     this.diceSpecialStatusMsg.set(null);
+    this.fumbledDieIdx.set(null);
+    this.rerolledDieIdx.set(null);
     this.hasAutomaticFumbleRerolled = false;
   }
 
@@ -863,7 +881,7 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
     const fumbleIndices: number[] = [];
 
     r.diceResults.forEach(d => {
-      const idx = d.diceType;
+      const idx = diceTypeMap[d.diceType];
       const val = d.rollValue;
       if (val === maxVals[idx]) {
         criticalIndices.push(idx);
@@ -878,7 +896,7 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
       let highestIdx = -1;
       let highestVal = -1;
       r.diceResults.forEach(d => {
-        const idx = d.diceType;
+        const idx = diceTypeMap[d.diceType];
         if (!fumbleIndices.includes(idx) && d.rollValue > highestVal) {
           highestVal = d.rollValue;
           highestIdx = idx;
@@ -887,6 +905,9 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
 
       if (highestIdx !== -1) {
         this.hasAutomaticFumbleRerolled = true;
+        this.fumbledDieIdx.set(fumbleIndices[0]);
+        this.rerolledDieIdx.set(highestIdx);
+        
         const diceNames = ['Duration (D3)', 'Popularity (D4)', 'Risk (D6)', 'Quality (D12)', 'Genre (D20)'];
         const fumbleName = fumbleIndices.map(fi => diceNames[fi]).join(', ');
         this.diceSpecialStatusMsg.set(`FUMBLE on ${fumbleName}! Rerolling highest die: ${diceNames[highestIdx]}...`);

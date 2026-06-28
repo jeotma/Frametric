@@ -23,6 +23,8 @@ export class DiceRollerComponent implements OnChanges, OnDestroy {
   @Input() settled: boolean[] = [false, false, false, false, false];
   @Input() rolling: boolean[] = [false, false, false, false, false];
   @Input() pendingCriticalChoice: boolean = false;
+  @Input() fumbledIdx: number | null = null;
+  @Input() rerolledIdx: number | null = null;
   @Input() muted: boolean = false;
 
   @Output() dieClicked = new EventEmitter<number>();

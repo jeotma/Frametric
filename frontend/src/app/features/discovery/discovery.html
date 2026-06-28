@@ -441,9 +441,13 @@
         (nicknameMapChange)="onRouletteNicknameMapChange($event)">
       </app-custom-selection-input>
     </div>
-    <div class="merge-watchlists-row" *ngIf="rouletteScope() === 4" style="margin-bottom: 1rem;">
+    <div class="merge-watchlists-row" *ngIf="rouletteScope() === 4">
       <span class="hud-label">PARTNER USERNAME:</span>
-      <input type="text" [(ngModel)]="roulettePartnerUsername" placeholder="Enter partner username" class="form-input partner-input" />
+      <input type="text" 
+             [ngModel]="roulettePartnerUsername()" 
+             (ngModelChange)="roulettePartnerUsername.set($event)" 
+             placeholder="Enter partner username" 
+             class="form-input partner-input" />
     </div>
 
     <div class="roulette-layout">
@@ -568,9 +572,13 @@
     <div class="custom-selection-row" *ngIf="mysteryScope() === 2">
       <app-custom-selection-input [(selectedChips)]="mysteryChips"></app-custom-selection-input>
     </div>
-    <div class="merge-watchlists-row" *ngIf="mysteryScope() === 4" style="margin-bottom: 1rem;">
+    <div class="merge-watchlists-row" *ngIf="mysteryScope() === 4">
       <span class="hud-label">PARTNER USERNAME:</span>
-      <input type="text" [(ngModel)]="mysteryPartnerUsername" placeholder="Enter partner username" class="form-input partner-input" />
+      <input type="text" 
+             [ngModel]="mysteryPartnerUsername()" 
+             (ngModelChange)="mysteryPartnerUsername.set($event)" 
+             placeholder="Enter partner username" 
+             class="form-input partner-input" />
     </div>
 
     <div class="anim-container" style="height: auto; min-height: 250px; padding: 20px 0; margin-bottom: 2rem;">
@@ -676,9 +684,13 @@
     <div class="custom-selection-row" *ngIf="diceScope() === 2">
       <app-custom-selection-input [(selectedChips)]="diceChips" (selectedChipsChange)="resetDiceState()"></app-custom-selection-input>
     </div>
-    <div class="merge-watchlists-row" *ngIf="diceScope() === 4" style="margin-bottom: 1rem;">
+    <div class="merge-watchlists-row" *ngIf="diceScope() === 4">
       <span class="hud-label">PARTNER USERNAME:</span>
-      <input type="text" [(ngModel)]="dicePartnerUsername" placeholder="Enter partner username" class="form-input partner-input" />
+      <input type="text" 
+             [ngModel]="dicePartnerUsername()" 
+             (ngModelChange)="dicePartnerUsername.set($event)" 
+             placeholder="Enter partner username" 
+             class="form-input partner-input" />
     </div>
 
     <div class="anim-container" style="height: auto; min-height: 250px; padding: 20px 0; margin-bottom: 2rem;">
@@ -688,6 +700,8 @@
         [settled]="diceSettled()"
         [rolling]="diceRolling()"
         [pendingCriticalChoice]="pendingCriticalChoice()"
+        [fumbledIdx]="fumbledDieIdx()"
+        [rerolledIdx]="rerolledDieIdx()"
         [muted]="diceMuted()"
         (dieClicked)="onDieClicked($event)">
       </app-dice-roller>
