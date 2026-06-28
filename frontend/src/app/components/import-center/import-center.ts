@@ -37,7 +37,6 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
   ngOnInit() {
     if (this.auth.isAuthenticated()) {
       this.fetchHistory();
-      this.startPolling();
     }
   }
 
@@ -49,6 +48,7 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
   }
 
   private startPolling() {
+    if (this.pollingInterval) return; // Already polling
     this.pollingInterval = setInterval(() => {
       if (!this.destroy$.isStopped) {
         this.fetchHistory();
@@ -59,12 +59,21 @@ export class ImportCenterComponent implements OnInit, OnDestroy {
   private stopPolling() {
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
     }
   }
 
   private fetchHistory() {
     this.importService.apiImportHistoryGet().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (data) => this.history.set(data),
+      next: (data) => {
+        this.history.set(data);
+        const hasActiveImport = data.some(item => item.status === 'Enriching');
+        if (hasActiveImport) {
+          this.startPolling();
+        } else {
+          this.stopPolling();
+        }
+      },
       error: (err) => console.error('Failed to fetch import history', err)
     });
   }
