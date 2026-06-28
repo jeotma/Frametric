@@ -17,5 +17,7 @@ export interface RouletteRequest {
     excludeWatched?: boolean;
     customAliases?: { [key: string]: string } | null;
     partnerUsername?: string | null;
+    allowMultipleWinners?: boolean;
+    winnerCount?: number;
 }
 

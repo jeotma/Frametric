@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -69,10 +69,9 @@ public class MysteryBoxGenerationQueryHandler : IRequestHandler<MysteryBoxGenera
 
         string? filterType = null;
         string? filterValue = null;
-
         var (candidates, ft, fv) = request.Variant switch
         {
-            MysteryBoxVariant.Thematic => (BuildThematicPool(pool), null, null),
+            MysteryBoxVariant.Thematic => BuildThematicPool(pool),
             MysteryBoxVariant.ActorFocus => BuildActorFocusPool(pool),
             MysteryBoxVariant.DirectorFocus => BuildDirectorFocusPool(pool),
             MysteryBoxVariant.Strategy => (BuildStrategyPool(pool), null, null),
@@ -102,82 +101,128 @@ public class MysteryBoxGenerationQueryHandler : IRequestHandler<MysteryBoxGenera
         return new MysteryBoxDto(boxIds, request.Variant, DateTime.UtcNow, hints, filterType, filterValue);
     }
 
-    private static IEnumerable<DiscoveryMoviePoolItemDto> BuildThematicPool(IEnumerable<DiscoveryMoviePoolItemDto> pool)
+    private static T SelectWeightedRandom<T>(IEnumerable<(T Item, double Weight)> items)
     {
-        var genres = pool
+        var list = items.ToList();
+        var totalWeight = list.Sum(x => x.Weight);
+        var r = Random.Shared.NextDouble() * totalWeight;
+        double currentSum = 0;
+        foreach (var elem in list)
+        {
+            currentSum += elem.Weight;
+            if (r <= currentSum)
+            {
+                return elem.Item;
+            }
+        }
+        return list.Last().Item;
+    }
+
+    private static (IEnumerable<DiscoveryMoviePoolItemDto> Pool, string? FilterType, string? FilterValue) BuildThematicPool(IEnumerable<DiscoveryMoviePoolItemDto> pool)
+    {
+        var genreGroups = pool
             .Where(item => !string.IsNullOrWhiteSpace(item.Genres))
             .SelectMany(item => item.Genres!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             .Where(genre => !string.IsNullOrWhiteSpace(genre))
             .GroupBy(genre => genre, StringComparer.OrdinalIgnoreCase)
-            .OrderByDescending(group => group.Count())
-            .Select(group => group.Key)
+            .Select(group => new { Genre = group.Key, Count = group.Count() })
             .ToList();
 
-        if (!genres.Any())
+        if (!genreGroups.Any())
         {
-            return pool;
+            return (pool, null, null);
         }
 
-        var selectedGenre = genres[Random.Shared.Next(genres.Count)];
+        var weightedList = genreGroups.Select(g => (g.Genre, Weight: (double)g.Count));
+        var selectedGenre = SelectWeightedRandom(weightedList);
+
         var themed = pool.Where(item =>
             !string.IsNullOrWhiteSpace(item.Genres) &&
             item.Genres!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Any(g => g.Equals(selectedGenre, StringComparison.OrdinalIgnoreCase)))
             .ToList();
 
-        return themed.Count >= 5 ? themed : pool;
+        return (themed, "Genre", selectedGenre);
     }
 
     private static (IEnumerable<DiscoveryMoviePoolItemDto> Pool, string? FilterType, string? FilterValue) BuildActorFocusPool(IEnumerable<DiscoveryMoviePoolItemDto> pool)
     {
-        var actors = pool
+        var actorGroups = pool
             .Where(item => !string.IsNullOrWhiteSpace(item.ActorNames))
             .SelectMany(item => item.ActorNames!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             .Where(actor => !string.IsNullOrWhiteSpace(actor))
             .GroupBy(actor => actor, StringComparer.OrdinalIgnoreCase)
-            .OrderByDescending(group => group.Count())
-            .Select(group => group.Key)
+            .Select(group => new { Actor = group.Key, Count = group.Count() })
             .ToList();
 
-        if (!actors.Any())
+        if (!actorGroups.Any())
         {
             return (pool, null, null);
         }
 
-        var selectedActor = actors[Random.Shared.Next(actors.Count)];
+        var eligibleA = actorGroups.Where(g => g.Count >= 3).ToList();
+        var eligibleB = actorGroups.Where(g => g.Count < 3).ToList();
+
+        string selectedActor;
+        if (eligibleA.Any() && Random.Shared.NextDouble() < 0.9)
+        {
+            var weightedList = eligibleA.Select(g => (g.Actor, Weight: (double)g.Count));
+            selectedActor = SelectWeightedRandom(weightedList);
+        }
+        else
+        {
+            var remaining = eligibleB.Any() ? eligibleB : actorGroups;
+            var weightedList = remaining.Select(g => (g.Actor, Weight: (double)g.Count));
+            selectedActor = SelectWeightedRandom(weightedList);
+        }
+
         var filtered = pool.Where(item =>
             !string.IsNullOrWhiteSpace(item.ActorNames) &&
             item.ActorNames!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Any(a => a.Equals(selectedActor, StringComparison.OrdinalIgnoreCase)))
             .ToList();
 
-        return (filtered.Count >= 5 ? filtered : pool, "Actor", selectedActor);
+        return (filtered, "Actor", selectedActor);
     }
 
     private static (IEnumerable<DiscoveryMoviePoolItemDto> Pool, string? FilterType, string? FilterValue) BuildDirectorFocusPool(IEnumerable<DiscoveryMoviePoolItemDto> pool)
     {
-        var directors = pool
+        var directorGroups = pool
             .Where(item => !string.IsNullOrWhiteSpace(item.DirectorName))
             .SelectMany(item => item.DirectorName!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             .Where(director => !string.IsNullOrWhiteSpace(director))
             .GroupBy(director => director, StringComparer.OrdinalIgnoreCase)
-            .OrderByDescending(group => group.Count())
-            .Select(group => group.Key)
+            .Select(group => new { Director = group.Key, Count = group.Count() })
             .ToList();
 
-        if (!directors.Any())
+        if (!directorGroups.Any())
         {
             return (pool, null, null);
         }
 
-        var selectedDirector = directors[Random.Shared.Next(directors.Count)];
+        var eligibleA = directorGroups.Where(g => g.Count >= 3).ToList();
+        var eligibleB = directorGroups.Where(g => g.Count < 3).ToList();
+
+        string selectedDirector;
+        if (eligibleA.Any() && Random.Shared.NextDouble() < 0.9)
+        {
+            var weightedList = eligibleA.Select(g => (g.Director, Weight: (double)g.Count));
+            selectedDirector = SelectWeightedRandom(weightedList);
+        }
+        else
+        {
+            var remaining = eligibleB.Any() ? eligibleB : directorGroups;
+            var weightedList = remaining.Select(g => (g.Director, Weight: (double)g.Count));
+            selectedDirector = SelectWeightedRandom(weightedList);
+        }
+
         var filtered = pool.Where(item =>
             !string.IsNullOrWhiteSpace(item.DirectorName) &&
             item.DirectorName!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Any(d => d.Equals(selectedDirector, StringComparison.OrdinalIgnoreCase)))
             .ToList();
 
-        return (filtered.Count >= 5 ? filtered : pool, "Director", selectedDirector);
+        return (filtered, "Director", selectedDirector);
     }
 
     private static IEnumerable<DiscoveryMoviePoolItemDto> BuildStrategyPool(IEnumerable<DiscoveryMoviePoolItemDto> pool)
@@ -211,19 +256,25 @@ public class MysteryBoxGenerationQueryHandler : IRequestHandler<MysteryBoxGenera
 
     private static List<DiscoveryMoviePoolItemDto> SelectUniqueMovieIds(IReadOnlyList<DiscoveryMoviePoolItemDto> pool, int boxCount)
     {
-        var selectedIds = new HashSet<Guid>();
         var selectedItems = new List<DiscoveryMoviePoolItemDto>();
-        var attempts = 0;
-        while (selectedItems.Count < boxCount && attempts < pool.Count * 3)
+        if (!pool.Any()) return selectedItems;
+
+        var selectedIds = new HashSet<Guid>();
+        foreach (var candidate in pool.OrderBy(_ => Random.Shared.Next()))
         {
-            var candidate = pool[Random.Shared.Next(pool.Count)];
             if (selectedIds.Add(candidate.MovieId))
             {
                 selectedItems.Add(candidate);
             }
-            attempts++;
+            if (selectedItems.Count >= boxCount) break;
         }
 
-        return selectedItems.Take(boxCount).ToList();
+        while (selectedItems.Count < boxCount)
+        {
+            var candidate = pool[Random.Shared.Next(pool.Count)];
+            selectedItems.Add(candidate);
+        }
+
+        return selectedItems;
     }
 }

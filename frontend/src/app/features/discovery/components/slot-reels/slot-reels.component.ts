@@ -9,6 +9,8 @@
 import { Component, Input, OnChanges, SimpleChanges, ElementRef, ViewChildren, QueryList, Output, EventEmitter, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SlotMachineResultDto } from '../../../../core/api/model/slot-machine-result-dto';
+import { DiscoveryAudioService } from '../../services/discovery-audio.service';
+import { inject } from '@angular/core';
 
 @Component({
   selector: 'app-slot-reels',
@@ -18,6 +20,8 @@ import { SlotMachineResultDto } from '../../../../core/api/model/slot-machine-re
   styleUrl: './slot-reels.scss'
 })
 export class SlotReelsComponent implements OnChanges, OnInit, AfterViewInit {
+  private audioService = inject(DiscoveryAudioService);
+
   @Input() result: SlotMachineResultDto | null = null;
   @Input() isSpinning: boolean = false;
   
@@ -49,6 +53,7 @@ export class SlotReelsComponent implements OnChanges, OnInit, AfterViewInit {
 
   public pullLever(): void {
     if (!this.isSpinning) {
+      this.audioService.playLeverPull();
       this.interact.emit();
     }
   }
@@ -137,6 +142,9 @@ export class SlotReelsComponent implements OnChanges, OnInit, AfterViewInit {
         const isMatched = r.matchedReels ? r.matchedReels[index] : false;
         if (isMatched) {
           box.nativeElement.classList.add('matched');
+          this.audioService.playSuccess(0.9 + index * 0.05, 0.35);
+        } else {
+          this.audioService.playClack(0.7 + (4 - index) * 0.1, 0.5);
         }
         
         this.currentLabels[index] = reel.label;

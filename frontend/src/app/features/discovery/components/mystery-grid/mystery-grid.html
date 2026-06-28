@@ -1,10 +1,10 @@
 <div class="boxes-row" *ngIf="mysteryBox">
   <div *ngFor="let boxId of mysteryBox.boxIds; let i = index"
     class="mystery-box-wrapper"
-    [class.shaking]="selectedBoxId === boxId && isRevealing"
-    [class.opened]="(selectedBoxId === boxId && showRevealed) || (revealedOthers && revealedOthers[boxId])"
-    [class.faded]="selectedBoxId && selectedBoxId !== boxId && !(revealedOthers && revealedOthers[boxId])"
-    (click)="clickBox(boxId)"
+    [class.shaking]="selectedBoxId === (i + '_' + boxId) && isRevealing"
+    [class.opened]="(selectedBoxId === (i + '_' + boxId) && showRevealed) || (revealedOthers && revealedOthers[i + '_' + boxId])"
+    [class.faded]="selectedBoxId && selectedBoxId !== (i + '_' + boxId) && !(revealedOthers && revealedOthers[i + '_' + boxId])"
+    (click)="clickBox(i + '_' + boxId)"
     role="button"
     tabindex="0">
     
@@ -43,18 +43,18 @@
         <div class="lid-handle" style="background-color: var(--box-color);"></div>
       </div>
       <div class="face face-bottom" style="border-color: var(--box-color);"></div>
-
+ 
       <!-- Inside Content (Revealed Poster) -->
       <div class="box-content-inside">
-        <ng-container *ngIf="getMovieForBox(boxId) as movie">
+        <ng-container *ngIf="getMovieForBox(boxId, i) as movie">
           <img *ngIf="movie.posterUrl" [src]="movie.posterUrl" class="revealed-poster" />
-          <div class="revealed-title-badge" *ngIf="selectedBoxId !== boxId">
+          <div class="revealed-title-badge" *ngIf="selectedBoxId !== (i + '_' + boxId)">
             {{ movie.title }}
           </div>
         </ng-container>
       </div>
     </div>
-
+ 
     <!-- Hint under the box -->
     <div class="box-hint" *ngIf="mysteryBox.hints && !selectedBoxId">
       {{ mysteryBox.hints[i].hint }}

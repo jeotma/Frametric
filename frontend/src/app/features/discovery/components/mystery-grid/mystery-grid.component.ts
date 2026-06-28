@@ -34,11 +34,12 @@ export class MysteryGridComponent implements OnChanges, OnInit {
     }
   }
 
-  public getMovieForBox(boxId: string): any {
-    if (this.selectedBoxId === boxId) {
+  public getMovieForBox(boxId: string, index: number): any {
+    const uniqueKey = `${index}_${boxId}`;
+    if (this.selectedBoxId === uniqueKey) {
       return this.revealedMovie;
     }
-    return this.revealedOthers ? this.revealedOthers[boxId] : null;
+    return this.revealedOthers ? this.revealedOthers[uniqueKey] : null;
   }
 
   public getBoxColor(index: number): string {

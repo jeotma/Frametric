@@ -53,7 +53,9 @@ public class DiscoveryController : ControllerBase
             request.CustomSourceTitles,
             request.ExcludeWatched,
             request.CustomAliases,
-            request.PartnerUsername);
+            request.PartnerUsername,
+            request.AllowMultipleWinners,
+            request.WinnerCount);
 
         try
         {
@@ -167,9 +169,40 @@ public class DiscoveryController : ControllerBase
             request.CustomSourceTitles, 
             request.ExcludeWatched,
             request.DurationDays,
-            request.BoardId);
+            request.BoardId,
+            request.AutoEvaluate);
         var result = await _mediator.Send(query, cancellationToken);
         return Ok(result);
+    }
+
+    [HttpPost("bingo/claim")]
+    public async Task<ActionResult<BingoGridDto>> ClaimBingoObjective([FromBody] ClaimBingoObjectiveRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var command = new ClaimBingoObjectiveCommand(GetUserIdOrThrow(), request.ObjectiveId, request.DiaryEntryId);
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpGet("bingo/squares/{objectiveId}/candidates")]
+    public async Task<ActionResult<IEnumerable<BingoCandidateDto>>> GetBingoObjectiveCandidates(Guid objectiveId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var query = new GetBingoObjectiveCandidatesQuery(GetUserIdOrThrow(), objectiveId);
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpGet("bingo/boards")]
