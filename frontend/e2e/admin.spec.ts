@@ -32,7 +32,7 @@ test.describe('Admin Control Panel and Catalog Editing', () => {
 
   test.beforeEach(async ({ page }) => {
     // Mock the statistics and diagnostics API requests
-    await page.route('**/api/Admin/diagnostics/database', async route => {
+    await page.route('**/api/v1/Admin/diagnostics/database', async route => {
       await route.fulfill({
         status: 200,
         json: {
@@ -51,7 +51,7 @@ test.describe('Admin Control Panel and Catalog Editing', () => {
       });
     });
 
-    await page.route('**/api/Admin/users', async route => {
+    await page.route('**/api/v1/Admin/users', async route => {
       await route.fulfill({
         status: 200,
         json: [
@@ -112,7 +112,7 @@ test.describe('Admin Control Panel and Catalog Editing', () => {
 
   test('should support catalog search, edits, and revision history', async ({ page }) => {
     // Mock the search API
-    await page.route('**/api/Search?query=Inception', async route => {
+    await page.route('**/api/v1/Search?query=Inception', async route => {
       await route.fulfill({
         status: 200,
         json: [
@@ -128,7 +128,7 @@ test.describe('Admin Control Panel and Catalog Editing', () => {
     });
 
     // Mock movie details API
-    await page.route('**/api/movies/inception-id', async route => {
+    await page.route('**/api/v1/movies/inception-id', async route => {
       await route.fulfill({
         status: 200,
         json: {
@@ -142,7 +142,7 @@ test.describe('Admin Control Panel and Catalog Editing', () => {
     });
 
     // Mock revision history API
-    await page.route('**/api/admin/catalog/revisions/Movie/inception-id', async route => {
+    await page.route('**/api/v1/admin/catalog/revisions/Movie/inception-id', async route => {
       await route.fulfill({
         status: 200,
         json: [

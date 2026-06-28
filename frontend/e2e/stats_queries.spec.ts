@@ -77,7 +77,7 @@ test.describe('Advanced Statistics Tests', () => {
 
   test('should test LIST query execution, sorting, and tabular rendering', async ({ page }) => {
     // Intercept Watched History -> Movies Watched
-    await page.route('**/api/analytics/advanced/watched**', async (route) => {
+    await page.route('**/api/v1/analytics/advanced/watched**', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -115,7 +115,7 @@ test.describe('Advanced Statistics Tests', () => {
     await selectCinematicOption(page, 1, 'Oldest Pending Movie');
 
     // Intercept oldest pending API call
-    await page.route('**/api/analytics/advanced/watchlist/oldest-pending**', async (route) => {
+    await page.route('**/api/v1/analytics/advanced/watchlist/oldest-pending**', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -143,7 +143,7 @@ test.describe('Advanced Statistics Tests', () => {
     await selectCinematicOption(page, 1, 'Preferred Watch Day');
 
     // Intercept preferred day API call
-    await page.route('**/api/analytics/advanced/watched/preferred-day**', async (route) => {
+    await page.route('**/api/v1/analytics/advanced/watched/preferred-day**', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',

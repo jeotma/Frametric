@@ -27,7 +27,7 @@ async function loginAndSetToken(page: Page) {
 test.describe('Global Navigation and Shell Layout', () => {
   test.beforeEach(async ({ page }) => {
     // Intercept essential APIs to avoid backend reliance
-    await page.route('**/api/analytics/dashboard', async (route) => {
+    await page.route('**/api/v1/analytics/dashboard', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -43,7 +43,7 @@ test.describe('Global Navigation and Shell Layout', () => {
       });
     });
 
-    await page.route('**/api/import/history', async (route) => {
+    await page.route('**/api/v1/import/history', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',

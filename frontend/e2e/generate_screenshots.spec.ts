@@ -334,61 +334,61 @@ async function setupApiMocks(page: Page) {
 
     if (url.includes('/api/v1/custom-lists') || url.includes('/api/custom-lists')) {
       await route.fulfill(json([]));
-    } else if (url.includes('/api/import/history')) {
+    } else if (url.includes('/api/v1/import/history')) {
       await route.fulfill(json(importHistory));
-    } else if (url.includes('/api/analytics/dashboard')) {
+    } else if (url.includes('/api/v1/analytics/dashboard')) {
       await route.fulfill(json(dashboardData));
-    } else if (url.includes('/api/analytics/advanced/final-cut/bookends')) {
+    } else if (url.includes('/api/v1/analytics/advanced/final-cut/bookends')) {
       await route.fulfill(json(bookendsData));
-    } else if (url.includes('/api/analytics/advanced/final-cut/prime-time')) {
+    } else if (url.includes('/api/v1/analytics/advanced/final-cut/prime-time')) {
       await route.fulfill(json(primeTimeData));
-    } else if (url.includes('/api/analytics/advanced/final-cut/genre-landscape')) {
+    } else if (url.includes('/api/v1/analytics/advanced/final-cut/genre-landscape')) {
       await route.fulfill(json(genreLandscape));
-    } else if (url.includes('/api/analytics/advanced/final-cut/director-actor-pairs')) {
+    } else if (url.includes('/api/v1/analytics/advanced/final-cut/director-actor-pairs')) {
       await route.fulfill(json(directorActorPairs));
-    } else if (url.includes('/api/analytics/advanced/final-cut/best-rookies')) {
+    } else if (url.includes('/api/v1/analytics/advanced/final-cut/best-rookies')) {
       await route.fulfill(json(bestRookiesData));
-    } else if (url.includes('/api/analytics/advanced/final-cut/shortest-movie')) {
+    } else if (url.includes('/api/v1/analytics/advanced/final-cut/shortest-movie')) {
       await route.fulfill(json(shortestMovie));
-    } else if (url.includes('/api/analytics/advanced/final-cut/monthly-extremes')) {
+    } else if (url.includes('/api/v1/analytics/advanced/final-cut/monthly-extremes')) {
       await route.fulfill(json(monthlyExtremes));
-    } else if (url.includes('/api/analytics/advanced/final-cut/most-rewatched')) {
+    } else if (url.includes('/api/v1/analytics/advanced/final-cut/most-rewatched')) {
       await route.fulfill(json(mostRewatchedData));
-    } else if (url.includes('/api/analytics/advanced/final-cut/top-bottom-rated')) {
+    } else if (url.includes('/api/v1/analytics/advanced/final-cut/top-bottom-rated')) {
       await route.fulfill(json(topBottomData));
-    } else if (url.includes('/api/analytics/advanced/bonus/cinematic-fatigue')) {
+    } else if (url.includes('/api/v1/analytics/advanced/bonus/cinematic-fatigue')) {
       await route.fulfill(json(cinematicFatigueData));
-    } else if (url.includes('/api/analytics/advanced/bonus/weekend-warrior')) {
+    } else if (url.includes('/api/v1/analytics/advanced/bonus/weekend-warrior')) {
       await route.fulfill(json(weekendWarriorData));
-    } else if (url.includes('/api/analytics/advanced/bonus/hidden-gems')) {
+    } else if (url.includes('/api/v1/analytics/advanced/bonus/hidden-gems')) {
       await route.fulfill(json(hiddenGems));
-    } else if (url.includes('/api/analytics/advanced/watched/preferred-day')) {
+    } else if (url.includes('/api/v1/analytics/advanced/watched/preferred-day')) {
       await route.fulfill(json(preferredDay));
-    } else if (url.includes('/api/analytics/advanced/watched/total-time')) {
+    } else if (url.includes('/api/v1/analytics/advanced/watched/total-time')) {
       await route.fulfill(json(totalTimeInvested));
-    } else if (url.includes('/api/analytics/advanced/watched/director-ranking')) {
+    } else if (url.includes('/api/v1/analytics/advanced/watched/director-ranking')) {
       await route.fulfill(json(directorRanking));
-    } else if (url.includes('/api/analytics/advanced/watched/longest-movie')) {
+    } else if (url.includes('/api/v1/analytics/advanced/watched/longest-movie')) {
       await route.fulfill(json(longestMovie));
-    } else if (url.includes('/api/analytics/advanced/watched/casting-repetitions')) {
+    } else if (url.includes('/api/v1/analytics/advanced/watched/casting-repetitions')) {
       await route.fulfill(json(castingPairs));
-    } else if (url.includes('/api/analytics/advanced/watched/rating-evolution')) {
+    } else if (url.includes('/api/v1/analytics/advanced/watched/rating-evolution')) {
       await route.fulfill(json(ratingEvolution));
-    } else if (url.includes('/api/analytics/advanced/watched/genre-streaks')) {
+    } else if (url.includes('/api/v1/analytics/advanced/watched/genre-streaks')) {
       await route.fulfill(json(genreStreaks));
-    } else if (url.includes('/api/analytics/advanced/watched/directors')) {
+    } else if (url.includes('/api/v1/analytics/advanced/watched/directors')) {
       await route.fulfill(json(watchedDirectors));
-    } else if (url.includes('/api/analytics/advanced/watched/actors')) {
+    } else if (url.includes('/api/v1/analytics/advanced/watched/actors')) {
       await route.fulfill(json(watchedActors));
-    } else if (url.includes('/api/analytics/advanced/watched/decades')) {
+    } else if (url.includes('/api/v1/analytics/advanced/watched/decades')) {
       await route.fulfill(json(decadeBreakdown));
-    } else if (url.includes('/api/analytics/advanced/watched/predominant-era')) {
+    } else if (url.includes('/api/v1/analytics/advanced/watched/predominant-era')) {
       await route.fulfill(json(eraBreakdown));
-    } else if (url.includes('/api/analytics/advanced/watched')) {
+    } else if (url.includes('/api/v1/analytics/advanced/watched')) {
       await route.fulfill(json(watchedMovies));
-    } else if (url.includes('/api/analytics/wrapped')) {
+    } else if (url.includes('/api/v1/analytics/wrapped')) {
       await route.fulfill(json(wrappedSummaryData));
-    } else if (url.includes('/api/movies/123') && !url.includes('/log')) {
+    } else if (url.includes('/api/v1/movies/123') && !url.includes('/log')) {
       await route.fulfill(json({
         id: '123',
         title: 'Inception',
@@ -406,7 +406,7 @@ async function setupApiMocks(page: Page) {
         ],
         isWatched: true
       }));
-    } else if (url.includes('/api/actors/456')) {
+    } else if (url.includes('/api/v1/actors/456')) {
       await route.fulfill(json({
         id: '456',
         name: 'Ryan Gosling',
@@ -418,7 +418,7 @@ async function setupApiMocks(page: Page) {
         ],
         directedMovies: []
       }));
-    } else if (url.includes('/api/directors/789')) {
+    } else if (url.includes('/api/v1/directors/789')) {
       await route.fulfill(json({
         id: '789',
         name: 'Christopher Nolan',
