@@ -4,7 +4,8 @@
        [class.settled]="settled[idx]"
        [class.clickable]="!rolling[idx] && (!settled[idx] || (pendingCriticalChoice && values[idx] !== maxValues[idx]))"
        [class.critical-roll]="settled[idx] && values[idx] === maxValues[idx]"
-       [class.fumble]="settled[idx] && values[idx] === 1"
+       [class.fumble]="settled[idx] && (values[idx] === 1 || fumbledIdx === idx)"
+       [class.rerolling-highlight]="rerolledIdx === idx"
        (click)="onDieClick(idx)">
     
     <div class="die-header">
@@ -197,8 +198,9 @@
       <div class="die-result-value" [class.glowing]="settled[idx] && displayValues[idx] > 0">
         {{ displayValues[idx] > 0 ? displayValues[idx] : '?' }}
       </div>
-      <div class="die-result-label" [class.visible]="settled[idx] && labels[idx]">
-        {{ labels[idx] || 'PENDING' }}
+      <div class="die-result-label" [class.visible]="settled[idx] || (rerolledIdx === idx && rolling[idx])">
+        <ng-container *ngIf="rerolledIdx === idx && rolling[idx]">REROLLING...</ng-container>
+        <ng-container *ngIf="!(rerolledIdx === idx && rolling[idx])">{{ labels[idx] || 'PENDING' }}</ng-container>
       </div>
     </div>
   </div>

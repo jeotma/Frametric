@@ -98,6 +98,16 @@
       border-color: var(--accent-record);
     }
   }
+
+  &.rerolling-highlight {
+    border-color: var(--accent-sepia) !important;
+    background: rgba(226, 186, 100, 0.05) !important;
+    box-shadow: 0 0 20px rgba(226, 186, 100, 0.3), inset 0 0 10px rgba(226, 186, 100, 0.1) !important;
+
+    .die-result-box {
+      border-color: var(--accent-sepia);
+    }
+  }
 }
 
 .die-header {
