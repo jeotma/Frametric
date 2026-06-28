@@ -80,6 +80,7 @@ public class MoviesController : ControllerBase
     }
 
     [HttpPost("enrich-from-tmdb")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MovieSimpleDto>> EnrichFromTmdb([FromBody] EnrichMovieRequest request, CancellationToken cancellationToken)

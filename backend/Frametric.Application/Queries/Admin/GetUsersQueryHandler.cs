@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -30,7 +30,15 @@ public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, List<UserDto>
     {
         var users = await _context.Users
             .OrderBy(u => u.Username)
-            .Select(u => new UserDto(u.Id, u.Username, u.Email, u.Role.ToString()))
+            .Select(u => new UserDto(
+                u.Id, 
+                u.Username, 
+                u.Email, 
+                u.Role.ToString(),
+                u.CanManageCatalog,
+                u.CanAddUsers,
+                u.CanDeleteUsers,
+                u.CanPromoteToAdmin))
             .ToListAsync(cancellationToken);
 
         return users;

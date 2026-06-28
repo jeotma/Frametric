@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -11,5 +11,6 @@ namespace Frametric.Domain.Enums;
 public enum UserRole
 {
     User = 0,
-    Admin = 1
+    Admin = 1,
+    SuperAdmin = 2
 }
