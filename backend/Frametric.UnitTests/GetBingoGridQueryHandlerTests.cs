@@ -59,7 +59,7 @@ public class GetBingoGridQueryHandlerTests : IDisposable
 
         using var context = CreateContext();
         var handler = new GetBingoGridQueryHandler(context, _loggerMock.Object);
-        var query = new GetBingoGridQuery(userId, 3);
+        var query = new GetBingoGridQuery(userId, 3, AutoEvaluate: true);
 
         var result = await handler.Handle(query, CancellationToken.None);
 
@@ -127,7 +127,7 @@ public class GetBingoGridQueryHandlerTests : IDisposable
 
         using var actContext = CreateContext();
         var handler = new GetBingoGridQueryHandler(actContext, _loggerMock.Object);
-        var result = await handler.Handle(new GetBingoGridQuery(userId, 3), CancellationToken.None);
+        var result = await handler.Handle(new GetBingoGridQuery(userId, 3, AutoEvaluate: true), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.True(result.Squares.Any(square => square.IsCompleted));
@@ -139,3 +139,4 @@ public class GetBingoGridQueryHandlerTests : IDisposable
         Assert.Equal(diaryEntryId, achievedObjective.FulfillingDiaryEntryId);
     }
 }
+

@@ -1,5 +1,5 @@
-ï»¿// Frametric â€” Cinematic Analytics Platform
-// Copyright (C) 2026 JesÃºs J. Otero MartÃ­nez <jesusoteromartinez@outlook.com>
+// Frametric — Cinematic Analytics Platform
+// Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ public class BonusQueriesTests
     public async Task GetWeekendWarriorStatsAsync_ShouldReturnStats()
     {
         // Arrange
-        var stats = new[] { new { WeekendWatches = 10, WeekdayWatches = 5 } };
+        var stats = new[] { new { WeekendWatches = 10, WeekdayWatches = 5, WeekendAverage = 2.0, WeekdayAverage = 1.0 } };
         var reader = CreateDataReader(stats);
         SetupDb(reader);
         var queries = new BonusQueriesImpl(_dbConnectionFactoryMock.Object);
@@ -302,3 +302,4 @@ public class SequenceDbConnection : DbConnection
     public override void ChangeDatabase(string databaseName) { }
     protected override DbTransaction BeginDbTransaction(IsolationLevel il) => throw new NotImplementedException();
 }
+
