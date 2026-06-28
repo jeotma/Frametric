@@ -32,7 +32,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Frametric.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 [Authorize(Roles = "Admin,SuperAdmin")]
 public class AdminController : ControllerBase
 {

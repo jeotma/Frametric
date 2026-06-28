@@ -92,7 +92,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/bonus/cinematic-fatigue
+     * @endpoint get /api/v1/analytics/advanced/bonus/cinematic-fatigue
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -224,7 +224,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/bonus/cinematic-fatigue`;
+        let localVarPath = `/api/v1/analytics/advanced/bonus/cinematic-fatigue`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CinematicFatigueExpandedDto>('get', `${basePath}${localVarPath}`,
             {
@@ -241,7 +241,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/bonus/hidden-gems
+     * @endpoint get /api/v1/analytics/advanced/bonus/hidden-gems
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -373,7 +373,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/bonus/hidden-gems`;
+        let localVarPath = `/api/v1/analytics/advanced/bonus/hidden-gems`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<MovieSimpleDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -390,7 +390,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/bonus/watchlist-graveyard
+     * @endpoint get /api/v1/analytics/advanced/bonus/watchlist-graveyard
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -522,7 +522,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/bonus/watchlist-graveyard`;
+        let localVarPath = `/api/v1/analytics/advanced/bonus/watchlist-graveyard`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<MovieSimpleDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -539,7 +539,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/bonus/weekend-warrior
+     * @endpoint get /api/v1/analytics/advanced/bonus/weekend-warrior
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -671,7 +671,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/bonus/weekend-warrior`;
+        let localVarPath = `/api/v1/analytics/advanced/bonus/weekend-warrior`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<WeekendWarriorDto>('get', `${basePath}${localVarPath}`,
             {
@@ -688,7 +688,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/final-cut/best-rookies
+     * @endpoint get /api/v1/analytics/advanced/final-cut/best-rookies
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -820,7 +820,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/final-cut/best-rookies`;
+        let localVarPath = `/api/v1/analytics/advanced/final-cut/best-rookies`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<BestRookiesDto>('get', `${basePath}${localVarPath}`,
             {
@@ -837,7 +837,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/final-cut/bookends
+     * @endpoint get /api/v1/analytics/advanced/final-cut/bookends
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -969,7 +969,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/final-cut/bookends`;
+        let localVarPath = `/api/v1/analytics/advanced/final-cut/bookends`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<BookendsDto>('get', `${basePath}${localVarPath}`,
             {
@@ -986,7 +986,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/final-cut/director-actor-pairs
+     * @endpoint get /api/v1/analytics/advanced/final-cut/director-actor-pairs
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -1118,7 +1118,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/final-cut/director-actor-pairs`;
+        let localVarPath = `/api/v1/analytics/advanced/final-cut/director-actor-pairs`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<DirectorActorPairDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -1135,7 +1135,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/final-cut/genre-landscape
+     * @endpoint get /api/v1/analytics/advanced/final-cut/genre-landscape
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -1267,7 +1267,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/final-cut/genre-landscape`;
+        let localVarPath = `/api/v1/analytics/advanced/final-cut/genre-landscape`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<GenreWithRatingDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -1284,7 +1284,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/final-cut/monthly-extremes
+     * @endpoint get /api/v1/analytics/advanced/final-cut/monthly-extremes
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -1426,7 +1426,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/final-cut/monthly-extremes`;
+        let localVarPath = `/api/v1/analytics/advanced/final-cut/monthly-extremes`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<MonthlyExtremeDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -1443,7 +1443,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/final-cut/most-rewatched
+     * @endpoint get /api/v1/analytics/advanced/final-cut/most-rewatched
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -1575,7 +1575,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/final-cut/most-rewatched`;
+        let localVarPath = `/api/v1/analytics/advanced/final-cut/most-rewatched`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<MostRewatchedDto>('get', `${basePath}${localVarPath}`,
             {
@@ -1592,7 +1592,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/final-cut/prime-time
+     * @endpoint get /api/v1/analytics/advanced/final-cut/prime-time
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -1724,7 +1724,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/final-cut/prime-time`;
+        let localVarPath = `/api/v1/analytics/advanced/final-cut/prime-time`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PrimeTimeStatsDto>('get', `${basePath}${localVarPath}`,
             {
@@ -1741,7 +1741,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/final-cut/shortest-movie
+     * @endpoint get /api/v1/analytics/advanced/final-cut/shortest-movie
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -1873,7 +1873,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/final-cut/shortest-movie`;
+        let localVarPath = `/api/v1/analytics/advanced/final-cut/shortest-movie`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<WrappedMovieDto2>('get', `${basePath}${localVarPath}`,
             {
@@ -1890,7 +1890,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/final-cut/top-bottom-rated
+     * @endpoint get /api/v1/analytics/advanced/final-cut/top-bottom-rated
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -2022,7 +2022,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/final-cut/top-bottom-rated`;
+        let localVarPath = `/api/v1/analytics/advanced/final-cut/top-bottom-rated`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TopBottomMoviesDto>('get', `${basePath}${localVarPath}`,
             {
@@ -2039,7 +2039,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched/actors
+     * @endpoint get /api/v1/analytics/advanced/watched/actors
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -2171,7 +2171,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched/actors`;
+        let localVarPath = `/api/v1/analytics/advanced/watched/actors`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<ActorCountDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -2188,7 +2188,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched/casting-repetitions
+     * @endpoint get /api/v1/analytics/advanced/watched/casting-repetitions
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -2320,7 +2320,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched/casting-repetitions`;
+        let localVarPath = `/api/v1/analytics/advanced/watched/casting-repetitions`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<CastingPairDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -2337,7 +2337,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched/decades
+     * @endpoint get /api/v1/analytics/advanced/watched/decades
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -2469,7 +2469,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched/decades`;
+        let localVarPath = `/api/v1/analytics/advanced/watched/decades`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<DecadeCountDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -2486,7 +2486,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched/director-ranking
+     * @endpoint get /api/v1/analytics/advanced/watched/director-ranking
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -2618,7 +2618,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched/director-ranking`;
+        let localVarPath = `/api/v1/analytics/advanced/watched/director-ranking`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<DirectorLeaderboardDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -2635,7 +2635,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched/directors
+     * @endpoint get /api/v1/analytics/advanced/watched/directors
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -2767,7 +2767,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched/directors`;
+        let localVarPath = `/api/v1/analytics/advanced/watched/directors`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<DirectorCountDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -2784,7 +2784,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched/genre-streaks
+     * @endpoint get /api/v1/analytics/advanced/watched/genre-streaks
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -2916,7 +2916,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched/genre-streaks`;
+        let localVarPath = `/api/v1/analytics/advanced/watched/genre-streaks`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<GenreStreakDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -2933,7 +2933,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched/genres
+     * @endpoint get /api/v1/analytics/advanced/watched/genres
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -3065,7 +3065,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched/genres`;
+        let localVarPath = `/api/v1/analytics/advanced/watched/genres`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<GenreCountDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -3082,7 +3082,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched
+     * @endpoint get /api/v1/analytics/advanced/watched
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -3214,7 +3214,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched`;
+        let localVarPath = `/api/v1/analytics/advanced/watched`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<WatchedMovieStatsDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -3231,7 +3231,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched/longest-movie
+     * @endpoint get /api/v1/analytics/advanced/watched/longest-movie
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -3363,7 +3363,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched/longest-movie`;
+        let localVarPath = `/api/v1/analytics/advanced/watched/longest-movie`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<MovieSimpleDto>('get', `${basePath}${localVarPath}`,
             {
@@ -3380,7 +3380,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched/most-repeated-actor
+     * @endpoint get /api/v1/analytics/advanced/watched/most-repeated-actor
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -3512,7 +3512,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched/most-repeated-actor`;
+        let localVarPath = `/api/v1/analytics/advanced/watched/most-repeated-actor`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ActorCountDto>('get', `${basePath}${localVarPath}`,
             {
@@ -3529,7 +3529,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched/most-watched-director
+     * @endpoint get /api/v1/analytics/advanced/watched/most-watched-director
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -3661,7 +3661,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched/most-watched-director`;
+        let localVarPath = `/api/v1/analytics/advanced/watched/most-watched-director`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DirectorCountDto>('get', `${basePath}${localVarPath}`,
             {
@@ -3678,7 +3678,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched/predominant-era
+     * @endpoint get /api/v1/analytics/advanced/watched/predominant-era
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -3810,7 +3810,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched/predominant-era`;
+        let localVarPath = `/api/v1/analytics/advanced/watched/predominant-era`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<EraBreakdownDto>('get', `${basePath}${localVarPath}`,
             {
@@ -3827,7 +3827,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched/preferred-day
+     * @endpoint get /api/v1/analytics/advanced/watched/preferred-day
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -3959,7 +3959,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched/preferred-day`;
+        let localVarPath = `/api/v1/analytics/advanced/watched/preferred-day`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<PreferredDayDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -3976,7 +3976,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched/rating-evolution
+     * @endpoint get /api/v1/analytics/advanced/watched/rating-evolution
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -4108,7 +4108,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched/rating-evolution`;
+        let localVarPath = `/api/v1/analytics/advanced/watched/rating-evolution`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<RatingEvolutionDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -4125,7 +4125,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watched/total-time
+     * @endpoint get /api/v1/analytics/advanced/watched/total-time
      * @param filterType 
      * @param filterName 
      * @param watchYear 
@@ -4277,7 +4277,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watched/total-time`;
+        let localVarPath = `/api/v1/analytics/advanced/watched/total-time`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TimeInvestedDto>('get', `${basePath}${localVarPath}`,
             {
@@ -4294,7 +4294,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watchlist/actors
+     * @endpoint get /api/v1/analytics/advanced/watchlist/actors
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -4426,7 +4426,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watchlist/actors`;
+        let localVarPath = `/api/v1/analytics/advanced/watchlist/actors`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<ActorCountDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -4443,7 +4443,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watchlist/by-era
+     * @endpoint get /api/v1/analytics/advanced/watchlist/by-era
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -4575,7 +4575,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watchlist/by-era`;
+        let localVarPath = `/api/v1/analytics/advanced/watchlist/by-era`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<EraBreakdownDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -4592,7 +4592,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watchlist/decades
+     * @endpoint get /api/v1/analytics/advanced/watchlist/decades
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -4724,7 +4724,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watchlist/decades`;
+        let localVarPath = `/api/v1/analytics/advanced/watchlist/decades`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<DecadeCountDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -4741,7 +4741,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watchlist/directors
+     * @endpoint get /api/v1/analytics/advanced/watchlist/directors
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -4873,7 +4873,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watchlist/directors`;
+        let localVarPath = `/api/v1/analytics/advanced/watchlist/directors`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<DirectorCountDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -4890,7 +4890,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watchlist/duration-balance
+     * @endpoint get /api/v1/analytics/advanced/watchlist/duration-balance
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -5022,7 +5022,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watchlist/duration-balance`;
+        let localVarPath = `/api/v1/analytics/advanced/watchlist/duration-balance`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<DurationBalanceDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -5039,7 +5039,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watchlist/genre-proportion
+     * @endpoint get /api/v1/analytics/advanced/watchlist/genre-proportion
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -5171,7 +5171,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watchlist/genre-proportion`;
+        let localVarPath = `/api/v1/analytics/advanced/watchlist/genre-proportion`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<GenreProportionDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -5188,7 +5188,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watchlist/genres
+     * @endpoint get /api/v1/analytics/advanced/watchlist/genres
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -5320,7 +5320,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watchlist/genres`;
+        let localVarPath = `/api/v1/analytics/advanced/watchlist/genres`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<GenreCountDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -5337,7 +5337,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watchlist
+     * @endpoint get /api/v1/analytics/advanced/watchlist
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -5469,7 +5469,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watchlist`;
+        let localVarPath = `/api/v1/analytics/advanced/watchlist`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<WatchlistMovieStatsDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -5486,7 +5486,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watchlist/ghost-actor
+     * @endpoint get /api/v1/analytics/advanced/watchlist/ghost-actor
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -5618,7 +5618,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watchlist/ghost-actor`;
+        let localVarPath = `/api/v1/analytics/advanced/watchlist/ghost-actor`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<GhostActorDto>('get', `${basePath}${localVarPath}`,
             {
@@ -5635,7 +5635,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watchlist/golden-director
+     * @endpoint get /api/v1/analytics/advanced/watchlist/golden-director
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -5767,7 +5767,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watchlist/golden-director`;
+        let localVarPath = `/api/v1/analytics/advanced/watchlist/golden-director`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<GoldenDirectorDto>('get', `${basePath}${localVarPath}`,
             {
@@ -5784,7 +5784,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watchlist/most-anticipated-actor
+     * @endpoint get /api/v1/analytics/advanced/watchlist/most-anticipated-actor
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -5916,7 +5916,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watchlist/most-anticipated-actor`;
+        let localVarPath = `/api/v1/analytics/advanced/watchlist/most-anticipated-actor`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ActorCountDto>('get', `${basePath}${localVarPath}`,
             {
@@ -5933,7 +5933,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watchlist/most-anticipated-director
+     * @endpoint get /api/v1/analytics/advanced/watchlist/most-anticipated-director
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -6065,7 +6065,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watchlist/most-anticipated-director`;
+        let localVarPath = `/api/v1/analytics/advanced/watchlist/most-anticipated-director`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DirectorCountDto>('get', `${basePath}${localVarPath}`,
             {
@@ -6082,7 +6082,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watchlist/oldest-pending
+     * @endpoint get /api/v1/analytics/advanced/watchlist/oldest-pending
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -6214,7 +6214,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watchlist/oldest-pending`;
+        let localVarPath = `/api/v1/analytics/advanced/watchlist/oldest-pending`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<MovieSimpleDto>('get', `${basePath}${localVarPath}`,
             {
@@ -6231,7 +6231,7 @@ export class AdvancedAnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/analytics/advanced/watchlist/total-watchtime
+     * @endpoint get /api/v1/analytics/advanced/watchlist/total-watchtime
      * @param watchYear 
      * @param releaseYear 
      * @param minRating 
@@ -6363,7 +6363,7 @@ export class AdvancedAnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/analytics/advanced/watchlist/total-watchtime`;
+        let localVarPath = `/api/v1/analytics/advanced/watchlist/total-watchtime`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TimeInvestedDto>('get', `${basePath}${localVarPath}`,
             {

@@ -10,11 +10,22 @@ erDiagram
     USER ||--o{ MOVIE_RATING : "rates"
     USER ||--o{ WATCHLIST_ITEM : "adds to"
     USER ||--o{ MOVIE_LIKE : "likes"
+    USER ||--o{ REFRESH_TOKEN : "has"
+    USER ||--o{ CUSTOM_LIST : "owns"
+    USER ||--o| RECOMMENDATION_PROFILE : "has"
+    USER ||--o{ IMPORT_HISTORY : "uploads"
+    USER ||--o{ WATCHED_MOVIE : "watched"
+    USER ||--o{ DISCOVERY_OBJECTIVE : "completes"
     
     MOVIE ||--o{ DIARY_ENTRY : "has"
     MOVIE ||--o{ MOVIE_RATING : "has"
     MOVIE ||--o{ WATCHLIST_ITEM : "has"
     MOVIE ||--o{ MOVIE_LIKE : "has"
+    MOVIE ||--o{ CUSTOM_LIST_ITEM : "included in"
+    MOVIE ||--o{ WATCHED_MOVIE : "watched"
+    
+    CUSTOM_LIST ||--o{ CUSTOM_LIST_ITEM : "contains"
+    WATCHED_MOVIE }o--|| IMPORT_HISTORY : "associated with"
     
     MOVIE ||--|| EXTERNAL_REFERENCE : "identified by"
     MOVIE }o--o{ GENRE : "has"
@@ -119,3 +130,95 @@ Tracks explicit affinity (likes) given to a movie by the user.
 * `UserId` (Guid)
 * `MovieId` (Guid)
 * `DateLiked` (DateOnly)
+
+### 8. CustomList (Entity)
+
+Represents a custom movie list curated by a user.
+
+* `Id` (Guid)
+* `UserId` (Guid)
+* `Name` (string)
+* `CreatedAt` (DateTime)
+
+### 9. CustomListItem (Entity)
+
+Represents an item within a `CustomList`.
+
+* `Id` (Guid)
+* `CustomListId` (Guid)
+* `MovieId` (Guid)
+* `AddedAt` (DateTime)
+
+### 10. RefreshToken (Entity)
+
+Represents a JWT refresh token for security/authentication flows.
+
+* `Id` (Guid)
+* `UserId` (Guid)
+* `Token` (string)
+* `ExpiresAt` (DateTime)
+* `CreatedAt` (DateTime)
+* `RevokedAt` (DateTime?)
+
+### 11. RecommendationProfile (Entity)
+
+Stores processed user preferences computed periodically by the recommendation engine.
+
+* `UserId` (Guid)
+* `FavoriteGenres` (`List<string>`)
+* `RecurringDirectors` (`List<string>`)
+* `ComfortDecade` (int?)
+
+### 12. TvShow (Entity)
+
+Represents metadata for a TV show indexed from external providers (e.g. TMDB) for TV-related features.
+
+* `Id` (Guid)
+* `Title` (string)
+* `FirstAirYear` (int?)
+* `TmdbId` (int)
+* `PosterUrl` (string?)
+* `IsDocumentary` (bool)
+* `CreatedAt` (DateTime)
+
+### 13. WatchedMovie (Entity)
+
+Tracks historical viewing activity linked to specific imports or manual logs.
+
+* `Id` (Guid)
+* `UserId` (Guid)
+* `MovieId` (Guid)
+* `Date` (DateOnly)
+* `ImportHistoryId` (Guid?)
+
+### 14. DiscoveryObjective (Entity)
+
+Represents a specific objective on a user's Discovery Bingo Board.
+
+* `Id` (Guid)
+* `UserId` (Guid)
+* `BoardId` (Guid)
+* `GridSize` (int)
+* `Row` (int)
+* `Column` (int)
+* `RequirementExpression` (string)
+* `Description` (string)
+* `IsAchieved` (bool)
+* `CompletionDate` (DateTime?)
+* `FulfillingDiaryEntryId` (Guid?)
+* `StartDate` (DateTime?)
+* `EndDate` (DateTime?)
+* `RerollCount` (int)
+
+### 15. ImportHistory (Entity)
+
+Tracks bulk uploads and their TMDB metadata enrichment progress.
+
+* `Id` (Guid)
+* `UserId` (Guid)
+* `ImportedAt` (DateTime)
+* `FileName` (string)
+* `Status` (string) - e.g. "Pending", "Enriching", "Success", "Failed"
+* `DiaryEntriesCount` (int)
+* `RatingsCount` (int)
+* `WatchlistItemsCount` (int)

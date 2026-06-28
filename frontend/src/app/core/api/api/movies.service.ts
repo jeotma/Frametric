@@ -46,7 +46,7 @@ export class MoviesService extends BaseService {
     }
 
     /**
-     * @endpoint post /api/Movies/enrich-from-tmdb
+     * @endpoint post /api/v1/Movies/enrich-from-tmdb
      * @param enrichMovieRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -101,7 +101,7 @@ export class MoviesService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Movies/enrich-from-tmdb`;
+        let localVarPath = `/api/v1/Movies/enrich-from-tmdb`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<MovieSimpleDto>('post', `${basePath}${localVarPath}`,
             {
@@ -118,7 +118,7 @@ export class MoviesService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/Movies/{id}
+     * @endpoint get /api/v1/Movies/{id}
      * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -162,7 +162,7 @@ export class MoviesService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Movies/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/api/v1/Movies/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<MovieDetailsDto>('get', `${basePath}${localVarPath}`,
             {
@@ -178,7 +178,7 @@ export class MoviesService extends BaseService {
     }
 
     /**
-     * @endpoint delete /api/Movies/{id}/log/{entryId}
+     * @endpoint delete /api/v1/Movies/{id}/log/{entryId}
      * @param id 
      * @param entryId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -226,7 +226,7 @@ export class MoviesService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Movies/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/log/${this.configuration.encodeParam({name: "entryId", value: entryId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/api/v1/Movies/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/log/${this.configuration.encodeParam({name: "entryId", value: entryId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -242,7 +242,7 @@ export class MoviesService extends BaseService {
     }
 
     /**
-     * @endpoint post /api/Movies/{id}/log
+     * @endpoint post /api/v1/Movies/{id}/log
      * @param id 
      * @param logMovieWatchRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -301,7 +301,7 @@ export class MoviesService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Movies/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/log`;
+        let localVarPath = `/api/v1/Movies/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/log`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
@@ -318,7 +318,7 @@ export class MoviesService extends BaseService {
     }
 
     /**
-     * @endpoint delete /api/Movies/{id}/watchlist
+     * @endpoint delete /api/v1/Movies/{id}/watchlist
      * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -362,7 +362,7 @@ export class MoviesService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Movies/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/watchlist`;
+        let localVarPath = `/api/v1/Movies/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/watchlist`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -378,7 +378,7 @@ export class MoviesService extends BaseService {
     }
 
     /**
-     * @endpoint post /api/Movies/{id}/watchlist
+     * @endpoint post /api/v1/Movies/{id}/watchlist
      * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -422,7 +422,7 @@ export class MoviesService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Movies/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/watchlist`;
+        let localVarPath = `/api/v1/Movies/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/watchlist`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
@@ -463,7 +463,7 @@ export class MoviesService extends BaseService {
             else responseType_ = 'blob';
         }
 
-        let localVarPath = `/api/Movies/${this.configuration.encodeParam({name: "movieId", value: movieId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/collection`;
+        let localVarPath = `/api/v1/Movies/${this.configuration.encodeParam({name: "movieId", value: movieId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/collection`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TmdbCollectionResultDto>('get', `${basePath}${localVarPath}`,
             {

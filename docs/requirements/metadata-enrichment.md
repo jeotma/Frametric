@@ -30,7 +30,7 @@ To keep the initial ZIP parsing fast and prevent hitting TMDB API rate limits sy
 ### 2. Enrichment Phase (Background Job)
 
 1. `TmdbEnrichmentBackgroundService` listens to the channel.
-2. Upon receiving a trigger (or during application startup sweeps), it queries PostgreSQL for movies where `EnrichmentStatus == Pending` in batches of **20**.
+2. Upon receiving a trigger (or during application startup sweeps), it queries PostgreSQL for movies where `EnrichmentStatus == Pending` in batches (default: **20**, configurable via `TmdbEnrichment:BatchSize`).
 3. For each pending movie, the `ITmdbClient` makes an HTTP request to the TMDB API using the `Title` and `ReleaseYear`.
 4. Once a match is found, the system extracts:
    - `RuntimeMinutes`
@@ -46,6 +46,6 @@ To keep the initial ZIP parsing fast and prevent hitting TMDB API rate limits sy
 
 ## Resilience & Rate Limiting
 
-- **Rate Limits**: The background job respects external API limit recommendations. It throttles processing by waiting for **10 seconds** between database batches.
-- **Retries**: Transient failures are logged, and the service sleeps for **30 seconds** before retrying to prevent crashing the worker thread.
+- **Rate Limits**: The background job respects external API limit recommendations. It throttles processing by waiting between database batches (default: **10 seconds**, configurable via `TmdbEnrichment:DelayBetweenBatchesSeconds`).
+- **Retries**: Transient failures are logged, and the service sleeps before retrying (default: **30 seconds**, configurable via `TmdbEnrichment:RetryDelaySeconds`) to prevent crashing the worker thread.
 - **Unmatched Movies**: If a movie cannot be found on TMDB, its status is marked as `Failed`. This allows the dashboard queries to execute while avoiding repeated API queries on subsequent sweeps.

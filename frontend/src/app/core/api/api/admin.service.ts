@@ -46,7 +46,7 @@ export class AdminService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/Admin/diagnostics/database
+     * @endpoint get /api/v1/Admin/diagnostics/database
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -86,7 +86,7 @@ export class AdminService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Admin/diagnostics/database`;
+        let localVarPath = `/api/v1/Admin/diagnostics/database`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DatabaseStatsDto>('get', `${basePath}${localVarPath}`,
             {
@@ -102,7 +102,7 @@ export class AdminService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/Admin/diagnostics/logs
+     * @endpoint get /api/v1/Admin/diagnostics/logs
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -142,7 +142,7 @@ export class AdminService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Admin/diagnostics/logs`;
+        let localVarPath = `/api/v1/Admin/diagnostics/logs`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<LogEntryDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -158,7 +158,7 @@ export class AdminService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/Admin/diagnostics/providers
+     * @endpoint get /api/v1/Admin/diagnostics/providers
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -198,7 +198,7 @@ export class AdminService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Admin/diagnostics/providers`;
+        let localVarPath = `/api/v1/Admin/diagnostics/providers`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ProviderDiagnosticsDto>('get', `${basePath}${localVarPath}`,
             {
@@ -214,7 +214,7 @@ export class AdminService extends BaseService {
     }
 
     /**
-     * @endpoint post /api/Admin/enrich/retry-failed
+     * @endpoint post /api/v1/Admin/enrich/retry-failed
      * @param resetPermanentlyFailed 
      * @param batchSize 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -276,7 +276,7 @@ export class AdminService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Admin/enrich/retry-failed`;
+        let localVarPath = `/api/v1/Admin/enrich/retry-failed`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<number>('post', `${basePath}${localVarPath}`,
             {
@@ -293,7 +293,7 @@ export class AdminService extends BaseService {
     }
 
     /**
-     * @endpoint post /api/Admin/maintenance/clear-cache
+     * @endpoint post /api/v1/Admin/maintenance/clear-cache
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -330,7 +330,7 @@ export class AdminService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Admin/maintenance/clear-cache`;
+        let localVarPath = `/api/v1/Admin/maintenance/clear-cache`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
@@ -346,7 +346,7 @@ export class AdminService extends BaseService {
     }
 
     /**
-     * @endpoint post /api/Admin/maintenance/purge-orphans
+     * @endpoint post /api/v1/Admin/maintenance/purge-orphans
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -386,7 +386,7 @@ export class AdminService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Admin/maintenance/purge-orphans`;
+        let localVarPath = `/api/v1/Admin/maintenance/purge-orphans`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PurgeOrphanResultDto>('post', `${basePath}${localVarPath}`,
             {
@@ -402,7 +402,7 @@ export class AdminService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/Admin/users
+     * @endpoint get /api/v1/Admin/users
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -442,7 +442,7 @@ export class AdminService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Admin/users`;
+        let localVarPath = `/api/v1/Admin/users`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<UserDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -458,7 +458,7 @@ export class AdminService extends BaseService {
     }
 
     /**
-     * @endpoint post /api/Admin/users/{userId}/promote
+     * @endpoint post /api/v1/Admin/users/{userId}/promote
      * @param userId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -502,7 +502,7 @@ export class AdminService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Admin/users/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/promote`;
+        let localVarPath = `/api/v1/Admin/users/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/promote`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {

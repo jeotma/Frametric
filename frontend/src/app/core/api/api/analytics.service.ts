@@ -44,7 +44,7 @@ export class AnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/Analytics/dashboard
+     * @endpoint get /api/v1/Analytics/dashboard
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -84,7 +84,7 @@ export class AnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Analytics/dashboard`;
+        let localVarPath = `/api/v1/Analytics/dashboard`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DashboardSummaryDto>('get', `${basePath}${localVarPath}`,
             {
@@ -100,7 +100,7 @@ export class AnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/Analytics/monthly-activity/{year}
+     * @endpoint get /api/v1/Analytics/monthly-activity/{year}
      * @param year 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -144,7 +144,7 @@ export class AnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Analytics/monthly-activity/${this.configuration.encodeParam({name: "year", value: year, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}`;
+        let localVarPath = `/api/v1/Analytics/monthly-activity/${this.configuration.encodeParam({name: "year", value: year, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<MonthlyActivityResponseDto>('get', `${basePath}${localVarPath}`,
             {
@@ -160,7 +160,7 @@ export class AnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/Analytics/top-directors
+     * @endpoint get /api/v1/Analytics/top-directors
      * @param limit 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -212,7 +212,7 @@ export class AnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Analytics/top-directors`;
+        let localVarPath = `/api/v1/Analytics/top-directors`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<DirectorLeaderboardDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -229,7 +229,7 @@ export class AnalyticsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/Analytics/wrapped
+     * @endpoint get /api/v1/Analytics/wrapped
      * @param year 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -281,7 +281,7 @@ export class AnalyticsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Analytics/wrapped`;
+        let localVarPath = `/api/v1/Analytics/wrapped`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<WrappedSummaryDto>('get', `${basePath}${localVarPath}`,
             {

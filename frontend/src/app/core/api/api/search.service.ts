@@ -36,7 +36,7 @@ export class SearchService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/Search
+     * @endpoint get /api/v1/Search
      * @param q 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -88,7 +88,7 @@ export class SearchService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Search`;
+        let localVarPath = `/api/v1/Search`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<GlobalSearchResultDto>>('get', `${basePath}${localVarPath}`,
             {

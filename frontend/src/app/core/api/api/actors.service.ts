@@ -38,7 +38,7 @@ export class ActorsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/Actors/{id}
+     * @endpoint get /api/v1/Actors/{id}
      * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -82,7 +82,7 @@ export class ActorsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/Actors/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/api/v1/Actors/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ActorDetailsDto>('get', `${basePath}${localVarPath}`,
             {

@@ -13,7 +13,7 @@ graph TD
     Startup[Application Startup] -->|Auto-Trigger| Channel
     Channel -->|Wake up signal| BackgroundWorker[TmdbEnrichmentBackgroundService]
     BackgroundWorker -->|Query Pending| Database[(PostgreSQL)]
-    Database -->|Batch of 20 Movies| BackgroundWorker
+    Database -->|Batch of Movies| BackgroundWorker
     BackgroundWorker -->|Fetch Metadata| TMDB[TMDB API]
     TMDB -->|Genres, Directors, Runtime| BackgroundWorker
     BackgroundWorker -->|Update Entities & Relations| Database
@@ -42,10 +42,10 @@ Located in `Frametric.Infrastructure/BackgroundJobs/TmdbEnrichmentBackgroundServ
   2. It asynchronously reads from the trigger channel using `ReadAllAsync(stoppingToken)`.
   3. Upon receiving a trigger, it enters a processing loop:
      - Spawns a scope and resolves `IMediator`.
-     - Sends `EnrichPendingMoviesCommand` requesting a batch size of **20** movies.
-     - If movies were enriched, it logs progress and waits for **10 seconds** (`Task.Delay`) to respect TMDB API rate limit policies.
+     - Sends `EnrichPendingMoviesCommand` requesting a batch size of movies (default: **20**, configurable via `TmdbEnrichment:BatchSize`).
+     - If movies were enriched, it logs progress and waits (default: **10 seconds**, configurable via `TmdbEnrichment:DelayBetweenBatchesSeconds`) to respect TMDB API rate limit policies.
      - If no more pending movies are found, it sends `MarkImportsCompletedCommand` to transition import batches from `Enriching` to `Completed`, then breaks the inner loop to sleep until the next channel write.
-- **Resilience**: If an exception occurs, the service logs the error, waits for **30 seconds**, and continues to prevent crash-looping.
+- **Resilience**: If an exception occurs, the service logs the error, waits (default: **30 seconds**, configurable via `TmdbEnrichment:RetryDelaySeconds`), and continues to prevent crash-looping.
 
 ---
 
