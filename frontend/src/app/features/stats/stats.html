@@ -365,7 +365,7 @@
                             <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
                             <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                           </svg>
-                          <span class="tooltip-text" style="width: 150px; bottom: 125%; left: 50%; transform: translateX(-50%);">Kevin Bacon separation</span>
+                          <span class="tooltip-text" style="width: 260px; bottom: 125%; left: 50%; transform: translateX(-50%);">Six Degrees of Kevin Bacon: Measures the degree of separation (co-star links) between this actor and Kevin Bacon. Click to calculate!</span>
                         </button>
                       </span>
                       }
@@ -376,8 +376,8 @@
                   <ng-container *ngIf="col.toLowerCase() === 'title'">
                     <div *ngIf="showPosters() && hasPosterField()" class="poster-title-layout keyboard-interactive"
                       tabindex="0" role="button" (click)="navigateToEntity(item[col], 'Movie')">
-                      <img *ngIf="item.posterUrl" [src]="item.posterUrl" alt="Poster" class="row-poster-stacked" />
-                      <div *ngIf="!item.posterUrl" class="row-poster-placeholder-stacked">No Poster</div>
+                      <img *ngIf="item.posterUrl || item.posterPath" [src]="item.posterUrl || 'https://image.tmdb.org/t/p/w185' + item.posterPath" alt="Poster" class="row-poster-stacked" />
+                      <div *ngIf="!item.posterUrl && !item.posterPath" class="row-poster-placeholder-stacked">No Poster</div>
                       <span class="movie-title-text" style="text-decoration: underline;">{{ item[col] }}</span>
                     </div>
                     <span *ngIf="!(showPosters() && hasPosterField())" tabindex="0" role="button" class="clickable-link"
@@ -458,7 +458,7 @@
                                   <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
                                   <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                                 </svg>
-                                <span class="tooltip-text" style="width: 150px; bottom: 125%; left: 50%; transform: translateX(-50%);">Kevin Bacon separation</span>
+                                <span class="tooltip-text" style="width: 260px; bottom: 125%; left: 50%; transform: translateX(-50%);">Six Degrees of Kevin Bacon: Measures the degree of separation (co-star links) between this actor and Kevin Bacon. Click to calculate!</span>
                               </button>
                             </div>
                           </div>
@@ -474,7 +474,7 @@
                                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
                                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                               </svg>
-                              <span class="tooltip-text" style="width: 150px; bottom: 125%; left: 50%; transform: translateX(-50%);">Kevin Bacon separation</span>
+                              <span class="tooltip-text" style="width: 260px; bottom: 125%; left: 50%; transform: translateX(-50%);">Six Degrees of Kevin Bacon: Measures the degree of separation (co-star links) between this actor and Kevin Bacon. Click to calculate!</span>
                             </button>
                           </span>
                         </ng-container>
@@ -500,7 +500,7 @@
                                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
                                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                               </svg>
-                              <span class="tooltip-text" style="width: 150px; bottom: 125%; left: 50%; transform: translateX(-50%);">Kevin Bacon separation</span>
+                              <span class="tooltip-text" style="width: 260px; bottom: 125%; left: 50%; transform: translateX(-50%);">Six Degrees of Kevin Bacon: Measures the degree of separation (co-star links) between this actor and Kevin Bacon. Click to calculate!</span>
                             </button>
                           </span>
                         </ng-template>
@@ -602,9 +602,37 @@
           <ng-container *ngIf="!hasNoData(resultData())">
             <div class="hero-profile-header" *ngIf="resultData().profilePath">
               <div class="hero-profile-img-wrap">
-                <img [src]="resultData().profilePath" [alt]="resultData().name" class="hero-profile-img" />
+                <ng-container *ngIf="resultData().id; else noLinkImg">
+                  <a *ngIf="resultData().directorName" [routerLink]="['/directors', resultData().id, slugify(resultData().directorName)]">
+                    <img [src]="resultData().profilePath" [alt]="resultData().directorName" class="hero-profile-img" />
+                  </a>
+                  <a *ngIf="resultData().actorName" [routerLink]="['/actors', resultData().id, slugify(resultData().actorName)]">
+                    <img [src]="resultData().profilePath" [alt]="resultData().actorName" class="hero-profile-img" />
+                  </a>
+                  <a *ngIf="resultData().name && !resultData().directorName && !resultData().actorName" [routerLink]="['/actors', resultData().id, slugify(resultData().name)]">
+                    <img [src]="resultData().profilePath" [alt]="resultData().name" class="hero-profile-img" />
+                  </a>
+                </ng-container>
+                <ng-template #noLinkImg>
+                  <img [src]="resultData().profilePath" [alt]="resultData().name || resultData().directorName || resultData().actorName" class="hero-profile-img" />
+                </ng-template>
               </div>
-              <h2 class="hero-title hero-title-with-img">{{ resultData().name }}</h2>
+              <h2 class="hero-title hero-title-with-img">
+                <ng-container *ngIf="resultData().id; else noLinkTitle">
+                  <a *ngIf="resultData().directorName" [routerLink]="['/directors', resultData().id, slugify(resultData().directorName)]" class="entity-link">
+                    {{ resultData().directorName }}
+                  </a>
+                  <a *ngIf="resultData().actorName" [routerLink]="['/actors', resultData().id, slugify(resultData().actorName)]" class="entity-link">
+                    {{ resultData().actorName }}
+                  </a>
+                  <a *ngIf="resultData().name && !resultData().directorName && !resultData().actorName" [routerLink]="['/actors', resultData().id, slugify(resultData().name)]" class="entity-link">
+                    {{ resultData().name }}
+                  </a>
+                </ng-container>
+                <ng-template #noLinkTitle>
+                  {{ resultData().name || resultData().directorName || resultData().actorName }}
+                </ng-template>
+              </h2>
             </div>
             <div class="hero-movie-header" *ngIf="resultData().posterPath">
               <div class="hero-movie-img-wrap">

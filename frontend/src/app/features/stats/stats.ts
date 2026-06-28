@@ -108,7 +108,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
   hasPosterField(): boolean {
     const data = this.resultData();
-    return this.isArray(data) && data.length > 0 && 'posterUrl' in data[0] && data[0].posterUrl !== undefined;
+    return this.isArray(data) && data.length > 0 && (('posterUrl' in data[0] && data[0].posterUrl !== undefined) || ('posterPath' in data[0] && data[0].posterPath !== undefined));
   }
 
   hasProfileField(): boolean {
@@ -527,8 +527,12 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     return allKeys.filter(key =>
       key !== 'posterUrl' &&
+      key !== 'posterPath' &&
+      !key.toLowerCase().includes('posterpath') &&
       key !== 'profilePath' &&
       !key.toLowerCase().includes('profilepath') &&
+      key !== 'isWatched' &&
+      !key.toLowerCase().includes('iswatched') &&
       key.toLowerCase() !== 'id' &&
       !key.toLowerCase().endsWith('id') &&
       data.some((item: any) => {
