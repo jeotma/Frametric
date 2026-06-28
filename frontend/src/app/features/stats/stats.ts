@@ -528,6 +528,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     return allKeys.filter(key =>
       key !== 'posterUrl' &&
       key !== 'profilePath' &&
+      !key.toLowerCase().includes('profilepath') &&
       key.toLowerCase() !== 'id' &&
       !key.toLowerCase().endsWith('id') &&
       data.some((item: any) => {
@@ -536,6 +537,15 @@ export class StatsComponent implements OnInit, OnDestroy {
       })
     );
   });
+
+  shouldShowBacon(name: string): boolean {
+    if (!name) return false;
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return Math.abs(hash % 100) < 5; // 5% stable probability
+  }
 
   formatColName(name: string): string {
     if (name === 'count') {
