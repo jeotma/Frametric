@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnDestroy, inject, signal, effect } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnDestroy, inject, signal, effect, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of, finalize, tap } from 'rxjs';
@@ -232,5 +232,12 @@ export class CustomSelectionInputComponent implements OnDestroy {
       },
       error: (err) => alert('Could not save list: ' + err.message)
     });
+  }
+
+  @HostListener('window:keydown.escape', ['$event'])
+  handleEscapeKey(event: any) {
+    if (this.showSaveModal()) {
+      this.showSaveModal.set(false);
+    }
   }
 }

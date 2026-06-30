@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ElementRef, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ElementRef, ViewChild, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MovieSimpleDto } from '../../../../core/api/model/movie-simple-dto';
+import { DiscoveryAudioService } from '../../services/discovery-audio.service';
 
 @Component({
   selector: 'app-roulette-wheel',
@@ -18,6 +19,8 @@ export class RouletteWheelComponent implements OnChanges, OnInit, OnDestroy {
   @Output() finished = new EventEmitter<void>();
   @Output() interact = new EventEmitter<void>();
 
+  private audioService = inject(DiscoveryAudioService);
+
   @ViewChild('wheelGroup', { static: false }) wheelGroupRef!: ElementRef<SVGElement>;
   @ViewChild('pointerGroup', { static: false }) pointerGroupRef!: ElementRef<SVGElement>;
   @ViewChild('shineOverlay', { static: false }) shineOverlayRef!: ElementRef<SVGElement>;
@@ -32,10 +35,10 @@ export class RouletteWheelComponent implements OnChanges, OnInit, OnDestroy {
 
   // Elegant dark palette derived from the branding rules
   public colors = [
-    '#3e3e42', // Vibrant Silver
-    '#806229', // Vibrant Sepia
-    '#9e0c13', // Vibrant Record
-    '#0c754d'  // Vibrant Emerald
+    '#59595cff', // Vibrant Silver
+    '#947b4cff', // Vibrant Sepia
+    '#92272cff', // Vibrant Record
+    '#1e6248ff'  // Vibrant Emerald
   ];
 
   ngOnInit(): void {
@@ -253,6 +256,9 @@ export class RouletteWheelComponent implements OnChanges, OnInit, OnDestroy {
         const kickForce = Math.min(4 + velocity * 0.12, 8);
         pointerVelocity = -kickForce;
         lastSectorIndex = currentSectorIndex;
+        // Play pointer click/tick sound!
+        const speedFactor = Math.min(velocity / 12, 1.0);
+        this.audioService.playTick(0.85 + speedFactor * 0.3, 0.25 * speedFactor);
       }
 
       // Spring-mass-damper physics simulation:

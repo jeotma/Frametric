@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -45,7 +45,9 @@ public class RevealMysteryBoxQueryHandler : IRequestHandler<RevealMysteryBoxQuer
                 "MysteryBoxReveal",
                 m.PosterUrl,
                 m.RuntimeMinutes,
-                m.Overview))
+                m.Overview,
+                null,
+                null))
             .SingleOrDefaultAsync(cancellationToken);
 
         if (movie == null)

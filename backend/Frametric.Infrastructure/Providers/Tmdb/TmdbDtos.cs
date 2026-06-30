@@ -28,6 +28,9 @@ public class TmdbMovieDetails
     [JsonPropertyName("id")]
     public int Id { get; set; }
 
+    [JsonPropertyName("title")]
+    public string? Title { get; set; }
+
     [JsonPropertyName("runtime")]
     public int? Runtime { get; set; }
 

@@ -114,7 +114,9 @@ public class DiscoveryQueriesImpl : IDiscoveryQueries
                        mp.""Keywords"" AS Keywords,
                        mp.""Overview"" AS Overview,
                        mp.""Language"" AS Language,
-                       mp.""Country"" AS Country
+                       mp.""Country"" AS Country,
+                       EXISTS(SELECT 1 FROM ""WatchlistItems"" WHERE ""MovieId"" = mp.""Id"" AND ""UserId"" = @userId) AS InCurrentUserWatchlist,
+                       EXISTS(SELECT 1 FROM ""WatchlistItems"" WHERE ""MovieId"" = mp.""Id"" AND ""UserId"" = @partnerUserId) AS InPartnerUserWatchlist
                 FROM MergedPool mp
                 ORDER BY mp.""Id"", RANDOM()";
             return await connection.QueryAsync<DiscoveryMoviePoolItemDto>(mergedSql, new { userId, partnerUserId });

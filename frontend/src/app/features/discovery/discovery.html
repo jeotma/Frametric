@@ -443,11 +443,19 @@
     </div>
     <div class="merge-watchlists-row" *ngIf="rouletteScope() === 4">
       <span class="hud-label">PARTNER USERNAME:</span>
-      <input type="text" 
-             [ngModel]="roulettePartnerUsername()" 
-             (ngModelChange)="roulettePartnerUsername.set($event)" 
-             placeholder="Enter partner username" 
-             class="form-input partner-input" />
+      <div style="position: relative; display: flex; align-items: center; gap: 10px; width: 100%; max-width: 320px;">
+        <input type="text" 
+               [ngModel]="roulettePartnerUsername()" 
+               (ngModelChange)="roulettePartnerUsername.set($event); checkPartnerUsername($event)" 
+               placeholder="Enter partner username" 
+               class="form-input partner-input" 
+               style="flex: 1;" />
+        <span *ngIf="rouletteCheckingPartnerUser()" class="partner-status-msg checking">Checking...</span>
+        <span *ngIf="roulettePartnerUserFound() === true" class="partner-status-msg success" title="User found. Lists will merge correctly.">✓</span>
+        <span *ngIf="roulettePartnerUserFound() === false" class="partner-status-msg error" title="User not found.">✗</span>
+      </div>
+      <div *ngIf="roulettePartnerUserFound() === true" class="partner-helper-text success" style="font-size: 0.8rem; color: var(--accent-emerald); margin-top: 4px; font-family: var(--font-mono);">✓ User found. Watchlists will merge successfully.</div>
+      <div *ngIf="roulettePartnerUserFound() === false" class="partner-helper-text error" style="font-size: 0.8rem; color: var(--accent-record); margin-top: 4px; font-family: var(--font-mono);">✗ User not found. Please check the spelling.</div>
     </div>
 
     <div class="roulette-layout">
@@ -491,7 +499,7 @@
     <div *ngIf="rouletteThreshold() > 1 && rouletteIsRacing() && rouletteStepCount() > 0" class="roulette-progress animate-fade-in" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 8px;">
       <span class="hud-data">
         <span class="hud-label">RACE PROGRESS:</span>
-        <span>{{ rouletteStepCount() }} / {{ rouletteSequenceSig().length - 1 }}</span>
+        <span>{{ rouletteStepCount() }} / {{ rouletteSequenceSig().length - rouletteRaceStartIndex }}</span>
       </span>
       <button class="btn btn-secondary" style="font-size: 0.8rem; padding: 4px 12px;" (click)="skipRouletteRace()" [disabled]="rouletteSkipped()">
         ⏭ Skip to Result
@@ -511,6 +519,12 @@
         <p class="director-note">Dir. {{ movie.directorName }}</p>
         <p class="meta hud-data"><span class="hud-label">MECH:</span> {{ movie.selectionMechanismMetadata }}</p>
         <p *ngIf="movie.runtimeMinutes" class="hud-data"><span class="hud-label">LEN:</span> {{ movie.runtimeMinutes }}M</p>
+        <p *ngIf="rouletteScope() === 4 && (movie.inCurrentUserWatchlist || movie.inPartnerUserWatchlist)" class="hud-data">
+          <span class="hud-label">WATCHLIST:</span>
+          <span *ngIf="movie.inCurrentUserWatchlist && movie.inPartnerUserWatchlist" style="color: var(--accent-emerald);">In Both Watchlists</span>
+          <span *ngIf="movie.inCurrentUserWatchlist && !movie.inPartnerUserWatchlist" style="color: var(--accent-sepia);">In Your Watchlist</span>
+          <span *ngIf="!movie.inCurrentUserWatchlist && movie.inPartnerUserWatchlist" style="color: var(--accent-silver);">In {{ roulettePartnerUsername() }}'s Watchlist</span>
+        </p>
       </div>
     </div>
   </div>

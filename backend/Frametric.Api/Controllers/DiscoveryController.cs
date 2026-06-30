@@ -30,11 +30,13 @@ public class DiscoveryController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IDiscoveryQueries _discoveryQueries;
 
-    public DiscoveryController(IMediator mediator, ICurrentUserService currentUserService)
+    public DiscoveryController(IMediator mediator, ICurrentUserService currentUserService, IDiscoveryQueries discoveryQueries)
     {
         _mediator = mediator;
         _currentUserService = currentUserService;
+        _discoveryQueries = discoveryQueries;
     }
 
     private Guid GetUserIdOrThrow()
@@ -241,5 +243,16 @@ public class DiscoveryController : ControllerBase
     {
         var result = await discoveryQueries.GetAvailableCountriesAsync(cancellationToken);
         return Ok(result);
+    }
+
+    [HttpGet("check-user/{username}")]
+    public async Task<ActionResult<object>> CheckUserExists(string username, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            return Ok(new { exists = false });
+        }
+        var partnerUserId = await _discoveryQueries.GetUserIdByUsernameAsync(username.Trim(), cancellationToken);
+        return Ok(new { exists = partnerUserId != null });
     }
 }

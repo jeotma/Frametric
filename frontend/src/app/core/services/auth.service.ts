@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import { AuthService as ApiAuthService } from '../api/api/auth.service';
 import { TokenStorageService } from './token-storage.service';
+import { CustomRouteReuseStrategy } from '../strategies/custom-route-reuse.strategy';
 
 export interface CurrentUser {
   id: string;
@@ -40,6 +41,7 @@ export class AuthService {
         this._tokenStorage.setAccessToken(response.accessToken!);
         this._tokenStorage.setRefreshToken(response.refreshToken!);
         this._currentUser.set(this._tokenStorage.getCurrentUser());
+        CustomRouteReuseStrategy.clearCache();
       }),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       catchError((err: any) => throwError(() => err)),
@@ -71,6 +73,7 @@ export class AuthService {
   logout(): void {
     this._tokenStorage.clear();
     this._currentUser.set(null);
+    CustomRouteReuseStrategy.clearCache();
     this._router.navigate(['/login']);
   }
 }

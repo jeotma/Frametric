@@ -67,7 +67,7 @@ public class SlotMachineSpinQueryHandler : IRequestHandler<SlotMachineSpinQuery,
 
             // Handle comma-separated movie countries by splitting and checking matching strings
             var movieCountries = (movie.Country ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            var meetsCountry = movieCountries.Contains(country, StringComparer.OrdinalIgnoreCase);
+            var meetsCountry = movieCountries.Any(c => MatchCountry(c, country));
 
             var matchedList = new[] { meetsGenre, meetsDecade, meetsPopularity, meetsRating, meetsCountry };
             var matchCount = matchedList.Count(m => m);
@@ -160,5 +160,43 @@ public class SlotMachineSpinQueryHandler : IRequestHandler<SlotMachineSpinQuery,
         if (!string.IsNullOrWhiteSpace(country)) return country;
         var options = new[] { "USA", "UK", "FRANCE", "JAPAN", "SOUTH KOREA" };
         return options[Random.Shared.Next(options.Length)];
+    }
+
+    private static bool MatchCountry(string movieCountry, string? targetCountry)
+    {
+        if (string.IsNullOrWhiteSpace(targetCountry) || string.IsNullOrWhiteSpace(movieCountry))
+            return false;
+
+        if (string.Equals(movieCountry, targetCountry, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        var isTargetUsa = string.Equals(targetCountry, "USA", StringComparison.OrdinalIgnoreCase) ||
+                          string.Equals(targetCountry, "United States", StringComparison.OrdinalIgnoreCase) ||
+                          string.Equals(targetCountry, "United States of America", StringComparison.OrdinalIgnoreCase) ||
+                          string.Equals(targetCountry, "Estados Unidos", StringComparison.OrdinalIgnoreCase);
+
+        var isMovieUsa = string.Equals(movieCountry, "USA", StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(movieCountry, "United States", StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(movieCountry, "United States of America", StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(movieCountry, "Estados Unidos", StringComparison.OrdinalIgnoreCase);
+
+        if (isTargetUsa && isMovieUsa)
+            return true;
+
+        var isTargetUk = string.Equals(targetCountry, "UK", StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(targetCountry, "United Kingdom", StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(targetCountry, "Great Britain", StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(targetCountry, "Reino Unido", StringComparison.OrdinalIgnoreCase);
+
+        var isMovieUk = string.Equals(movieCountry, "UK", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(movieCountry, "United Kingdom", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(movieCountry, "Great Britain", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(movieCountry, "England", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(movieCountry, "Reino Unido", StringComparison.OrdinalIgnoreCase);
+
+        if (isTargetUk && isMovieUk)
+            return true;
+
+        return false;
     }
 }

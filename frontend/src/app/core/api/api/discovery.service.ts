@@ -114,6 +114,50 @@ export class DiscoveryService extends BaseService {
     }
 
     /**
+     * @endpoint get /api/v1/discovery/check-user/{username}
+     * @param username 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiV1DiscoveryCheckUserUsernameGet(username: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<{ exists: boolean }>;
+    public apiV1DiscoveryCheckUserUsernameGet(username: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<{ exists: boolean }>>;
+    public apiV1DiscoveryCheckUserUsernameGet(username: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<{ exists: boolean }>>;
+    public apiV1DiscoveryCheckUserUsernameGet(username: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (username === null || username === undefined) {
+            throw new Error('Required parameter username was null or undefined when calling apiV1DiscoveryCheckUserUsernameGet.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+        localVarHeaders = this.configuration.addCredentialToHeaders('Bearer', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+
+        let localVarPath = `/api/v1/discovery/check-user/${encodeURIComponent(String(username))}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * @endpoint delete /api/v1/discovery/bingo/boards/{boardId}
      * @param boardId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

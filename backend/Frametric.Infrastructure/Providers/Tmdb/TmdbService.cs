@@ -296,6 +296,7 @@ public class TmdbService : ITmdbService
             directors, 
             actors, 
             IsTvShow: false,
+            Title: details.Title,
             TmdbRating: details.VoteAverage,
             TmdbPopularity: details.Popularity,
             ImdbId: details.ImdbId,

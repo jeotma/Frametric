@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -669,5 +669,12 @@ export class StatsComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  @HostListener('window:keydown.escape', ['$event'])
+  handleEscapeKey(event: any) {
+    if (this.baconMessage()) {
+      this.closeBaconModal();
+    }
   }
 }

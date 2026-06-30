@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -25,4 +25,6 @@ public class DiscoveryMoviePoolItemDto
     public string? Overview { get; set; }
     public string? Language { get; set; }
     public string? Country { get; set; }
+    public bool InCurrentUserWatchlist { get; set; }
+    public bool InPartnerUserWatchlist { get; set; }
 }

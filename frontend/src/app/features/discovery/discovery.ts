@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, OnDestroy, computed, ElementRef, ViewChild } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, computed, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -118,12 +118,15 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
   public rouletteExcludeWatched = signal<boolean>(true);
   public rouletteChips = signal<MovieSimpleDto[]>([]);
   public roulettePartnerUsername = signal<string>('');
+  public roulettePartnerUserFound = signal<boolean | null>(null);
+  public rouletteCheckingPartnerUser = signal<boolean>(false);
   public rouletteSequenceSig = signal<MovieSimpleDto[]>([]);
   public rouletteWinnerTitleSig = signal<string | null>(null);
   public rawRouletteWinner = signal<SelectionResultDto | null>(null);
   public rawRouletteWinners = signal<SelectionResultDto[]>([]);
   public rouletteLeaderboard = signal<{ rank: number; title: string; count: number }[]>([]);
   public rouletteRaceIndex = 0;
+  public rouletteRaceStartIndex = 0;
   public rouletteNicknameMap: Map<string, string> = new Map();
   public rouletteIsFullscreen = signal<boolean>(false);
   private roulettePanelEl: HTMLElement | null = null;
@@ -147,6 +150,7 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
   public fumbledDieIdx = signal<number | null>(null);
   public rerolledDieIdx = signal<number | null>(null);
   public hasAutomaticFumbleRerolled = false;
+  public hasCriticalRerollResolved = false;
 
   // Slot Machine state
   public slotResultSig = signal<SlotMachineResultDto | null>(null);
@@ -517,6 +521,23 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
   public readonly MAX_ROULETTE_STEPS = 50;
   public rouletteStepCount = signal(0);
   public rouletteSkipped = signal(false);
+  public checkPartnerUsername(username: string): void {
+    if (!username || username.trim() === '') {
+      this.roulettePartnerUserFound.set(null);
+      return;
+    }
+    this.rouletteCheckingPartnerUser.set(true);
+    this.discoveryService.apiV1DiscoveryCheckUserUsernameGet(username.trim()).subscribe({
+      next: (res) => {
+        this.rouletteCheckingPartnerUser.set(false);
+        this.roulettePartnerUserFound.set(res.exists);
+      },
+      error: () => {
+        this.rouletteCheckingPartnerUser.set(false);
+        this.roulettePartnerUserFound.set(false);
+      }
+    });
+  }
 
   public spellRoulette(): void {
     if (!this.auth.isAuthenticated()) { this.modalService.openAuthModal(); return; }
@@ -565,7 +586,10 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
         this.rawRouletteWinner.set(winner);
         this.rawRouletteWinners.set(winners);
         
-        this.rouletteRaceIndex = 0;
+        const isThresholdRace = this.rouletteThreshold() > 1;
+        const startIndex = seq.filter(s => s.selectionMechanismMetadata === 'Initial candidate').length;
+        this.rouletteRaceStartIndex = isThresholdRace ? startIndex : 0;
+        this.rouletteRaceIndex = this.rouletteRaceStartIndex;
         this.rouletteStepCount.set(0);
         this.rouletteLeaderboard.set([]);
         this.audioService.playLeverPull();
@@ -582,7 +606,7 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
     this.rouletteSkipped.set(true);
     const winner = this.rawRouletteWinner();
     this.rouletteRaceIndex = this.rouletteSequenceSig().length - 1;
-    this.rouletteStepCount.set(this.rouletteRaceIndex);
+    this.rouletteStepCount.set(this.rouletteSequenceSig().length - this.rouletteRaceStartIndex);
     this.rouletteWinnerTitleSig.set(winner?.title || '');
     this.rouletteIsRacing.set(true);
   }
@@ -605,10 +629,10 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
 
     const currentRoll = seq[this.rouletteRaceIndex];
     this.rouletteWinnerTitleSig.set(currentRoll.title || '');
-    this.rouletteStepCount.set(this.rouletteRaceIndex + 1);
+    this.rouletteStepCount.set(this.rouletteRaceIndex - this.rouletteRaceStartIndex + 1);
 
     // Trigger rouletteIsRacing to true for the first step, or trigger a re-spin
-    if (this.rouletteRaceIndex === 0) {
+    if (this.rouletteRaceIndex === this.rouletteRaceStartIndex) {
       this.rouletteIsRacing.set(true);
     }
   }
@@ -633,7 +657,7 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
     if (isThresholdRace) {
       // Update leaderboard counts up to this completed roll
       const counts: Record<string, number> = {};
-      for (let i = 0; i <= this.rouletteRaceIndex; i++) {
+      for (let i = this.rouletteRaceStartIndex; i <= this.rouletteRaceIndex; i++) {
         const title = seq[i].title || 'Unknown';
         counts[title] = (counts[title] || 0) + 1;
       }
@@ -733,6 +757,7 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
         return;
       }
       this.pendingCriticalChoice.set(false);
+      this.hasCriticalRerollResolved = true;
       this.diceSpecialStatusMsg.set(null);
       this.triggerSingleReroll(idx);
       return;
@@ -867,6 +892,7 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
     this.fumbledDieIdx.set(null);
     this.rerolledDieIdx.set(null);
     this.hasAutomaticFumbleRerolled = false;
+    this.hasCriticalRerollResolved = false;
   }
 
   public onDiceFinished(): void {
@@ -920,7 +946,7 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
     }
 
     // Handle Critical Rolls (user picks a die to reroll)
-    if (criticalIndices.length > 0 && !this.pendingCriticalChoice()) {
+    if (criticalIndices.length > 0 && !this.pendingCriticalChoice() && !this.hasCriticalRerollResolved) {
       const otherDiceIndices = [0, 1, 2, 3, 4].filter(idx => !criticalIndices.includes(idx));
       if (otherDiceIndices.length > 0) {
         const diceNames = ['Duration (D3)', 'Popularity (D4)', 'Risk (D6)', 'Quality (D12)', 'Genre (D20)'];
@@ -1351,6 +1377,19 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
       document.exitFullscreen().then(() => {
         this.rouletteIsFullscreen.set(false);
       });
+    }
+  }
+
+  @HostListener('window:keydown.escape', ['$event'])
+  handleEscapeKey(event: any) {
+    if (this.winnerModalMovies().length > 0) {
+      this.closeWinnerModal();
+    }
+    if (this.showCandidatesModal()) {
+      this.showCandidatesModal.set(false);
+    }
+    if (this.showConfirmModal()) {
+      this.showConfirmModal.set(false);
     }
   }
 }

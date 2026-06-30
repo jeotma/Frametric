@@ -18,5 +18,7 @@ export interface SelectionResultDto {
     posterUrl?: string | null;
     runtimeMinutes?: number | null;
     overview?: string | null;
+    inCurrentUserWatchlist?: boolean | null;
+    inPartnerUserWatchlist?: boolean | null;
 }
 

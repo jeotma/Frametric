@@ -1,4 +1,4 @@
-﻿// Frametric — Cinematic Analytics Platform
+// Frametric — Cinematic Analytics Platform
 // Copyright (C) 2026 Jesús J. Otero Martínez <jesusoteromartinez@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,5 +16,7 @@ public record SelectionResultDto(
     string SelectionMechanismMetadata,
     string? PosterUrl = null,
     int? RuntimeMinutes = null,
-    string? Overview = null
+    string? Overview = null,
+    bool? InCurrentUserWatchlist = null,
+    bool? InPartnerUserWatchlist = null
 );

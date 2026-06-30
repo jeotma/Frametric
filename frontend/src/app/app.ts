@@ -1,4 +1,4 @@
-import { Component, signal, inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, signal, inject, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { RouterOutlet, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -263,6 +263,13 @@ export class App {
           input.value = '';
         }, 2500);
       }
+    }
+  }
+
+  @HostListener('window:keydown.escape', ['$event'])
+  handleEscapeKey(event: any) {
+    if (this.modalService.showAuthModal()) {
+      this.modalService.closeAuthModal();
     }
   }
 }

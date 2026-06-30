@@ -190,6 +190,8 @@ public class RouletteSelectionQueryHandler : IRequestHandler<RouletteSelectionQu
             metadata,
             selected.PosterUrl,
             selected.RuntimeMinutes,
-            selected.Overview);
+            selected.Overview,
+            selected.InCurrentUserWatchlist,
+            selected.InPartnerUserWatchlist);
     }
 }

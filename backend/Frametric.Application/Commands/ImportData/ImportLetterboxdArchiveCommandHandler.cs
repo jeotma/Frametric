@@ -167,6 +167,36 @@ public class ImportLetterboxdArchiveCommandHandler : IRequestHandler<ImportLette
             existingWatchedSet.Add(key);
         }
 
+        // Remove movies from watchlist if they are now watched
+        var watchedMovieIds = new HashSet<Guid>();
+        foreach (var item in existingWatchedSet)
+        {
+            watchedMovieIds.Add(item.MovieId);
+        }
+        foreach (var item in existingDiarySet)
+        {
+            watchedMovieIds.Add(item.MovieId);
+        }
+        foreach (var entry in exportData.DiaryEntries)
+        {
+            var movie = GetOrCreateMovie(entry.Name, entry.Year);
+            watchedMovieIds.Add(movie.Id);
+        }
+        foreach (var watchedItem in exportData.Watched)
+        {
+            var movie = GetOrCreateMovie(watchedItem.Name, watchedItem.Year);
+            watchedMovieIds.Add(movie.Id);
+        }
+
+        var watchlistItemsToRemove = await _context.WatchlistItems
+            .Where(w => w.UserId == request.UserId && watchedMovieIds.Contains(w.MovieId))
+            .ToListAsync(cancellationToken);
+
+        if (watchlistItemsToRemove.Any())
+        {
+            _context.WatchlistItems.RemoveRange(watchlistItemsToRemove);
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
         
         // Disparar el enriquecimiento en background tras una importación exitosa
