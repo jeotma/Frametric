@@ -35,11 +35,11 @@ public class ResendEmailService : IEmailService
 
     public async Task SendPasswordResetEmailAsync(string toEmail, string resetLink, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Initiating password reset email to {Email}", toEmail);
+        _logger.LogInformation("Initiating password reset email to {Email}", MaskEmail(toEmail));
         
         if (_resend == null)
         {
-            _logger.LogWarning("[MOCK EMAIL] Password Reset Link: {Link}", resetLink);
+            _logger.LogWarning("[MOCK EMAIL] Password reset link generated (not dispatched — Resend not configured).");
             return;
         }
 
@@ -70,8 +70,8 @@ public class ResendEmailService : IEmailService
         var targetEmail = Environment.GetEnvironmentVariable("PROMOTION_NOTIFICATION_EMAIL") 
             ?? _configuration["Email:PromotionNotificationEmail"];
 
-        _logger.LogInformation("[AUDIT] User {Username} ({Email}) was promoted to {Role} by {PromotedBy}.", 
-            promotedUsername, promotedEmail, newRole, promotedBy);
+        _logger.LogInformation("[AUDIT] User {Username} ({Email}) was promoted to {Role} by {PromotedBy}.",
+            MaskUsername(promotedUsername), MaskEmail(promotedEmail), newRole, promotedBy);
 
         if (string.IsNullOrWhiteSpace(targetEmail))
         {
@@ -81,8 +81,8 @@ public class ResendEmailService : IEmailService
 
         if (_resend == null)
         {
-            _logger.LogInformation("[MOCK EMAIL / AUDIT LOGGED] To: {TargetEmail} - Privilege Escalation - User {Username} promoted to {Role} by {PromotedBy}", 
-                targetEmail, promotedUsername, newRole, promotedBy);
+            _logger.LogInformation("[MOCK EMAIL / AUDIT LOGGED] Privilege Escalation — User {Username} promoted to {Role} by {PromotedBy} (email dispatch skipped).",
+                MaskUsername(promotedUsername), newRole, promotedBy);
             return;
         }
 
@@ -129,11 +129,27 @@ public class ResendEmailService : IEmailService
             };
 
             await _resend.EmailSendAsync(message);
-            _logger.LogInformation("Promotion notification email sent successfully via Resend to {TargetEmail}.", targetEmail);
+            _logger.LogInformation("Promotion notification email sent successfully via Resend.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send promotion email via Resend to {TargetEmail}.", targetEmail);
+            _logger.LogError(ex, "Failed to send promotion notification email via Resend.");
         }
+    }
+
+    /// <summary>Masks an email address for safe logging: e.g. "user@example.com" → "u***@example.com".</summary>
+    private static string MaskEmail(string? email)
+    {
+        if (string.IsNullOrWhiteSpace(email)) return "***";
+        var atIdx = email.IndexOf('@');
+        if (atIdx <= 0) return "***";
+        return email[0] + "***" + email[atIdx..];
+    }
+
+    /// <summary>Masks a username for safe logging, preserving only the first character.</summary>
+    private static string MaskUsername(string? username)
+    {
+        if (string.IsNullOrWhiteSpace(username)) return "***";
+        return username[0] + "***";
     }
 }
