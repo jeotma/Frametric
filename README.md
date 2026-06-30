@@ -45,9 +45,9 @@ Most movie trackers focus on the micro-interactions of logging. Frametric treats
 *Figure 2: Advanced statistics panel showing tabular distributions, multi-column sorting, and cross-filtering.*
 
 ### 2.4. Decision-Fatigue Mitigation Suite (Playful Discovery)
-* **Cinematic Roulette:** An SVG-rendered spinning movie reel with realistic pointer tick vibrations and decelerations to select random unwatched films.
+* **Cinematic Roulette:** An SVG-rendered spinning movie reel with realistic pointer tick vibrations and decelerations to select random unwatched films. Supports a **Partner Mode** where two users' watchlists are merged, with watchlist membership indicators on each result card.
 * **Polyhedral Dice System:** Renders unique D3 (Duration), D4 (Rarity/Popularity), D6 (Risk), D12 (Quality), and D20 (Genre) SVG dice. If filters return no match, constraints relax in a round-robin loop, rendering the deviation on a HUD calibration banner.
-* **3D Slot Machine:** Metal cabinet slot reels matching Genre, Decade, Director, Duration, and Country configurations, complete with lever animations and jackpot diagnostics.
+* **3D Slot Machine:** Metal cabinet slot reels matching Genre, Decade, Director, Duration, and Country configurations, complete with lever animations and jackpot diagnostics. Country matching uses normalized aliases (e.g., USA/United States, UK/United Kingdom).
 * **Film Canisters:** Retro metallic canisters that pop open with animations to reveal mystery recommendations.
 * **Cinematic Bingo:** Generates 3x3, 4x4, and 5x5 boards with custom cinephile challenges, dynamically evaluating user logs to mark squares as completed.
 
@@ -179,8 +179,8 @@ Frametric/
 ```
 
 For detailed specifications, see:
-* [TechnicalArchitectureAndProjectPlanning.md](file:///C:/Users/JJ/Documents/PersonalProjects/Frametric/docs/TechnicalArchitectureAndProjectPlanning.md)
-* [endpoints.md](file:///C:/Users/JJ/Documents/PersonalProjects/Frametric/docs/api/endpoints.md)
-* [domain-model.md](file:///C:/Users/JJ/Documents/PersonalProjects/Frametric/docs/database/domain-model.md)
-* [recommendation-strategies.md](file:///C:/Users/JJ/Documents/PersonalProjects/Frametric/docs/architecture/recommendation-strategies.md)
-* [mvp_v2.md](file:///C:/Users/JJ/Documents/PersonalProjects/Frametric/docs/requirements/mvp_v2.md)
+* [TechnicalArchitectureAndProjectPlanning.md](docs/TechnicalArchitectureAndProjectPlanning.md)
+* [endpoints.md](docs/api/endpoints.md)
+* [domain-model.md](docs/database/domain-model.md)
+* [recommendation-strategies.md](docs/architecture/recommendation-strategies.md)
+* [mvp_v2.md](docs/requirements/mvp_v2.md)

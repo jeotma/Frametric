@@ -1,6 +1,6 @@
 # API Endpoints Specification
 
-This document details the REST API endpoints exposed by the backend services. Most endpoints are prefixed with `/api/`, while the recommendations and discovery endpoints are prefixed with `/api/v1/`. All endpoints are secured via JWT Bearer authentication (where noted).
+This document details the REST API endpoints exposed by the backend services. All endpoints are prefixed with `/api/v1/`. All endpoints are secured via JWT Bearer authentication (where noted).
 
 ---
 
@@ -470,6 +470,14 @@ Requires authentication.
 - **Responses**:
   - `200 OK`: Returns the updated `BingoGridDto`.
   - `400 BadRequest`: If the objective is already completed, the user has exceeded their grid-size reroll limit, or the objective does not exist.
+
+### **GET** `/api/v1/discovery/check-user/{username}`
+
+- **Description**: Checks whether a registered user exists with the given username. Used to validate the partner username field in the Partner Scope discovery modes before running selection.
+- **Parameters**:
+  - `username` (`string` in route)
+- **Responses**:
+  - `200 OK`: Returns `{ "exists": true }` or `{ "exists": false }`.
 
 ---
 

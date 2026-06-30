@@ -50,7 +50,7 @@ User ZIP Upload -> Ingestion Layer -> Normalization Layer -> Persistence Layer -
 * **PostgreSQL:** Chosen for its advanced relational performance, heavy aggregation indexing, and native `JSONB` support for schema flexibility.
 * **Redis:** Configured as a distributed caching layer (via StackExchange.Redis), falling back to in-memory distributed cache if no connection string is provided.
 
-### Frontend (Angular 21+)
+### Frontend (Angular 19)
 
 * **Architecture:** Standalone Component Architecture.
 * **State Management:** Signal-based reactive state, keeping global state management minimal.

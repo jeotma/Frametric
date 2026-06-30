@@ -4,7 +4,75 @@ All notable changes to **Frametric** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.3] — 2026-06-30
+
+Partner Mode Discovery: watchlist merging, partner validation, and roulette enhancements.
+
+### Added
+
+- **Partner Mode Username Validation**: Partner username input in Roulette now live-validates whether the target user exists via `GET /api/v1/discovery/check-user/{username}`, displaying a ✓ (found) or ✗ (not found) indicator and a helper text message in real time.
+- **`check-user` Endpoint**: New `GET /api/v1/discovery/check-user/{username}` endpoint in `DiscoveryController` returning `{ exists: bool }`.
+- **Watchlist Indicators in Roulette Results**: When using Partner Scope (scope 4), each result card displays whether the film is in the current user's watchlist, the partner's watchlist, or both.
+- **`InCurrentUserWatchlist` / `InPartnerUserWatchlist` on SelectionResultDto**: `DiscoveryQueriesImpl` now inlines SQL `EXISTS` subqueries in the movie pool query to populate these fields, propagated through all selection handlers and the frontend `SelectionResultDto` model.
+- **Roulette Wheel Audio Ticks**: The SVG roulette wheel emits pointer click/tick sounds via `DiscoveryAudioService` as the wheel decelerates, with volume proportional to spin speed.
+
+### Changed
+
+- **Roulette Race Start Index**: When using Persistence Threshold (threshold > 1), the race counter now starts from the first non-"Initial candidate" step, so the progress bar and step count reflect the actual competition phase, not setup rolls.
+- **Roulette Wheel Colors**: Wheel sector colors updated to slightly brighter, more cinematic values (`#59595c`, `#947b4c`, `#92272c`, `#1e6248`).
+
+### Fixed
+
+- **Slot Machine Country Normalization**: Country matching now uses a `MatchCountry()` normalizer equating `USA` / `United States` / `United States of America` and `UK` / `United Kingdom` / `Great Britain` / `England`, fixing country filter mismatches when movie data uses full country names.
+- **Dice Critical Reroll Loop**: Added `hasCriticalRerollResolved` guard flag to prevent the critical-roll handler from re-triggering after the user has already selected a die to reroll.
+
+---
+
+## [1.6.2] — 2026-06-28
+
+UX bug fixes: sidebar collapse, dashboard mock data, stats date formatting, and search result overlay.
+
+### Added
+
+- **Auto-remove Watched from Watchlist on Import**: `ImportLetterboxdArchiveCommandHandler` now automatically removes from the user's watchlist any movies that appear in the diary or watched CSV of the same import batch.
+- **Back-to-Site Link**: Login and register pages now show a subtle "← BACK TO SITE" link styled in sepia mono font.
+- **ESC Key Handlers**: Pressing Escape now closes the Kevin Bacon modal (Stats), winner/candidates/confirm modals (Discovery), and the custom selection save modal.
+
+### Changed
+
+- **Route Cache Cleared on Login/Logout**: `CustomRouteReuseStrategy` now exposes a static `clearCache()` method, invoked on login and logout to prevent stale cached views from a previous session being served.
+- **Route Cache Excludes Auth Pages**: Auth routes (`login`, `register`, `forgot-password`, `reset-password`) are explicitly excluded from the Angular route reuse cache.
+- **Next Screening Slot Count Resize Timing**: Grid size class `.grid-10` is now bound to `recommendations().length` (actual response size) instead of `selectedQuantity()` (form value), so card layout only adjusts after generation completes.
+
+### Fixed
+
+- **Dashboard Grid with No Imports**: The dashboard statistics grid is now gated on `hasSuccessfulImport()`, preventing mock statistics from displaying for authenticated users with no data.
+- **Sidebar Collapsed User Menu**: The user profile popup menu now positions itself correctly in collapsed sidebar state (50px width), floating to the right instead of being clipped.
+- **Search Result Overlay Blur on Library Movies**: The enrichment loader overlay now requires `enrichLoadingId() !== null` before comparing IDs, fixing the dark/blur covering local Library results whose `tmdbId` is `null`.
+- **Stats Date Formatting and Casting Repetitions Layout**: Improved date formatting on stats tables and inline photo display for casting repetition entries.
+- **Most Anticipated Director Card**: Director name and clickable photo link are now correctly displayed in the Most Anticipated Director stat card.
+
+---
+
+## [1.6.1] — 2026-06-28
+
+Backend reliability and stats query fixes.
+
+### Added
+
+- **SuperAdminNotificationListener Keepalive**: PostgreSQL notification listener now uses a dedicated `NpgsqlDataSource` with `DirectConnection` to avoid shared pool conflicts and reconnects automatically with a 10-second retry delay on lost connections.
+- **Import History Polling Optimization**: Import Center polls import history only while there are active `Enriching` imports, eliminating unnecessary periodic API calls.
+
+### Fixed
+
+- **Advanced Analytics `/api/v1/` Prefix**: `AdvancedAnalyticsController` was missing the `/api/v1/` route prefix, causing all advanced stats queries to return 404 from the production frontend.
+- **E2E Test Selectors**: Fixed strict locator conflicts in `features.spec.ts` (`.range-slider`) and `generate_screenshots.spec.ts` (query input selectors), restoring the full 24-test green suite.
+- **Playwright Audio**: E2E test runs now default to muted audio via `launchOptions.args: ['--mute-audio']` in `playwright.config.ts`.
+
+---
+
 ## [1.6.0] — 2026-06-21
+
 
 Phase 7 Release: Polish, Performance, and Security.
 
