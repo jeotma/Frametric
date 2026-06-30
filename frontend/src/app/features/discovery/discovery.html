@@ -495,16 +495,7 @@
       </div>
     </div>
 
-    <!-- Race progress + skip button -->
-    <div *ngIf="rouletteThreshold() > 1 && rouletteIsRacing() && rouletteStepCount() > 0" class="roulette-progress animate-fade-in" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 8px;">
-      <span class="hud-data">
-        <span class="hud-label">RACE PROGRESS:</span>
-        <span>{{ rouletteStepCount() }} / {{ rouletteSequenceSig().length - rouletteRaceStartIndex }}</span>
-      </span>
-      <button class="btn btn-secondary" style="font-size: 0.8rem; padding: 4px 12px;" (click)="skipRouletteRace()" [disabled]="rouletteSkipped()">
-        ⏭ Skip to Result
-      </button>
-    </div>
+
 
     <div *ngIf="rouletteWinnerSig() as movie" class="result-card crosshair-bracket animate-slide-up winner-card" style="border-color: var(--accent-sepia); background: rgba(226, 186, 100, 0.03);">
       <a [routerLink]="['/movies', movie.movieId]" class="poster-link">
