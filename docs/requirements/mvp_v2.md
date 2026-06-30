@@ -36,7 +36,7 @@ graph TD
 * **The Final Cut:** Spotify Wrapped-style slide deck displaying yearly metrics using premium CSS dark-mode gradients and SVG icons.
 
 ### 2.4. Interactive Discovery Suite
-* **Cinematic Roulette:** SVG-rendered spinning movie-reel wheel with realistic deceleration, selecting random movies with options like persistence thresholds.
+* **Cinematic Roulette:** SVG-rendered spinning movie-reel wheel with realistic deceleration, selecting random movies with options like persistence thresholds. Supports a **Partner Mode** where two users' watchlists are merged; result cards indicate whether each film is in the current user's watchlist, the partner's watchlist, or both. Partner username is validated in real-time before spinning.
 * **Polyhedral Dice System:** SVG-based D3 (Duration), D4 (Popularity), D6 (Risk), D12 (Quality), and D20 (Genre) rollers. If no exact candidate is found, constraints relax sequentially, returning a distance value that drives a HUD match calibration banner.
 * **3D Slot Machine:** Curated reels (Genre, Decade, Director, Duration, Country) supporting manual overrides, metallic cabinet styling, and jackpot triggers.
 * **Mystery Box Canisters:** Visual retro film canisters that pop open with animations (flying lids, shaking, poster emergence) to reveal movie suggestions.
