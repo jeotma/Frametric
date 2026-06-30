@@ -572,24 +572,20 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
         this.rouletteWinnerSig.set(null);
         this.rouletteWinnersSig.set([]);
         
-        // Truncate sequence to prevent infinite spinning — keep first N + winner
+        // Truncate sequence to prevent infinite spinning — keep first MAX_ROULETTE_STEPS entries + winner
         const winners = r.winners || (r.winner ? [r.winner] : []);
         const winner = winners[0] || r.winner || r.spinSequence[r.spinSequence.length - 1];
         let seq = r.spinSequence;
         if (this.rouletteThreshold() > 1 && seq.length > this.MAX_ROULETTE_STEPS) {
-          const poolSlices = seq.filter(s => s.selectionMechanismMetadata === 'Initial candidate');
-          const raceSlices = seq.slice(poolSlices.length, this.MAX_ROULETTE_STEPS - poolSlices.length);
-          seq = [...poolSlices, ...raceSlices, winner];
+          seq = [...seq.slice(0, this.MAX_ROULETTE_STEPS - 1), winner];
         }
         this.rouletteSequenceSig.set(seq);
         
         this.rawRouletteWinner.set(winner);
         this.rawRouletteWinners.set(winners);
         
-        const isThresholdRace = this.rouletteThreshold() > 1;
-        const startIndex = seq.filter(s => s.selectionMechanismMetadata === 'Initial candidate').length;
-        this.rouletteRaceStartIndex = isThresholdRace ? startIndex : 0;
-        this.rouletteRaceIndex = this.rouletteRaceStartIndex;
+        this.rouletteRaceStartIndex = 0;
+        this.rouletteRaceIndex = 0;
         this.rouletteStepCount.set(0);
         this.rouletteLeaderboard.set([]);
         this.audioService.playLeverPull();
@@ -629,10 +625,10 @@ export class DiscoveryComponent implements OnInit, OnDestroy {
 
     const currentRoll = seq[this.rouletteRaceIndex];
     this.rouletteWinnerTitleSig.set(currentRoll.title || '');
-    this.rouletteStepCount.set(this.rouletteRaceIndex - this.rouletteRaceStartIndex + 1);
+    this.rouletteStepCount.set(this.rouletteRaceIndex + 1);
 
     // Trigger rouletteIsRacing to true for the first step, or trigger a re-spin
-    if (this.rouletteRaceIndex === this.rouletteRaceStartIndex) {
+    if (this.rouletteRaceIndex === 0) {
       this.rouletteIsRacing.set(true);
     }
   }

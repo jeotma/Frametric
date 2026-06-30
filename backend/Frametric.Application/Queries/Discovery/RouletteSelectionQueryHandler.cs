@@ -108,12 +108,6 @@ public class RouletteSelectionQueryHandler : IRequestHandler<RouletteSelectionQu
         var counts = new Dictionary<Guid, int>();
         var winners = new List<SelectionResultDto>();
         var winnerIds = new HashSet<Guid>();
-        
-        // Add all elements from the pool to the sequence first so the client can extract the full set of slices
-        foreach (var movie in pool)
-        {
-            sequence.Add(MapToDto(movie, "Initial candidate", request.CustomAliases));
-        }
 
         int targetWinnerCount = request.AllowMultipleWinners ? Math.Max(1, request.WinnerCount) : 1;
 
